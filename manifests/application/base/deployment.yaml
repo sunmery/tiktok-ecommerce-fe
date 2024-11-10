@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tiktok-fe
+  labels:
+    app: tiktok-fe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tiktok-fe
+  template:
+    metadata:
+      name: tiktok-fe
+      labels:
+        app: tiktok-fe
+    spec:
+      containers:
+        - name: tiktok-fe
+          image: example
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+            - name: http3
+              containerPort: 443
+              protocol: TCP
+            - name: quic
+              containerPort: 8443
+              protocol: UDP
+      restartPolicy: Always

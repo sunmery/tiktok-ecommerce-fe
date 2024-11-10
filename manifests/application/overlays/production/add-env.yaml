@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tiktok-fe
+spec:
+  template:
+    spec:
+      # conf是配置文件,ssl是证书文件, 使用卷形式更契合
+      # 先声明卷, 在绑定卷
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: nginx-conf
+        - name: nginx-ssl
+          secret:
+            secretName: nginx-ssl
+      containers:
+        - name: tiktok-fe
+          # 挂载到容器内部对应的配置文件路径
+          volumeMounts:
+            - mountPath: /etc/nginx/conf.d/
+              name: nginx-conf
+            - mountPath: /etc/nginx/ssl/
+              name: nginx-ssl
