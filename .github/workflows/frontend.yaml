@@ -70,7 +70,7 @@ jobs:
         # 自动下载pnpm
         # 注意：pnpm 缓存支持需要 pnpm 版本 >= 6.10.0
         run: |
-          # npm install -g pnpm@latest
+          npm install -g pnpm@latest
           #pnpm test
           # 只安装锁文件的依赖. pnpm 实现的等效npm ci, 即只根据pnpm-lock.yaml的依赖进行安装
           pnpm install --frozen-lockfile
