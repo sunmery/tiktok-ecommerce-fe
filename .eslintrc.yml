@@ -1,0 +1,49 @@
+root: true
+env:
+  browser: true
+  es2021: true
+  node: true
+  # mocha: true,
+  # jest: true,
+  # jquery: true
+#globals:
+# Your global variables (setting to false means its not allowed to be reassigned)
+#
+# myGlobal: false
+extends:
+  - alloy
+  - alloy/react
+  - alloy/typescript
+  - plugin:react/recommended
+  - plugin:react/jsx-runtime
+  - plugin:markdown/recommended-legacy
+  - plugin:jsdoc/recommended-typescript-error
+  - plugin:@tanstack/query/recommended
+
+#overrides:
+#  #- extends:
+#    #- xo-typescript
+#  files:
+#    - **/*.js
+#    - **/*.ts
+#    - **/*.tsx
+#    - **/*.md
+
+parserOptions:
+  ecmaVersion: latest
+  sourceType: module
+  ecmaFeatures:
+    jsx: true
+
+plugins:
+  - react
+  - prettier
+  - jsdoc
+
+rules:
+  prettier/prettier: error
+
+settings:
+  react:
+    pragma: React
+    version: detect

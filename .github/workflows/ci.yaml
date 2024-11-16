@@ -1,0 +1,91 @@
+# 工作流名称
+name: Frontend CD Deploy
+# 工作流运行时显示名称
+run-name: ${{ github.actor }} is GitHub Actions
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  build:
+    # 将作业配置为在最新版本的Ubuntu Linux运行程序上运行,
+    # 注意此处不是Docker Hub中的ubuntu:latest, 而是Github中自己的虚拟主机。
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # 使用 actions 脚本，创建一个 node 运行环境并使用with参数指定了node版本为 14
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+        # 安装依赖
+        #- name: Installing Dependencies
+        # 如果命中缓存，就不需要安装依赖，使用缓存即可
+        #if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        #run: npm install
+      # 打包
+      - name: Build Web
+        run: | 
+          npm i -g pnpm
+          pnpm i
+          pnpm build
+
+      # 为node_modules设置缓存
+      - name: Cache
+        # 缓存命中结果会存储在steps.[id].outputs.cache-hit里，该变量在继后的step中可读
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          # 缓存文件目录的路径
+          path: |
+            **/node_modules
+          key: ${{runner.OS}}
+
+      #      # 产物上传服务器
+      #      - name: Upload to Deploy Server
+      #        uses: easingthemes/ssh-deploy@v2.0.7
+      #        env:
+      #          # 免密登录的秘钥
+      #          SSH_PRIVATE_KEY: ${{ secrets.D_PASS }}
+      #          # 服务器登录用户名
+      #          REMOTE_USER: ${{ secrets.D_USER }}
+      #          # 服务器的公网IP
+      #          REMOTE_HOST: ${{ secrets.D_HOST }}
+      #          # 你打包后产物的文件夹
+      #          SOURCE: "vuepress/"
+      #          # 先清空目标目录
+      #          ARGS: "-avzr --delete"
+      #          # 上传到服务器目标目录
+      #          TARGET: "/www/vuepress"
+
+
+
+#  deploy:
+#    needs: build-and-push
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+#
+#      - name: Install ArgoCD CLI
+#        run: |
+#          curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.0.5/argocd-linux-amd64
+#          chmod +x /usr/local/bin/argocd
+#
+#      - name: Login to ArgoCD
+#        run: argocd login ${{ secrets.ARGOCD_SERVER }} --username ${{ secrets.ARGOCD_USER }} --password ${{ secrets.ARGOCD_PASSWORD }}
+#
+#      - name: Update image and sync app
+#        run: |
+#          argocd app set ${{ github.repository }} --image ${{ secrets.HARBOR_ADDRESS }}/${{ github.repository }}:${{ github.ref_name }}
+#          argocd app sync ${{ github.repository }}

@@ -1,0 +1,132 @@
+# head: <type>(<scope>): <subject>
+# - type: feat, fix, docs, style, refactor, test, chore
+# - scope: can be empty (eg. if the change is a global or difficult to assign to a single component)
+# - subject: start with verb (such as 'change'), 50-character line
+#
+# body: 72-character wrapped. This should answer:
+# body commit type:
+## build
+# **影响构建组件的修改, 如增加了依赖,删除依赖,项目版本迭代**
+# - :heavy_plus_sign: 添加依赖
+# - :heavy_minus_sign: 删除依赖
+# - :arrow_up: 升级依赖包
+# - :arrow_down: 降低依赖包
+# - :pushpin: 锁定版本
+# - :rocket: 项目部署
+# - :tada: 开始/发布项目
+#
+# ## chore
+# **构建流程, 辅助工具的更改, 例如修改webpack配置, env环境变量**
+# - :closed_lock_with_key: 添加env密钥参数
+# - ci CI工具的修改
+# - :construction_worker: 添加更新CI构建
+# - :green_heart: 修复CI打包
+# - :wrench: 添加或更新env配置文件
+# - :hammer: 添加scripts脚本指令
+#
+# ## docs
+# **文档修改**
+# - :memo: 添加更新文档
+#
+# ## feat
+# **添加了新功能/特性**
+# - :sparkles: 新特性
+# - :lipstick: UI页面添加或更新
+# - :chart_with_upwards_trend: 添加分析跟踪或描点
+# - :globe_with_meridians: 国际化支持
+# - :boom: 破坏性更改
+# - :speech_balloon: 添加更新文本文字
+# - :clown_face: Mock 模拟数据
+# - :label: 添加或更新类型
+# - :triangular_flag_on_post: 添加,更新.删除特性标志
+# - :dizzy: 添加更新动画
+# - :bricks: 添加基础建设(工程化)
+# - :thread: 添加多线程/并发代码
+# - :safety_vest: 添加与验证相关的代码
+#
+# ## fix
+# **错误修改**
+#
+# - :pencil2: 修复拼写问题
+# - :bug: 修复Bug
+# - :lock: 修复安全问题
+# - :rotating_light: 修复编辑器/lint/警告
+# - :goal_net: 捕获错误
+# - :adhesive_bandage: 修复一个简单问题
+# - :necktie: 添加业务逻辑
+# - :thread: 修复多线程/并发代码
+# - :fire: 删除代码
+#
+# ## perf
+# **优化,提升性能/体验**
+#
+# - :zap: 提高性能
+# - :art: 改进代码
+# - :arrow_down: 降级/降级锁包
+# - :recycle: 重构代码
+# - :poop: 改进垃圾代码
+# - :alien: 因为外部API更改而修改的变动
+# - :truck: 移动静态资源或路由路径
+# - :wheelchair: 提高可访问性
+# - :children_crossing: 提供用户体验/可用性
+# - :mag: SEO优化
+# - :bulb: 添加修改注释
+# - :iphone: JS响应式设计
+# - :passport_control: 处理授权,角色,权限相关的代码
+# - :coffin: 删除死代码
+# - :necktie: 更新业务逻辑
+# - :bricks: 优化基建
+# - :technologist: 改善开发者体验
+# - :thread: 优化多线程/并发代码
+# - :safety_vest: 优化与验证相关的代码
+# - :ambulance: 关键的修复
+#
+# ## refactor
+# **代码重构的更改**
+#
+# - :building_construction: 架构更改
+# - :recycle: 重构
+#
+# ## revert
+# **还原之前的修改**
+#
+# - :rewind:  恢复之前的修改
+#
+# ## style
+# **样式更改**
+#
+# - :iphone: CSS响应式设计
+# - :dizzy: 添加更新动画
+#
+# ## test
+# **添加,修改现有测试代码**
+#
+# - :white_check_mark: 添加成功的测试
+# - :test_tube: 添加更新失败的测试
+#
+# ## 不方便分类
+# - :construction: 页面维护中
+# - :see_no_evil: `.gitignore`添加不提交的文件/目录
+# - :twisted_rightwards_arrows: 合并分支
+# - :package: 添加或更新已经打包好的文件
+# - :page_facing_up: 添加更新协议文件
+# - :bento: 添加assets静态资产内容
+# - :card_file_box: 数据库相关的更改
+# - :loud_sound: 添加更新日志
+# - :mute: 删除日志
+# - :busts_in_silhouette: 添加贡献者
+# - :egg: 添加彩蛋
+# - :camera_flash: 添加或更新快照
+# - :alembic: 完成实验
+# - :wastebasket: 弃用的代码
+# - :monocle_face: 校验数据
+# - :money_with_wings: 添加赞助
+# - :stethoscope: 添加测试成功的代码
+# * Why was this change necessary?
+# * How does it address the problem?
+# * Are there any side effects?
+#
+# footer:
+# - Include a link to the ticket, if any.
+# - BREAKING CHANGE
+#
