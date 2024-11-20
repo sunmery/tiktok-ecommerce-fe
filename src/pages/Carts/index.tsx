@@ -1,28 +1,46 @@
-import {Box} from '@mui/joy'
-
+import {cartStore} from '@/store/cartStore'
 import {useSnapshot} from 'valtio/react'
-import cartsStore from '@/store/carts.ts'
+import {useMemo} from 'react'
 
 /**
  *@returns JSXElement
  */
-export default function Carts() {
-	const {carts} = useSnapshot(cartsStore)
+export default function Cart() {
+	const {items} = useSnapshot(cartStore)
+
+	useMemo(() => {
+		console.log(items)
+	}, [items])
+
+	const removeItem = (id: number) => {
+		cartStore.removeItem(id)
+	}
+
+	const clearCart = () => {
+		cartStore.clearCart()
+	}
+
 	return (
-		<Box>
-			{carts.length > 0 && (
-				<>
-					<h3>Shopping Cart</h3>
+		<div>
+			<h2>Shopping Cart</h2>
+			{items.length > 0 ? (
+				<div>
 					<ul>
-						{carts.map((item, index) => (
-							<li key={index}>
-								Product ID: {item.id} - Quantity: {item.quantity} - Price:{' '}
-								{item.price}
+						{items.map((item) => (
+							<li key={item.id}>
+								<p>
+									Product ID: {item.id}, Price: ${item.price}, Quantity:{' '}
+									{item.quantity}
+								</p>
+								<button onClick={() => removeItem(item.id)}>Remove</button>
 							</li>
 						))}
 					</ul>
-				</>
+					<button onClick={clearCart}>Clear Cart</button>
+				</div>
+			) : (
+				<p>Your cart is empty.</p>
 			)}
-		</Box>
+		</div>
 	)
 }

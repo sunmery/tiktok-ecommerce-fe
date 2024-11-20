@@ -42,6 +42,7 @@ plugins:
 
 rules:
   prettier/prettier: error
+  max-params: ['error', 5]  # 添加这一行，限制函数参数数量不超过5个
 
 settings:
   react:
