@@ -3,14 +3,18 @@ import {proxy, subscribe} from 'valtio'
 // 定义购物车项的类型
 interface CartItem {
 	id: number
+	name: string
+	description?: string
+	picture?: string
 	price: number
 	quantity: number
+	categories?: string[]
 }
 
 // 定义购物车状态
 interface CartState {
 	items: CartItem[]
-	addItem: (id: number, price: number, quantity: number) => void
+	addItem: (id: number, name: string, price: number, quantity: number) => void
 	removeItem: (id: number) => void
 	clearCart: () => void
 }
@@ -21,12 +25,12 @@ const initialItems: CartItem[] = savedCart ? JSON.parse(savedCart) : []
 
 export const cartStore = proxy<CartState>({
 	items: initialItems,
-	addItem(id, price, quantity) {
+	addItem(id: number, name: string, price: number, quantity: number) {
 		const existingItem = cartStore.items.find((item) => item.id === id)
 		if (existingItem) {
 			existingItem.quantity += quantity
 		} else {
-			cartStore.items.push({id, price, quantity})
+			cartStore.items.push({id, name, price, quantity})
 		}
 	},
 	removeItem(id) {

@@ -17,11 +17,9 @@ import { Route as rootRoute } from './routes/__root'
 // Create Virtual Routes
 
 const IndexLazyImport = createFileRoute('/')()
-const RegisterIndexLazyImport = createFileRoute('/register/')()
 const ProfileIndexLazyImport = createFileRoute('/profile/')()
 const ProductsIndexLazyImport = createFileRoute('/products/')()
 const LogoutIndexLazyImport = createFileRoute('/logout/')()
-const LoginIndexLazyImport = createFileRoute('/login/')()
 const CartsIndexLazyImport = createFileRoute('/carts/')()
 const CallbackIndexLazyImport = createFileRoute('/callback/')()
 
@@ -31,13 +29,6 @@ const IndexLazyRoute = IndexLazyImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
-
-const RegisterIndexLazyRoute = RegisterIndexLazyImport.update({
-  path: '/register/',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() =>
-  import('./routes/register/index.lazy').then((d) => d.Route),
-)
 
 const ProfileIndexLazyRoute = ProfileIndexLazyImport.update({
   path: '/profile/',
@@ -55,11 +46,6 @@ const LogoutIndexLazyRoute = LogoutIndexLazyImport.update({
   path: '/logout/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/logout/index.lazy').then((d) => d.Route))
-
-const LoginIndexLazyRoute = LoginIndexLazyImport.update({
-  path: '/login/',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/login/index.lazy').then((d) => d.Route))
 
 const CartsIndexLazyRoute = CartsIndexLazyImport.update({
   path: '/carts/',
@@ -98,13 +84,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CartsIndexLazyImport
       parentRoute: typeof rootRoute
     }
-    '/login/': {
-      id: '/login/'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginIndexLazyImport
-      parentRoute: typeof rootRoute
-    }
     '/logout/': {
       id: '/logout/'
       path: '/logout'
@@ -126,13 +105,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileIndexLazyImport
       parentRoute: typeof rootRoute
     }
-    '/register/': {
-      id: '/register/'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterIndexLazyImport
-      parentRoute: typeof rootRoute
-    }
   }
 }
 
@@ -142,22 +114,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/callback': typeof CallbackIndexLazyRoute
   '/carts': typeof CartsIndexLazyRoute
-  '/login': typeof LoginIndexLazyRoute
   '/logout': typeof LogoutIndexLazyRoute
   '/products': typeof ProductsIndexLazyRoute
   '/profile': typeof ProfileIndexLazyRoute
-  '/register': typeof RegisterIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/callback': typeof CallbackIndexLazyRoute
   '/carts': typeof CartsIndexLazyRoute
-  '/login': typeof LoginIndexLazyRoute
   '/logout': typeof LogoutIndexLazyRoute
   '/products': typeof ProductsIndexLazyRoute
   '/profile': typeof ProfileIndexLazyRoute
-  '/register': typeof RegisterIndexLazyRoute
 }
 
 export interface FileRoutesById {
@@ -165,44 +133,24 @@ export interface FileRoutesById {
   '/': typeof IndexLazyRoute
   '/callback/': typeof CallbackIndexLazyRoute
   '/carts/': typeof CartsIndexLazyRoute
-  '/login/': typeof LoginIndexLazyRoute
   '/logout/': typeof LogoutIndexLazyRoute
   '/products/': typeof ProductsIndexLazyRoute
   '/profile/': typeof ProfileIndexLazyRoute
-  '/register/': typeof RegisterIndexLazyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/callback'
-    | '/carts'
-    | '/login'
-    | '/logout'
-    | '/products'
-    | '/profile'
-    | '/register'
+  fullPaths: '/' | '/callback' | '/carts' | '/logout' | '/products' | '/profile'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/callback'
-    | '/carts'
-    | '/login'
-    | '/logout'
-    | '/products'
-    | '/profile'
-    | '/register'
+  to: '/' | '/callback' | '/carts' | '/logout' | '/products' | '/profile'
   id:
     | '__root__'
     | '/'
     | '/callback/'
     | '/carts/'
-    | '/login/'
     | '/logout/'
     | '/products/'
     | '/profile/'
-    | '/register/'
   fileRoutesById: FileRoutesById
 }
 
@@ -210,22 +158,18 @@ export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   CallbackIndexLazyRoute: typeof CallbackIndexLazyRoute
   CartsIndexLazyRoute: typeof CartsIndexLazyRoute
-  LoginIndexLazyRoute: typeof LoginIndexLazyRoute
   LogoutIndexLazyRoute: typeof LogoutIndexLazyRoute
   ProductsIndexLazyRoute: typeof ProductsIndexLazyRoute
   ProfileIndexLazyRoute: typeof ProfileIndexLazyRoute
-  RegisterIndexLazyRoute: typeof RegisterIndexLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   CallbackIndexLazyRoute: CallbackIndexLazyRoute,
   CartsIndexLazyRoute: CartsIndexLazyRoute,
-  LoginIndexLazyRoute: LoginIndexLazyRoute,
   LogoutIndexLazyRoute: LogoutIndexLazyRoute,
   ProductsIndexLazyRoute: ProductsIndexLazyRoute,
   ProfileIndexLazyRoute: ProfileIndexLazyRoute,
-  RegisterIndexLazyRoute: RegisterIndexLazyRoute,
 }
 
 export const routeTree = rootRoute
@@ -243,11 +187,9 @@ export const routeTree = rootRoute
         "/",
         "/callback/",
         "/carts/",
-        "/login/",
         "/logout/",
         "/products/",
-        "/profile/",
-        "/register/"
+        "/profile/"
       ]
     },
     "/": {
@@ -259,9 +201,6 @@ export const routeTree = rootRoute
     "/carts/": {
       "filePath": "carts/index.lazy.tsx"
     },
-    "/login/": {
-      "filePath": "login/index.lazy.tsx"
-    },
     "/logout/": {
       "filePath": "logout/index.lazy.tsx"
     },
@@ -270,9 +209,6 @@ export const routeTree = rootRoute
     },
     "/profile/": {
       "filePath": "profile/index.lazy.tsx"
-    },
-    "/register/": {
-      "filePath": "register/index.lazy.tsx"
     }
   }
 }
