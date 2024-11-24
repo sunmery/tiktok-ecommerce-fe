@@ -29,6 +29,10 @@ export const Route = createRootRoute({
 					</ListItem>
 					<ListDivider />
 					<ListItem>
+						<Link to="/cards">My Cards</Link>
+					</ListItem>
+					<ListDivider />
+					<ListItem>
 						<Link to="/profile">My account</Link>
 					</ListItem>
 					<ListItem sx={{marginInlineStart: 'auto'}}>
@@ -38,6 +42,9 @@ export const Route = createRootRoute({
 									<MoreVert />
 								</MenuButton>
 								<Menu>
+									<MenuItem>
+										<Link to="/login">Login</Link>
+									</MenuItem>
 									<MenuItem>
 										<Link to="/profile">My account</Link>
 									</MenuItem>

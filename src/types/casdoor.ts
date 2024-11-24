@@ -1,19 +1,12 @@
 export interface Account {
-	id: number
-	organization: string
-	username: string
+	id: string
+	owner: string
 	type: string
 	name: string
 	avatar: string
 	email: string
-	phone: string
-	affiliation: string
-	tag: string
-	language: string
-	score: number
-	isAdmin: boolean
-	accessToken: string
 }
+
 export interface Role {
 	owner: string
 	name: string
@@ -24,6 +17,7 @@ export interface Role {
 	domains: string[]
 	isEnabled: boolean
 }
+
 export interface JwtPayload {
 	owner: string
 	name: string
@@ -109,6 +103,7 @@ export interface JwtPayload {
 	iat: number
 	jti: string
 }
+
 export interface Permission {
 	owner: string
 	name: string

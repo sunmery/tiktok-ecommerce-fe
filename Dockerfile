@@ -26,8 +26,6 @@ RUN npm config set registry https://registry.npmmirror.com
 RUN --mount=type=cache,target=/root/.npm \
     npm install -g pnpm@$PACK_VERSION
 
-RUN pnpm -v
-
 COPY package.json .
 
 # proxy
@@ -48,15 +46,8 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
 
 COPY . .
 
-RUN node -v
-RUN pnpm -v
-RUN ls /src
-RUN pwd
-
 # 打包
 RUN pnpm build
-RUN ls
-RUN ls /src/dist
 
 # 运行清理工作
 #RUN rm -rf node_modules
@@ -87,22 +78,14 @@ EXPOSE ${HTTPS_PORT}
 # 运行 nginx 服务
 CMD ["nginx", "-g", "daemon off;"]
 
-# 执行打包
-# --progress=plain: 构建过程中显示的详细信息的格式
-# --no-cache: 不使用缓存
-# -t: 标签, 例如: lisa/frontend:v2
-# frontend/ : 构建的目录, 相对于Dockerfile的路径, 与Docker相同的目录使用 . 表示当前目录
-# -f frontend/Dockerfile: 相对路径, 指定Dockerfile的路径
-# docker build --progress=plain --no-cache -t lisa/frontend:v2.0.0 .
+# docker build --progress=plain --no-cache -t team/frontend:dev .
+# docker buildx build --progress=plain --no-cache -t team/frontend:dev . --platform linux/amd64 --load
 
-# 运行示例
-# docker run -itd \
-# --name nginx-quic \
-# -v /home/docker/nginx/ssl:/etc/nginx/ssl \
-# -p '443:443/tcp' \
-# -p '443:443/udp' \
-# -p 80:80 \
-# lisa/frontend:v2.0.0
+# docker tag team/frontend:dev repo/team/frontend:dev
+# docker push repo/team/frontend:dev
 
-# docker tag lisa/frontend:v2.0.0 ccr.ccs.tencentyun.com/lisa/frontend:v2.0.0
-# docker push ccr.ccs.tencentyun.com/lisa/frontend:v2.0.0
+# docker run -itd --name nginx-quic 
+# -p 443:443 \
+# -v /home/docker/nginx/conf.d:/etc/nginx/conf.d \
+# -v /home/docker/nginx/ssl:/etc/nginx/ssl/ \
+# repo/team/frontend:dev

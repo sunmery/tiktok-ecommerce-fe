@@ -1,7 +1,7 @@
-version: '3'
 services:
+
   frontend:
-    image: ccr.ccs.tencentyun.com/lisa/frontend:v2.0.0 # 这里需要替换成你的镜像名
+    # image: repo/team/frontend:dev
     build:
       context: .
       dockerfile: .
@@ -15,9 +15,9 @@ services:
     #  -
     #restart: unless-stopped
     restart: always
-    volumes:
-      - /home/nginx/ssl:/etc/nginx/ssl
-      - /home/nginx/conf:/etc/nginx/conf.d
+    # volumes:
+    #   - /home/nginx/ssl:/etc/nginx/ssl
+    #   - /home/nginx/conf:/etc/nginx/conf.d
     container_name: frontend # 运行的容器名称
 
 # 运行示例:
