@@ -1,7 +1,14 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
 
 export const Route = createLazyFileRoute('/callback/')({
-	component: () => <CallbackPage />,
+	component: () => (
+		<AuthCallback
+			sdk={CASDOOR_SDK}
+			serverUrl={serverUrl}
+			saveTokenFromResponse={saveToken}
+			isGetTokenSuccessful={verifyToken}
+		/>
+	),
 })
 
 import {AuthCallback} from 'casdoor-react-sdk'
@@ -15,7 +22,6 @@ interface SigninReply {
 
 // 获取服务器的登录接口返回的token
 const saveToken = (res: Response) => {
-	console.log('saveTokenFromResponse data:', res)
 	const result = res as unknown as SigninReply
 	setToken(result.data)
 	goToLink('/profile')
@@ -26,19 +32,4 @@ const verifyToken = (res: Response) => {
 	console.log('isGetTokenSuccessful res:', res)
 	const result = res as unknown as SigninReply
 	return result.state === 'ok'
-}
-
-/**
- *@returns JSXElement
- */
-export default function CallbackPage() {
-	console.log('CASDOOR_SDK:', CASDOOR_SDK)
-	return (
-		<AuthCallback
-			sdk={CASDOOR_SDK}
-			serverUrl={serverUrl}
-			saveTokenFromResponse={saveToken}
-			isGetTokenSuccessful={verifyToken}
-		/>
-	)
 }

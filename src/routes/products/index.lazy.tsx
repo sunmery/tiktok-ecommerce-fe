@@ -37,7 +37,7 @@ export default function Products() {
 			`${import.meta.env.VITE_PRODUCERS_URL}?page=${page}&page_size=${page_size}`,
 			{
 				method: 'GET',
-				headers: {'Authorization': 'Br'},
+				headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`},
 			},
 		)
 		return res.json()

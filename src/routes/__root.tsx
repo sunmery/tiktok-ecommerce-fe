@@ -7,6 +7,7 @@ import Box from '@mui/joy/Box'
 import {Dropdown, Menu, MenuButton, MenuItem} from '@mui/joy'
 import Person from '@mui/icons-material/Person'
 import {MoreVert} from '@mui/icons-material'
+import {getSigninUrl, goToLink} from '@/settings'
 
 export const Route = createRootRoute({
 	component: () => (
@@ -42,8 +43,8 @@ export const Route = createRootRoute({
 									<MoreVert />
 								</MenuButton>
 								<Menu>
-									<MenuItem>
-										<Link to="/login">Login</Link>
+									<MenuItem onClick={() => goToLink(getSigninUrl())}>
+										Login
 									</MenuItem>
 									<MenuItem>
 										<Link to="/profile">My account</Link>

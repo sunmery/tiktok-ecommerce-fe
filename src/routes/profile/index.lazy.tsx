@@ -3,8 +3,8 @@ import {createLazyFileRoute} from '@tanstack/react-router'
 import {useMemo, useState} from 'react'
 import {
 	CASDOOR_SDK,
+	getSigninUrl,
 	getUserinfo,
-	getUsers,
 	goToLink,
 	isLoggedIn,
 	showMessage,
@@ -12,6 +12,7 @@ import {
 import type {Account} from '@/types/casdoor'
 // 如果需要静默登录，返回 SilentSignin 组件，它会帮你发起登录请求，登录成功后会调用函数 handleReceivedSilentSigninSuccessEvent ，登录失败时也会调用函数 handleReceivedSilentSigninFailureEvent
 import {isSilentSigninRequired, SilentSignin} from 'casdoor-react-sdk'
+import {Button} from '@mui/joy'
 
 /**
  *@returns JSXElement
@@ -25,10 +26,11 @@ export default function Profile() {
 		type: '',
 		avatar: '',
 	})
-	const [users, setUsers] = useState()
-	useMemo(() => {
-		console.log('users: ', users)
-	}, [users])
+
+	// 辅助函数：判断 account 是否为空或默认状态
+	const isAccountEmpty = (account: Account): boolean => {
+		return Object.values(account).every((value) => value === '')
+	}
 
 	useMemo(() => {
 		if (isLoggedIn()) {
@@ -46,70 +48,71 @@ export default function Profile() {
 					showMessage(`getUserinfo() error: ${res?.msg}`)
 				}
 			})
-
-			getUsers().then((res) => {
-				if (res?.status === 'ok') {
-					setUsers(res.data)
-				} else {
-					showMessage(`getUsers() error: ${res?.msg}`)
-				}
-			})
 		}
 	}, [])
 	return (
 		<main>
-			<table>
-				<caption>Account</caption>
-				<thead>
-					<tr>
-						<th>id</th>
-						<th>email</th>
-						<th>name</th>
-						<th>owner</th>
-						<th>type</th>
-						<th>avatar</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>{account.id}</td>
-						<td>{account.email}</td>
-						<td>{account.name}</td>
-						<td>{account.owner}</td>
-						<td>{account.type}</td>
-						<td>
-							<img
-								src={account.avatar}
-								alt={account.name}
-							/>
-						</td>
-						<td>{account.name}</td>
-					</tr>
-				</tbody>
-			</table>
+			{isAccountEmpty(account) ? (
+				<>
+					You are not logged in. Please log in first.
+					<Button onClick={() => goToLink(getSigninUrl())}>Login</Button>
+				</>
+			) : (
+				<>
+					<table>
+						<caption>Account</caption>
+						<thead>
+							<tr>
+								<th>id</th>
+								<th>email</th>
+								<th>name</th>
+								<th>owner</th>
+								<th>type</th>
+								<th>avatar</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>{account.id}</td>
+								<td>{account.email}</td>
+								<td>{account.name}</td>
+								<td>{account.owner}</td>
+								<td>{account.type}</td>
+								<td>
+									<img
+										src={account.avatar}
+										alt={account.name}
+									/>
+								</td>
+								<td>{account.name}</td>
+							</tr>
+						</tbody>
+					</table>
 
-			{/* 静默登录组件, 不需要静默登录注释掉即可 */}
-			{/* 如果需要静默登录，返回 SilentSignin 组件，它会帮你发起登录请求，登录成功后会调用函数 handleReceivedSilentSigninSuccessEvent ，登录失败时也会调用函数 handleReceivedSilentSigninFailureEvent */}
-			<div>
-				call:
-				{isSilentSigninRequired() ?? (
-					<div
-						style={{
-							marginTop: 200,
-							textAlign: 'center',
-							alignItems: 'center',
-						}}
-					>
-						<SilentSignin
-							sdk={CASDOOR_SDK}
-							isLoggedIn={isLoggedIn}
-							handleReceivedSilentSigninSuccessEvent={() => goToLink('/')}
-							handleReceivedSilentSigninFailureEvent={() => {}}
-						/>
-						<p>Logging in...</p>
+					{/* 静默登录组件, 不需要静默登录注释掉即可 */}
+					{/* 如果需要静默登录，返回 SilentSignin 组件，它会帮你发起登录请求，登录成功后会调用函数 handleReceivedSilentSigninSuccessEvent ，登录失败时也会调用函数 handleReceivedSilentSigninFailureEvent */}
+					<div>
+						call:
+						{isSilentSigninRequired() ?? (
+							<div
+								style={{
+									marginTop: 200,
+									textAlign: 'center',
+									alignItems: 'center',
+								}}
+							>
+								<SilentSignin
+									sdk={CASDOOR_SDK}
+									isLoggedIn={isLoggedIn}
+									handleReceivedSilentSigninSuccessEvent={() => goToLink('/')}
+									handleReceivedSilentSigninFailureEvent={() => {}}
+								/>
+								<p>Logging in...</p>
+							</div>
+						)}
 					</div>
-				)}
-			</div>
+				</>
+			)}
 		</main>
 	)
 }

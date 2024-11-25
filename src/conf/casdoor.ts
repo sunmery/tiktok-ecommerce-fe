@@ -1,7 +1,7 @@
 export const CASDOOR_CONF = {
 	// 第三方或自有的Casdoor服务端的URL
-	// serverUrl: "http://node13.apikv.com:32306",
-	serverUrl: 'http://localhost:8000',
+	// serverUrl: 'http://localhost:8000',
+	serverUrl: 'http://node8.apikv.com:31922',
 	// 注册登录的接口, 默认为/api/signin
 	signinPath: '/v1/user',
 	// signinPath:'/api/signin',
