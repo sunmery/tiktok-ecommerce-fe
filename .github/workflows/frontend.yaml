@@ -129,7 +129,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        /manifests/application/overlays/production
+        working-directory: manifests/kustomize/overlays/production
     steps:
       - # 检出仓库中的代码，确保脚本可以访问仓库中的所有文件
         name: Checkout repository
@@ -140,28 +140,30 @@ jobs:
           curl -o kustomize --location https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
           chmod u+x ./kustomize
           ./kustomize version
+          cp ./kustomize /usr/local/bin
 
       - name: Install kubectl
         run: |
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl{,.sha256}"
           echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
           chmod +x ./kubectl
+          cp ./kubectl /usr/local/bin
 
       - name: Connect Kubernetes Cluster
         run: |
           mkdir -pv ~/.kube/
           echo "${{secrets.KUBE_CONF}}" > ~/.kube/config
-          ./kubectl get all -n $FRONTEND_NAMESPACE
+          kubectl get all -n $FRONTEND_NAMESPACE
 
       - name: Deploy
         run: |
           # 创建命名空间并切换到该命名空间
-          if ./kubectl get ns $FRONTEND_NAMESPACE; then
+          if kubectl get ns $FRONTEND_NAMESPACE; then
             echo "namespaces $FRONTEND_NAMESPACE already exists, skip create"
           else
-            ./kubectl create ns $FRONTEND_NAMESPACE
+            kubectl create ns $FRONTEND_NAMESPACE
           fi
-          ./kubectl config set-context --current --namespace $FRONTEND_NAMESPACE
+          kubectl config set-context --current --namespace $FRONTEND_NAMESPACE
           
           # 将nginx的配置文件上传到configmap, 然后Pod引用
           # 将SSL文件(crt/key)上传到secret, 然后Pod引用
@@ -210,18 +212,18 @@ jobs:
               }
           }
           EOF
-          ./kubectl delete cm nginx-conf || true
-          ./kubectl create cm nginx-conf --from-file=/tmp/nginx.conf
+          kubectl delete cm nginx-conf || true
+          kubectl create cm nginx-conf --from-file=/tmp/nginx.conf
 
-          ./kubectl delete secret nginx-ssl || true
-          ./kubectl create secret generic nginx-ssl \
+          kubectl delete secret nginx-ssl || true
+          kubectl create secret generic nginx-ssl \
             --from-file /tmp/nginx.crt \
             --from-file /tmp/nginx.key
           
-          ./kustomize edit set image example=${{ secrets.REGISTRY }}/${{ secrets.REGISTER_FRONTEND_REPOSITORY }}:$VERSION
-          ./kustomize build . | kubectl apply -f -
+          kubectl edit set image example=${{ secrets.REGISTRY }}/${{ secrets.REGISTER_FRONTEND_REPOSITORY }}:$VERSION
+          kubectl build . | kubectl apply -f -
           
-          ./kubectl rollout status deploy --timeout=$DEPLOY_TIMEOUT
-          ./kubectl get po -owide
-          ./kubectl get svc
+          kubectl rollout status deploy --timeout=$DEPLOY_TIMEOUT
+          kubectl get po -owide
+          kubectl get svc
 
