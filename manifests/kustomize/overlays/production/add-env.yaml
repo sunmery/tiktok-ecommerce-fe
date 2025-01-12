@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: simple-bank-web
+  name: e-commence-fe
 spec:
   template:
     spec:
@@ -15,7 +15,7 @@ spec:
           secret:
             secretName: nginx-ssl
       containers:
-        - name: simple-bank-web
+        - name: e-commence-fe
           # 挂载到容器内部对应的配置文件路径
           volumeMounts:
             - mountPath: /etc/nginx/conf.d/

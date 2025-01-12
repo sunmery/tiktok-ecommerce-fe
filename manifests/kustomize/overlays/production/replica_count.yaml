@@ -1,6 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: simple-bank-web
+  name: e-commence-fe
 spec:
   replicas: 1
