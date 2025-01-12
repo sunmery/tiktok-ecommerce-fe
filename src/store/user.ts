@@ -18,6 +18,7 @@ const initialUser: Account = savedUser
 			email: 'test@example.com',
 			type: 'normal-user',
 			avatar: '',
+			balance: 0.0,
 		}
 
 export const userStore = proxy<UserState>({
@@ -33,3 +34,7 @@ export const setAccount = (account: Partial<Account>) => {
 subscribe(userStore, () => {
 	localStorage.setItem('user', JSON.stringify(userStore.account))
 })
+
+export const setUserBalance = (account: Account) => {
+	userStore.account.balance = account.balance
+}

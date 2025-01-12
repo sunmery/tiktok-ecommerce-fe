@@ -30,6 +30,8 @@ export default function Profile() {
 	useMemo(() => {
 		if (isLoggedIn()) {
 			getUserinfo().then((res) => {
+				console.log('res.data.balance', res.data.balance)
+				console.log('res.balance', res.balance)
 				if (res?.state === 'ok') {
 					setAccount({
 						id: res.data.id,
@@ -38,6 +40,7 @@ export default function Profile() {
 						name: res.data.name,
 						owner: res.data.owner,
 						type: res.data.type,
+						balance: res.data.balance,
 					})
 				} else {
 					showMessage(`getUserinfo() error: ${res?.msg}`)
@@ -64,6 +67,7 @@ export default function Profile() {
 								<th>owner</th>
 								<th>type</th>
 								<th>avatar</th>
+								<th>balance</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -80,6 +84,7 @@ export default function Profile() {
 									/>
 								</td>
 								<td>{account.name}</td>
+								<td>{account.balance}</td>
 							</tr>
 						</tbody>
 					</table>

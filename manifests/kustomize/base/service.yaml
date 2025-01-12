@@ -10,15 +10,15 @@ spec:
       port: 80
       targetPort: 3000
       protocol: TCP
-      nodePort: 30015
+      nodePort: 30019
     - name: https
       port: 4430
       targetPort: 4430
       protocol: TCP
-      nodePort: 30016
+      nodePort: 30020
     - name: quic
       port: 4430
       targetPort: 4430
       protocol: UDP
-      nodePort: 30017
+      nodePort: 30021
   type: NodePort

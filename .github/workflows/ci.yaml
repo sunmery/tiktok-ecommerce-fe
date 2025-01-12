@@ -19,9 +19,9 @@ env:
   # pnpm包版本
   PACK_VERSION: latest
   # http端口
-  HTTP_PORT: 30015
+  HTTP_PORT: 30019
   # https端口
-  HTTPS_PORT: 30016
+  HTTPS_PORT: 30020
   # 前端命名空间
   FRONTEND_NAMESPACE: tiktok
   # 1024以下端口需要容器的特权(即root)权限才能执行, 运行特权权限容器有安全风险

@@ -1,8 +1,9 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
-import {useEffect, useState} from 'react'
-import type {Addresses} from '@/types/addresses.ts'
+import {useEffect} from 'react'
 import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
+import {addressesStore, setAddresses} from '@/store/addressesStore'
+import type {Addresses} from '@/types/addresses.ts'
 
 export const Route = createLazyFileRoute('/addresses/')({
 	component: () => <AddressesRoute />,
@@ -12,19 +13,8 @@ export const Route = createLazyFileRoute('/addresses/')({
  *@returns Element
  */
 function AddressesRoute() {
-	const [addresses, setAddresses] = useState<Addresses>({
-		addresses: [
-			{
-				id: 1,
-				street_address: 'string',
-				city: 'string',
-				state: 'string',
-				country: 'string',
-				zip_code: 'string',
-			},
-		],
-	})
 	const {account} = useSnapshot(userStore)
+	const {addresses} = useSnapshot(addressesStore)
 	useEffect(() => {
 		fetch(
 			`${import.meta.env.VITE_ADDRESSES_URL}?owner=${account.owner}&name=${account.name}`,
@@ -34,15 +24,14 @@ function AddressesRoute() {
 			},
 		)
 			.then((data) => data.json())
-			.then((data) => {
-				console.log(data)
-				setAddresses(data)
+			.then((data: Addresses) => {
+				setAddresses(data.addresses)
 			})
 	}, [])
 	return (
 		<div>
-			{addresses.addresses.length > 0 ? (
-				addresses.addresses.map((address) => (
+			{addresses.length > 0 ? (
+				addresses.map((address) => (
 					<ul key={address.id}>
 						<li>id: {address.id}</li>
 						<li>street_address: {address.street_address}</li>

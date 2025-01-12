@@ -1,3 +1,5 @@
+import userFlow from '@/assets/img.png'
+
 /**
  * 应用程入口
  * @returns JSXElement
@@ -5,6 +7,10 @@
 export default function App() {
 	return (
 		<div className="p-2">
+			<img
+				src={userFlow}
+				alt="user flow"
+			/>
 			<h3>Welcome to Lisa tiktok_e-commence fe Page!</h3>
 			<h3>Steps:</h3>
 			<ol>

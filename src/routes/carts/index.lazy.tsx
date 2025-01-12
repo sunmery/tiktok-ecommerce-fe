@@ -1,23 +1,39 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
+
 // import Carts from '@/pages/Carts'
 export const Route = createLazyFileRoute('/carts/')({
 	component: () => <Cart />,
 })
-import {cartStore} from '@/store/cartStore'
 import {useSnapshot} from 'valtio/react'
+import {cartStore} from '@/store/cartStore'
+import {addressesStore} from '@/store/addressesStore'
+import {FavoriteBorder} from '@mui/icons-material'
 
-import Box from '@mui/joy/Box'
-import List from '@mui/joy/List'
-import ListItem from '@mui/joy/ListItem'
-
-import Button from '@mui/joy/Button'
-import {Sheet, Table} from '@mui/joy'
+import type {ModalDialogProps} from '@mui/joy'
+import {
+	Box,
+	List,
+	ListItem,
+	Chip,
+	Select,
+	Sheet,
+	Table,
+	Modal,
+	Button,
+	ModalClose,
+	ModalDialog,
+	DialogTitle,
+	DialogContent,
+	Option,
+} from '@mui/joy'
+import {useState} from 'react'
 
 /**
  *@returns JSXElement
  */
 export default function Cart() {
 	const {items} = useSnapshot(cartStore)
+	const {addresses} = useSnapshot(addressesStore)
 
 	const removeItem = (id: number) => {
 		cartStore.removeItem(id)
@@ -26,6 +42,10 @@ export default function Cart() {
 	const clearCart = () => {
 		cartStore.clearCart()
 	}
+
+	const [variant, setVariant] = useState<
+		ModalDialogProps['variant'] | undefined
+	>(undefined)
 
 	return (
 		<div>
@@ -71,7 +91,81 @@ export default function Cart() {
 							</ListItem>
 						))}
 					</List>
-					<Button onClick={clearCart}>结算</Button>
+
+					<Button
+						variant="soft"
+						color="neutral"
+						onClick={() => {
+							setVariant('soft')
+						}}
+					>
+						结算
+					</Button>
+					<Modal
+						open={!!variant}
+						onClose={() => setVariant(undefined)}
+					>
+						<ModalDialog variant={variant}>
+							<ModalClose />
+							<DialogTitle>订单结算</DialogTitle>
+							<DialogContent>订单价格: </DialogContent>
+							<DialogContent>
+								收货地址:
+								<Select
+									placeholder="选择收货地址"
+									startDecorator={<FavoriteBorder />}
+									endDecorator={
+										<Chip
+											size="sm"
+											color="danger"
+											variant="soft"
+										>
+											{addresses.length}
+										</Chip>
+									}
+									sx={{width: 240}}
+								>
+									{addresses.length > 0 ? (
+										addresses.map((item) => (
+											<Option
+												key={item.id}
+												value={item.street_address}
+											>
+												{item.street_address}
+											</Option>
+										))
+									) : (
+										<>null</>
+									)}
+								</Select>
+							</DialogContent>
+							<DialogContent>
+								支付方式:
+								<Select
+									placeholder="支付方式"
+									startDecorator={<FavoriteBorder />}
+									endDecorator={
+										<Chip
+											size="sm"
+											color="danger"
+											variant="soft"
+										>
+											{addresses.length}
+										</Chip>
+									}
+									sx={{width: 240}}
+								>
+									<Option value="微信">微信</Option>
+									<Option value="支付宝">支付宝</Option>
+									<Option value="余额">余额</Option>
+								</Select>
+							</DialogContent>
+							<DialogContent>
+								<Button>支付</Button>
+							</DialogContent>
+						</ModalDialog>
+					</Modal>
+					{/* <Link to="/payment">结算</Link> */}
 					<Button onClick={clearCart}>Clear Cart</Button>
 				</Box>
 			) : (
