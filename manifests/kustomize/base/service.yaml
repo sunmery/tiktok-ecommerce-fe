@@ -12,13 +12,13 @@ spec:
       protocol: TCP
       nodePort: 30015
     - name: https
-      port: 443
-      targetPort: 443
+      port: 4430
+      targetPort: 4430
       protocol: TCP
       nodePort: 30016
     - name: quic
-      port: 8443
-      targetPort: 8443
+      port: 4430
+      targetPort: 4430
       protocol: UDP
       nodePort: 30017
   type: NodePort
