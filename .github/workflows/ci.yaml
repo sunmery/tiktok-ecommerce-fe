@@ -35,7 +35,7 @@ jobs:
   frontend-build-dist:
     # 将作业配置为在最新版本的Ubuntu Linux运行程序上运行,
     # 注意此处不是Docker Hub中的ubuntu:latest, 而是Github中自己的虚拟主机。
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # 默认值配置
     defaults:
       # 运行在jobs中
@@ -78,7 +78,7 @@ jobs:
 
   frontend-build-image:
     needs: frontend-build-dist
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         shell: bash
@@ -125,7 +125,7 @@ jobs:
 
   frontend-deploy:
     needs: frontend-build-image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         shell: bash
