@@ -6,6 +6,8 @@ run-name: Deploy frontend application to production
 on:
   push:
     tags:
+      - main
+      - pre
       - 'v*.*.*'
 
 env:
