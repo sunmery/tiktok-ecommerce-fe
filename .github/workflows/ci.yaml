@@ -100,21 +100,20 @@ jobs:
 
       - # 登录到容器注册表
         name: Login Cloud Registry
-        run: echo ${{ secrets.REGISTRY_PASSWORD }} | docker login ${{ secrets.REGISTRY }} --username ${{ secrets.REGISTRY_USERNAME }} --password-stdin
+        run: echo ${{ secrets.REGISTRY_PASSWORD }} | docker login ${{ secrets.REGISTRY }} --username=${{ secrets.REGISTRY_USERNAME }} --password-stdin
 
       - # 构建, 标记, 推送镜像到容器注册表
         name: Build tag and push image to Cloud Registry
 
         run: |
           echo "VERSION is $VERSION"
-          docker buildx build . \
+          docker build . \
             --progress=plain \
             -t actions/frontend \
             --build-arg NODE_VERSION=$NODE_VERSION \
             --build-arg PACK_VERSION=$PACK_VERSION \
             --build-arg HTTP_PORT=$HTTP_PORT \
-            --build-arg HTTPS_PORT=$HTTPS_PORT \
-            --load
+            --build-arg HTTPS_PORT=$HTTPS_PORT
 
           docker tag actions/frontend ${{ secrets.REGISTRY }}/${{ secrets.REGISTER_FRONTEND_REPOSITORY }}:$VERSION
           # docker tag actions/frontend ${{ secrets.REGISTRY }}/${{ secrets.REGISTER_FRONTEND_REPOSITORY }}:latest
@@ -213,16 +212,16 @@ jobs:
               }
           }
           EOF
-          kubectl delete cm nginx-conf || true
+          kubectl delete cm nginx-conf --ignore-not-found
           kubectl create cm nginx-conf --from-file=/tmp/nginx.conf
 
-          kubectl delete secret nginx-ssl || true
+          kubectl delete secret nginx-ssl --ignore-not-found
           kubectl create secret generic nginx-ssl \
             --from-file /tmp/nginx.crt \
             --from-file /tmp/nginx.key
           
-          kubectl edit set image example=${{ secrets.REGISTRY }}/${{ secrets.REGISTER_FRONTEND_REPOSITORY }}:$VERSION
-          kubectl build . | kubectl apply -f -
+          kustomize edit set image example=${{ secrets.REGISTRY }}/${{ secrets.REGISTER_FRONTEND_REPOSITORY }}:$VERSION
+          kustomize build . | kubectl apply -f -
           
           kubectl rollout status deploy --timeout=$DEPLOY_TIMEOUT
           kubectl get po -owide

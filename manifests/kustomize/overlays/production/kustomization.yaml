@@ -16,8 +16,3 @@ patches:
 - path: limits.yaml
 - path: add-env.yaml
 - path: ingress-http-cors-patch.yaml
-
-images:
-- name: example
-  newName: ccr.ccs.tencentyun.com/lisa/frontend
-  newTag: v2.0.0
