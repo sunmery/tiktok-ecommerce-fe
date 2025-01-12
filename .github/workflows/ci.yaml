@@ -23,7 +23,7 @@ env:
   # https端口
   HTTPS_PORT: 30016
   # 前端命名空间
-  FRONTEND_NAMESPACE: bank
+  FRONTEND_NAMESPACE: tiktok
   # 1024以下端口需要容器的特权(即root)权限才能执行, 运行特权权限容器有安全风险
   # 建议使用1024以上端口, 再通过Ingress/Gateway或者LoadBalancer来映射为80/443端口
   NGINX_HTTP_PORT: 3000
