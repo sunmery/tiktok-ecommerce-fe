@@ -1,6 +1,6 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
 // import {Link} from 'react-router-dom'
-import {useMemo, useState} from 'react'
+import {useMemo} from 'react'
 import {
 	CASDOOR_SDK,
 	getSigninUrl,
@@ -8,24 +8,19 @@ import {
 	goToLink,
 	isLoggedIn,
 	showMessage,
-} from '@/settings/index.ts'
-import type {Account} from '@/types/casdoor'
+} from '@/utils/casdoor.ts'
+import type {Account} from '@/types/account'
 // 如果需要静默登录，返回 SilentSignin 组件，它会帮你发起登录请求，登录成功后会调用函数 handleReceivedSilentSigninSuccessEvent ，登录失败时也会调用函数 handleReceivedSilentSigninFailureEvent
 import {isSilentSigninRequired, SilentSignin} from 'casdoor-react-sdk'
 import {Button} from '@mui/joy'
+import {setAccount, userStore} from '@/store/user.ts'
+import {useSnapshot} from 'valtio/react'
 
 /**
  *@returns JSXElement
  */
 export default function Profile() {
-	const [account, setAccount] = useState<Account>({
-		id: '',
-		email: '',
-		name: '',
-		owner: '',
-		type: '',
-		avatar: '',
-	})
+	const {account} = useSnapshot(userStore)
 
 	// 辅助函数：判断 account 是否为空或默认状态
 	const isAccountEmpty = (account: Account): boolean => {

@@ -1,18 +1,8 @@
 import {proxy, subscribe} from 'valtio'
-
-// 定义购物车项的类型
-interface CartItem {
-	id: number
-	name: string
-	description?: string
-	picture?: string
-	price: number
-	quantity: number
-	categories?: string[]
-}
+import type {CartItem} from '@/types/carts'
 
 // 定义购物车状态
-interface CartState {
+export interface CartState {
 	items: CartItem[]
 	addItem: (id: number, name: string, price: number, quantity: number) => void
 	removeItem: (id: number) => void

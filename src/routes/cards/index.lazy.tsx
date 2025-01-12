@@ -3,17 +3,11 @@ import {createLazyFileRoute} from '@tanstack/react-router'
 import type {ChangeEvent} from 'react'
 import {useState} from 'react'
 import {useMutation} from '@tanstack/react-query'
+import type {Carts} from '@/types/cards.ts'
 
 export const Route = createLazyFileRoute('/cards/')({
 	component: () => <Cards />,
 })
-
-interface Carts {
-	credit_card_number: string
-	credit_card_cvv: number
-	credit_card_expiration_year: number
-	credit_card_expiration_month: number
-}
 
 /**
  *@returns Element

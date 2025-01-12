@@ -8,22 +8,13 @@ import IconButton from '@mui/joy/IconButton'
 import Typography from '@mui/joy/Typography'
 import BookmarkAdd from '@mui/icons-material/BookmarkAddOutlined'
 
-interface Product {
-	id: number
-	name: string
-	description: string
-	picture: string
-	price: number
-	quantity: number
-	categories: string[]
-}
-
 import {useQuery} from '@tanstack/react-query'
 import {useSnapshot} from 'valtio/react'
 import {cartStore} from '@/store/cartStore.ts'
 import {Box} from '@mui/joy'
 import ListItem from '@mui/joy/ListItem'
 import List from '@mui/joy/List'
+import type {Product} from '@/types/products.ts'
 
 /**
  *@returns JSXElement

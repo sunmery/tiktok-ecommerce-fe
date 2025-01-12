@@ -1,0 +1,1 @@
+import{j as o,B as t,c as i,a as s,b as e}from"./index-0_AJGUiB.js";const c=i("/login/")({component:()=>o.jsx(a,{})});function a(){const n=()=>{s(e())};return o.jsx(t,{onClick:n,children:"Login"})}export{c as Route,a as default};

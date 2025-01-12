@@ -7,7 +7,7 @@ import Box from '@mui/joy/Box'
 import {Dropdown, Menu, MenuButton, MenuItem} from '@mui/joy'
 import Person from '@mui/icons-material/Person'
 import {MoreVert} from '@mui/icons-material'
-import {getSigninUrl, goToLink} from '@/settings'
+import {getSigninUrl, goToLink} from '@/utils/casdoor.ts'
 
 export const Route = createRootRoute({
 	component: () => (
@@ -26,11 +26,27 @@ export const Route = createRootRoute({
 					</ListItem>
 					<ListDivider />
 					<ListItem>
+						<Link to="/addresses">Addresses</Link>
+					</ListItem>
+					<ListDivider />
+					<ListItem>
 						<Link to="/carts">Carts</Link>
 					</ListItem>
 					<ListDivider />
 					<ListItem>
+						<Link to="/credit_cards">CreditCards</Link>
+					</ListItem>
+					<ListDivider />
+					<ListItem>
+						<Link to="/orders">Orders</Link>
+					</ListItem>
+					<ListDivider />
+					<ListItem>
 						<Link to="/cards">My Cards</Link>
+					</ListItem>
+					<ListDivider />
+					<ListItem>
+						<Link to="/checkout">Checkout</Link>
 					</ListItem>
 					<ListDivider />
 					<ListItem>

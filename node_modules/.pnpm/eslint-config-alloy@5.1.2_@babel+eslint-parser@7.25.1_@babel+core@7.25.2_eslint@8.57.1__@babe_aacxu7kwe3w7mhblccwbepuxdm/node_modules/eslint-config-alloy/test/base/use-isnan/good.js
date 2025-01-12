@@ -1,2 +1,0 @@
-if (isNaN(foo)) {
-}

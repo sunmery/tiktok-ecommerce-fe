@@ -1,0 +1,1 @@
+import{p as o,s as a}from"./react-B4QmjwaR.js";const e=localStorage.getItem("user_info"),r=e?JSON.parse(e):{owner:"tiktok",name:"test1",user_currency:"CNY",email:"test@example.com",type:"normal-user",avatar:""},t=o({account:r}),n=s=>{t.account={...t.account,...s}};a(t,()=>{localStorage.setItem("user",JSON.stringify(t.account))});export{n as s,t as u};

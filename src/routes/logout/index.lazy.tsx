@@ -1,5 +1,14 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
 
 export const Route = createLazyFileRoute('/logout/')({
-	component: () => <div>Hello /logout/!</div>,
+	component: () => <LogoutCompose />,
 })
+/**
+ *@returns Element
+ */
+function LogoutCompose() {
+	const logout = () => {
+		localStorage.removeItem('token')
+	}
+	return <button onClick={logout}>Logout</button>
+}

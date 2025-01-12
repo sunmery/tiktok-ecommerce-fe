@@ -78,8 +78,8 @@ EXPOSE ${HTTPS_PORT}
 # 运行 nginx 服务
 CMD ["nginx", "-g", "daemon off;"]
 
-# docker build --progress=plain --no-cache -t team/frontend:dev .
-# docker buildx build --progress=plain --no-cache -t team/frontend:dev . --platform linux/amd64 --load
+# docker build --progress=plain -t team/frontend:dev .
+# docker buildx build --progress=plain -t team/frontend:dev . --platform linux/amd64 --load
 
 # docker tag team/frontend:dev repo/team/frontend:dev
 # docker push repo/team/frontend:dev

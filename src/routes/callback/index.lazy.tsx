@@ -1,4 +1,7 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
+import {AuthCallback} from 'casdoor-react-sdk'
+import {CASDOOR_SDK, goToLink, serverUrl, setToken} from '@/utils/casdoor.ts'
+import type {SigninReply} from '@/types/callback.ts'
 
 export const Route = createLazyFileRoute('/callback/')({
 	component: () => (
@@ -10,15 +13,6 @@ export const Route = createLazyFileRoute('/callback/')({
 		/>
 	),
 })
-
-import {AuthCallback} from 'casdoor-react-sdk'
-import {CASDOOR_SDK, goToLink, serverUrl, setToken} from '@/settings/index.ts'
-
-// 服务端的响应接口的类型
-interface SigninReply {
-	data: string
-	state: string
-}
 
 // 获取服务器的登录接口返回的token
 const saveToken = (res: Response) => {

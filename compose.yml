@@ -15,6 +15,7 @@ services:
     #  -
     #restart: unless-stopped
     restart: always
+    pull_policy: always
     # volumes:
     #   - /home/nginx/ssl:/etc/nginx/ssl
     #   - /home/nginx/conf:/etc/nginx/conf.d

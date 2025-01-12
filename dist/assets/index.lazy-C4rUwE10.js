@@ -1,1 +1,0 @@
-import{j as o,J as t,c as i}from"./index-eJYtR5xA.js";import{b as s,c as e}from"./index-BwcY2VMj.js";const g=i("/login/")({component:()=>o.jsx(r,{})});function r(){const n=()=>{s(e())};return o.jsx(t,{onClick:n,children:"Login"})}export{g as Route,r as default};
