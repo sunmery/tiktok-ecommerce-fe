@@ -42,8 +42,6 @@ jobs:
       run:
         # 默认的shell解释器
         shell: bash
-        # 默认的工作目录, 即使用该值作为job运行的根目录
-        working-directory: frontend
 
     steps:
       - name: Checkout repo
@@ -84,7 +82,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: frontend
+        
     steps:
       - # 检出仓库中的代码，确保脚本可以访问仓库中的所有文件
         name: Checkout repository
@@ -131,7 +129,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: frontend/manifests/application/overlays/production
+        /manifests/application/overlays/production
     steps:
       - # 检出仓库中的代码，确保脚本可以访问仓库中的所有文件
         name: Checkout repository
