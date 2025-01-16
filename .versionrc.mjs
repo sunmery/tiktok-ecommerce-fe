@@ -10,7 +10,7 @@ export default {
 		{'type': 'test', 'section': '✅ Tests | 测试'},
 		{'type': 'revert', 'section': '⏪ Revert | 回退', 'hidden': true},
 		{'type': 'build', 'section': '📦‍ Build System | 打包构建'},
-		{'type': 'chore', 'section': '🚀 Chore | 构建/工程依赖/工具'},
+		{'type': 'chore', 'section': '🚀 Chore | 构建/工程依赖/工具/其它'},
 		{'type': 'ci', 'section': '👷 Continuous Integration | CI 配置'},
 	],
 }
