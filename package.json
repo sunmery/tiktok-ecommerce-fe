@@ -9,7 +9,7 @@
     "*.{ts,tsx,js,jsx,cjs,mjs}": "prettier --write"
   },
   "scripts": {
-    "prepare": "cd .. && husky ./frontend/.husky || true",
+    "prepare": "husky ./.husky || true",
     "prettier:check": "prettier --check src/**/**{.cjs,.mjs,.ts,.tsx,.html,.md}",
     "prettier:write": "prettier --write src/**/**{.cjs,.mjs,.ts,.tsx,.html,.md}",
     "lint": "lint-staged",

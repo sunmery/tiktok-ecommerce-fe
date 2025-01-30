@@ -6,6 +6,7 @@ export interface Account {
 	avatar: string
 	email: string
 	user_currency: string
+	balance: number
 }
 
 export interface Role {

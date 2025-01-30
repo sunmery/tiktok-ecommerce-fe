@@ -26,6 +26,10 @@ export const Route = createRootRoute({
 					</ListItem>
 					<ListDivider />
 					<ListItem>
+						<Link to="/balance">Balance</Link>
+					</ListItem>
+					<ListDivider />
+					<ListItem>
 						<Link to="/addresses">Addresses</Link>
 					</ListItem>
 					<ListDivider />

@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: e-commence-fe-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    # nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  ingressClassName: higress
+  rules:
+    - host: "web.api-r.com"
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-simple-bank-service
+                port:
+                  number: 443
+
+  # tls:
+  #   - hosts:
+  #       - web.api-r.com
+  #     secretName: api-r-com-secret

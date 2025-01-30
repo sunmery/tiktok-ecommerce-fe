@@ -27,6 +27,7 @@ const CheckoutIndexLazyImport = createFileRoute('/checkout/')()
 const CartsIndexLazyImport = createFileRoute('/carts/')()
 const CardsIndexLazyImport = createFileRoute('/cards/')()
 const CallbackIndexLazyImport = createFileRoute('/callback/')()
+const BalanceIndexLazyImport = createFileRoute('/balance/')()
 const AddressesIndexLazyImport = createFileRoute('/addresses/')()
 
 // Create/Update Routes
@@ -105,6 +106,12 @@ const CallbackIndexLazyRoute = CallbackIndexLazyImport.update({
   import('./routes/callback/index.lazy').then((d) => d.Route),
 )
 
+const BalanceIndexLazyRoute = BalanceIndexLazyImport.update({
+  id: '/balance/',
+  path: '/balance/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/balance/index.lazy').then((d) => d.Route))
+
 const AddressesIndexLazyRoute = AddressesIndexLazyImport.update({
   id: '/addresses/',
   path: '/addresses/',
@@ -129,6 +136,13 @@ declare module '@tanstack/react-router' {
       path: '/addresses'
       fullPath: '/addresses'
       preLoaderRoute: typeof AddressesIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/balance/': {
+      id: '/balance/'
+      path: '/balance'
+      fullPath: '/balance'
+      preLoaderRoute: typeof BalanceIndexLazyImport
       parentRoute: typeof rootRoute
     }
     '/callback/': {
@@ -209,6 +223,7 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/addresses': typeof AddressesIndexLazyRoute
+  '/balance': typeof BalanceIndexLazyRoute
   '/callback': typeof CallbackIndexLazyRoute
   '/cards': typeof CardsIndexLazyRoute
   '/carts': typeof CartsIndexLazyRoute
@@ -224,6 +239,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/addresses': typeof AddressesIndexLazyRoute
+  '/balance': typeof BalanceIndexLazyRoute
   '/callback': typeof CallbackIndexLazyRoute
   '/cards': typeof CardsIndexLazyRoute
   '/carts': typeof CartsIndexLazyRoute
@@ -240,6 +256,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
   '/addresses/': typeof AddressesIndexLazyRoute
+  '/balance/': typeof BalanceIndexLazyRoute
   '/callback/': typeof CallbackIndexLazyRoute
   '/cards/': typeof CardsIndexLazyRoute
   '/carts/': typeof CartsIndexLazyRoute
@@ -257,6 +274,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/addresses'
+    | '/balance'
     | '/callback'
     | '/cards'
     | '/carts'
@@ -271,6 +289,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/addresses'
+    | '/balance'
     | '/callback'
     | '/cards'
     | '/carts'
@@ -285,6 +304,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/addresses/'
+    | '/balance/'
     | '/callback/'
     | '/cards/'
     | '/carts/'
@@ -301,6 +321,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   AddressesIndexLazyRoute: typeof AddressesIndexLazyRoute
+  BalanceIndexLazyRoute: typeof BalanceIndexLazyRoute
   CallbackIndexLazyRoute: typeof CallbackIndexLazyRoute
   CardsIndexLazyRoute: typeof CardsIndexLazyRoute
   CartsIndexLazyRoute: typeof CartsIndexLazyRoute
@@ -316,6 +337,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   AddressesIndexLazyRoute: AddressesIndexLazyRoute,
+  BalanceIndexLazyRoute: BalanceIndexLazyRoute,
   CallbackIndexLazyRoute: CallbackIndexLazyRoute,
   CardsIndexLazyRoute: CardsIndexLazyRoute,
   CartsIndexLazyRoute: CartsIndexLazyRoute,
@@ -340,6 +362,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/addresses/",
+        "/balance/",
         "/callback/",
         "/cards/",
         "/carts/",
@@ -357,6 +380,9 @@ export const routeTree = rootRoute
     },
     "/addresses/": {
       "filePath": "addresses/index.lazy.tsx"
+    },
+    "/balance/": {
+      "filePath": "balance/index.lazy.tsx"
     },
     "/callback/": {
       "filePath": "callback/index.lazy.tsx"

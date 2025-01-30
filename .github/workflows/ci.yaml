@@ -1,0 +1,229 @@
+name: Deploy frontend application to production
+run-name: Deploy frontend application to production
+
+# git add .; git commit -m "test: test github actions"
+# git tag v1.1.8; git push; git push main v1.1.8
+on:
+  push:
+    branches:
+      - main
+      - pre
+    tags:
+      - 'v*.*.*'
+
+env:
+  # https://docs.github.com/zh/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
+  VERSION: ${{ github.ref_name }}
+  # Node版本
+  NODE_VERSION: node:22-alpine3.19
+  # pnpm包版本
+  PACK_VERSION: latest
+  # http端口
+  HTTP_PORT: 30019
+  # https端口
+  HTTPS_PORT: 30020
+  # 前端命名空间
+  FRONTEND_NAMESPACE: tiktok
+  # 1024以下端口需要容器的特权(即root)权限才能执行, 运行特权权限容器有安全风险
+  # 建议使用1024以上端口, 再通过Ingress/Gateway或者LoadBalancer来映射为80/443端口
+  NGINX_HTTP_PORT: 3000
+  NGINX_HTTPS_PORT: 4430
+  # 等待Pod部署完成的超时时间
+  DEPLOY_TIMEOUT: 30s
+
+jobs:
+
+  frontend-build-dist:
+    # 将作业配置为在最新版本的Ubuntu Linux运行程序上运行,
+    # 注意此处不是Docker Hub中的ubuntu:latest, 而是Github中自己的虚拟主机。
+    runs-on: ubuntu-24.04
+    # 默认值配置
+    defaults:
+      # 运行在jobs中
+      run:
+        # 默认的shell解释器
+        shell: bash
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - # 设置Node版本, 最低为20
+        name: Setup node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
+
+      # - name: Test frontend
+      #   # 自动下载pnpm
+      #   # 注意：pnpm 缓存支持需要 pnpm 版本 >= 6.10.0
+      #   run: |
+      #     npm install -g pnpm@latest
+      #     #pnpm test
+
+      - name: Build frontend
+        # 自动下载pnpm
+        # 注意：pnpm 缓存支持需要 pnpm 版本 >= 6.10.0
+        run: |
+          # npm install -g pnpm@latest
+          #pnpm test
+          # 只安装锁文件的依赖. pnpm 实现的等效npm ci, 即只根据pnpm-lock.yaml的依赖进行安装
+          pnpm install --frozen-lockfile
+          pnpm build
+
+  frontend-build-image:
+    needs: frontend-build-dist
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+        
+    steps:
+      - # 检出仓库中的代码，确保脚本可以访问仓库中的所有文件
+        name: Checkout repository
+        uses: actions/checkout@v4
+
+      - # 设置 QEMU 仿真器。允许你在 x86 架构的主机上构建和测试其他架构的 Docker 镜像
+        # https://github.com/docker/setup-qemu-action
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - # Buildx 是 Docker 的一个插件，支持多平台构建
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - # 登录到容器注册表
+        name: Login Cloud Registry
+        run: echo ${{ secrets.REGISTRY_PASSWORD }} | docker login ${{ secrets.REGISTRY }} --username=${{ secrets.REGISTRY_USERNAME }} --password-stdin
+
+      - # 构建, 标记, 推送镜像到容器注册表
+        name: Build tag and push image to Cloud Registry
+
+        run: |
+          echo "VERSION is $VERSION"
+          docker build . \
+            --progress=plain \
+            -t actions/frontend \
+            --build-arg NODE_VERSION=$NODE_VERSION \
+            --build-arg PACK_VERSION=$PACK_VERSION \
+            --build-arg HTTP_PORT=$HTTP_PORT \
+            --build-arg HTTPS_PORT=$HTTPS_PORT
+
+          docker tag actions/frontend ${{ secrets.REGISTRY }}/${{ secrets.REGISTER_FRONTEND_REPOSITORY }}:$VERSION
+          # docker tag actions/frontend ${{ secrets.REGISTRY }}/${{ secrets.REGISTER_FRONTEND_REPOSITORY }}:latest
+          # docker tag actions/frontend ${{ secrets.REGISTRY }}/${{ secrets.REGISTER_FRONTEND_REPOSITORY }}:$GITHUB_SHA
+
+          docker push ${{ secrets.REGISTRY }}/${{ secrets.REGISTER_FRONTEND_REPOSITORY }}:$VERSION
+          # docker push ${{ secrets.REGISTRY }}/${{ secrets.REGISTER_FRONTEND_REPOSITORY }}:latest
+          # docker push ${{ secrets.REGISTRY }}/${{ secrets.REGISTER_FRONTEND_REPOSITORY }}:$GITHUB_SHA
+
+  frontend-deploy:
+    needs: frontend-build-image
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: manifests/kustomize/overlays/production
+    steps:
+      - # 检出仓库中的代码，确保脚本可以访问仓库中的所有文件
+        name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Kustomize
+        run: |
+          curl -o kustomize --location https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+          chmod u+x ./kustomize
+          ./kustomize version
+          cp ./kustomize /usr/local/bin
+
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl{,.sha256}"
+          echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+          chmod +x ./kubectl
+          cp ./kubectl /usr/local/bin
+
+      - name: Connect Kubernetes Cluster
+        run: |
+          mkdir -pv ~/.kube/
+          echo "${{secrets.KUBE_CONF}}" > ~/.kube/config
+          kubectl get all -n $FRONTEND_NAMESPACE
+
+      - name: Deploy
+        run: |
+          # 创建命名空间并切换到该命名空间
+          if kubectl get ns $FRONTEND_NAMESPACE; then
+            echo "namespaces $FRONTEND_NAMESPACE already exists, skip create"
+          else
+            kubectl create ns $FRONTEND_NAMESPACE
+          fi
+          kubectl config set-context --current --namespace $FRONTEND_NAMESPACE
+          
+          # 将nginx的配置文件上传到configmap, 然后Pod引用
+          # 将SSL文件(crt/key)上传到secret, 然后Pod引用
+          echo "${{secrets.SSL_CERTIFICATE}}" > /tmp/nginx.crt
+          echo "${{secrets.SSL_PRIVATE_KEY}}" > /tmp/nginx.key
+          cat <<EOF > /tmp/nginx.conf
+          server {
+              listen $NGINX_HTTP_PORT;
+              server_name ${{secrets.DOMAIN}}; # server_name
+              # return 301 https://${{secrets.DOMAIN}}; # website
+          }
+          server {
+              server_name ${{secrets.DOMAIN}} www.${{secrets.DOMAIN}};  # 服务器名称
+
+              # UDP listener for QUIC+HTTP/3
+              # http/3
+              listen $NGINX_HTTPS_PORT quic reuseport;
+
+              # http/2 and http/1.1
+              listen $NGINX_HTTPS_PORT ssl;
+              http2 on;
+
+              # 以下为各种 HTTP 安全相关头部的设置
+              add_header Strict-Transport-Security "max-age=63072000; includeSubdomains; preload";
+              add_header X-XSS-Protection "1; mode=block" always;
+              add_header X-Frame-Options SAMEORIGIN always;
+              add_header X-Content-Type-Options nosniff;
+              add_header Alt-Svc 'h3=":$NGINX_HTTPS_PORT"; ma=86400, h3-29=":$NGINX_HTTPS_PORT"; ma=86400';
+
+              # SSL/TLS 相关配置
+              ssl_protocols TLSv1.3 TLSv1.2;  # 设置支持的 SSL 协议版本
+              # ssl_ciphers ...;  # 设置 SSL 密码套件
+              ssl_prefer_server_ciphers on;  # 优先使用服务器的密码套件
+              ssl_ecdh_curve X25519:P-256:P-384;  # 设置 ECDH 曲线
+              ssl_early_data on;  # 启用 TLS 1.3 的 0-RTT 特性
+              ssl_stapling on;  # 启用 OCSP Stapling
+              ssl_stapling_verify on;  # 启用 OCSP Stapling 的验证
+
+              # SSL 证书路径配置
+              ssl_certificate     /etc/nginx/ssl/nginx.crt;  # SSL 证书路径
+              ssl_certificate_key /etc/nginx/ssl/nginx.key;  # SSL 证书密钥路径
+
+              location / {
+                  root   /etc/nginx/html;  # 设置根目录路径
+                  index  index.html index.htm default.html default.htm;  # 设置默认index首页文件
+              }
+          }
+          EOF
+          kubectl delete cm nginx-conf --ignore-not-found
+          kubectl create cm nginx-conf --from-file=/tmp/nginx.conf
+
+          kubectl delete secret nginx-ssl --ignore-not-found
+          kubectl create secret generic nginx-ssl \
+            --from-file /tmp/nginx.crt \
+            --from-file /tmp/nginx.key
+          
+          kustomize edit set image example=${{ secrets.REGISTRY }}/${{ secrets.REGISTER_FRONTEND_REPOSITORY }}:$VERSION
+          kustomize build . | kubectl apply -f -
+          
+          kubectl rollout status deploy --timeout=$DEPLOY_TIMEOUT
+          kubectl get po -owide
+          kubectl get svc
+

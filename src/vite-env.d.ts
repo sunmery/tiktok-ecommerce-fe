@@ -5,7 +5,15 @@ interface ImportMetaEnv {
 	readonly VITE_HUSKY: string
 	readonly HUSKY: string
 	readonly URL: string
-	// 更多环境变量...
+	readonly VITE_USERS_URL: string
+	readonly VITE_CASDOOR_URL: string
+	readonly VITE_CHECKOUT_URL: string
+	readonly VITE_CREDIT_CARDS_URL: string
+	readonly VITE_ORDERS_URL: string
+	readonly VITE_PAYMENT_URL: string
+	readonly VITE_PRODUCERS_URL: string
+	readonly VITE_ADDRESSES_URL: string
+	readonly VITE_BALANCE_URL: string
 }
 
 interface ImportMeta {
