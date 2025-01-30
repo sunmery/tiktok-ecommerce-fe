@@ -1,7 +1,7 @@
 {
   "name": "frontend",
-  "private": true,
-  "version": "0.0.0",
+  "private": false,
+  "version": "1.0.0",
   "type": "module",
   "lint-staged": {
     "*.{ts,tsx,js,jsx,cjs,mjs,md}": "eslint --fix",
@@ -21,7 +21,7 @@
     "dev": "vite",
     "dev:prod": "vite --mode production",
     "build": "vite build",
-    "preview": "vite preview --port 8080",
+    "preview": "vite preview --port 80",
     "commitlint": "commitlint --edit"
   },
   "dependencies": {

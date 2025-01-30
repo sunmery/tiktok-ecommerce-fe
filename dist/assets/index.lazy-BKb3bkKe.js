@@ -1,1 +1,0 @@
-import{c as e,j as o}from"./index-0_AJGUiB.js";const u=e("/logout/")({component:()=>o.jsx(n,{})});function n(){const t=()=>{localStorage.removeItem("token")};return o.jsx("button",{onClick:t,children:"Logout"})}export{u as Route};
