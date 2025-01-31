@@ -30,7 +30,7 @@ export const getSigninUrl = () => {
 
 // 获取用户信息
 export const getUserinfo = async () => {
-  const res = await fetch(`${serverUrl}/v1/users/profile`, {
+  const res = await fetch(`${serverUrl}/v1/user/profile`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`,
