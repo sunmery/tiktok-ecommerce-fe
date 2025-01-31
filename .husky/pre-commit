@@ -1,1 +1,2 @@
-pnpm lint
+pnpm oxlint
+pnpm stylelint

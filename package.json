@@ -3,19 +3,12 @@
   "private": false,
   "version": "1.0.0",
   "type": "module",
-  "lint-staged": {
-    "*.{ts,tsx,js,jsx,cjs,mjs,md}": "eslint --fix",
-    "*.{css,scss,sass}": "stylelint --fix",
-    "*.{ts,tsx,js,jsx,cjs,mjs}": "prettier --write"
-  },
+
   "scripts": {
-    "prepare": "husky ./.husky || true",
-    "prettier:check": "prettier --check src/**/**{.cjs,.mjs,.ts,.tsx,.html,.md}",
-    "prettier:write": "prettier --write src/**/**{.cjs,.mjs,.ts,.tsx,.html,.md}",
-    "lint": "lint-staged",
+    "prepare": "husky .husky || true",
+   
     "oxlint": "oxlint",
-    "eslint": "ESLINT_USE_FLAT_CONFIG=false eslint -c .eslintrc.yml **/*.{ts,tsx,md}",
-    "eslint:fix": "eslint --cache --max-warnings 0 src/**/*{.ts,.tsx} --fix",
+    "oxlint:fix": "oxlint --fix",
     "stylelint": "stylelint **/**.{css,scss,sass}",
     "stylelint:fix": "stylelint **/**.{css,scss,sass} --fix",
     "dev": "vite",
@@ -43,35 +36,23 @@
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
-    "@babel/eslint-parser": "^7.25.9",
     "@babel/preset-react": "^7.25.9",
     "@commitlint/cli": "^19.6.0",
     "@commitlint/config-conventional": "^19.6.0",
     "@commitlint/prompt-cli": "^19.6.0",
-    "@eslint/js": "^8.57.1",
-    "@tanstack/eslint-plugin-query": "^5.61.6",
     "@tanstack/router-plugin": "^1.84.4",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "@typescript-eslint/eslint-plugin": "^7.18.0",
-    "@typescript-eslint/parser": "^7.18.0",
     "@vitejs/plugin-basic-ssl": "^1.2.0",
     "commitlint": "^19.6.0",
-    "eslint": "^8.57.1",
-    "eslint-config-alloy": "^5.1.2",
-    "eslint-plugin-jsdoc": "^48.11.0",
-    "eslint-plugin-markdown": "^4.0.1",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-react": "^7.37.2",
     "husky": "^9.1.7",
-    "lint-staged": "^15.2.10",
+
     "oxlint": "^0.2.18",
-    "prettier": "3.2.5",
     "stylelint": "^16.11.0",
     "stylelint-config-recess-order": "^5.1.1",
     "stylelint-config-standard": "^36.0.1",
     "stylelint-config-standard-scss": "^13.1.0",
     "typescript": "^5.7.2",
-    "vite": "^6.0.2"
+    "vite": "^6.0.9"
   }
 }
