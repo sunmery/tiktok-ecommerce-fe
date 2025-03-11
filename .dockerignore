@@ -20,7 +20,7 @@
 **/docker-compose*
 **/compose.y*ml
 **/Dockerfile*
-**/npm-debug.log
+**/npm-debug.helper
 **/obj
 **/secrets.dev.yaml
 **/values.dev.yaml

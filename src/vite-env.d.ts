@@ -6,6 +6,7 @@ interface ImportMetaEnv {
 	readonly HUSKY: string
 	readonly URL: string
 	readonly VITE_USERS_URL: string
+	readonly VITE_AUTH_URL: string
 	readonly VITE_CASDOOR_URL: string
 	readonly VITE_CHECKOUT_URL: string
 	readonly VITE_CREDIT_CARDS_URL: string

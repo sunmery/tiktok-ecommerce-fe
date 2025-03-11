@@ -4,6 +4,7 @@ import type {Address} from '@/types/addresses.ts'
 // 定义购物车状态
 export interface AddressesState {
   addresses: Address[]
+  defaultAddress: Address
 }
 
 // 恢复本地存储的数据
@@ -12,6 +13,15 @@ export interface AddressesState {
 
 export const addressesStore = proxy<AddressesState>({
   addresses: [],
+  defaultAddress: {
+    id: 0,
+    userId: '',
+    streetAddress: '',
+    city: '',
+    state: '',
+    country: '',
+    zipCode: ''
+  }
 })
 
 // 订阅状态变化，将数据存储到 localStorage

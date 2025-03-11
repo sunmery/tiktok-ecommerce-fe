@@ -1,0 +1,43 @@
+{
+  "title": "结算",
+  "summary": {
+    "title": "订单摘要",
+    "items": "商品",
+    "subtotal": "小计",
+    "shipping": "运费",
+    "tax": "税费",
+    "total": "总计"
+  },
+  "shipping": {
+    "title": "收货信息",
+    "address": "收货地址",
+    "change": "更改",
+    "add": "添加新地址"
+  },
+  "payment": {
+    "title": "支付方式",
+    "creditCard": "信用卡",
+    "alipay": "支付宝",
+    "wechat": "微信支付",
+    "change": "更改",
+    "add": "添加新卡"
+  },
+  "contact": {
+    "title": "联系信息",
+    "email": "电子邮箱",
+    "phone": "手机号码"
+  },
+  "actions": {
+    "placeOrder": "提交订单",
+    "backToCart": "返回购物车",
+    "continue": "继续购物"
+  },
+  "messages": {
+    "processing": "正在处理您的订单...",
+    "success": "订单提交成功！",
+    "error": "订单提交失败，请重试",
+    "emptyCart": "您的购物车是空的，无法结算",
+    "addressRequired": "请选择收货地址",
+    "paymentRequired": "请选择支付方式"
+  }
+}

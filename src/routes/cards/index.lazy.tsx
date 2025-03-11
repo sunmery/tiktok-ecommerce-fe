@@ -1,11 +1,12 @@
-import {Box, Button, Input, List, ListItem} from '@mui/joy'
+import {Box, Button, Input, List, ListItem, Typography} from '@mui/joy'
 import {createLazyFileRoute} from '@tanstack/react-router'
 import type {ChangeEvent} from 'react'
 import {useState} from 'react'
 import {useMutation} from '@tanstack/react-query'
 import type {Carts} from '@/types/cards.ts'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
-export const Route = createLazyFileRoute('/cards/')({
+export const Route = createLazyFileRoute('/cards/')({  
 	component: () => <Cards />,
 })
 
@@ -14,10 +15,10 @@ export const Route = createLazyFileRoute('/cards/')({
  */
 export default function Cards() {
 	const [carts, setCarts] = useState<Carts>({
-		credit_card_number: '2538-1487-1909-0064',
-		credit_card_cvv: 1234,
-		credit_card_expiration_year: 2050,
-		credit_card_expiration_month: 12,
+		creditCardNumber: '2538-1487-1909-0064',
+		creditCardCvv: 1234,
+		creditCardExpirationYear: 2050,
+		creditCardExpirationMonth: 12,
 	})
 	const updateField = (field: keyof typeof carts, value: any) => {
 		setCarts((prevCarts) => ({
@@ -44,45 +45,50 @@ export default function Cards() {
 		mutationFn: addCard,
 	})
 	return (
-		<Box>
+		<Box sx={{ p: 2, maxWidth: '1200px', mx: 'auto' }}>
+			{/* 面包屑导航 */}
+			<Breadcrumbs pathMap={{ 'cards': '卡片管理' }} />
+			
+			<Typography level="h2" sx={{ mb: 3 }}>卡片管理</Typography>
+			
 			<List>
 				<ListItem>
 					<Input
-						placeholder="credit_card_number"
+						placeholder="creditCardNumber"
 						variant="plain"
-						value={carts.credit_card_number}
+						value={carts.creditCardNumber}
 						onChange={(event: ChangeEvent<HTMLInputElement>) =>
-							updateField('credit_card_number', event.target.value)
+							updateField('creditCardNumber', event.target.value)
 						}
 					/>
 				</ListItem>
 				<ListItem>
 					<Input
-						placeholder="credit_card_cvv"
+						placeholder="creditCardCvv"
 						variant="plain"
-						value={carts.credit_card_cvv}
+						value={carts.creditCardCvv}
 						onChange={(event: ChangeEvent<HTMLInputElement>) =>
-							updateField('credit_card_cvv', event.target.value)
+							updateField('creditCardCvv', event.target.value)
 						}
 					/>
 				</ListItem>
 				<ListItem>
 					<Input
-						placeholder="credit_card_expiration_year"
+						placeholder="creditCardExpirationYear"
 						variant="plain"
-						value={carts.credit_card_expiration_year}
+						value={carts.creditCardExpirationYear}
 						onChange={(event: ChangeEvent<HTMLInputElement>) =>
-							updateField('credit_card_expiration_year', event.target.value)
+							updateField('creditCardExpirationYear', event.target.value)
 						}
 					/>
 				</ListItem>
 				<ListItem>
 					<Input
-						placeholder="credit_card_expiration_month"
+						placeholder="creditCardExpirationMonth"
 						variant="plain"
-						value={carts.credit_card_expiration_month}
+						value={carts.creditCardExpirationMonth}
 						onChange={(event: ChangeEvent<HTMLInputElement>) =>
-							updateField('credit_card_expiration_month', event.target.value)
+							updateField('creditCardExpirationMonth', event.target.value)
 						}
 					/>
 				</ListItem>

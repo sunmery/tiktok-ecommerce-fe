@@ -13,22 +13,47 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as ProductsIndexImport } from './routes/products/index'
 
 // Create Virtual Routes
 
 const IndexLazyImport = createFileRoute('/')()
 const ProfileIndexLazyImport = createFileRoute('/profile/')()
-const ProductsIndexLazyImport = createFileRoute('/products/')()
 const OrdersIndexLazyImport = createFileRoute('/orders/')()
+const MerchantIndexLazyImport = createFileRoute('/merchant/')()
 const LogoutIndexLazyImport = createFileRoute('/logout/')()
 const LoginIndexLazyImport = createFileRoute('/login/')()
 const CreditcardsIndexLazyImport = createFileRoute('/credit_cards/')()
+const ConsumerIndexLazyImport = createFileRoute('/consumer/')()
 const CheckoutIndexLazyImport = createFileRoute('/checkout/')()
 const CartsIndexLazyImport = createFileRoute('/carts/')()
 const CardsIndexLazyImport = createFileRoute('/cards/')()
 const CallbackIndexLazyImport = createFileRoute('/callback/')()
-const BalanceIndexLazyImport = createFileRoute('/balance/')()
+const AdminIndexLazyImport = createFileRoute('/admin/')()
 const AddressesIndexLazyImport = createFileRoute('/addresses/')()
+const ProductsProductIdLazyImport = createFileRoute('/products/$productId')()
+const OrdersOrderIdLazyImport = createFileRoute('/orders/$orderId')()
+const MerchantProductsIndexLazyImport = createFileRoute('/merchant/products/')()
+const MerchantOrdersIndexLazyImport = createFileRoute('/merchant/orders/')()
+const MerchantInventoryIndexLazyImport = createFileRoute(
+  '/merchant/inventory/',
+)()
+const MerchantAnalyticsIndexLazyImport = createFileRoute(
+  '/merchant/analytics/',
+)()
+const ConsumerOrdersIndexLazyImport = createFileRoute('/consumer/orders/')()
+const AdminUsersIndexLazyImport = createFileRoute('/admin/users/')()
+const AdminDatabaseIndexLazyImport = createFileRoute('/admin/database/')()
+const AdminAnalyticsIndexLazyImport = createFileRoute('/admin/analytics/')()
+const ProductsCategoryCategoryNameLazyImport = createFileRoute(
+  '/products/category/$categoryName',
+)()
+const OrdersComponentsOrderListComponentLazyImport = createFileRoute(
+  '/orders/components/OrderList',
+)()
+const ConsumerOrdersOrderIdLazyImport = createFileRoute(
+  '/consumer/orders/$orderId',
+)()
 
 // Create/Update Routes
 
@@ -44,19 +69,19 @@ const ProfileIndexLazyRoute = ProfileIndexLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/profile/index.lazy').then((d) => d.Route))
 
-const ProductsIndexLazyRoute = ProductsIndexLazyImport.update({
-  id: '/products/',
-  path: '/products/',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() =>
-  import('./routes/products/index.lazy').then((d) => d.Route),
-)
-
 const OrdersIndexLazyRoute = OrdersIndexLazyImport.update({
   id: '/orders/',
   path: '/orders/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/orders/index.lazy').then((d) => d.Route))
+
+const MerchantIndexLazyRoute = MerchantIndexLazyImport.update({
+  id: '/merchant/',
+  path: '/merchant/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/merchant/index.lazy').then((d) => d.Route),
+)
 
 const LogoutIndexLazyRoute = LogoutIndexLazyImport.update({
   id: '/logout/',
@@ -76,6 +101,14 @@ const CreditcardsIndexLazyRoute = CreditcardsIndexLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() =>
   import('./routes/credit_cards/index.lazy').then((d) => d.Route),
+)
+
+const ConsumerIndexLazyRoute = ConsumerIndexLazyImport.update({
+  id: '/consumer/',
+  path: '/consumer/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/consumer/index.lazy').then((d) => d.Route),
 )
 
 const CheckoutIndexLazyRoute = CheckoutIndexLazyImport.update({
@@ -106,11 +139,11 @@ const CallbackIndexLazyRoute = CallbackIndexLazyImport.update({
   import('./routes/callback/index.lazy').then((d) => d.Route),
 )
 
-const BalanceIndexLazyRoute = BalanceIndexLazyImport.update({
-  id: '/balance/',
-  path: '/balance/',
+const AdminIndexLazyRoute = AdminIndexLazyImport.update({
+  id: '/admin/',
+  path: '/admin/',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/balance/index.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./routes/admin/index.lazy').then((d) => d.Route))
 
 const AddressesIndexLazyRoute = AddressesIndexLazyImport.update({
   id: '/addresses/',
@@ -118,6 +151,124 @@ const AddressesIndexLazyRoute = AddressesIndexLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() =>
   import('./routes/addresses/index.lazy').then((d) => d.Route),
+)
+
+const ProductsIndexRoute = ProductsIndexImport.update({
+  id: '/products/',
+  path: '/products/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ProductsProductIdLazyRoute = ProductsProductIdLazyImport.update({
+  id: '/products/$productId',
+  path: '/products/$productId',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/products/$productId.lazy').then((d) => d.Route),
+)
+
+const OrdersOrderIdLazyRoute = OrdersOrderIdLazyImport.update({
+  id: '/orders/$orderId',
+  path: '/orders/$orderId',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/orders/$orderId.lazy').then((d) => d.Route),
+)
+
+const MerchantProductsIndexLazyRoute = MerchantProductsIndexLazyImport.update({
+  id: '/merchant/products/',
+  path: '/merchant/products/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/merchant/products/index.lazy').then((d) => d.Route),
+)
+
+const MerchantOrdersIndexLazyRoute = MerchantOrdersIndexLazyImport.update({
+  id: '/merchant/orders/',
+  path: '/merchant/orders/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/merchant/orders/index.lazy').then((d) => d.Route),
+)
+
+const MerchantInventoryIndexLazyRoute = MerchantInventoryIndexLazyImport.update(
+  {
+    id: '/merchant/inventory/',
+    path: '/merchant/inventory/',
+    getParentRoute: () => rootRoute,
+  } as any,
+).lazy(() =>
+  import('./routes/merchant/inventory/index.lazy').then((d) => d.Route),
+)
+
+const MerchantAnalyticsIndexLazyRoute = MerchantAnalyticsIndexLazyImport.update(
+  {
+    id: '/merchant/analytics/',
+    path: '/merchant/analytics/',
+    getParentRoute: () => rootRoute,
+  } as any,
+).lazy(() =>
+  import('./routes/merchant/analytics/index.lazy').then((d) => d.Route),
+)
+
+const ConsumerOrdersIndexLazyRoute = ConsumerOrdersIndexLazyImport.update({
+  id: '/consumer/orders/',
+  path: '/consumer/orders/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/consumer/orders/index.lazy').then((d) => d.Route),
+)
+
+const AdminUsersIndexLazyRoute = AdminUsersIndexLazyImport.update({
+  id: '/admin/users/',
+  path: '/admin/users/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/admin/users/index.lazy').then((d) => d.Route),
+)
+
+const AdminDatabaseIndexLazyRoute = AdminDatabaseIndexLazyImport.update({
+  id: '/admin/database/',
+  path: '/admin/database/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/admin/database/index.lazy').then((d) => d.Route),
+)
+
+const AdminAnalyticsIndexLazyRoute = AdminAnalyticsIndexLazyImport.update({
+  id: '/admin/analytics/',
+  path: '/admin/analytics/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/admin/analytics/index.lazy').then((d) => d.Route),
+)
+
+const ProductsCategoryCategoryNameLazyRoute =
+  ProductsCategoryCategoryNameLazyImport.update({
+    id: '/products/category/$categoryName',
+    path: '/products/category/$categoryName',
+    getParentRoute: () => rootRoute,
+  } as any).lazy(() =>
+    import('./routes/products/category/$categoryName.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+
+const OrdersComponentsOrderListComponentLazyRoute =
+  OrdersComponentsOrderListComponentLazyImport.update({
+    id: '/orders/components/OrderList',
+    path: '/orders/components/OrderList',
+    getParentRoute: () => rootRoute,
+  } as any).lazy(() =>
+    import('./routes/orders/components/OrderList.lazy').then((d) => d.Route),
+  )
+
+const ConsumerOrdersOrderIdLazyRoute = ConsumerOrdersOrderIdLazyImport.update({
+  id: '/consumer/orders/$orderId',
+  path: '/consumer/orders/$orderId',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/consumer/orders/$orderId.lazy').then((d) => d.Route),
 )
 
 // Populate the FileRoutesByPath interface
@@ -131,6 +282,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyImport
       parentRoute: typeof rootRoute
     }
+    '/orders/$orderId': {
+      id: '/orders/$orderId'
+      path: '/orders/$orderId'
+      fullPath: '/orders/$orderId'
+      preLoaderRoute: typeof OrdersOrderIdLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/products/$productId': {
+      id: '/products/$productId'
+      path: '/products/$productId'
+      fullPath: '/products/$productId'
+      preLoaderRoute: typeof ProductsProductIdLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/products/': {
+      id: '/products/'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof ProductsIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/addresses/': {
       id: '/addresses/'
       path: '/addresses'
@@ -138,11 +310,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AddressesIndexLazyImport
       parentRoute: typeof rootRoute
     }
-    '/balance/': {
-      id: '/balance/'
-      path: '/balance'
-      fullPath: '/balance'
-      preLoaderRoute: typeof BalanceIndexLazyImport
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminIndexLazyImport
       parentRoute: typeof rootRoute
     }
     '/callback/': {
@@ -173,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutIndexLazyImport
       parentRoute: typeof rootRoute
     }
+    '/consumer/': {
+      id: '/consumer/'
+      path: '/consumer'
+      fullPath: '/consumer'
+      preLoaderRoute: typeof ConsumerIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/credit_cards/': {
       id: '/credit_cards/'
       path: '/credit_cards'
@@ -194,18 +373,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LogoutIndexLazyImport
       parentRoute: typeof rootRoute
     }
+    '/merchant/': {
+      id: '/merchant/'
+      path: '/merchant'
+      fullPath: '/merchant'
+      preLoaderRoute: typeof MerchantIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/orders/': {
       id: '/orders/'
       path: '/orders'
       fullPath: '/orders'
       preLoaderRoute: typeof OrdersIndexLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/products/': {
-      id: '/products/'
-      path: '/products'
-      fullPath: '/products'
-      preLoaderRoute: typeof ProductsIndexLazyImport
       parentRoute: typeof rootRoute
     }
     '/profile/': {
@@ -215,6 +394,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileIndexLazyImport
       parentRoute: typeof rootRoute
     }
+    '/consumer/orders/$orderId': {
+      id: '/consumer/orders/$orderId'
+      path: '/consumer/orders/$orderId'
+      fullPath: '/consumer/orders/$orderId'
+      preLoaderRoute: typeof ConsumerOrdersOrderIdLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/orders/components/OrderList': {
+      id: '/orders/components/OrderList'
+      path: '/orders/components/OrderList'
+      fullPath: '/orders/components/OrderList'
+      preLoaderRoute: typeof OrdersComponentsOrderListComponentLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/products/category/$categoryName': {
+      id: '/products/category/$categoryName'
+      path: '/products/category/$categoryName'
+      fullPath: '/products/category/$categoryName'
+      preLoaderRoute: typeof ProductsCategoryCategoryNameLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/admin/analytics/': {
+      id: '/admin/analytics/'
+      path: '/admin/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AdminAnalyticsIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/admin/database/': {
+      id: '/admin/database/'
+      path: '/admin/database'
+      fullPath: '/admin/database'
+      preLoaderRoute: typeof AdminDatabaseIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/admin/users/': {
+      id: '/admin/users/'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/consumer/orders/': {
+      id: '/consumer/orders/'
+      path: '/consumer/orders'
+      fullPath: '/consumer/orders'
+      preLoaderRoute: typeof ConsumerOrdersIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/merchant/analytics/': {
+      id: '/merchant/analytics/'
+      path: '/merchant/analytics'
+      fullPath: '/merchant/analytics'
+      preLoaderRoute: typeof MerchantAnalyticsIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/merchant/inventory/': {
+      id: '/merchant/inventory/'
+      path: '/merchant/inventory'
+      fullPath: '/merchant/inventory'
+      preLoaderRoute: typeof MerchantInventoryIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/merchant/orders/': {
+      id: '/merchant/orders/'
+      path: '/merchant/orders'
+      fullPath: '/merchant/orders'
+      preLoaderRoute: typeof MerchantOrdersIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/merchant/products/': {
+      id: '/merchant/products/'
+      path: '/merchant/products'
+      fullPath: '/merchant/products'
+      preLoaderRoute: typeof MerchantProductsIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -222,132 +478,253 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
+  '/orders/$orderId': typeof OrdersOrderIdLazyRoute
+  '/products/$productId': typeof ProductsProductIdLazyRoute
+  '/products': typeof ProductsIndexRoute
   '/addresses': typeof AddressesIndexLazyRoute
-  '/balance': typeof BalanceIndexLazyRoute
+  '/admin': typeof AdminIndexLazyRoute
   '/callback': typeof CallbackIndexLazyRoute
   '/cards': typeof CardsIndexLazyRoute
   '/carts': typeof CartsIndexLazyRoute
   '/checkout': typeof CheckoutIndexLazyRoute
+  '/consumer': typeof ConsumerIndexLazyRoute
   '/credit_cards': typeof CreditcardsIndexLazyRoute
   '/login': typeof LoginIndexLazyRoute
   '/logout': typeof LogoutIndexLazyRoute
+  '/merchant': typeof MerchantIndexLazyRoute
   '/orders': typeof OrdersIndexLazyRoute
-  '/products': typeof ProductsIndexLazyRoute
   '/profile': typeof ProfileIndexLazyRoute
+  '/consumer/orders/$orderId': typeof ConsumerOrdersOrderIdLazyRoute
+  '/orders/components/OrderList': typeof OrdersComponentsOrderListComponentLazyRoute
+  '/products/category/$categoryName': typeof ProductsCategoryCategoryNameLazyRoute
+  '/admin/analytics': typeof AdminAnalyticsIndexLazyRoute
+  '/admin/database': typeof AdminDatabaseIndexLazyRoute
+  '/admin/users': typeof AdminUsersIndexLazyRoute
+  '/consumer/orders': typeof ConsumerOrdersIndexLazyRoute
+  '/merchant/analytics': typeof MerchantAnalyticsIndexLazyRoute
+  '/merchant/inventory': typeof MerchantInventoryIndexLazyRoute
+  '/merchant/orders': typeof MerchantOrdersIndexLazyRoute
+  '/merchant/products': typeof MerchantProductsIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
+  '/orders/$orderId': typeof OrdersOrderIdLazyRoute
+  '/products/$productId': typeof ProductsProductIdLazyRoute
+  '/products': typeof ProductsIndexRoute
   '/addresses': typeof AddressesIndexLazyRoute
-  '/balance': typeof BalanceIndexLazyRoute
+  '/admin': typeof AdminIndexLazyRoute
   '/callback': typeof CallbackIndexLazyRoute
   '/cards': typeof CardsIndexLazyRoute
   '/carts': typeof CartsIndexLazyRoute
   '/checkout': typeof CheckoutIndexLazyRoute
+  '/consumer': typeof ConsumerIndexLazyRoute
   '/credit_cards': typeof CreditcardsIndexLazyRoute
   '/login': typeof LoginIndexLazyRoute
   '/logout': typeof LogoutIndexLazyRoute
+  '/merchant': typeof MerchantIndexLazyRoute
   '/orders': typeof OrdersIndexLazyRoute
-  '/products': typeof ProductsIndexLazyRoute
   '/profile': typeof ProfileIndexLazyRoute
+  '/consumer/orders/$orderId': typeof ConsumerOrdersOrderIdLazyRoute
+  '/orders/components/OrderList': typeof OrdersComponentsOrderListComponentLazyRoute
+  '/products/category/$categoryName': typeof ProductsCategoryCategoryNameLazyRoute
+  '/admin/analytics': typeof AdminAnalyticsIndexLazyRoute
+  '/admin/database': typeof AdminDatabaseIndexLazyRoute
+  '/admin/users': typeof AdminUsersIndexLazyRoute
+  '/consumer/orders': typeof ConsumerOrdersIndexLazyRoute
+  '/merchant/analytics': typeof MerchantAnalyticsIndexLazyRoute
+  '/merchant/inventory': typeof MerchantInventoryIndexLazyRoute
+  '/merchant/orders': typeof MerchantOrdersIndexLazyRoute
+  '/merchant/products': typeof MerchantProductsIndexLazyRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
+  '/orders/$orderId': typeof OrdersOrderIdLazyRoute
+  '/products/$productId': typeof ProductsProductIdLazyRoute
+  '/products/': typeof ProductsIndexRoute
   '/addresses/': typeof AddressesIndexLazyRoute
-  '/balance/': typeof BalanceIndexLazyRoute
+  '/admin/': typeof AdminIndexLazyRoute
   '/callback/': typeof CallbackIndexLazyRoute
   '/cards/': typeof CardsIndexLazyRoute
   '/carts/': typeof CartsIndexLazyRoute
   '/checkout/': typeof CheckoutIndexLazyRoute
+  '/consumer/': typeof ConsumerIndexLazyRoute
   '/credit_cards/': typeof CreditcardsIndexLazyRoute
   '/login/': typeof LoginIndexLazyRoute
   '/logout/': typeof LogoutIndexLazyRoute
+  '/merchant/': typeof MerchantIndexLazyRoute
   '/orders/': typeof OrdersIndexLazyRoute
-  '/products/': typeof ProductsIndexLazyRoute
   '/profile/': typeof ProfileIndexLazyRoute
+  '/consumer/orders/$orderId': typeof ConsumerOrdersOrderIdLazyRoute
+  '/orders/components/OrderList': typeof OrdersComponentsOrderListComponentLazyRoute
+  '/products/category/$categoryName': typeof ProductsCategoryCategoryNameLazyRoute
+  '/admin/analytics/': typeof AdminAnalyticsIndexLazyRoute
+  '/admin/database/': typeof AdminDatabaseIndexLazyRoute
+  '/admin/users/': typeof AdminUsersIndexLazyRoute
+  '/consumer/orders/': typeof ConsumerOrdersIndexLazyRoute
+  '/merchant/analytics/': typeof MerchantAnalyticsIndexLazyRoute
+  '/merchant/inventory/': typeof MerchantInventoryIndexLazyRoute
+  '/merchant/orders/': typeof MerchantOrdersIndexLazyRoute
+  '/merchant/products/': typeof MerchantProductsIndexLazyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/orders/$orderId'
+    | '/products/$productId'
+    | '/products'
     | '/addresses'
-    | '/balance'
+    | '/admin'
     | '/callback'
     | '/cards'
     | '/carts'
     | '/checkout'
+    | '/consumer'
     | '/credit_cards'
     | '/login'
     | '/logout'
+    | '/merchant'
     | '/orders'
-    | '/products'
     | '/profile'
+    | '/consumer/orders/$orderId'
+    | '/orders/components/OrderList'
+    | '/products/category/$categoryName'
+    | '/admin/analytics'
+    | '/admin/database'
+    | '/admin/users'
+    | '/consumer/orders'
+    | '/merchant/analytics'
+    | '/merchant/inventory'
+    | '/merchant/orders'
+    | '/merchant/products'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/orders/$orderId'
+    | '/products/$productId'
+    | '/products'
     | '/addresses'
-    | '/balance'
+    | '/admin'
     | '/callback'
     | '/cards'
     | '/carts'
     | '/checkout'
+    | '/consumer'
     | '/credit_cards'
     | '/login'
     | '/logout'
+    | '/merchant'
     | '/orders'
-    | '/products'
     | '/profile'
+    | '/consumer/orders/$orderId'
+    | '/orders/components/OrderList'
+    | '/products/category/$categoryName'
+    | '/admin/analytics'
+    | '/admin/database'
+    | '/admin/users'
+    | '/consumer/orders'
+    | '/merchant/analytics'
+    | '/merchant/inventory'
+    | '/merchant/orders'
+    | '/merchant/products'
   id:
     | '__root__'
     | '/'
+    | '/orders/$orderId'
+    | '/products/$productId'
+    | '/products/'
     | '/addresses/'
-    | '/balance/'
+    | '/admin/'
     | '/callback/'
     | '/cards/'
     | '/carts/'
     | '/checkout/'
+    | '/consumer/'
     | '/credit_cards/'
     | '/login/'
     | '/logout/'
+    | '/merchant/'
     | '/orders/'
-    | '/products/'
     | '/profile/'
+    | '/consumer/orders/$orderId'
+    | '/orders/components/OrderList'
+    | '/products/category/$categoryName'
+    | '/admin/analytics/'
+    | '/admin/database/'
+    | '/admin/users/'
+    | '/consumer/orders/'
+    | '/merchant/analytics/'
+    | '/merchant/inventory/'
+    | '/merchant/orders/'
+    | '/merchant/products/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
+  OrdersOrderIdLazyRoute: typeof OrdersOrderIdLazyRoute
+  ProductsProductIdLazyRoute: typeof ProductsProductIdLazyRoute
+  ProductsIndexRoute: typeof ProductsIndexRoute
   AddressesIndexLazyRoute: typeof AddressesIndexLazyRoute
-  BalanceIndexLazyRoute: typeof BalanceIndexLazyRoute
+  AdminIndexLazyRoute: typeof AdminIndexLazyRoute
   CallbackIndexLazyRoute: typeof CallbackIndexLazyRoute
   CardsIndexLazyRoute: typeof CardsIndexLazyRoute
   CartsIndexLazyRoute: typeof CartsIndexLazyRoute
   CheckoutIndexLazyRoute: typeof CheckoutIndexLazyRoute
+  ConsumerIndexLazyRoute: typeof ConsumerIndexLazyRoute
   CreditcardsIndexLazyRoute: typeof CreditcardsIndexLazyRoute
   LoginIndexLazyRoute: typeof LoginIndexLazyRoute
   LogoutIndexLazyRoute: typeof LogoutIndexLazyRoute
+  MerchantIndexLazyRoute: typeof MerchantIndexLazyRoute
   OrdersIndexLazyRoute: typeof OrdersIndexLazyRoute
-  ProductsIndexLazyRoute: typeof ProductsIndexLazyRoute
   ProfileIndexLazyRoute: typeof ProfileIndexLazyRoute
+  ConsumerOrdersOrderIdLazyRoute: typeof ConsumerOrdersOrderIdLazyRoute
+  OrdersComponentsOrderListComponentLazyRoute: typeof OrdersComponentsOrderListComponentLazyRoute
+  ProductsCategoryCategoryNameLazyRoute: typeof ProductsCategoryCategoryNameLazyRoute
+  AdminAnalyticsIndexLazyRoute: typeof AdminAnalyticsIndexLazyRoute
+  AdminDatabaseIndexLazyRoute: typeof AdminDatabaseIndexLazyRoute
+  AdminUsersIndexLazyRoute: typeof AdminUsersIndexLazyRoute
+  ConsumerOrdersIndexLazyRoute: typeof ConsumerOrdersIndexLazyRoute
+  MerchantAnalyticsIndexLazyRoute: typeof MerchantAnalyticsIndexLazyRoute
+  MerchantInventoryIndexLazyRoute: typeof MerchantInventoryIndexLazyRoute
+  MerchantOrdersIndexLazyRoute: typeof MerchantOrdersIndexLazyRoute
+  MerchantProductsIndexLazyRoute: typeof MerchantProductsIndexLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
+  OrdersOrderIdLazyRoute: OrdersOrderIdLazyRoute,
+  ProductsProductIdLazyRoute: ProductsProductIdLazyRoute,
+  ProductsIndexRoute: ProductsIndexRoute,
   AddressesIndexLazyRoute: AddressesIndexLazyRoute,
-  BalanceIndexLazyRoute: BalanceIndexLazyRoute,
+  AdminIndexLazyRoute: AdminIndexLazyRoute,
   CallbackIndexLazyRoute: CallbackIndexLazyRoute,
   CardsIndexLazyRoute: CardsIndexLazyRoute,
   CartsIndexLazyRoute: CartsIndexLazyRoute,
   CheckoutIndexLazyRoute: CheckoutIndexLazyRoute,
+  ConsumerIndexLazyRoute: ConsumerIndexLazyRoute,
   CreditcardsIndexLazyRoute: CreditcardsIndexLazyRoute,
   LoginIndexLazyRoute: LoginIndexLazyRoute,
   LogoutIndexLazyRoute: LogoutIndexLazyRoute,
+  MerchantIndexLazyRoute: MerchantIndexLazyRoute,
   OrdersIndexLazyRoute: OrdersIndexLazyRoute,
-  ProductsIndexLazyRoute: ProductsIndexLazyRoute,
   ProfileIndexLazyRoute: ProfileIndexLazyRoute,
+  ConsumerOrdersOrderIdLazyRoute: ConsumerOrdersOrderIdLazyRoute,
+  OrdersComponentsOrderListComponentLazyRoute:
+    OrdersComponentsOrderListComponentLazyRoute,
+  ProductsCategoryCategoryNameLazyRoute: ProductsCategoryCategoryNameLazyRoute,
+  AdminAnalyticsIndexLazyRoute: AdminAnalyticsIndexLazyRoute,
+  AdminDatabaseIndexLazyRoute: AdminDatabaseIndexLazyRoute,
+  AdminUsersIndexLazyRoute: AdminUsersIndexLazyRoute,
+  ConsumerOrdersIndexLazyRoute: ConsumerOrdersIndexLazyRoute,
+  MerchantAnalyticsIndexLazyRoute: MerchantAnalyticsIndexLazyRoute,
+  MerchantInventoryIndexLazyRoute: MerchantInventoryIndexLazyRoute,
+  MerchantOrdersIndexLazyRoute: MerchantOrdersIndexLazyRoute,
+  MerchantProductsIndexLazyRoute: MerchantProductsIndexLazyRoute,
 }
 
 export const routeTree = rootRoute
@@ -361,28 +738,52 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/orders/$orderId",
+        "/products/$productId",
+        "/products/",
         "/addresses/",
-        "/balance/",
+        "/admin/",
         "/callback/",
         "/cards/",
         "/carts/",
         "/checkout/",
+        "/consumer/",
         "/credit_cards/",
         "/login/",
         "/logout/",
+        "/merchant/",
         "/orders/",
-        "/products/",
-        "/profile/"
+        "/profile/",
+        "/consumer/orders/$orderId",
+        "/orders/components/OrderList",
+        "/products/category/$categoryName",
+        "/admin/analytics/",
+        "/admin/database/",
+        "/admin/users/",
+        "/consumer/orders/",
+        "/merchant/analytics/",
+        "/merchant/inventory/",
+        "/merchant/orders/",
+        "/merchant/products/"
       ]
     },
     "/": {
       "filePath": "index.lazy.tsx"
     },
+    "/orders/$orderId": {
+      "filePath": "orders/$orderId.lazy.tsx"
+    },
+    "/products/$productId": {
+      "filePath": "products/$productId.lazy.tsx"
+    },
+    "/products/": {
+      "filePath": "products/index.tsx"
+    },
     "/addresses/": {
       "filePath": "addresses/index.lazy.tsx"
     },
-    "/balance/": {
-      "filePath": "balance/index.lazy.tsx"
+    "/admin/": {
+      "filePath": "admin/index.lazy.tsx"
     },
     "/callback/": {
       "filePath": "callback/index.lazy.tsx"
@@ -396,6 +797,9 @@ export const routeTree = rootRoute
     "/checkout/": {
       "filePath": "checkout/index.lazy.tsx"
     },
+    "/consumer/": {
+      "filePath": "consumer/index.lazy.tsx"
+    },
     "/credit_cards/": {
       "filePath": "credit_cards/index.lazy.tsx"
     },
@@ -405,14 +809,47 @@ export const routeTree = rootRoute
     "/logout/": {
       "filePath": "logout/index.lazy.tsx"
     },
+    "/merchant/": {
+      "filePath": "merchant/index.lazy.tsx"
+    },
     "/orders/": {
       "filePath": "orders/index.lazy.tsx"
     },
-    "/products/": {
-      "filePath": "products/index.lazy.tsx"
-    },
     "/profile/": {
       "filePath": "profile/index.lazy.tsx"
+    },
+    "/consumer/orders/$orderId": {
+      "filePath": "consumer/orders/$orderId.lazy.tsx"
+    },
+    "/orders/components/OrderList": {
+      "filePath": "orders/components/OrderList.component.lazy.tsx"
+    },
+    "/products/category/$categoryName": {
+      "filePath": "products/category/$categoryName.lazy.tsx"
+    },
+    "/admin/analytics/": {
+      "filePath": "admin/analytics/index.lazy.tsx"
+    },
+    "/admin/database/": {
+      "filePath": "admin/database/index.lazy.tsx"
+    },
+    "/admin/users/": {
+      "filePath": "admin/users/index.lazy.tsx"
+    },
+    "/consumer/orders/": {
+      "filePath": "consumer/orders/index.lazy.tsx"
+    },
+    "/merchant/analytics/": {
+      "filePath": "merchant/analytics/index.lazy.tsx"
+    },
+    "/merchant/inventory/": {
+      "filePath": "merchant/inventory/index.lazy.tsx"
+    },
+    "/merchant/orders/": {
+      "filePath": "merchant/orders/index.lazy.tsx"
+    },
+    "/merchant/products/": {
+      "filePath": "merchant/products/index.lazy.tsx"
     }
   }
 }

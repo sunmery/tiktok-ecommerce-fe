@@ -1,176 +1,240 @@
-import {createLazyFileRoute} from '@tanstack/react-router'
-
-// import Carts from '@/pages/Carts'
-export const Route = createLazyFileRoute('/carts/')({
-	component: () => <Cart />,
-})
-import {useSnapshot} from 'valtio/react'
-import {cartStore} from '@/store/cartStore'
-import {addressesStore} from '@/store/addressesStore'
-import {FavoriteBorder} from '@mui/icons-material'
-
+import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
+import {FavoriteBorder, Add, Remove, ShoppingCart} from '@mui/icons-material'
 import type {ModalDialogProps} from '@mui/joy'
 import {
-	Box,
-	List,
-	ListItem,
-	Chip,
-	Select,
-	Sheet,
-	Table,
-	Modal,
-	Button,
-	ModalClose,
-	ModalDialog,
-	DialogTitle,
-	DialogContent,
-	Option,
+    Box,
+    Chip,
+    Table,
+    Button,
+    Typography,
+    IconButton,
+    Card,
 } from '@mui/joy'
 import {useState} from 'react'
+
+import {useCart} from "@/hooks/useCart.ts";
+
+export const Route = createLazyFileRoute('/carts/')({component: () => <Cart/>})
 
 /**
  *@returns JSXElement
  */
-export default function Cart() {
-	const {items} = useSnapshot(cartStore)
-	const {addresses} = useSnapshot(addressesStore)
+function Cart() {
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const navigate = useNavigate()
 
-	const removeItem = (id: number) => {
-		cartStore.removeItem(id)
-	}
+    const {cartItems, isLoading, removeItem: apiRemoveItem, updateQuantity: apiUpdateQuantity, clearCart: apiClearCart} = useCart()
 
-	const clearCart = () => {
-		cartStore.clearCart()
-	}
+    const removeItem = (id: string) => {
+        try {
+            apiRemoveItem(Number(id))
+        } catch (err) {
+            setError('删除商品失败，请稍后重试')
+        }
+    }
 
-	const [variant, setVariant] = useState<
-		ModalDialogProps['variant'] | undefined
-	>(undefined)
+    const updateQuantity = (id: string, change: number) => {
+        try {
+            const item = cartItems.find(item => item.id === id)
+            if (item) {
+                const newQuantity = item.quantity + change
+                if (newQuantity > 0) {
+                    apiUpdateQuantity({itemId: Number(id), quantity: newQuantity})
+                } else {
+                    removeItem(id)
+                }
+            }
+        } catch (err) {
+            setError('更新商品数量失败，请稍后重试')
+        }
+    }
 
-	return (
-		<div>
-			<h2>Shopping Cart</h2>
-			{items.length > 0 ? (
-				<Box>
-					<List>
-						{items.map((item) => (
-							<ListItem key={item.id}>
-								<Sheet>
-									<Table>
-										<thead>
-											<tr>
-												<th>Name</th>
-												<th>Description</th>
-												<th>Picture</th>
-												<th>Price</th>
-												<th>Quantity</th>
-												<th>Categories</th>
-												<th>Option</th>
-											</tr>
-										</thead>
-										<tbody>
-											<tr>
-												<td>{item.name}</td>
-												<td>{item.description}</td>
-												<td>{item.picture}</td>
-												<td>{item.price}</td>
-												<td>{item.quantity}</td>
-												<td>{item.categories}</td>
-												<td>
-													<Button
-														variant="outlined"
-														onClick={() => removeItem(item.id)}
-													>
-														Remove
-													</Button>
-												</td>
-											</tr>
-										</tbody>
-									</Table>
-								</Sheet>
-							</ListItem>
-						))}
-					</List>
+    const handleClearCart = () => {
+        try {
+            apiClearCart()
+        } catch (err) {
+            setError('清空购物车失败，请稍后重试')
+        }
+    }
 
-					<Button
-						variant="soft"
-						color="neutral"
-						onClick={() => {
-							setVariant('soft')
-						}}
-					>
-						结算
-					</Button>
-					<Modal
-						open={!!variant}
-						onClose={() => setVariant(undefined)}
-					>
-						<ModalDialog variant={variant}>
-							<ModalClose />
-							<DialogTitle>订单结算</DialogTitle>
-							<DialogContent>订单价格: </DialogContent>
-							<DialogContent>
-								收货地址:
-								<Select
-									placeholder="选择收货地址"
-									startDecorator={<FavoriteBorder />}
-									endDecorator={
-										<Chip
-											size="sm"
-											color="danger"
-											variant="soft"
-										>
-											{addresses.length}
-										</Chip>
-									}
-									sx={{width: 240}}
-								>
-									{addresses.length > 0 ? (
-										addresses.map((item) => (
-											<Option
-												key={item.id}
-												value={item.street_address}
-											>
-												{item.street_address}
-											</Option>
-										))
-									) : (
-										<>null</>
-									)}
-								</Select>
-							</DialogContent>
-							<DialogContent>
-								支付方式:
-								<Select
-									placeholder="支付方式"
-									startDecorator={<FavoriteBorder />}
-									endDecorator={
-										<Chip
-											size="sm"
-											color="danger"
-											variant="soft"
-										>
-											{addresses.length}
-										</Chip>
-									}
-									sx={{width: 240}}
-								>
-									<Option value="微信">微信</Option>
-									<Option value="支付宝">支付宝</Option>
-									<Option value="余额">余额</Option>
-								</Select>
-							</DialogContent>
-							<DialogContent>
-								<Button>支付</Button>
-							</DialogContent>
-						</ModalDialog>
-					</Modal>
-					{/* <Link to="/payment">结算</Link> */}
-					<Button onClick={clearCart}>Clear Cart</Button>
-				</Box>
-			) : (
-				<p>Your cart is empty.</p>
-			)}
-		</div>
-	)
+    // 定义结账对话框的变体类型
+    const [variant, setVariant] = useState<
+        ModalDialogProps['variant'] | undefined
+    >(undefined)
+
+    // 计算商品小计
+    const getItemSubtotal = (price: number, quantity: number) => {
+        return price * quantity
+    }
+
+    // 获取购物车总价
+    const getTotalPrice = () => {
+        return cartItems.reduce((total, item) => total + (item.price || 0) * (item.quantity || 0), 0)
+    }
+
+    // 处理结算逻辑
+    const handleCheckout = () => {
+        if (!cartItems || cartItems.length === 0) {
+            setError('购物车为空，无法结算')
+            return
+        }
+
+        try {
+            setLoading(true)
+            // 跳转到结算页面
+            navigate({to: '/checkout/'})
+        } catch (err) {
+            setError('跳转到结算页面失败，请稍后重试')
+            setLoading(false)
+        }
+    }
+
+    if (isLoading) {
+        return <div>获取线上的购物车数据中</div>
+    }
+    
+    return (
+        <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
+            {/* 删除了面包屑导航 */}
+
+            <Typography level="h2" sx={{mb: 3}}>购物车</Typography>
+            {error && (
+                <Typography color="danger" sx={{mb: 2}}>
+                    {error}
+                </Typography>
+            )}
+            {cartItems && cartItems.length > 0 ? (
+                <Box>
+                    <Card variant="outlined" sx={{mb: 3}}>
+                        <Table>
+                            <thead>
+                            <tr>
+                                <th style={{width: '30%'}}>商品信息</th>
+                                <th style={{width: '15%'}}>单价</th>
+                                <th style={{width: '20%'}}>数量</th>
+                                <th style={{width: '15%'}}>小计</th>
+                                <th style={{width: '20%'}}>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {cartItems.map((item) => (
+                                <tr key={item.id}>
+                                    <td>
+                                        <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
+                                            {item.images && item.images.length > 0 && (
+                                                <Box
+                                                    component="img"
+                                                    src={item.images[0]}
+                                                    alt={item.name}
+                                                    width={80}
+                                                    height={80}
+                                                    sx={{objectFit: 'cover', borderRadius: 'sm'}}
+                                                />
+                                            )}
+                                            <Box>
+                                                <Typography level="title-md">{item.name}</Typography>
+                                                {item.description && (
+                                                    <Typography level="body-sm" noWrap sx={{maxWidth: 250}}>
+                                                        {item.description}
+                                                    </Typography>
+                                                )}
+                                                {item.categories && item.categories.length > 0 && (
+                                                    <Box
+                                                        sx={{display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap'}}>
+                                                        {item.categories.map((category, index) => (
+                                                            <Chip
+                                                                key={index}
+                                                                size="sm"
+                                                                variant="soft"
+                                                                color="primary"
+                                                            >
+                                                                {category}
+                                                            </Chip>
+                                                        ))}
+                                                    </Box>
+                                                )}
+                                            </Box>
+                                        </Box>
+                                    </td>
+                                    <td>
+                                        <Typography level="title-md">¥{(item.price || 0).toFixed(2)}</Typography>
+                                    </td>
+                                    <td>
+                                        <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                            <IconButton
+                                                size="sm"
+                                                variant="outlined"
+                                                color="neutral"
+                                                onClick={() => updateQuantity(item.id, -1)}
+                                            >
+                                                <Remove/>
+                                            </IconButton>
+                                            <Typography sx={{minWidth: '40px', textAlign: 'center'}}>
+                                                {item.quantity}
+                                            </Typography>
+                                            <IconButton
+                                                size="sm"
+                                                variant="outlined"
+                                                color="neutral"
+                                                onClick={() => updateQuantity(item.id, 1)}
+                                            >
+                                                <Add/>
+                                            </IconButton>
+                                        </Box>
+                                    </td>
+                                    <td>
+                                        <Typography level="title-md" color="primary">
+                                            ¥{getItemSubtotal((item.price || 0), (item.quantity || 0)).toFixed(2)}
+                                        </Typography>
+                                    </td>
+                                    <td>
+                                        <Button
+                                            variant="soft"
+                                            color="danger"
+                                            onClick={() => removeItem(item.id)}
+                                        >
+                                            删除
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </Table>
+                    </Card>
+
+                    <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
+                        <Button
+                            variant="outlined"
+                            color="danger"
+                            onClick={handleClearCart}
+                            startDecorator={<FavoriteBorder/>}
+                        >
+                            清空购物车
+                        </Button>
+                        <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
+                            <Typography level="h4">
+                                总计: ¥{(getTotalPrice() || 0).toFixed(2)}
+                            </Typography>
+                            <Button
+                                size="lg"
+                                color="primary"
+                                variant="solid"
+                                startDecorator={<ShoppingCart/>}
+                                onClick={handleCheckout}
+                                disabled={!cartItems || cartItems.length === 0}
+                            >
+                                去结算
+                            </Button>
+                        </Box>
+                    </Box>
+                </Box>
+            ) : (
+                <Card variant="outlined" sx={{p: 4, textAlign: 'center'}}>
+                    <Typography level="h3" sx={{mb: 2}}>购物车为空</Typography>
+                    <Typography sx={{mb: 3}}>您的购物车中还没有商品，快去选购吧！</Typography>
+                </Card>
+            )}
+        </Box>
+    )
 }

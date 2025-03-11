@@ -1,64 +1,86 @@
-import {createLazyFileRoute} from '@tanstack/react-router'
-import {useEffect, useState} from 'react'
-import {useSnapshot} from 'valtio/react'
-import {addressesStore} from '@/store/addressesStore.ts'
-import {userStore} from '@/store/user.ts'
-import type {CartItem} from '@/types/carts.ts'
+import { createLazyFileRoute } from '@tanstack/react-router'
+import { useState } from 'react'
+import { Box, Typography, CircularProgress, Alert, Card, CardContent, Divider, Sheet, Stack } from '@mui/joy'
+import Pagination from '@/components/Pagination'
+import OrderList from './components/OrderList.lazy'
+import { useSnapshot } from 'valtio/react'
+import { userStore } from '@/store/user.ts'
+import Breadcrumbs from '@/components/Breadcrumbs'
+import { useOrderList } from '@/hooks/useOrder'
 
-export const Route = createLazyFileRoute('/orders/')({
-	component: RouteComponent,
+export const Route = createLazyFileRoute('/orders/')({ 
+  component: Orders,
 })
 
-/**
- *@returns Element
- */
-function RouteComponent() {
-	const [orders, setOrders] = useState<CartItem[]>([])
-	const {default_address} = useSnapshot(addressesStore)
-	const {account} = useSnapshot(userStore)
+function Orders() {
+  const [page, setPage] = useState(1)
+  const pageSize = 10
+  const { account } = useSnapshot(userStore)
 
-	useEffect(() => {
-		fetch(`${import.meta.env.VITE_ORDERS_URL}`, {
-			method: 'POST',
-			headers: {'Authorization': 'Bearer ' + localStorage.getItem('token')},
-			body: JSON.stringify({
-				owner: account.owner,
-				name: account.name,
-				user_currency: account.user_currency,
-				address: default_address,
-				email: account.email,
-				order_items: orders,
-			}),
-		})
-			.then((data) => data.json())
-			.then((data) => setOrders(data))
-			.catch((e) => console.error(e))
-	}, [])
+  // 使用useOrderList钩子获取订单列表
+  const { 
+    data, 
+    isLoading: loading, 
+    error: queryError 
+  } = useOrderList({ 
+    page: page - 1, // API从0开始计数，UI从1开始计数
+    pageSize: pageSize 
+  })
 
-	return (
-		<div>
-			{orders?.length > 0 ? (
-				orders.map((order) => (
-					<ol key={order.id}>
-						<li>
-							<span>
-								{default_address.id},{default_address.street_address},
-								{default_address.city},{default_address.state},
-								{default_address.country},{default_address.zip_code}
-							</span>
-						</li>
-						<li>id:{order.id}</li>
-						<li>name:{order.name}</li>
-						<li>description:{order.description}</li>
-						<li>picture:{order.picture}</li>
-						<li>price:{order.price}</li>
-						<li>quantity:{order.quantity}</li>
-						<li>categories:{order.categories}</li>
-					</ol>
-				))
-			) : (
-				<div>暂无数据</div>
-			)}
-		</div>
-	)
+  // 计算总页数
+  const totalPages = data && data.orders ? Math.ceil(data.orders.length / pageSize) : 1
+
+  // 处理分页变化
+  const handlePageChange = (_event: React.SyntheticEvent, value: number) => {
+    setPage(value)
+  }
+
+  // 处理错误信息
+  const error = queryError ? (queryError as Error).message : ''
+
+  return (
+    <Box sx={{ p: 2, maxWidth: 1200, margin: '0 auto' }}>
+      {/* 面包屑导航 */}
+      <Breadcrumbs pathMap={{ 'orders': '我的订单' }} />
+      
+      <Card variant="outlined" sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography level="h2" sx={{ mb: 2 }}>我的订单</Typography>
+          <Divider sx={{ mb: 2 }} />
+          
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+              <CircularProgress size="lg" />
+            </Box>
+          ) : error ? (
+            <Alert color="danger" sx={{ mb: 2 }}>{error}</Alert>
+          ) : !data?.orders || data.orders.length === 0 ? (
+            <Sheet variant="soft" color="neutral" sx={{ p: 4, borderRadius: 'md', textAlign: 'center' }}>
+              <Typography level="body-lg">暂无订单记录</Typography>
+              <Typography level="body-sm" sx={{ mt: 1, color: 'neutral.500' }}>您的订单将在此处显示</Typography>
+            </Sheet>
+          ) : (
+            <>
+              <Stack spacing={2}>
+                <OrderList orders={data.orders} />
+              </Stack>
+              
+              {totalPages > 1 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                  <Pagination 
+                    count={totalPages} 
+                    page={page} 
+                    onChange={handlePageChange} 
+                    size="md"
+                    showFirstButton
+                    showLastButton
+                  />
+                </Box>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </Box>
+  )
 }

@@ -1,2 +1,0 @@
-doSomething();
-foo = 1;

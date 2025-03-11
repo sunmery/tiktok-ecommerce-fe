@@ -1,12 +1,14 @@
 export interface Account {
-  id: string
   owner: string
-  type: string
   name: string
   avatar: string
   email: string
-  user_currency: string
-  balance: number
+  id: string
+  role: string
+  displayName: string
+  isDeleted: boolean
+  createdTime: string
+  updatedTime: string
 }
 
 export interface Role {

@@ -4,6 +4,9 @@ import {CssVarsProvider} from '@mui/joy/styles'
 import CssBaseline from '@mui/joy/CssBaseline'
 import '@fontsource/inter'
 import {ReactQueryDevtools} from '@tanstack/react-query-devtools'
+import './i18n';
+import theme from './theme';
+import AlertProvider from './components/AlertProvider';
 
 // Import the generated route tree
 import {routeTree} from './routeTree.gen'
@@ -26,11 +29,14 @@ const queryClient = new QueryClient()
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<QueryClientProvider client={queryClient}>
-			<CssVarsProvider>
+			<CssVarsProvider theme={theme}>
 				<CssBaseline />
-				<RouterProvider router={router} />
-				<ReactQueryDevtools initialIsOpen={false} />
-				<TanStackRouterDevtools router={router} />
+				<AlertProvider>
+					<RouterProvider router={router}>
+						<ReactQueryDevtools initialIsOpen={false} />
+						<TanStackRouterDevtools router={router} />
+					</RouterProvider>
+				</AlertProvider>
 			</CssVarsProvider>
 		</QueryClientProvider>
 	</StrictMode>,

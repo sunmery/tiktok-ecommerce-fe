@@ -1,37 +1,16 @@
 services:
-
-  frontend:
-    # image: repo/team/frontend:dev
-    build:
-      context: .
-      dockerfile: .
-    # 开放的端口
+  ecommerce-fe:
+    image: ccr.ccs.tencentyun.com/sumery/ecommerce-fe:v1.7.0
+    container_name: ecommerce-fe
+    restart: unless-stopped  # 自动重启策略
+    environment:
+      - TZ=Asia/Shanghai  # 设置时区
+      - DOMAIN=example.com
+      - HTTP_PORT=8080
+      - HTTPS_PORT=8443
     ports:
-      - '80:80'
-      - '443:443/tcp'
-      - '443:443/udp'
-    # 环境变量
-    #environment:
-    #  -
-    #restart: unless-stopped
-    restart: always
-    pull_policy: always
-    # volumes:
-    #   - /home/nginx/ssl:/etc/nginx/ssl
-    #   - /home/nginx/conf:/etc/nginx/conf.d
-    container_name: frontend # 运行的容器名称
-
-# 运行示例:
-# 在项目根目录时, 需要添加 -f 指定前端的docker-compose.yml的位置:
-# docker-compose -f frontend/docker-compose.yml up -d
-# 在frontend目录时:
-# docker-compose up -d
-
-# 查看部署
-# docker-compose -f frontend/docker-compose.yml ps
-
-# 查看日志
-# docker-compose -f frontend/docker-compose.yml logs
-
-# 停止
-# docker-compose -f frontend/docker-compose.yml down
+      - "30020:80"  # HTTP 端口映射
+      - "8443:443"  # HTTPS 端口映射
+    volumes:
+      - ./nginx-templates:/etc/nginx/templates  # 挂载整个模板目录
+      - ./ssl:/etc/nginx/ssl  # 挂载 SSL 证书目录

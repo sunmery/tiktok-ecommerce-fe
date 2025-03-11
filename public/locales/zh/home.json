@@ -1,0 +1,37 @@
+{
+  "hero": {
+    "title": "发现最好的产品",
+    "subtitle": "为您的生活选择优质商品",
+    "cta": "立即购物"
+  },
+  "featured": {
+    "title": "精选商品",
+    "viewAll": "查看全部"
+  },
+  "categories": {
+    "title": "商品分类",
+    "electronics": "电子产品",
+    "clothing": "服装",
+    "home": "家居",
+    "beauty": "美妆",
+    "sports": "运动",
+    "toys": "玩具"
+  },
+  "promotion": {
+    "title": "限时优惠",
+    "subtitle": "抓紧时间，优惠即将结束",
+    "cta": "立即抢购"
+  },
+  "testimonials": {
+    "title": "顾客评价",
+    "subtitle": "看看其他顾客怎么说"
+  },
+  "newsletter": {
+    "title": "订阅我们的通讯",
+    "subtitle": "获取最新优惠和产品信息",
+    "placeholder": "输入您的电子邮箱",
+    "button": "订阅",
+    "success": "感谢订阅！",
+    "error": "订阅失败，请稍后重试。"
+  }
+}

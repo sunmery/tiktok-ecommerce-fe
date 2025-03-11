@@ -1,0 +1,61 @@
+{
+  "app": {
+    "title": "TikTok 电商平台",
+    "slogan": "购物与百货商店。",
+    "name": "购物车"
+  },
+  "nav": {
+    "home": "首页",
+    "products": "商品",
+    "cart": "购物车",
+    "profile": "个人中心",
+    "orders": "订单",
+    "login": "登录",
+    "logout": "退出登录",
+    "register": "注册",
+    "search": "搜索商品"
+  },
+  "actions": {
+    "submit": "提交",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "add": "添加",
+    "remove": "移除",
+    "clear": "清空",
+    "checkout": "结算",
+    "pay": "支付",
+    "continue": "继续",
+    "back": "返回",
+    "learnMore": "了解更多",
+    "search": "搜索"
+  },
+  "messages": {
+    "loading": "加载中...",
+    "error": "发生错误，请稍后重试。",
+    "success": "操作成功！",
+    "emptyCart": "您的购物车是空的。",
+    "noData": "暂无数据。",
+    "confirmDelete": "您确定要删除此项吗？"
+  },
+  "roles": {
+    "admin": "管理员",
+    "merchant": "商家",
+    "consumer": "消费者"
+  },
+  "profile": {
+    "avatar": "用户头像",
+    "addresses": "收货地址",
+    "payment": "支付方式"
+  },
+  "chat": {
+    "title": "客服在线",
+    "supportTeam": "客服团队",
+    "lastSeen": "1分钟前，在线",
+    "messagePlaceholder": "输入您的消息...",
+    "defaultResponse": "感谢您的咨询，我们会尽快处理您的问题。",
+    "error": "抱歉，发生了错误，请稍后再试。",
+    "poweredBy": "由Chatra提供支持"
+  }
+}
