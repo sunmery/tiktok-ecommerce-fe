@@ -58,6 +58,11 @@ export default function ProductDetail() {
                 setError('');
             } catch (err) {
                 console.error('获取商品详情失败:', err);
+                // 使用showMessage显示错误信息
+                import('@/utils/casdoor').then(({ showMessage }) => {
+                    showMessage(err instanceof Error ? err.message : '获取商品信息失败，请稍后重试', 'error');
+                });
+                
                 // 优化错误处理流程
                 try {
                     const { mockProducts } = await import('@/utils/mockData');
@@ -96,6 +101,10 @@ export default function ProductDetail() {
                 );
             } catch (error) {
                 console.error('添加到购物车失败:', error);
+                // 使用showMessage显示错误信息
+                import('@/utils/casdoor').then(({ showMessage }) => {
+                    showMessage('添加到购物车失败，请稍后重试', 'error');
+                });
                 setError('添加到购物车失败，请稍后重试');
             }
         }

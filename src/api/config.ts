@@ -19,7 +19,17 @@ export const baseURL = API_ENV[currentEnv].baseURL
 
 // 错误处理
 const handleError = (error: Error) => {
-  showMessage(`请求失败: ${error.message}`)
+  // 处理网络错误和其他API错误
+  let errorMessage = '请求失败';
+  
+  if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+    errorMessage = '网络连接失败，请检查您的网络连接';
+  } else if (error.message) {
+    errorMessage = `${errorMessage}: ${error.message}`;
+  }
+  
+  // 使用error类型显示红色警告框
+  showMessage(errorMessage, 'error')
   return Promise.reject(error)
 }
 

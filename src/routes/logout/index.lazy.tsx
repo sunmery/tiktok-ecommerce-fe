@@ -2,6 +2,7 @@ import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { Box, Typography, Button } from '@mui/joy'
 import Breadcrumbs from '@/components/Breadcrumbs'
+import { showMessage } from '@/utils/casdoor.ts'
 
 export const Route = createLazyFileRoute('/logout/')({  
 	component: () => <LogoutCompose />,
@@ -19,6 +20,10 @@ function LogoutCompose() {
 		localStorage.removeItem('creditCards')
 		localStorage.removeItem('cart')
 		localStorage.removeItem('addresses')
+		
+		// 显示退出成功提示
+		showMessage('退出登录成功', 'success')
+		
 		// 登出后重定向到首页
 		navigate({ to: '/' }).then(()=>{
 			console.log("to/")

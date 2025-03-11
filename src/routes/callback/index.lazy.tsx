@@ -21,6 +21,11 @@ const saveToken = (res: Response) => {
 	setToken(result.data)
 	// goToLink('/profile')
 
+	// 显示登录成功提示
+	import('@/utils/casdoor.ts').then(module => {
+		module.showMessage('登录成功', 'success')
+	})
+
 	// 直接跳转，不依赖 React Router
 	setTimeout(() => {
 		window.location.replace('/profile');

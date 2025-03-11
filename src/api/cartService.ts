@@ -13,9 +13,10 @@ import {
     UpsertItemReq,
     UpsertItemResp
 } from '@/types/cart';
+import { api } from './config';
 
 // 获取购物车API基础URL
-const CARTS_URL = `${import.meta.env.VITE_URL}${import.meta.env.VITE_CARTS_URL}`;
+const CARTS_URL = `${import.meta.env.VITE_CARTS_URL}`;
 
 /**
  * 购物车服务API
@@ -26,18 +27,7 @@ export const cartService = {
      * POST /v1/carts
      */
     upsertItem: async (request: UpsertItemReq): Promise<UpsertItemResp> => {
-        const response = await fetch(`${CARTS_URL}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify(request)
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return await response.json();
+        return api.post<UpsertItemResp>(CARTS_URL, request);
     },
 
     /**
@@ -45,17 +35,7 @@ export const cartService = {
      * GET /v1/carts
      */
     getCart: async (): Promise<GetCartResp> => {
-        const response = await fetch(`${CARTS_URL}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return await response.json();
+        return api.get<GetCartResp>(CARTS_URL);
     },
 
     /**
@@ -63,17 +43,7 @@ export const cartService = {
      * DELETE /v1/carts
      */
     emptyCart: async (): Promise<EmptyCartResp> => {
-        const response = await fetch(`${CARTS_URL}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return await response.json();
+        return api.delete<EmptyCartResp>(CARTS_URL);
     },
 
     /**
@@ -81,17 +51,8 @@ export const cartService = {
      * DELETE /v1/carts/item
      */
     removeCartItem: async (request: RemoveCartItemReq): Promise<RemoveCartItemResp> => {
-        const response = await fetch(`${CARTS_URL}/item`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
+        return api.delete<RemoveCartItemResp>(`${CARTS_URL}/item`, {
             body: JSON.stringify(request)
         });
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return await response.json();
     }
 };

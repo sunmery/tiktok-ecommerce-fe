@@ -43,7 +43,8 @@ export const cartStore: CartState = proxy<CartState>({
                 item: {
                     productId: id,
                     merchantId: merchantId,
-                    quantity: newQuantity
+                    quantity: newQuantity,
+                    price: price
                 }
             }).catch(error => {
                 console.error('同步购物车到后端失败:', error)
@@ -68,7 +69,7 @@ export const cartStore: CartState = proxy<CartState>({
         cartStore.items = cartStore.items.filter(item => item.id !== id)
 
         try {
-            await cartService.removeItem({ productId: id })
+            await cartService.removeCartItem({ productId: id, merchantId: removedItem.merchantId })
             cartStore.lastError = null
         } catch (error) {
             console.error('从购物车移除商品失败:', error)
@@ -105,7 +106,8 @@ export const cartStore: CartState = proxy<CartState>({
                         item: {
                             productId: id,
                             merchantId: item.merchantId,
-                            quantity: quantity
+                            quantity: quantity,
+                            price: item.price
                         }
                     })
                     cartStore.lastError = null
@@ -182,7 +184,8 @@ export const cartStore: CartState = proxy<CartState>({
                     item: {
                         productId: item.id,
                         merchantId: item.merchantId,
-                        quantity: item.quantity
+                        quantity: item.quantity,
+                        price: item.price
                     }
                 })
             })

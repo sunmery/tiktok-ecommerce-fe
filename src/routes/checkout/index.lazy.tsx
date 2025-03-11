@@ -48,11 +48,28 @@ function RouteComponent() {
 				credit_card_id: creditCards.id,
 			}),
 		})
-			.then((res) => res.json())
-			.then((data) => {
-				console.log(data)
+			.then((res) => {
+				if (!res.ok) {
+					return res.json().then(errData => {
+						throw new Error(errData.message || `结算失败: ${res.status}`);
+					});
+				}
+				return res.json();
 			})
-			.catch((e) => console.error(e))
+			.then((data) => {
+				console.log(data);
+				// 导入showMessage函数
+				import('@/utils/casdoor').then(({ showMessage }) => {
+					showMessage('结算成功', 'success');
+				});
+			})
+			.catch((e) => {
+				console.error('结算失败:', e);
+				// 导入showMessage函数
+				import('@/utils/casdoor').then(({ showMessage }) => {
+					showMessage(e.message || '结算失败，请稍后重试', 'error');
+				});
+			})
 	}
 	// 计算商品小计
 	const getItemSubtotal = (price: number, quantity: number) => {

@@ -26,7 +26,7 @@ import { Edit, Delete, Add } from '@mui/icons-material'
 import { useCreditCards, useCreateCreditCard, useUpdateCreditCard, useDeleteCreditCard } from '@/hooks/useCreditCard'
 import type { CreditCard } from '@/types/user'
 import Breadcrumbs from '@/components/Breadcrumbs'
-import { motion } from 'framer-motion';
+// 移除 framer-motion 导入
 import { getCardBackgroundStyle } from '@/assets/cardBackgrounds';
 
 export const Route = createLazyFileRoute('/credit_cards/')({  
@@ -143,10 +143,6 @@ function RouteComponent() {
       })
     }
   }
-  
-  // 获取卡片背景样式
-  // 注意：此函数已被替换为使用从cardBackgrounds导入的getCardBackgroundStyle函数
-  // 保留此注释作为参考
 
   // 格式化卡号显示
   const formatCardNumber = (number: string) => {
@@ -160,9 +156,6 @@ function RouteComponent() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography level="h2">我的银行卡</Typography>
         <Button
-          component={motion.button}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
           startDecorator={<Add />}
           onClick={handleOpenCreateModal}
           color="primary"
@@ -181,9 +174,6 @@ function RouteComponent() {
         <Sheet sx={{ p: 4, textAlign: 'center', borderRadius: 'md' }}>
           <Typography level="body-lg" sx={{ mb: 2 }}>您还没有添加任何银行卡</Typography>
           <Button
-            component={motion.button}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
             startDecorator={<Add />}
             onClick={handleOpenCreateModal}
             color="primary"
@@ -195,24 +185,13 @@ function RouteComponent() {
         <Grid container spacing={2}>
           {creditCards.map((card, index) => (
             <Grid key={card.id} xs={12} sm={6} md={4}>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
+              <div
                 style={{
                   boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
                   perspective: '1000px'
                 }}
-                whileHover={{
-                  scale: 1.05,
-                  rotateY: 10,
-                  rotateX: 5,
-                  boxShadow: '0 12px 24px rgba(0,0,0,0.3)'
-                }}
-                whileTap={{ scale: 0.98 }}
               >
                 <Card
-                  component={motion.div}
                   sx={{
                     height: '100%',
                     background: getCardBackgroundStyle(card.brand, card.id || 0),
@@ -261,7 +240,7 @@ function RouteComponent() {
                     </IconButton>
                   </CardActions>
                 </Card>
-              </motion.div>
+              </div>
             </Grid>
           ))}
         </Grid>
