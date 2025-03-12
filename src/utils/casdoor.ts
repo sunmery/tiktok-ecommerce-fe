@@ -39,7 +39,6 @@ export const getUserinfo = async () => {
             method: 'GET',
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
-                'Content-Type': "application/json",
             },
         })
         

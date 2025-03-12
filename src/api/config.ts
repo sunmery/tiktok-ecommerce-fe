@@ -1,21 +1,6 @@
 import {showMessage} from '@/utils/casdoor'
 
-// 环境配置
-export const API_ENV = {
-  development: {
-    baseURL: import.meta.env.VITE_URL,
-  },
-  staging: {
-    baseURL: import.meta.env.VITE_URL,
-  },
-  production: {
-    baseURL: import.meta.env.VITE_URL,
-  },
-} as const
-
-// 获取当前环境配置
-const currentEnv = (import.meta.env.MODE || 'development') as keyof typeof API_ENV
-export const baseURL = API_ENV[currentEnv].baseURL
+export const baseURL = import.meta.env.VITE_URL
 
 // 错误处理
 const handleError = (error: Error) => {
@@ -35,15 +20,10 @@ const handleError = (error: Error) => {
 
 // 默认的请求配置
 const defaultConfig: RequestInit = {
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-  },
-  mode: 'cors',
-  credentials: 'include'
+  // 使用默认的mode，让浏览器自动处理CORS
+  // mode: 'cors',
+  // 只有在需要发送cookies时才设置credentials为'include'
+  credentials: 'same-origin'
 }
 
 // 通用请求函数
