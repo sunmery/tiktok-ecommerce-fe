@@ -34,8 +34,14 @@ export const getSigninUrl = () => {
 // 获取用户信息
 export const getUserinfo = async () => {
     try {
-        // 修复URL构建问题，避免重复添加路径前缀
-        const res = await fetch(`${import.meta.env.VITE_URL}${import.meta.env.VITE_USERS_URL}/profile`, {
+        const baseUrl = import.meta.env.VITE_URL;
+        const usersUrl = import.meta.env.VITE_USERS_URL;
+        
+        if (!baseUrl || !usersUrl) {
+            throw new Error('环境变量VITE_URL或VITE_USERS_URL未配置');
+        }
+        
+        const res = await fetch(`${baseUrl}${usersUrl}/profile`, {
             method: 'GET',
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
