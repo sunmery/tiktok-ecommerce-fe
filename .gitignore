@@ -7,22 +7,38 @@ yarn-error.helper*
 pnpm-debug.helper*
 lerna-debug.helper*
 
+# Environment and configuration files
+.env.*
+!.env.example
 .env.prod
+.env.production.local
+
+# Build outputs
 frontend/dist.tar.gz
 frontend/dist
 dist.tar.gz
-node_modules
-
+dist-ssr
+.local.release
 .vite/
 build/
 dist/
+coverage/
 
-dist-ssr
-.local.release
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Cache
+.npm
+.eslintcache
+.stylelintcache
+.cache
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json.example
 .idea
 .DS_Store
 *.suo
@@ -58,13 +74,23 @@ go.work
 # OS General
 Thumbs.db
 
-# project
+# Project specific
 *.cert
 *.key
 bin/
+*.pem
 
 # Develop tools
 .vscode/
 .idea/
 *.swp
-node_modules
+
+# Generated files
+*.generated.*
+*.gen.*
+routeTree.gen.ts
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
