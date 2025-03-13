@@ -17,7 +17,7 @@ COPY . .
 RUN pnpm build
 
 # 生产镜像阶段
-FROM nginx:alpine3.21
+FROM nginx:alpine3.21 AS final
 
 ARG HTTP_PORT=80
 ARG HTTPS_PORT=443

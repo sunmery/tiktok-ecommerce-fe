@@ -16,3 +16,10 @@ build-nocache:
 	-t ccr.ccs.tencentyun.com/sumery/ecommerce-fe:$(VERSION) \
 	--platform linux/amd64 \
 	--push
+
+buildx:
+	docker buildx build . \
+	--progress=plain \
+	-t ccr.ccs.tencentyun.com/sumery/ecommerce-fe:$(VERSION) \
+	--platform linux/amd64,linux/arm64 \
+	--push

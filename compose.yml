@@ -1,6 +1,14 @@
 services:
   ecommerce-fe:
     image: ccr.ccs.tencentyun.com/sumery/ecommerce-fe:v1.7.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: final
+      args:
+        - DOMAIN=example.com
+        - HTTP_PORT=8080
+        - HTTPS_PORT=8443
     container_name: ecommerce-fe
     restart: unless-stopped  # 自动重启策略
     environment:
