@@ -4,7 +4,7 @@
  */
 
 import { httpClient } from '@/utils/http-client';
-import { CheckoutReq, CheckoutResp } from '@/types/checkout';
+import { CheckoutReq, CheckoutResp, Checkout } from '@/types/checkout';
 
 /**
  * 结账服务API
@@ -15,6 +15,6 @@ export const checkoutService = {
    * POST /v1/checkout
    */
   checkout: (request: CheckoutReq) => {
-    return httpClient.post<CheckoutResp>('/v1/checkout', request);
+    return httpClient.post<CheckoutResp>(`${import.meta.env.VITE_CHECKOUT_URL}/${Checkout}`, request);
   }
 };

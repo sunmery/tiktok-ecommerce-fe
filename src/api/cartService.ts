@@ -11,12 +11,14 @@ import {
     RemoveCartItemReq,
     RemoveCartItemResp,
     UpsertItemReq,
-    UpsertItemResp
+    UpsertItemResp,
+    // API方法名常量导入
+    UpsertItem,
+    GetCart,
+    EmptyCart,
+    RemoveCartItem
 } from '@/types/cart';
 import { api } from './config';
-
-// 获取购物车API基础URL
-const CARTS_URL = `${import.meta.env.VITE_CARTS_URL}`;
 
 /**
  * 购物车服务API
@@ -27,7 +29,7 @@ export const cartService = {
      * POST /v1/carts
      */
     upsertItem: async (request: UpsertItemReq): Promise<UpsertItemResp> => {
-        return api.post<UpsertItemResp>(CARTS_URL, request);
+        return api.post<UpsertItemResp>(`${import.meta.env.VITE_CARTS_URL}/${UpsertItem}`, request);
     },
 
     /**
@@ -35,7 +37,7 @@ export const cartService = {
      * GET /v1/carts
      */
     getCart: async (): Promise<GetCartResp> => {
-        return api.get<GetCartResp>(CARTS_URL);
+        return api.get<GetCartResp>(`${import.meta.env.VITE_CARTS_URL}/${GetCart}`);
     },
 
     /**
@@ -43,7 +45,7 @@ export const cartService = {
      * DELETE /v1/carts
      */
     emptyCart: async (): Promise<EmptyCartResp> => {
-        return api.delete<EmptyCartResp>(CARTS_URL);
+        return api.delete<EmptyCartResp>(`${import.meta.env.VITE_CARTS_URL}/${EmptyCart}`);
     },
 
     /**
@@ -51,7 +53,7 @@ export const cartService = {
      * DELETE /v1/carts/item
      */
     removeCartItem: async (request: RemoveCartItemReq): Promise<RemoveCartItemResp> => {
-        return api.delete<RemoveCartItemResp>(`${CARTS_URL}/item`, {
+        return api.delete<RemoveCartItemResp>(`${import.meta.env.VITE_CARTS_URL}/${RemoveCartItem}`, {
             body: JSON.stringify(request)
         });
     }

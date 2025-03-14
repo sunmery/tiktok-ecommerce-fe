@@ -11,7 +11,12 @@ import {
   PaymentCallbackResp,
   PaymentNotifyReq,
   PaymentNotifyResp,
-  PaymentResp
+  PaymentResp,
+  // API方法名常量导入
+  CreatePayment,
+  PaymentNotify,
+  ProcessPaymentCallback,
+  GetPayment
 } from '@/types/payment';
 
 /**
@@ -23,7 +28,7 @@ export const paymentService = {
    * POST /v1/payments
    */
   createPayment: (request: CreatePaymentReq) => {
-    return httpClient.post<PaymentResp>('/v1/payments', request);
+    return httpClient.post<PaymentResp>(`${import.meta.env.VITE_PAYMENTS_URL}/${CreatePayment}`, request);
   },
 
   /**
@@ -31,7 +36,7 @@ export const paymentService = {
    * POST /v1/payments/notify
    */
   paymentNotify: (request: PaymentNotifyReq) => {
-    return httpClient.post<PaymentNotifyResp>('/v1/payments/notify', request);
+    return httpClient.post<PaymentNotifyResp>(`${import.meta.env.VITE_PAYMENTS_URL}/${PaymentNotify}`, request);
   },
 
   /**
@@ -39,7 +44,7 @@ export const paymentService = {
    * POST /v1/payments/callback
    */
   processPaymentCallback: (request: PaymentCallbackReq) => {
-    return httpClient.post<PaymentCallbackResp>('/v1/payments/callback', request);
+    return httpClient.post<PaymentCallbackResp>(`${import.meta.env.VITE_PAYMENTS_URL}/${ProcessPaymentCallback}`, request);
   },
 
   /**
@@ -47,8 +52,8 @@ export const paymentService = {
    * GET /v1/payments/{paymentId}
    */
   getPayment: (request: GetPaymentReq) => {
-    const url = httpClient.replacePathParams('/v1/payments/{paymentId}', {
-      paymentId: request.paymentId
+    const url = httpClient.replacePathParams(`${import.meta.env.VITE_PAYMENTS_URL}/${GetPayment}/{payment_id}`, {
+      payment_id: request.payment_id
     });
     return httpClient.get<PaymentResp>(url);
   }

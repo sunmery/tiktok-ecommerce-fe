@@ -15,7 +15,17 @@ import {
     GetClosureRequest,
     GetSubTreeRequest,
     UpdateCategoryRequest,
-    UpdateClosureDepthRequest
+    UpdateClosureDepthRequest,
+    // API方法名常量导入
+    CreateCategory,
+    GetCategory,
+    UpdateCategory,
+    DeleteCategory,
+    GetSubTree,
+    GetCategoryPath,
+    GetLeafCategories,
+    GetClosureRelations,
+    UpdateClosureDepth
 } from '@/types/category';
 
 /**
@@ -27,7 +37,7 @@ export const categoryService = {
      * POST /v1/categories
      */
     createCategory: (request: CreateCategoryRequest) => {
-        return fetch('/v1/categories', {
+        return fetch(`${import.meta.env.VITE_CATEGORIES_URL}/${CreateCategory}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -48,7 +58,7 @@ export const categoryService = {
      * GET /v1/categories/{id}
      */
     getCategory: (request: GetCategoryRequest) => {
-        return fetch(`/v1/categories/${request.id}`, {
+        return fetch(`${import.meta.env.VITE_CATEGORIES_URL}/${GetCategory}/${request.id}`, {
             method: 'GET'
         })
             .then(response => {
@@ -64,7 +74,7 @@ export const categoryService = {
      * PUT /v1/categories/{id}
      */
     updateCategory: (request: UpdateCategoryRequest) => {
-        return fetch(`/v1/categories/${request.id}`, {
+        return fetch(`${import.meta.env.VITE_CATEGORIES_URL}/${UpdateCategory}/${request.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -88,7 +98,7 @@ export const categoryService = {
      * DELETE /v1/categories/{id}
      */
     deleteCategory: (request: DeleteCategoryRequest) => {
-        return fetch(`/v1/categories/${request.id}`, {
+        return fetch(`${import.meta.env.VITE_CATEGORIES_URL}/${DeleteCategory}/${request.id}`, {
             method: 'DELETE'
         })
             .then(response => {
@@ -104,7 +114,7 @@ export const categoryService = {
      * GET /v1/categories/{root_id}/subtree
      */
     getSubTree: (request: GetSubTreeRequest) => {
-        return fetch(`/v1/categories/${request.rootId}/subtree`, {
+        return fetch(`${import.meta.env.VITE_CATEGORIES_URL}/${GetSubTree}/${request.rootId}`, {
             method: 'GET'
         })
             .then(response => {
@@ -120,7 +130,7 @@ export const categoryService = {
      * GET /v1/categories/{category_id}/path
      */
     getCategoryPath: (request: GetCategoryPathRequest) => {
-        return fetch(`/v1/categories/${request.categoryId}/path`, {
+        return fetch(`${import.meta.env.VITE_CATEGORIES_URL}/${GetCategoryPath}/${request.categoryId}`, {
             method: 'GET'
         })
             .then(response => {
@@ -136,7 +146,7 @@ export const categoryService = {
      * GET /v1/categories/leaves
      */
     getLeafCategories: () => {
-        return fetch('/v1/categories/leaves', {
+        return fetch(`${import.meta.env.VITE_CATEGORIES_URL}/${GetLeafCategories}`, {
             method: 'GET'
         })
             .then(response => {
@@ -152,7 +162,7 @@ export const categoryService = {
      * GET /v1/categories/{category_id}/closure
      */
     getClosureRelations: (request: GetClosureRequest) => {
-        return fetch(`/v1/categories/${request.categoryId}/closure`, {
+        return fetch(`${import.meta.env.VITE_CATEGORIES_URL}/${GetClosureRelations}/${request.categoryId}`, {
             method: 'GET'
         })
             .then(response => {
@@ -168,7 +178,7 @@ export const categoryService = {
      * PATCH /v1/categories/{category_id}/closure
      */
     updateClosureDepth: (request: UpdateClosureDepthRequest) => {
-        return fetch(`/v1/categories/${request.categoryId}/closure`, {
+        return fetch(`${import.meta.env.VITE_CATEGORIES_URL}/${UpdateClosureDepth}/${request.categoryId}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',

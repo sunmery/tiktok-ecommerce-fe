@@ -11,7 +11,12 @@ import {
   ListOrderResp,
   MarkOrderPaidReq,
   MarkOrderPaidResp,
-  PaymentStatus
+  PaymentStatus,
+  // API方法名常量导入
+  PlaceOrder,
+  ListOrder,
+  MarkOrderPaid,
+  UpdateOrderStatus
 } from '@/types/order';
 
 /**
@@ -23,7 +28,7 @@ export const orderService = {
    * POST /v1/orders
    */
   placeOrder: (request: PlaceOrderReq) => {
-    return httpClient.post<PlaceOrderResp>('/v1/orders', request);
+    return httpClient.post<PlaceOrderResp>(`${import.meta.env.VITE_ORDERS_URL}/${PlaceOrder}`, request);
   },
 
   /**
@@ -31,7 +36,7 @@ export const orderService = {
    * GET /v1/orders
    */
   listOrder: (request: ListOrderReq) => {
-    return httpClient.get<ListOrderResp>('/v1/orders', {
+    return httpClient.get<ListOrderResp>(`${import.meta.env.VITE_ORDERS_URL}/${ListOrder}`, {
       params: request as unknown as Record<string, string>
     });
   },
@@ -41,8 +46,8 @@ export const orderService = {
    * POST /v1/orders/{orderId}/paid
    */
   markOrderPaid: (request: MarkOrderPaidReq) => {
-    const url = httpClient.replacePathParams('/v1/orders/{orderId}/paid', {
-      orderId: request.orderId
+    const url = httpClient.replacePathParams(`${import.meta.env.VITE_ORDERS_URL}/${MarkOrderPaid}/{order_id}`, {
+      order_id: request.order_id
     });
     return httpClient.post<MarkOrderPaidResp>(url, {});
   },
@@ -51,9 +56,9 @@ export const orderService = {
    * 更新订单状态
    * PUT /v1/orders/{orderId}/status
    */
-  updateOrderStatus: (orderId: string, status: PaymentStatus) => {
-    const url = httpClient.replacePathParams('/v1/orders/{orderId}/status', {
-      orderId: orderId
+  updateOrderStatus: (order_id: string, status: PaymentStatus) => {
+    const url = httpClient.replacePathParams(`${import.meta.env.VITE_ORDERS_URL}/${UpdateOrderStatus}/{order_id}`, {
+      order_id: order_id
     });
     return httpClient.put(url, { status });
   }

@@ -29,8 +29,15 @@ export default defineConfig(({command}) => {
                 host: 'localhost',
                 port: 3000,
                 strictPort: false,
-                // cors: true,
+                cors: true,
                 https: false,
+                proxy: {
+                    '/ecommerce.product.v1.ProductService': {
+                        target: 'http://localhost:8080',
+                        changeOrigin: true,
+                        secure: false,
+                    }
+                },
                 // plugins: [
                 //     mkcert({
                 //         hosts: ["127.0.0.1", "localhost"],

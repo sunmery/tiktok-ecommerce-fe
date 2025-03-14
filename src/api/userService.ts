@@ -15,8 +15,20 @@ import {
   GetCreditCardRequest,
   GetProfileResponse,
   ListCreditCardsReply,
+  // API方法名常量导入
+  GetProfile,
+  CreateAddress,
+  UpdateAddress,
+  DeleteAddress,
+  GetAddresses,
+  ListCreditCards,
+  CreateCreditCard,
+  UpdateCreditCard,
+  DeleteCreditCard,
+  GetCreditCard
 } from '@/types/user';
 import {Address} from '@/types/addresses.ts'
+
 /**
  * 用户服务API
  */
@@ -26,7 +38,7 @@ export const userService = {
    * GET /v1/users/profile
    */
   getUserProfile: () => {
-    return httpClient.get<GetProfileResponse>('/v1/users/profile');
+    return httpClient.get<GetProfileResponse>(`${import.meta.env.VITE_USERS_URL}/${GetProfile}`);
   },
 
   /**
@@ -34,15 +46,14 @@ export const userService = {
    * POST /v1/users/address
    */
   createAddress: (address: Address) => {
-    // 确保使用下划线命名格式发送请求，与后端接口匹配
-    return httpClient.post<Address>('/v1/users/address', {
+    return httpClient.post<Address>(`${import.meta.env.VITE_USERS_URL}/${CreateAddress}`, {
       id: address.id,
-      userId: address.userId,
-      streetAddress: address.streetAddress,
+      user_id: address.user_id,
+      street_address: address.street_address,
       city: address.city,
       state: address.state,
       country: address.country,
-      zipCode: address.zipCode
+      zip_code: address.zip_code
     });
   },
 
@@ -51,15 +62,14 @@ export const userService = {
    * PATCH /v1/users/address
    */
   updateAddress: (address: Address) => {
-    // 确保使用下划线命名格式发送请求，与后端接口匹配
-    return httpClient.patch<Address>('/v1/users/address', {
+    return httpClient.patch<Address>(`${import.meta.env.VITE_USERS_URL}/${UpdateAddress}`, {
       id: address.id,
-      userId: address.userId,
-      streetAddress: address.streetAddress,
+      user_id: address.user_id,
+      street_address: address.street_address,
       city: address.city,
       state: address.state,
       country: address.country,
-      zipCode: address.zipCode
+      zip_code: address.zip_code
     });
   },
 
@@ -68,10 +78,10 @@ export const userService = {
    * DELETE /v1/users/address
    */
   deleteAddress: (request: DeleteAddressRequest) => {
-    return httpClient.delete<DeleteAddressReply>('/v1/users/address', {
+    return httpClient.delete<DeleteAddressReply>(`${import.meta.env.VITE_USERS_URL}/${DeleteAddress}`, {
       params: {
-        addressesId: request.addressesId,
-        userId: request.userId
+        addresses_id: request.addresses_id,
+        user_id: request.user_id
       } as unknown as Record<string, string>,
     });
   },
@@ -82,7 +92,7 @@ export const userService = {
    */
   getAddresses: () => {
     const token = localStorage.getItem('token');
-    return httpClient.get<GetAddressesReply>('/v1/users/address', {
+    return httpClient.get<GetAddressesReply>(`${import.meta.env.VITE_USERS_URL}/${GetAddresses}`, {
       headers: {
         'Authorization': token ? `Bearer ${token}` : '',
         'Content-Type': 'application/json'
@@ -95,7 +105,7 @@ export const userService = {
    * GET /v1/users/credit_cards/all
    */
   listCreditCards: () => {
-    return httpClient.get<ListCreditCardsReply>('/v1/users/credit_cards/all');
+    return httpClient.get<ListCreditCardsReply>(`${import.meta.env.VITE_USERS_URL}/${ListCreditCards}`);
   },
 
   /**
@@ -103,7 +113,7 @@ export const userService = {
    * POST /v1/users/credit_cards
    */
   createCreditCard: (creditCard: CreditCard) => {
-    return httpClient.post<CardsReply>('/v1/users/credit_cards', creditCard);
+    return httpClient.post<CardsReply>(`${import.meta.env.VITE_USERS_URL}/${CreateCreditCard}`, creditCard);
   },
 
   /**
@@ -111,7 +121,7 @@ export const userService = {
    * PATCH /v1/users/credit_cards
    */
   updateCreditCard: (creditCard: CreditCard) => {
-    return httpClient.patch<CardsReply>('/v1/users/credit_cards', creditCard);
+    return httpClient.patch<CardsReply>(`${import.meta.env.VITE_USERS_URL}/${UpdateCreditCard}`, creditCard);
   },
 
   /**
@@ -119,7 +129,7 @@ export const userService = {
    * DELETE /v1/users/credit_cards/{id}
    */
   deleteCreditCard: (request: DeleteCreditCardRequest) => {
-    const url = httpClient.replacePathParams('/v1/users/credit_cards/{id}', {
+    const url = httpClient.replacePathParams(`${import.meta.env.VITE_USERS_URL}/${DeleteCreditCard}/{id}`, {
       id: request.id,
     });
     return httpClient.delete<CardsReply>(url);
@@ -130,11 +140,11 @@ export const userService = {
    * GET /v1/users/credit_cards/{number}
    */
   getCreditCard: (request: GetCreditCardRequest) => {
-    const url = httpClient.replacePathParams('/v1/users/credit_cards/{number}', {
+    const url = httpClient.replacePathParams(`${import.meta.env.VITE_USERS_URL}/${GetCreditCard}/{number}`, {
       number: request.number,
     });
     return httpClient.get<GetCreditCardReply>(url, {
-      params: { userId: request.userId } as Record<string, string>,
+      params: { user_id: request.user_id } as Record<string, string>,
     });
   },
 };

@@ -16,7 +16,7 @@ import CardContent from "@mui/joy/CardContent";
 import Button from "@mui/joy/Button";
 import Breadcrumbs from '@/components/Breadcrumbs';
 
-export const Route = createFileRoute('/products/')({ 
+export const Route = createFileRoute('/products/')({
     component: RouteComponent,
     validateSearch: (search: Record<string, unknown>) => {
         return {
@@ -37,6 +37,29 @@ function Products() {
     const status = 2
     const [mockData, setMockData] = useState<Product[]>([])
     const snapshot = useSnapshot(cartStore)
+
+    useEffect(() => {
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        var raw = JSON.stringify({
+            "page": 1,
+            "page_size": 200,
+            "status": 2
+        });
+
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        };
+
+        fetch("/ecommerce.product.v1.ProductService/ListRandomProducts", requestOptions)
+            .then(response => response.json())
+            .then(result => console.log("result:",result))
+            .catch(error => console.log('error', error));
+    }, []);
 
     // 使用React Query获取商品列表
     const {data, error, isError, isLoading} = useQuery({
@@ -65,7 +88,7 @@ function Products() {
             })
         }
     }, [isError, data]);
-    
+
     const addToCartHandler = (
         id: string,
         name: string,
@@ -77,7 +100,7 @@ function Products() {
 
     // 使用网络数据或mock数据
     const displayData = data && data.length > 0 ? data : mockData;
-    
+
     // 显示错误信息
     if (error && !mockData.length) {
         return <Typography color="danger">加载数据失败</Typography>
@@ -96,7 +119,7 @@ function Products() {
     return (
         <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
             {/* 面包屑导航 */}
-            <Breadcrumbs pathMap={{'products': '全部商品'}} />
+            <Breadcrumbs pathMap={{'products': '全部商品'}}/>
 
             {/* 根据是否有搜索词显示不同标题 */}
             {search.query ? (
@@ -181,7 +204,7 @@ function Products() {
                                 src={product.images && product.images.length > 0 ? product.images[0].url : "https://picsum.photos/300/200"}
                                 loading="lazy"
                                 alt={product.name}
-                                style={{ objectFit: "cover" }}
+                                style={{objectFit: "cover"}}
                             />
                         </AspectRatio>
                         <Typography>{product.description}</Typography>
@@ -197,7 +220,8 @@ function Products() {
                                 {product.category.categoryName}
                             </Typography>
                         )}
-                        <CardContent orientation="horizontal" sx={{ justifyContent: "space-between", alignItems: "center" }}>
+                        <CardContent orientation="horizontal"
+                                     sx={{justifyContent: "space-between", alignItems: "center"}}>
                             <div>
                                 <Typography level="body-xs">Price:</Typography>
                                 <Typography sx={{fontSize: 'lg', fontWeight: 'lg'}}>

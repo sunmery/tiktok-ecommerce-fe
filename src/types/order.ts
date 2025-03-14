@@ -27,19 +27,19 @@ export enum PaymentStatus {
 
 // 订单信息
 export interface Order {
-  orderItems: OrderItem[]; // 订单项列表
-  orderId: string; // 订单 ID
-  userId: string; // 用户 ID
+  order_items: OrderItem[]; // 订单项列表
+  order_id: string; // 订单 ID
+  user_id: string; // 用户 ID
   currency: string; // 货币代码（如 USD、CNY）
   address: Address; // 用户地址信息
   email: string; // 用户邮箱
-  createdAt: Timestamp; // 订单创建时间
-  paymentStatus: PaymentStatus; // 支付状态
+  created_at: Timestamp; // 订单创建时间
+  payment_status: PaymentStatus; // 支付状态
 }
 
 // 订单结果
 export interface OrderResult {
-  orderId: string; // 订单 ID
+  order_id: string; // 订单 ID
 }
 
 // 创建订单请求
@@ -47,7 +47,7 @@ export interface PlaceOrderReq {
   currency: string; // 货币代码（如 USD、CNY）
   address: Address; // 用户地址信息
   email: string; // 用户邮箱
-  orderItems: OrderItem[]; // 订单项列表
+  order_items: OrderItem[]; // 订单项列表
 }
 
 // 创建订单响应
@@ -59,7 +59,7 @@ export interface PlaceOrderResp {
 // 查询订单列表请求
 export interface ListOrderReq {
   page: number; // 分页参数：当前页码
-  pageSize: number; // 分页参数：每页大小
+  page_size: number; // 分页参数：每页大小
 }
 
 // 查询订单列表响应
@@ -69,8 +69,14 @@ export interface ListOrderResp {
 
 // 标记订单为已支付请求
 export interface MarkOrderPaidReq {
-  orderId: string; // 订单 ID
+  order_id: string; // 订单 ID
 }
 
 // 标记订单为已支付响应
 export interface MarkOrderPaidResp {}
+
+// API路径常量
+export const PlaceOrder = 'orders';
+export const ListOrder = 'orders';
+export const MarkOrderPaid = 'orders/paid';
+export const UpdateOrderStatus = 'orders/status';

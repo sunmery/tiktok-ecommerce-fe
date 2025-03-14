@@ -3,7 +3,7 @@
  * 基于proto文件定义实现的助手服务API
  */
 
-import { ProcessRequest, ProcessResponse } from '@/types/assistant';
+import { ProcessRequest, ProcessResponse, ProcessQuery } from '@/types/assistant';
 
 /**
  * 助手服务API
@@ -16,7 +16,7 @@ export const assistantService = {
   processQuery: (request: ProcessRequest) => {
     const baseUrl = import.meta.env.VITE_URL;
     const assistantUrl = import.meta.env.VITE_ASSISTANT_URL || '/api/assistant';
-    const url = `${baseUrl}${assistantUrl}?q=${encodeURIComponent(request.question)}`;
+    const url = `${baseUrl}${assistantUrl}/${ProcessQuery}?q=${encodeURIComponent(request.question)}`;
 
     return fetch(url, {
       method: 'GET'

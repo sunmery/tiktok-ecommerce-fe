@@ -3,19 +3,19 @@ export interface CreditCard {
   id: number
   number: string
   cvv: string
-  expYear: string
-  expMonth: string
+  exp_year: string
+  exp_month: string
   owner: string
   name: string
   type: string
   brand: string
   country: string
-  createdTime: string
+  created_time: string
 }
 
 // 信用卡列表响应接口
 export interface ListCreditCardsReply {
-  creditCards: CreditCard[]
+  credit_cards: CreditCard[]
 }
 
 // 创建/更新信用卡响应接口
@@ -31,11 +31,11 @@ export interface DeleteCreditCardRequest {
 
 // 获取信用卡请求接口
 export interface GetCreditCardRequest {
-  userId: string
+  user_id: string
   number: string
 }
 
 // 获取信用卡响应接口
 export interface GetCreditCardReply {
-  creditCards: CreditCard
+  credit_cards: CreditCard
 }

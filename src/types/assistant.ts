@@ -3,6 +3,9 @@
  * 基于proto文件生成的TypeScript类型
  */
 
+// API路径常量
+export const ProcessQuery = 'process';
+
 // 处理请求
 export interface ProcessRequest {
   question: string;

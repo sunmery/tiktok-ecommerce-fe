@@ -18,15 +18,15 @@ export interface Empty {}
 export interface CreditCard {
   number: string;
   cvv: string;
-  expYear: string;
-  expMonth: string;
+  exp_year: string;
+  exp_month: string;
   owner: string;
   name: string;
   id: number;
   type: string;
   brand: string;
   country: string;
-  createdTime: string;
+  created_time: string;
 }
 
 // 卡片操作响应
@@ -42,23 +42,23 @@ export interface DeleteCreditCardRequest {
 
 // 获取信用卡请求
 export interface GetCreditCardRequest {
-  userId: string;
+  user_id: string;
   number: string;
 }
 
 // 获取信用卡响应
 export interface GetCreditCardReply {
-  creditCards: CreditCard;
+  credit_cards: CreditCard;
 }
 
 // 搜索信用卡响应
 export interface SearchCreditCardsReply {
-  creditCards: CreditCard[];
+  credit_cards: CreditCard[];
 }
 
 // 列出信用卡响应
 export interface ListCreditCardsReply {
-  creditCards: CreditCard[];
+  credit_cards: CreditCard[];
 }
 
 
@@ -74,14 +74,14 @@ export interface UpdateAddressesRequest {
 
 // 删除地址请求
 export interface DeleteAddressRequest {
-  addressesId: number;
-  userId: string;
+  addresses_id: number;
+  user_id: string;
 }
 
 // 删除地址请求（proto定义）
 export interface DeleteAddressesRequest {
-  addressesId: number;
-  userId: string;
+  addresses_id: number;
+  user_id: string;
 }
 
 // 地址响应
@@ -120,8 +120,20 @@ export interface GetProfileResponse {
   email: string;
   id: string;
   role: string;
-  displayName: string;
-  isDeleted: boolean;
-  createdTime: Timestamp;
-  updatedTime: Timestamp;
+  display_name: string;
+  is_deleted: boolean;
+  created_time: Timestamp;
+  updated_time: Timestamp;
 }
+
+// API路径常量
+export const GetProfile = 'users/profile';
+export const CreateAddress = 'users/address';
+export const UpdateAddress = 'users/address';
+export const DeleteAddress = 'users/address';
+export const GetAddresses = 'users/address';
+export const ListCreditCards = 'users/credit_cards/all';
+export const CreateCreditCard = 'users/credit_cards';
+export const UpdateCreditCard = 'users/credit_cards';
+export const DeleteCreditCard = 'users/credit_cards';
+export const GetCreditCard = 'users/credit_cards';

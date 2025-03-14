@@ -14,29 +14,28 @@ export enum AuditAction {
 
 // 商品分类信息
 export interface CategoryInfo {
-  categoryId: number;
-  categoryName: string;
+  category_id: number;
+  category_name: string;
 }
 
 // 商品图片信息
 export interface ProductImage {
   url: string;
-  isPrimary: boolean;
-  sortOrder: number;
+  is_primary: boolean;
+  sort_order: number;
 }
 
 // 商品属性值类型
 export type AttributeValue =
-    | { stringValue: string }
-    | { arrayValue: string[] }
-    | { objectValue: Record<string, AttributeValue> }
+    | { string_value: string }
+    | { array_value: string[] }
+    | { object_value: Record<string, AttributeValue> }
 
 // 审核信息
 export interface AuditInfo {
-  auditId: string;
-  reason: string;
-  operatorId: string;
-  operatedAt: string;
+  audit_id: string;
+  operator_id: string;
+  operated_at: string;
 }
 
 // 商品核心数据结构
@@ -46,7 +45,7 @@ export interface Product {
   description: string;
   price: number;
   status: ProductStatus;
-  merchantId: string;
+  merchant_id: string;
   images: ProductImage[];
   picture: string;
   quantity: number;
@@ -70,8 +69,8 @@ export interface CreateProductResponse {
   msg?: string
   data: {
     id: string
-    createdAt: string
-    updatedAt: string
+    created_at: string
+    updated_at: string
   }
 }
 
@@ -112,9 +111,9 @@ export interface SubmitAuditRequest {
 
 // 审核商品请求参数
 export interface AuditProductRequest {
-  productId: string
-  merchantId: string
+  product_id: string
+  merchant_id: string
   action: AuditAction
   reason?: string
-  operatorId: number
+  operator_id: number
 }

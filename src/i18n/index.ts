@@ -13,7 +13,7 @@ i18n
   // 初始化 i18next
   .init({
     fallbackLng: 'en',
-    debug: true,
+    debug: false,
     interpolation: {
       escapeValue: false,
     },

@@ -1,12 +1,12 @@
 // 地址接口定义
 export interface Address {
   id: number
-  userId: string
-  streetAddress: string
+  user_id: string
+  street_address: string
   city: string
   state: string
   country: string
-  zipCode: string
+  zip_code: string
 }
 
 // 地址列表接口
@@ -21,8 +21,8 @@ export interface AddressRequest {
 
 // 删除地址请求接口
 export interface DeleteAddressRequest {
-  addressesId: number
-  userId: string
+  addresses_id: number
+  user_id: string
 }
 
 // 地址响应接口

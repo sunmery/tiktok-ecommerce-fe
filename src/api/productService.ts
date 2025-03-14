@@ -18,8 +18,21 @@ import {
   Products,
   SearchProductRequest,
   SubmitAuditRequest,
-  UpdateProductRequest
+  UpdateProductRequest,
+  // API方法名常量导入
+  CreateProduct,
+  UpdateProduct,
+  SubmitForAudit,
+  AuditProduct,
+  ListRandomProducts,
+  GetProduct,
+  GetMerchantProducts,
+  SearchProductsByName,
+  ListProductsByCategory,
+  DeleteProduct
 } from '@/types/product';
+
+const URL =`${import.meta.env.VITE_URL}${import.meta.env.VITE_PRODUCERS_URL}`
 
 /**
  * 商品服务API
@@ -30,7 +43,7 @@ export const productService = {
    * POST /v1/products
    */
   createProduct: (request: CreateProductRequest) => {
-    return httpClient.post<CreateProductReply>('/v1/products', request);
+    return httpClient.post<CreateProductReply>(`${import.meta.env.VITE_PRODUCERS_URL}/${CreateProduct}`, request);
   },
 
   /**
@@ -38,7 +51,7 @@ export const productService = {
    * PUT /v1/products/{id}
    */
   updateProduct: (request: UpdateProductRequest) => {
-    const url = httpClient.replacePathParams('/v1/products/{id}', {
+    const url = httpClient.replacePathParams(`${import.meta.env.VITE_PRODUCERS_URL}/${UpdateProduct}`, {
       id: request.id
     });
     return httpClient.put<Product>(url, request);
@@ -49,10 +62,14 @@ export const productService = {
    * POST /v1/products/{productId}/submit-audit
    */
   submitForAudit: (request: SubmitAuditRequest) => {
-    const url = httpClient.replacePathParams('/v1/products/{productId}/submit-audit', {
-      productId: request.productId
+    const snakeCaseRequest = {
+      product_id: request.product_id,
+      merchant_id: request.merchant_id
+    };
+    const url = httpClient.replacePathParams(`/v1/products/{productId}/${SubmitForAudit}`, {
+      product_id: request.product_id
     });
-    return httpClient.post<AuditRecord>(url, request);
+    return httpClient.post<AuditRecord>(url, snakeCaseRequest);
   },
 
   /**
@@ -60,10 +77,17 @@ export const productService = {
    * POST /v1/products/{productId}/audit
    */
   auditProduct: (request: AuditProductRequest) => {
-    const url = httpClient.replacePathParams('/v1/products/{productId}/audit', {
-      productId: request.productId
+    const snakeCaseRequest = {
+      product_id: request.product_id,
+      merchant_id: request.merchant_id,
+      action: request.action,
+      reason: request.reason,
+      operator_id: request.operator_id
+    };
+    const url = httpClient.replacePathParams(`/v1/products/{productId}/${AuditProduct}`, {
+      product_id: request.product_id
     });
-    return httpClient.post<AuditRecord>(url, request);
+    return httpClient.post<AuditRecord>(url, snakeCaseRequest);
   },
 
   /**
@@ -71,8 +95,13 @@ export const productService = {
    * GET /v1/products/{id}
    */
   getProduct: (request: GetProductRequest) => {
-    const url = httpClient.replacePathParams('/v1/products/{id}', {
-      id: request.id
+    const snakeCaseParams = {
+      id: request.id,
+      merchant_id: request.merchant_id
+    };
+    const url = httpClient.replacePathParams(`${import.meta.env.VITE_PRODUCERS_URL}/${GetProduct}`, {
+      id: request.id,
+      merchant_id: request.merchant_id
     });
     return httpClient.get<Product>(url);
   },
@@ -82,7 +111,7 @@ export const productService = {
    * GET /v1/merchants/products
    */
   getMerchantProducts: () => {
-    return httpClient.get<Products>('/v1/merchants/products', {});
+    return httpClient.get<Products>(`/v1/merchants/${GetMerchantProducts}`, {});
   },
 
   /**
@@ -90,7 +119,7 @@ export const productService = {
    * GET /v1/products/{name}
    */
   searchProductsByName: (request: SearchProductRequest) => {
-    const url = httpClient.replacePathParams('/v1/products/{name}', {
+    const url = httpClient.replacePathParams(`/v1/products/${SearchProductsByName}/{name}`, {
       name: request.name
     });
     return httpClient.get<Products>(url);
@@ -101,9 +130,13 @@ export const productService = {
    * GET /v1/products
    */
   listRandomProducts: (request: ListRandomProductsRequest) => {
-    return httpClient.get<Products>('/v1/products', {
-      params: request as unknown as Record<string, string>
-    });
+    // 将驼峰命名法转换为蛇形命名法
+    const snakeCaseRequest = {
+      page: request.page,
+      page_size: request.page_size,
+      status: request.status
+    };
+    return httpClient.post<Products>(`${URL}/${ListRandomProducts}`, snakeCaseRequest);
   },
 
   /**
@@ -111,7 +144,7 @@ export const productService = {
    * GET /v1/products/categories/{name}
    */
   listProductsByCategory: (request: ListProductsByCategoryRequest) => {
-    const url = httpClient.replacePathParams('/v1/products/categories/{name}', {
+    const url = httpClient.replacePathParams(`/v1/products/categories/${ListProductsByCategory}/{name}`, {
       name: request.name
     });
     return httpClient.get<Products>(url);
@@ -122,9 +155,14 @@ export const productService = {
    * DELETE /v1/products/{id}
    */
   deleteProduct: (request: DeleteProductRequest) => {
-    const url = httpClient.replacePathParams('/v1/products/{id}', {
-      id: request.id
+    // 将驼峰命名法转换为蛇形命名法
+    const snakeCaseRequest = {
+      id: request.id,
+      merchant_id: request.merchant_id
+    };
+    const url = httpClient.replacePathParams(`${import.meta.env.VITE_PRODUCERS_URL}/${DeleteProduct}`, {
+      product_id: request.id
     });
-    return httpClient.delete<Empty>(url);
+    return httpClient.delete<Empty>(url, { body: JSON.stringify(snakeCaseRequest) });
   }
 };

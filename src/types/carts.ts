@@ -2,7 +2,7 @@
 export interface CartItem {
   id: string
   name: string
-  merchantId: string
+  merchant_id: string
   description?: string
   images?: string[]
   price: number
