@@ -1,7 +1,7 @@
 import { createLazyFileRoute, useParams } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { Box, Typography, CircularProgress, Alert, Button, Card, CardContent, Chip, Divider, Grid, Stack } from '@mui/joy'
-import { Order, PaymentStatus } from '@/types/order'
+import { Order, PaymentStatus, OrderStatus } from '@/types/orders'
 import { formatCurrency } from '@/utils/format'
 import { useNavigate } from '@tanstack/react-router'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -31,15 +31,15 @@ const formatDate = (timestamp: any) => {
 // 获取状态颜色
 const getStatusColor = (status: PaymentStatus) => {
   switch (status) {
-    case PaymentStatus.notPaid:
+    case OrderStatus.notPaid:
       return 'warning'
-    case PaymentStatus.processing:
+    case OrderStatus.processing:
       return 'primary'
-    case PaymentStatus.paid:
+    case OrderStatus.paid:
       return 'success'
-    case PaymentStatus.failed:
+    case OrderStatus.failed:
       return 'danger'
-    case PaymentStatus.cancelled:
+    case OrderStatus.cancelled:
       return 'neutral'
     default:
       return 'neutral'

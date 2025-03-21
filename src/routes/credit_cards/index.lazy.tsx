@@ -22,10 +22,11 @@ import {
   Grid,
   Chip
 } from '@mui/joy'
-import { Edit, Delete, Add } from '@mui/icons-material'
-import { useCreditCards, useCreateCreditCard, useUpdateCreditCard, useDeleteCreditCard } from '@/hooks/useCreditCard'
+import { Delete, Add } from '@mui/icons-material'
+import { useCreditCards, useCreateCreditCard, useDeleteCreditCard } from '@/hooks/useCreditCard'
 import type { CreditCard } from '@/types/creditCards'
 import Breadcrumbs from '@/components/Breadcrumbs'
+import CreditCardDetailModal from '@/components/CreditCard/DetailModal.tsx'
 // 移除 framer-motion 导入
 // cardBackgrounds已被移除，使用内联样式替代
 
@@ -41,14 +42,14 @@ function RouteComponent() {
   // 获取信用卡列表数据
   const { data: { creditCards } = { creditCards: [] }, isLoading, isError, error, refetch } = useCreditCards()
   
-  // 创建、更新和删除信用卡的mutation hooks
+  // 创建和删除信用卡的mutation hooks
   const createCreditCardMutation = useCreateCreditCard()
-  const updateCreditCardMutation = useUpdateCreditCard()
   const deleteCreditCardMutation = useDeleteCreditCard()
   
   // 模态框状态
   const [open, setOpen] = useState(false)
-  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [selectedCard, setSelectedCard] = useState<CreditCard | null>(null)
   
   // 表单数据
   const [formData, setFormData] = useState<CreditCard>({
@@ -99,16 +100,8 @@ function RouteComponent() {
       brand: 'visa',
       country: 'CN',
       currency: '',
-      createdAt: ''
+      createdTime: ''
     })
-    setModalMode('create')
-    setOpen(true)
-  }
-  
-  // 打开编辑模态框
-  const handleOpenEditModal = (card: CreditCard) => {
-    setFormData(card)
-    setModalMode('edit')
     setOpen(true)
   }
   
@@ -116,21 +109,12 @@ function RouteComponent() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (modalMode === 'create') {
-      createCreditCardMutation.mutate(formData, {
-        onSuccess: () => {
-          setOpen(false)
-          refetch()
-        }
-      })
-    } else {
-      updateCreditCardMutation.mutate(formData, {
-        onSuccess: () => {
-          setOpen(false)
-          refetch()
-        }
-      })
-    }
+    createCreditCardMutation.mutate(formData, {
+      onSuccess: () => {
+        setOpen(false)
+        refetch()
+      }
+    })
   }
   
   // 删除信用卡
@@ -202,7 +186,12 @@ function RouteComponent() {
                               'linear-gradient(135deg, #5f6368, #3c4043)',
                     color: 'white',
                     position: 'relative',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    cursor: 'pointer' // 添加指针样式，提示可点击
+                  }}
+                  onClick={() => {
+                    setSelectedCard(card);
+                    setDetailOpen(true);
                   }}
                 >
                   <CardContent>
@@ -228,18 +217,14 @@ function RouteComponent() {
                       </Box>
                     </Box>
                   </CardContent>
-                  <CardActions>
-                    <IconButton
-                      variant="soft"
-                      color="neutral"
-                      onClick={() => handleOpenEditModal(card)}
-                    >
-                      <Edit />
-                    </IconButton>
+                  <CardActions sx={{ justifyContent: 'flex-end' }}>
                     <IconButton
                       variant="soft"
                       color="danger"
-                      onClick={() => handleDelete(card.id)}
+                      onClick={(e) => {
+                        e.stopPropagation(); // 阻止事件冒泡
+                        handleDelete(card.id);
+                      }}
                     >
                       <Delete />
                     </IconButton>
@@ -251,12 +236,12 @@ function RouteComponent() {
         </Grid>
       )}
       
-      {/* 创建/编辑模态框 */}
+      {/* 创建模态框 */}
       <Modal open={open} onClose={() => setOpen(false)}>
         <ModalDialog>
           <ModalClose />
           <Typography level="h4">
-            {modalMode === 'create' ? '添加新卡' : '编辑卡信息'}
+            添加新卡
           </Typography>
           <Divider sx={{ my: 2 }} />
           
@@ -362,14 +347,21 @@ function RouteComponent() {
                 <Button variant="plain" color="neutral" onClick={() => setOpen(false)}>
                   取消
                 </Button>
-                <Button type="submit" loading={createCreditCardMutation.isPending || updateCreditCardMutation.isPending}>
-                  {modalMode === 'create' ? '添加' : '保存'}
+                <Button type="submit" loading={createCreditCardMutation.isPending}>
+                  添加
                 </Button>
               </Box>
             </Stack>
           </form>
         </ModalDialog>
       </Modal>
+
+      {/* 详情模态框 */}
+      <CreditCardDetailModal 
+        open={detailOpen} 
+        onClose={() => setDetailOpen(false)} 
+        card={selectedCard} 
+      />
     </Box>
   )
 }

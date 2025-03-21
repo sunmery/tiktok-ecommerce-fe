@@ -9,8 +9,13 @@ export enum OrderStatus {
   outOfStock = 'outOfStock' // 无库存
 }
 
-// 为了保持兼容性，保留原有的PaymentStatus
-export type PaymentStatus = OrderStatus
+export enum PaymentStatus {
+  notPaid = 'notPaid',
+  processing = 'processing',
+  paid = 'paid',
+  failed = 'failed',
+  cancelled = 'cancelled'
+}
 
 // 地址接口
 export interface Address {
@@ -48,3 +53,8 @@ export interface OrdersResponse {
   page: number
   pageSize: number
 }
+
+// API路径常量
+export const PlaceOrder = 'v1/orders'
+export const ListOrder = 'v1/orders'
+export const MarkOrderPaid = 'v1/orders/{orderId}/paid'

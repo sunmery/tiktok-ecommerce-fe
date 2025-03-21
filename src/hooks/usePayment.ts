@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { paymentService } from '@/api/paymentService'
 import {
   CreatePaymentReq,
-  GetPaymentReq,
   PaymentCallbackReq,
   PaymentCallbackResp,
   PaymentNotifyReq,

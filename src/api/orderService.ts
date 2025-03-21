@@ -15,7 +15,7 @@ import {
   PlaceOrder,
   ListOrder,
   MarkOrderPaid,
-} from '@/types/order';
+} from '@/types/orders';
 
 /**
  * 订单服务API

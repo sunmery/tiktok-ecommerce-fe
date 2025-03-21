@@ -47,32 +47,3 @@ export function useUpdateUser() {
     },
   })
 }
-
-// 获取用户余额的hook
-export function useUserBalance() {
-  return useQuery<{state: string; data: {balance: number}}, Error, {state: string; data: {balance: number}}>({  // 修改泛型参数
-    queryKey: ['user', 'balance'],
-    queryFn: () => api.get<{state: string; data: {balance: number}}>('/v1/user/balance'),
-    retry: 1,
-    staleTime: 1000 * 60, // 1分钟内不重新请求
-    select: (data) => data,  // 直接返回完整的响应数据
-  })
-}
-
-// 充值余额的hook
-export function useRechargeBalance() {
-  const queryClient = useQueryClient()
-
-  return useMutation<
-    {state: string; data: {balance: number}},
-    Error,
-    {amount: number}
-  >({
-    mutationFn: ({amount}) =>
-      api.post<{state: string; data: {balance: number}}>('/v1/user/recharge', {amount}),
-    onSuccess: () => {
-      // 充值成功后刷新余额数据
-      queryClient.invalidateQueries({queryKey: ['user', 'balance']})
-    },
-  })
-}

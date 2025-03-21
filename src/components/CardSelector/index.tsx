@@ -146,8 +146,8 @@ const CardSelector: React.FC<CardSelectorProps> = ({ selectedCardId, onCardSelec
   
   // 获取当前选中的银行卡
   const getSelectedCard = () => {
-    if (!cardsData || !cardsData.credit_cards) return null;
-    return cardsData.credit_cards.find(card => card.id === selectedCardId);
+    if (!cardsData || !cardsData.creditCards) return null;
+    return cardsData.creditCards.find(card => card.id === selectedCardId);
   };
   
   const selectedCard = getSelectedCard();
@@ -298,9 +298,9 @@ const CardSelector: React.FC<CardSelectorProps> = ({ selectedCardId, onCardSelec
                 <Box sx={{ p: 2 }}>
                   <Typography color="danger">加载银行卡失败</Typography>
                 </Box>
-              ) : cardsData && cardsData.credit_cards && cardsData.credit_cards.length > 0 ? (
+              ) : cardsData && cardsData.creditCards && cardsData.creditCards.length > 0 ? (
                 <List>
-                  {cardsData.credit_cards.map((card) => (
+                  {cardsData.creditCards.map((card) => (
                     <ListItem 
                       key={card.id}
                       sx={{ 

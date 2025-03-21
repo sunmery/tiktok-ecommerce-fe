@@ -8,7 +8,7 @@ import {
   PlaceOrderReq,
   PlaceOrderResp,
   PaymentStatus
-} from '@/types/order'
+} from '@/types/orders'
 
 /**
  * 获取订单列表的hook

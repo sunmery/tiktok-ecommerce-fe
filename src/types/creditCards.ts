@@ -20,7 +20,7 @@ export interface CreditCard {
 
 // 信用卡列表响应接口
 export interface ListCreditCardsReply {
-  credit_cards: CreditCard[]
+  creditCards: CreditCard[]
 }
 
 // 创建/更新信用卡响应接口
@@ -42,10 +42,10 @@ export interface GetCreditCardRequest {
 
 // 获取信用卡响应接口
 export interface GetCreditCardReply {
-  credit_cards: CreditCard
+  creditCards: CreditCard
 }
 
 // 搜索信用卡响应
 export interface SearchCreditCardsReply {
-  credit_cards: CreditCard[]
+  creditCards: CreditCard[]
 }

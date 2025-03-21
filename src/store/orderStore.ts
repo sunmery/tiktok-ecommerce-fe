@@ -1,6 +1,6 @@
 import { proxy, subscribe } from 'valtio'
 import type { Order } from '@/types/orders'
-import { PaymentStatus } from '@/types/order'
+import { PaymentStatus } from '@/types/orders'
 
 // 订单状态管理接口
 export interface OrderState {

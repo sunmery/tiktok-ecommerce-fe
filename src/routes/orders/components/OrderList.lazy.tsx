@@ -1,7 +1,5 @@
 import { Box, Card, CardContent, Typography, Chip, Grid, Divider, Button } from '@mui/joy'
-import { Order as FrontendOrder } from '@/types/orders'
-import { PaymentStatus } from '@/types/order'
-import { Order as ApiOrder, PaymentStatus as ApiPaymentStatus } from '@/types/order'
+import { Order as FrontendOrder, Order as ApiOrder, PaymentStatus } from '@/types/orders'
 import { formatCurrency } from '@/utils/format'
 import { Link } from '@tanstack/react-router'
 

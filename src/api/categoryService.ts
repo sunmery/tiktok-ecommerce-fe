@@ -61,17 +61,13 @@ export const categoryService = {
      * GET /v1/categories/{id}
      */
     getCategory: async (request: GetCategoryRequest) => {
-        try {
-            const response = await fetch(`${import.meta.env.VITE_CATEGORIES_URL}/${GetCategory}/${request.id}`, {
-                method: 'GET'
-            });
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return await response.json() as Promise<Category>;
-        } catch (error) {
-            throw error;
+        const response = await fetch(`${import.meta.env.VITE_CATEGORIES_URL}/${GetCategory}/${request.id}`, {
+            method: 'GET'
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
+        return await response.json() as Promise<Category>;
     },
 
     /**
@@ -79,25 +75,21 @@ export const categoryService = {
      * PUT /v1/categories/{id}
      */
     updateCategory: async(request: UpdateCategoryRequest) => {
-        try {
-            const response = await fetch(`${import.meta.env.VITE_CATEGORIES_URL}/${UpdateCategory}/${request.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    name: request.name,
-                    description: request.description
-                })
-            });
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return await response.json() as Promise<Empty>;
-        } catch (error) {
-            throw error;
+        const response = await fetch(`${import.meta.env.VITE_CATEGORIES_URL}/${UpdateCategory}/${request.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                name: request.name,
+                description: request.description
+            })
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
+        return await response.json() as Promise<Empty>;
     },
 
     /**

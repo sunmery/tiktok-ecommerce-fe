@@ -54,6 +54,7 @@ export const userService = {
      * PATCH /v1/users/address
      */
     updateAddress: (address: Address) => {
+        const token = localStorage.getItem('token');
         return httpClient.patch<Address>(`${import.meta.env.VITE_USERS_URL}/${UpdateAddress}`, {
             id: address.id,
             userId: address.userId,
@@ -62,6 +63,11 @@ export const userService = {
             state: address.state,
             country: address.country,
             zipCode: address.zipCode
+        }, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         });
     },
 

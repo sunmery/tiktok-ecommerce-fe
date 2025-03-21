@@ -45,7 +45,7 @@ export async function fetchApi<T>(
     const headers = new Headers(options.headers || defaultConfig.headers)
 
     // 只在特定方法中设置Content-Type
-    const method = options.method || 'GET' || 'OPTIONS'
+    const method = options.method ?? 'GET'
     if (!headers.has('Content-Type') && ['POST', 'PUT', 'PATCH'].includes(method)) {
       headers.set('Content-Type', 'application/json')
     }

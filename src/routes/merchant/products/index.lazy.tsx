@@ -23,7 +23,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import UploadIcon from '@mui/icons-material/Upload'
 import PublishIcon from '@mui/icons-material/Publish'
 import UnpublishedIcon from '@mui/icons-material/Unpublished'
-import {Product, ProductStatus} from '@/types/product'
+import {Product, ProductStatus, AuditProductRequest, AuditRecordResponse, CreateProductResponse, ProductResponse} from '@/types/products.ts'
 import {productService} from '@/api/productService'
 
 export const Route = createLazyFileRoute('/merchant/products/')({

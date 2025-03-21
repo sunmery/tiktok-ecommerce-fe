@@ -2,7 +2,7 @@ import { createLazyFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { Box, Button, Card, CardContent, Grid, Typography, Table, Sheet, Modal, FormControl, FormLabel, Select, Option, Snackbar, Alert } from '@mui/joy'
 import { Order } from '@/types/orders'
-import { PaymentStatus } from '@/types/order'
+import { PaymentStatus } from '@/types/orders'
 import { orderService } from '@/api/orderService'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
@@ -34,7 +34,7 @@ export default function Orders() {
           orderId: 'ORD20240301001',
           userId: 'USR001',
           createdAt: new Date().toISOString(),
-          paymentStatus: PaymentStatus.PAID,
+          paymentStatus: PaymentStatus.paid,
           currency: 'CNY',
           items: [
             {
@@ -61,7 +61,7 @@ export default function Orders() {
           orderId: 'ORD20240301002',
           userId: 'USR002',
           createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-          paymentStatus: PaymentStatus.PROCESSING,
+          paymentStatus: PaymentStatus.processing,
           currency: 'CNY',
           items: [
             {
@@ -109,7 +109,7 @@ export default function Orders() {
           orderId: 'ORD20240301004',
           userId: 'USR004',
           createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-          paymentStatus: PaymentStatus.PAID,
+          paymentStatus: PaymentStatus.paid,
           currency: 'CNY',
           items: [
             {
@@ -130,7 +130,7 @@ export default function Orders() {
           orderId: 'ORD20240301005',
           userId: 'USR005',
           createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-          paymentStatus: PaymentStatus.PROCESSING,
+          paymentStatus: PaymentStatus.processing,
           currency: 'CNY',
           items: [
             {
@@ -164,7 +164,7 @@ export default function Orders() {
   const handleStatusChange = async (orderId: string, status: PaymentStatus) => {
     try {
       setLoading(true)
-      if (status === PaymentStatus.PAID) {
+      if (status === PaymentStatus.paid) {
         await orderService.markOrderPaid({ orderId: orderId })
       } else {
         // 使用新的API更新订单状态
@@ -227,10 +227,10 @@ export default function Orders() {
                       {Object.values(PaymentStatus).map((status) => (
                         <Option key={status} value={status}>
                           {status === PaymentStatus.notPaid ? '未支付' :
-                           status === PaymentStatus.PROCESSING ? '处理中' :
-                           status === PaymentStatus.PAID ? '已支付' :
-                           status === PaymentStatus.FAILED ? '支付失败' :
-                           status === PaymentStatus.CANCELLED ? '已取消' : status}
+                           status === PaymentStatus.processing ? '处理中' :
+                           status === PaymentStatus.paid ? '已支付' :
+                           status === PaymentStatus.failed ? '支付失败' :
+                           status === PaymentStatus.cancelled ? '已取消' : status}
                         </Option>
                       ))}
                     </Select>
