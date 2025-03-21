@@ -3,6 +3,7 @@
 interface ImportMetaEnv {
 	readonly VITE_APP_TITLE: string
 	readonly VITE_HUSKY: string
+	readonly VITE_URL: string
 	readonly HUSKY: string
 	readonly URL: string
 	readonly VITE_USERS_URL: string

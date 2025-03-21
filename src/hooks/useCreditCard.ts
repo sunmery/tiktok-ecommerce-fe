@@ -7,7 +7,7 @@ import {
   GetCreditCardReply,
   GetCreditCardRequest,
   ListCreditCardsReply
-} from '@/types/user'
+} from '@/types/creditCards'
 
 /**
  * 获取用户信用卡列表的hook
@@ -21,14 +21,14 @@ export function useCreditCards() {
 
 /**
  * 获取特定信用卡的hook
- * @param number 信用卡号码
+ * @param id 信用卡ID
  * @param userId 用户ID
  */
-export function useCreditCard(number: string, userId: string) {
+export function useCreditCard(id: number, userId: string) {
   return useQuery<GetCreditCardReply>({
-    queryKey: ['creditCard', number],
-    queryFn: () => userService.getCreditCard({ number, userId: userId }),
-    enabled: !!number && !!userId, // 只有当number和userId都存在时才发起请求
+    queryKey: ['creditCard', id],
+    queryFn: () => userService.getCreditCard({ id, userId: userId }),
+    enabled: !!id && !!userId, // 只有当id和userId都存在时才发起请求
   })
 }
 
@@ -58,8 +58,8 @@ export function useUpdateCreditCard() {
     onSuccess: () => {
       // 更新信用卡成功后刷新信用卡列表和详情
       queryClient.invalidateQueries({ queryKey: ['creditCards'] })
-      if (creditCard.number) {
-        queryClient.invalidateQueries({ queryKey: ['creditCard', creditCard.number] })
+      if (creditCard.id) {
+        queryClient.invalidateQueries({ queryKey: ['creditCard', creditCard.id] })
       }
     },
   })

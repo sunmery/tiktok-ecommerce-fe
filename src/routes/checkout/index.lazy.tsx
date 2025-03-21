@@ -8,6 +8,8 @@ import {cartStore} from '@/store/cartStore.ts'
 import { useState, useEffect } from 'react'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import Skeleton from '@/components/Skeleton'
+import AddressSelector from '@/components/AddressSelector'
+import CardSelector from '@/components/CardSelector'
 import { Box, Typography, Card, CardContent, Divider, Grid, Table, Chip } from '@mui/joy'
 
 export const Route = createLazyFileRoute('/checkout/')({
@@ -21,9 +23,11 @@ export const Route = createLazyFileRoute('/checkout/')({
 function RouteComponent() {
 	const account = useSnapshot(userStore.account)
 	const addresses = useSnapshot(addressesStore.defaultAddress)
-	const creditCards = useSnapshot(creditCardsStore.default_credit_cards)
+	const creditCards = useSnapshot(creditCardsStore.defaultCreditCards)
 	const cart = useSnapshot(cartStore)
 	const [loading, setLoading] = useState(true)
+	const [selectedAddressId, setSelectedAddressId] = useState<number>(addresses?.id || 0)
+	const [selectedCardId, setSelectedCardId] = useState<number>(creditCards?.id || 0)
 	
 	// 模拟加载数据
 	useEffect(() => {
@@ -32,6 +36,16 @@ function RouteComponent() {
 		}, 800)
 		return () => clearTimeout(timer)
 	}, [])
+	
+	// 初始化选中的地址和银行卡ID
+	useEffect(() => {
+		if (addresses?.id) {
+			setSelectedAddressId(addresses.id)
+		}
+		if (creditCards?.id) {
+			setSelectedCardId(creditCards.id)
+		}
+	}, [addresses, creditCards])
 	
 	const createCheckout = () => {
 		fetch(`${import.meta.env.VITE_CHECKOUT_URL}`, {
@@ -44,8 +58,8 @@ function RouteComponent() {
 				owner: account.owner,
 				name: account.name,
 				email: account.email,
-				address_id: addresses.id,
-				credit_card_id: creditCards.id,
+				addressId: selectedAddressId,
+				creditCardId: selectedCardId,
 			}),
 		})
 			.then((res) => {
@@ -114,7 +128,7 @@ function RouteComponent() {
 										</thead>
 										<tbody>
 											{cart.items.map((item) => (
-												<tr key={item.id}>
+												<tr key={item.productId}>
 													<td>
 														<Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
 															{item.picture && (
@@ -218,41 +232,18 @@ function RouteComponent() {
 					
 					{/* 收货地址 */}
 					<Grid xs={12} md={6}>
-						<Card variant="outlined" sx={{ mb: 3 }}>
-							<CardContent>
-								<Typography level="h3" sx={{ mb: 2 }}>收货信息</Typography>
-								<Divider sx={{ my: 2 }} />
-								
-								{addresses ? (
-									<Box>
-										<Typography level="body-md">收货人: {addresses.name}</Typography>
-										<Typography level="body-md">电话: {addresses.phone}</Typography>
-										<Typography level="body-md">地址: {addresses.province} {addresses.city} {addresses.district} {addresses.detail}</Typography>
-									</Box>
-								) : (
-									<Typography level="body-md" color="danger">请先添加收货地址</Typography>
-								)}
-							</CardContent>
-						</Card>
+						<AddressSelector 
+							selectedAddressId={selectedAddressId} 
+							onAddressSelect={setSelectedAddressId} 
+						/>
 					</Grid>
 					
 					{/* 支付方式 */}
 					<Grid xs={12} md={6}>
-						<Card variant="outlined" sx={{ mb: 3 }}>
-							<CardContent>
-								<Typography level="h3" sx={{ mb: 2 }}>支付方式</Typography>
-								<Divider sx={{ my: 2 }} />
-								
-								{creditCards ? (
-									<Box>
-										<Typography level="body-md">卡号: **** **** **** {creditCards.number ? creditCards.number.slice(-4) : '****'}</Typography>
-										<Typography level="body-md">持卡人: {creditCards.name}</Typography>
-									</Box>
-								) : (
-									<Typography level="body-md" color="danger">请先添加支付方式</Typography>
-								)}
-							</CardContent>
-						</Card>
+						<CardSelector 
+							selectedCardId={selectedCardId} 
+							onCardSelect={setSelectedCardId} 
+						/>
 					</Grid>
 					
 					{/* 提交订单按钮 */}
@@ -273,7 +264,7 @@ function RouteComponent() {
 											fontSize: '16px',
 											fontWeight: 'bold'
 										}}
-										disabled={cart.items.length === 0 || !addresses || !creditCards}
+										disabled={cart.items.length === 0 || !selectedAddressId || !selectedCardId}
 									>
 										提交订单
 									</button>

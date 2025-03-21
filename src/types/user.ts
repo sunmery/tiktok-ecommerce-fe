@@ -5,6 +5,18 @@
 
 import { Address } from "@/types/addresses";
 
+// API路径常量
+export const CreateAddress = 'address';
+export const UpdateAddress = 'address';
+export const DeleteAddress = 'address';
+export const GetAddresses = 'addresses';
+export const ListAddresses = 'addresses';
+export const ListCreditCards = 'credit_cards';
+export const CreateCreditCard = 'credit_cards';
+export const UpdateCreditCard = 'credit_cards';
+export const DeleteCreditCard = 'credit_cards';
+export const GetCreditCard = 'credit_cards';
+
 // 时间戳类型（对应google.protobuf.Timestamp）
 export interface Timestamp {
   seconds: number;
@@ -13,82 +25,6 @@ export interface Timestamp {
 
 // 空请求类型（对应google.protobuf.Empty）
 export interface Empty {}
-
-// 信用卡信息
-export interface CreditCard {
-  number: string;
-  cvv: string;
-  exp_year: string;
-  exp_month: string;
-  owner: string;
-  name: string;
-  id: number;
-  type: string;
-  brand: string;
-  country: string;
-  created_time: string;
-}
-
-// 卡片操作响应
-export interface CardsReply {
-  message: string;
-  code: number;
-}
-
-// 删除信用卡请求
-export interface DeleteCreditCardRequest {
-  id: number;
-}
-
-// 获取信用卡请求
-export interface GetCreditCardRequest {
-  user_id: string;
-  number: string;
-}
-
-// 获取信用卡响应
-export interface GetCreditCardReply {
-  credit_cards: CreditCard;
-}
-
-// 搜索信用卡响应
-export interface SearchCreditCardsReply {
-  credit_cards: CreditCard[];
-}
-
-// 列出信用卡响应
-export interface ListCreditCardsReply {
-  credit_cards: CreditCard[];
-}
-
-
-// 更新地址请求
-export interface UpdateAddressRequest {
-  addresses: Address;
-}
-
-// 更新地址请求（proto定义）
-export interface UpdateAddressesRequest {
-  addresses: Address;
-}
-
-// 删除地址请求
-export interface DeleteAddressRequest {
-  addresses_id: number;
-  user_id: string;
-}
-
-// 删除地址请求（proto定义）
-export interface DeleteAddressesRequest {
-  addresses_id: number;
-  user_id: string;
-}
-
-// 地址响应
-export interface AddressReply {
-  id: number;
-  address: Address;
-}
 
 // 获取地址列表响应
 export interface GetAddressesReply {
@@ -112,28 +48,16 @@ export interface DeleteAddressesReply {
 // 获取用户个人资料请求
 export interface GetProfileRequest {}
 
-// 获取用户个人资料响应
-export interface GetProfileResponse {
+// 用户个人资料
+export interface UserProfile {
   owner: string;
   name: string;
   avatar: string;
   email: string;
   id: string;
   role: string;
-  display_name: string;
-  is_deleted: boolean;
-  created_time: Timestamp;
-  updated_time: Timestamp;
+  displayName: string;
+  isDeleted: boolean;
+  createdTime: Timestamp;
+  updatedTime: Timestamp;
 }
-
-// API路径常量
-export const GetProfile = 'users/profile';
-export const CreateAddress = 'users/address';
-export const UpdateAddress = 'users/address';
-export const DeleteAddress = 'users/address';
-export const GetAddresses = 'users/address';
-export const ListCreditCards = 'users/credit_cards/all';
-export const CreateCreditCard = 'users/credit_cards';
-export const UpdateCreditCard = 'users/credit_cards';
-export const DeleteCreditCard = 'users/credit_cards';
-export const GetCreditCard = 'users/credit_cards';

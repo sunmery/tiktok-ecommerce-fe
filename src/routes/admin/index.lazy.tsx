@@ -22,7 +22,9 @@ function AdminDashboard() {
   // 检查用户是否为管理员，如果不是则重定向到首页
   useEffect(() => {
     if (account.role !== 'admin') {
-      navigate({ to: '/' })
+      navigate({ to: '/' }).then(() => {
+        // 跳转完成后的回调逻辑
+      })
     }
     // 模拟加载数据
     const timer = setTimeout(() => {
@@ -70,7 +72,9 @@ function AdminDashboard() {
                 variant="solid" 
                 color="primary" 
                 startDecorator={<PeopleAltIcon />}
-                onClick={() => navigate({ to: '/admin/users' })}
+                onClick={() => navigate({ to: '/admin/users' }).then(() => {
+                  console.log('已进入用户管理页面')
+                })}
                 fullWidth
                 sx={{ mt: 2 }}
               >
@@ -101,7 +105,9 @@ function AdminDashboard() {
                 variant="solid" 
                 color="primary" 
                 startDecorator={<BarChartIcon />}
-                onClick={() => navigate({ to: '/admin/analytics' })}
+                onClick={() => navigate({ to: '/admin/analytics' }).then(() => {
+                  console.log('已进入数据分析页面')
+                })}
                 fullWidth
                 sx={{ mt: 2 }}
               >
@@ -131,7 +137,9 @@ function AdminDashboard() {
                 variant="solid" 
                 color="primary" 
                 startDecorator={<StorageIcon />}
-                onClick={() => navigate({ to: '/admin/database' })}
+                onClick={() => navigate({ to: '/admin/database' }).then(() => {
+                  console.log('已进入数据库管理页面')
+                })}
                 fullWidth
                 sx={{ mt: 2 }}
               >

@@ -13,33 +13,41 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import {Link} from '@tanstack/react-router'
 import {cartStore} from '@/store/cartStore.ts'
 import Skeleton from '@/components/Skeleton'
-import {useState, useEffect} from 'react'
+import {useState, useEffect, useMemo} from 'react'
 import {productService} from '@/api/productService'
 import { useCategories } from '@/hooks/useCategory'
 
-export const Route = createLazyFileRoute('/products/category/$categoryName')({
+export const Route = createLazyFileRoute('/products/category/$categoryId')({
     component: CategoryProducts
 })
-
-function CategoryProducts() {
-    const {categoryName} = Route.useParams()
+export default function CategoryProducts() {
+    const {categoryId} = Route.useParams()
     const [products, setProducts] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-
 
 
     // 获取分类对应的中文名称
     // 获取分类数据
 const { data: categories, isLoading: categoriesLoading, error: categoriesError } = useCategories()
 
+// 构建分类名称映射表
+const categoryNameMap = useMemo(() => {
+    if (!categories?.items) return {};
+    return categories.items.slice(0, 20).reduce((acc, category) => ({
+        ...acc,
+        [category.id]: category.name
+    }), {});
+}, [categories]);
+
 // 直接使用接口返回的分类名称
 const getCategoryDisplayName = (name: string): string => {
     if (categoriesLoading) return '加载中...';
     if (categoriesError) return '名称加载失败';
-    const category = categories?.categories?.find(c => c.name === name);
+    const category = categories?.items?.find(c => c.id.toString() === name);
     return category?.name || name;
 }
+
     // 获取分类商品数据
     useEffect(() => {
         const fetchCategoryProducts = async () => {
@@ -47,7 +55,7 @@ const getCategoryDisplayName = (name: string): string => {
                 setLoading(true)
                 setError(null)
                 const response = await productService.listProductsByCategory({
-                    categoryName: categoryName,
+                    categoryId: Number(categoryId),
                     page: 1,
                     pageSize: 200,
                     status: 2
@@ -67,7 +75,7 @@ const getCategoryDisplayName = (name: string): string => {
         }
 
         fetchCategoryProducts().then(r => r)
-    }, [categoryName])
+    }, [categoryId])
 
     const addToCartHandler = (
         id: string,
@@ -105,14 +113,14 @@ const getCategoryDisplayName = (name: string): string => {
                 <Link to="/">
                     <Typography color="neutral">首页</Typography>
                 </Link>
-                <Link to="/products" search={{query: categoryName}}>
+                <Link to="/products">
                     <Typography color="neutral">全部商品</Typography>
                 </Link>
-                <Typography>{getCategoryDisplayName(categoryName)}</Typography>
+                <Typography>{getCategoryDisplayName(categoryId)}</Typography>
             </Breadcrumbs>
 
             <Typography level="h2" sx={{mb: 3}}>
-                {getCategoryDisplayName(categoryName)}
+                {getCategoryDisplayName(categoryId)}
             </Typography>
 
             {loading ? (
@@ -170,8 +178,17 @@ const getCategoryDisplayName = (name: string): string => {
                             <CardContent>
                                 <Typography level="title-md">{product.name}</Typography>
                                 {product.description && (
-                                    <Typography level="body-sm" noWrap sx={{mt: 1}}>
-                                        {product.description}
+                                    <Typography level="body-sm" sx={{
+                                        mt: 1,
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: 2,
+                                        WebkitBoxOrient: 'vertical',
+                                        minHeight: '2.5em',
+                                        mb: 1
+                                    }}>
+                                        {product.description || '暂无描述'}
                                     </Typography>
                                 )}
                                 {product.category && (
@@ -223,3 +240,6 @@ const getCategoryDisplayName = (name: string): string => {
         </Box>
     )
 }
+
+{isLoading && <div>加载分类数据...</div>}
+{error && <div>加载失败：{error.message}</div>}

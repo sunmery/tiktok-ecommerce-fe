@@ -82,7 +82,7 @@ export default function Orders() {
           orderId: 'ORD20240301003',
           userId: 'USR003',
           createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          paymentStatus: PaymentStatus.NOT_PAID,
+          paymentStatus: PaymentStatus.notPaid,
           currency: 'CNY',
           items: [
             {
@@ -165,7 +165,7 @@ export default function Orders() {
     try {
       setLoading(true)
       if (status === PaymentStatus.PAID) {
-        await orderService.markOrderPaid({ order_id: orderId })
+        await orderService.markOrderPaid({ orderId: orderId })
       } else {
         // 使用新的API更新订单状态
         await orderService.updateOrderStatus(orderId, status)
@@ -226,7 +226,7 @@ export default function Orders() {
                     >
                       {Object.values(PaymentStatus).map((status) => (
                         <Option key={status} value={status}>
-                          {status === PaymentStatus.NOT_PAID ? '未支付' :
+                          {status === PaymentStatus.notPaid ? '未支付' :
                            status === PaymentStatus.PROCESSING ? '处理中' :
                            status === PaymentStatus.PAID ? '已支付' :
                            status === PaymentStatus.FAILED ? '支付失败' :

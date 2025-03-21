@@ -34,15 +34,15 @@ const getStatusColor = (status: PaymentStatus | ApiPaymentStatus) => {
   // 如果是API的PaymentStatus（数字枚举），转换为前端的OrderStatus（字符串枚举）
   if (typeof status === 'number') {
     switch (status) {
-      case ApiPaymentStatus.NOT_PAID:
+      case ApiPaymentStatus.notPaid:
         return 'warning'
-      case ApiPaymentStatus.PROCESSING:
+      case ApiPaymentStatus.processing:
         return 'primary'
-      case ApiPaymentStatus.PAID:
+      case ApiPaymentStatus.paid:
         return 'success'
-      case ApiPaymentStatus.FAILED:
+      case ApiPaymentStatus.failed:
         return 'danger'
-      case ApiPaymentStatus.CANCELLED:
+      case ApiPaymentStatus.cancelled:
         return 'neutral'
       default:
         return 'neutral'
@@ -50,15 +50,15 @@ const getStatusColor = (status: PaymentStatus | ApiPaymentStatus) => {
   }
   // 如果不是数字类型的枚举，则可能是旧版本的字符串枚举
   switch (status) {
-    case 'NOT_PAID':
+    case 'notPaid':
       return 'warning'
-    case 'PROCESSING':
+    case 'processing':
       return 'primary'
-    case 'PAID':
+    case 'paid':
       return 'success'
-    case 'FAILED':
+    case 'failed':
       return 'danger'
-    case 'CANCELLED':
+    case 'cancelled':
       return 'neutral'
     default:
       return 'neutral'
@@ -70,15 +70,15 @@ const getStatusText = (status: string | ApiPaymentStatus) => {
   // 如果是API的PaymentStatus（数字枚举），转换为对应的文本
   if (typeof status === 'number') {
     switch (status) {
-      case ApiPaymentStatus.NOT_PAID:
+      case ApiPaymentStatus.notPaid:
         return '待支付'
-      case ApiPaymentStatus.PROCESSING:
+      case ApiPaymentStatus.processing:
         return '处理中'
-      case ApiPaymentStatus.PAID:
+      case ApiPaymentStatus.paid:
         return '已支付'
-      case ApiPaymentStatus.FAILED:
+      case ApiPaymentStatus.failed:
         return '支付失败'
-      case ApiPaymentStatus.CANCELLED:
+      case ApiPaymentStatus.cancelled:
         return '已取消'
       default:
         return '未知状态'
@@ -86,19 +86,19 @@ const getStatusText = (status: string | ApiPaymentStatus) => {
   }
   // 如果是前端的OrderStatus（字符串枚举）
   switch (status) {
-    case 'NOT_PAID':
+    case 'notPaid':
       return '待支付'
-    case 'PROCESSING':
+    case 'processing':
       return '处理中'
-    case 'PAID':
+    case 'paid':
       return '已支付'
-    case 'FAILED':
+    case 'failed':
       return '支付失败'
-    case 'CANCELLED':
+    case 'cancelled':
       return '已取消'
-    case 'SHIPPED':
+    case 'shipped':
       return '已发货'
-    case 'OUT_OF_STOCK':
+    case 'outOfStock':
       return '无库存'
     default:
       return '未知状态'

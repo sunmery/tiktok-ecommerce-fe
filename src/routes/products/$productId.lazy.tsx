@@ -1,103 +1,32 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
 import {useParams} from '@tanstack/react-router'
-import {useEffect, useState} from 'react'
 import {Box, Typography, Card, CardContent, AspectRatio, Divider, Grid, Button, Chip, CircularProgress, Alert} from '@mui/joy'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import {cartStore} from '@/store/cartStore.ts'
-import type {Product} from '@/types/products.ts'
+import {useProduct} from '@/hooks/useProduct'
 
-export const Route = createLazyFileRoute('/products/$productId')();
+export const Route = createLazyFileRoute('/products/$productId')({component: ProductDetail});
 
 export default function ProductDetail() {
     const {productId} = useParams({from: '/products/$productId'})
-    const [product, setProduct] = useState<Product | null>(null)
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState('')
-
-    // 获取商品详情
-    useEffect(() => {
-        const fetchProductDetail = async () => {
-            if (!productId) {
-                setError('商品ID不能为空');
-                return;
-            }
-            
-            setLoading(true);
-            setError('');
-            
-            try {
-                // 从API获取商品详情
-                const response = await fetch(`${import.meta.env.VITE_PRODUCERS_URL}/${productId}`);
-                if (!response.ok) {
-                    throw new Error(`获取商品详情失败: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                if (!data) {
-                    throw new Error('商品数据为空');
-                }
-                
-                // 增强图片数据完整性检查
-                const processedData = {
-                    ...data,
-                    images: Array.isArray(data.images) && data.images.length > 0
-                        ? data.images.map(img => ({
-                            ...img,
-                            url: img.url || data.picture || 'https://picsum.photos/300/200',
-                            isPrimary: typeof img.isPrimary === 'boolean' ? img.isPrimary : true,
-                            sortOrder: typeof img.sortOrder === 'number' ? img.sortOrder : 0
-                        }))
-                        : [{
-                            url: data.picture || 'https://picsum.photos/300/200',
-                            isPrimary: true,
-                            sortOrder: 0
-                        }]
-                };
-                
-                setProduct(processedData);
-                setError('');
-            } catch (err) {
-                console.error('获取商品详情失败:', err);
-                // 使用showMessage显示错误信息
-                import('@/utils/casdoor').then(({ showMessage }) => {
-                    showMessage(err instanceof Error ? err.message : '获取商品信息失败，请稍后重试', 'error');
-                });
-                
-                // 优化错误处理流程
-                try {
-                    const { mockProducts } = await import('@/utils/mockData');
-                    const mockProduct = mockProducts.find(p => p.id === productId);
-                    if (mockProduct) {
-                        console.log('使用mock数据显示商品详情:', mockProduct);
-                        setProduct(mockProduct);
-                        setError('当前使用测试数据显示');
-                    } else {
-                        setError('商品不存在或已下架');
-                    }
-                } catch (mockErr) {
-                    console.error('加载mock数据失败:', mockErr);
-                    setError('获取商品信息失败，请稍后重试');
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProductDetail();
-    }, [productId]);
+    const merchantId = new URLSearchParams(window.location.search).get('merchantId') || ''
+    const {data: product, isLoading: loading, error} = useProduct(productId, merchantId)
 
     // 添加到购物车
     const addToCartHandler = () => {
         if (product) {
             try {
+                // 确保productId不为空
+                if (!product.id && !product.productId) {
+                    throw new Error('商品ID不能为空');
+                }
+                
                 cartStore.addItem(
-                    product.id,
-                    product.merchantId,
+                    product.productId || product.id,
                     product.name,
-                    product.price,
-                    1,
-                    product.description,
-                    product.images?.map(img => img.url)
+                    product.merchantId,
+                    product.images?.[0]?.url || '',
+                    1
                 );
             } catch (error) {
                 console.error('添加到购物车失败:', error);
@@ -105,7 +34,6 @@ export default function ProductDetail() {
                 import('@/utils/casdoor').then(({ showMessage }) => {
                     showMessage('添加到购物车失败，请稍后重试', 'error');
                 });
-                setError('添加到购物车失败，请稍后重试');
             }
         }
     }
@@ -122,7 +50,7 @@ export default function ProductDetail() {
         return (
             <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
                 <Alert color="danger" variant="soft">
-                    {error || '未找到商品'}
+                    {error?.message || error?.toString() || '未找到商品'}
                 </Alert>
             </Box>
         )
@@ -169,13 +97,50 @@ export default function ProductDetail() {
                             )}
 
                             <Typography level="h3" color="primary" sx={{mt: 2}}>
-                                ¥{product.price.toLocaleString()}
+                                ¥{(product.price || 0).toLocaleString()}
+                            </Typography>
+
+                            <Typography level="body-md" sx={{mt: 2}}>
+                                库存: {product.quantity || 0} 件
+                            </Typography>
+
+                            <Typography level="body-md" sx={{mt: 1}}>
+                                商品ID: {product.id}
+                            </Typography>
+
+                            <Typography level="body-md" sx={{mt: 1}}>
+                                商家ID: {product.merchantId}
+                            </Typography>
+
+                            <Typography level="body-md" sx={{mt: 1}}>
+                                创建时间: {new Date(product.createdAt).toLocaleString()}
+                            </Typography>
+
+                            <Typography level="body-md" sx={{mt: 1}}>
+                                更新时间: {new Date(product.updatedAt).toLocaleString()}
                             </Typography>
 
                             <Divider sx={{my: 2}}/>
 
-                            <Typography level="body-lg" sx={{mb: 2}}>
+                            <Typography level="title-lg" sx={{mb: 2}}>
+                                商品描述
+                            </Typography>
+                            <Typography level="body-md">
                                 {product.description}
+                            </Typography>
+
+                            <Divider sx={{my: 2}}/>
+
+                            <Typography level="body-lg" sx={{
+                                mb: 2,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: 'vertical',
+                                minHeight: '3.6em'
+                            }}>
+                                {product.description || '暂无描述'}
                             </Typography>
 
                             <Box sx={{display: 'flex', alignItems: 'center', gap: 2, mt: 3}}>

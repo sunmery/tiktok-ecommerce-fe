@@ -1,5 +1,5 @@
 import SDK from 'casdoor-js-sdk'
-import {CASDOOR_CONF} from '@/conf/casdoor.ts'
+import {CASDOOR_CONF} from '@/core/conf/casdoor.ts'
 
 // 服务端的URL, 非casdoor的地址
 export const casdoorServer: string = import.meta.env.VITE_CASDOOR_URL

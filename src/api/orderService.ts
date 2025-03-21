@@ -11,12 +11,10 @@ import {
   ListOrderResp,
   MarkOrderPaidReq,
   MarkOrderPaidResp,
-  PaymentStatus,
   // API方法名常量导入
   PlaceOrder,
   ListOrder,
   MarkOrderPaid,
-  UpdateOrderStatus
 } from '@/types/order';
 
 /**
@@ -46,20 +44,9 @@ export const orderService = {
    * POST /v1/orders/{orderId}/paid
    */
   markOrderPaid: (request: MarkOrderPaidReq) => {
-    const url = httpClient.replacePathParams(`${import.meta.env.VITE_ORDERS_URL}/${MarkOrderPaid}/{order_id}`, {
-      order_id: request.order_id
+    const url = httpClient.replacePathParams(`${import.meta.env.VITE_ORDERS_URL}/${MarkOrderPaid}/{orderId}`, {
+      orderId: request.orderId
     });
     return httpClient.post<MarkOrderPaidResp>(url, {});
   },
-
-  /**
-   * 更新订单状态
-   * PUT /v1/orders/{orderId}/status
-   */
-  updateOrderStatus: (order_id: string, status: PaymentStatus) => {
-    const url = httpClient.replacePathParams(`${import.meta.env.VITE_ORDERS_URL}/${UpdateOrderStatus}/{order_id}`, {
-      order_id: order_id
-    });
-    return httpClient.put(url, { status });
-  }
 };

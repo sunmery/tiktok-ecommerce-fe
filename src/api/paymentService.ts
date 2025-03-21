@@ -52,8 +52,8 @@ export const paymentService = {
    * GET /v1/payments/{paymentId}
    */
   getPayment: (request: GetPaymentReq) => {
-    const url = httpClient.replacePathParams(`${import.meta.env.VITE_PAYMENTS_URL}/${GetPayment}/{payment_id}`, {
-      payment_id: request.payment_id
+    const url = httpClient.replacePathParams(`${import.meta.env.VITE_PAYMENTS_URL}/${GetPayment}/{paymentId}`, {
+      paymentId: request.paymentId
     });
     return httpClient.get<PaymentResp>(url);
   }

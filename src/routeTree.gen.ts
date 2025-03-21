@@ -48,6 +48,9 @@ const AdminAnalyticsIndexLazyImport = createFileRoute('/admin/analytics/')()
 const ProductsCategoryCategoryNameLazyImport = createFileRoute(
   '/products/category/$categoryName',
 )()
+const ProductsCategoryCategoryIdLazyImport = createFileRoute(
+  '/products/category/$categoryId',
+)()
 const OrdersComponentsOrderListComponentLazyImport = createFileRoute(
   '/orders/components/OrderList',
 )()
@@ -254,6 +257,15 @@ const ProductsCategoryCategoryNameLazyRoute =
     ),
   )
 
+const ProductsCategoryCategoryIdLazyRoute =
+  ProductsCategoryCategoryIdLazyImport.update({
+    id: '/products/category/$categoryId',
+    path: '/products/category/$categoryId',
+    getParentRoute: () => rootRoute,
+  } as any).lazy(() =>
+    import('./routes/products/category/$categoryId.lazy').then((d) => d.Route),
+  )
+
 const OrdersComponentsOrderListComponentLazyRoute =
   OrdersComponentsOrderListComponentLazyImport.update({
     id: '/orders/components/OrderList',
@@ -408,6 +420,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrdersComponentsOrderListComponentLazyImport
       parentRoute: typeof rootRoute
     }
+    '/products/category/$categoryId': {
+      id: '/products/category/$categoryId'
+      path: '/products/category/$categoryId'
+      fullPath: '/products/category/$categoryId'
+      preLoaderRoute: typeof ProductsCategoryCategoryIdLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/products/category/$categoryName': {
       id: '/products/category/$categoryName'
       path: '/products/category/$categoryName'
@@ -496,6 +515,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileIndexLazyRoute
   '/consumer/orders/$orderId': typeof ConsumerOrdersOrderIdLazyRoute
   '/orders/components/OrderList': typeof OrdersComponentsOrderListComponentLazyRoute
+  '/products/category/$categoryId': typeof ProductsCategoryCategoryIdLazyRoute
   '/products/category/$categoryName': typeof ProductsCategoryCategoryNameLazyRoute
   '/admin/analytics': typeof AdminAnalyticsIndexLazyRoute
   '/admin/database': typeof AdminDatabaseIndexLazyRoute
@@ -527,6 +547,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileIndexLazyRoute
   '/consumer/orders/$orderId': typeof ConsumerOrdersOrderIdLazyRoute
   '/orders/components/OrderList': typeof OrdersComponentsOrderListComponentLazyRoute
+  '/products/category/$categoryId': typeof ProductsCategoryCategoryIdLazyRoute
   '/products/category/$categoryName': typeof ProductsCategoryCategoryNameLazyRoute
   '/admin/analytics': typeof AdminAnalyticsIndexLazyRoute
   '/admin/database': typeof AdminDatabaseIndexLazyRoute
@@ -559,6 +580,7 @@ export interface FileRoutesById {
   '/profile/': typeof ProfileIndexLazyRoute
   '/consumer/orders/$orderId': typeof ConsumerOrdersOrderIdLazyRoute
   '/orders/components/OrderList': typeof OrdersComponentsOrderListComponentLazyRoute
+  '/products/category/$categoryId': typeof ProductsCategoryCategoryIdLazyRoute
   '/products/category/$categoryName': typeof ProductsCategoryCategoryNameLazyRoute
   '/admin/analytics/': typeof AdminAnalyticsIndexLazyRoute
   '/admin/database/': typeof AdminDatabaseIndexLazyRoute
@@ -592,6 +614,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/consumer/orders/$orderId'
     | '/orders/components/OrderList'
+    | '/products/category/$categoryId'
     | '/products/category/$categoryName'
     | '/admin/analytics'
     | '/admin/database'
@@ -622,6 +645,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/consumer/orders/$orderId'
     | '/orders/components/OrderList'
+    | '/products/category/$categoryId'
     | '/products/category/$categoryName'
     | '/admin/analytics'
     | '/admin/database'
@@ -652,6 +676,7 @@ export interface FileRouteTypes {
     | '/profile/'
     | '/consumer/orders/$orderId'
     | '/orders/components/OrderList'
+    | '/products/category/$categoryId'
     | '/products/category/$categoryName'
     | '/admin/analytics/'
     | '/admin/database/'
@@ -684,6 +709,7 @@ export interface RootRouteChildren {
   ProfileIndexLazyRoute: typeof ProfileIndexLazyRoute
   ConsumerOrdersOrderIdLazyRoute: typeof ConsumerOrdersOrderIdLazyRoute
   OrdersComponentsOrderListComponentLazyRoute: typeof OrdersComponentsOrderListComponentLazyRoute
+  ProductsCategoryCategoryIdLazyRoute: typeof ProductsCategoryCategoryIdLazyRoute
   ProductsCategoryCategoryNameLazyRoute: typeof ProductsCategoryCategoryNameLazyRoute
   AdminAnalyticsIndexLazyRoute: typeof AdminAnalyticsIndexLazyRoute
   AdminDatabaseIndexLazyRoute: typeof AdminDatabaseIndexLazyRoute
@@ -716,6 +742,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConsumerOrdersOrderIdLazyRoute: ConsumerOrdersOrderIdLazyRoute,
   OrdersComponentsOrderListComponentLazyRoute:
     OrdersComponentsOrderListComponentLazyRoute,
+  ProductsCategoryCategoryIdLazyRoute: ProductsCategoryCategoryIdLazyRoute,
   ProductsCategoryCategoryNameLazyRoute: ProductsCategoryCategoryNameLazyRoute,
   AdminAnalyticsIndexLazyRoute: AdminAnalyticsIndexLazyRoute,
   AdminDatabaseIndexLazyRoute: AdminDatabaseIndexLazyRoute,
@@ -756,6 +783,7 @@ export const routeTree = rootRoute
         "/profile/",
         "/consumer/orders/$orderId",
         "/orders/components/OrderList",
+        "/products/category/$categoryId",
         "/products/category/$categoryName",
         "/admin/analytics/",
         "/admin/database/",
@@ -823,6 +851,9 @@ export const routeTree = rootRoute
     },
     "/orders/components/OrderList": {
       "filePath": "orders/components/OrderList.component.lazy.tsx"
+    },
+    "/products/category/$categoryId": {
+      "filePath": "products/category/$categoryId.lazy.tsx"
     },
     "/products/category/$categoryName": {
       "filePath": "products/category/$categoryName.lazy.tsx"

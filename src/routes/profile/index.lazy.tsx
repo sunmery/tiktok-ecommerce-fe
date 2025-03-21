@@ -1,6 +1,6 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
 
-import {useMemo, useState, useEffect} from 'react'
+import {useState, useEffect} from 'react'
 import {
     getSigninUrl,
     getUserinfo,
@@ -25,7 +25,6 @@ import {
 import {setAccount, userStore} from '@/store/user'
 import {useSnapshot} from 'valtio/react'
 import {useNavigate} from '@tanstack/react-router'
-import Breadcrumbs from '@/components/Breadcrumbs'
 
 /**
  *@returns JSXElement
@@ -50,11 +49,20 @@ export default function Profile() {
             
             // 根据角色自动导航到对应页面
             if (newRole === 'merchant') {
-                navigate({ to: '/merchant' })
+                navigate({ to: '/merchant' }).then(() => {
+                    // 商家角色切换成功后的回调
+                    console.log('已切换到商家角色')
+                })
             } else if (newRole === 'admin') {
-                navigate({ to: '/admin' })
+                navigate({ to: '/admin' }).then(() => {
+                    // 管理员角色切换成功后的回调
+                    console.log('已切换到管理员角色')
+                })
             } else {
-                navigate({ to: '/' })
+                navigate({ to: '/' }).then(() => {
+                    // 普通用户角色切换成功后的回调
+                    console.log('已切换到普通用户角色')
+                })
             }
         }
     }
@@ -62,7 +70,11 @@ export default function Profile() {
     // 在组件挂载时获取用户信息
     useEffect(() => {
         if (!isLoggedIn()) {
-            navigate({ to: '/login' })
+            navigate({ to: '/login' }).then(() => {
+                console.log('获取用户信息出错，已重定向到登录页面')
+            }).then(() => {
+                console.log('未登录，已重定向到登录页面')
+            })
             return
         }
 
@@ -76,7 +88,11 @@ export default function Profile() {
             // 检查返回的结果是否为空对象（表示出错）
             if (res && Object.keys(res).length === 0) {
                 setError('获取用户信息失败，请检查您的登录状态或稍后再试')
-                navigate({ to: '/login' })
+                navigate({ to: '/login' }).then(() => {
+                console.log('获取用户信息出错，已重定向到登录页面')
+            }).then(() => {
+                    console.log('获取用户信息失败，已重定向到登录页面')
+                })
                 return
             }
             
@@ -95,7 +111,9 @@ export default function Profile() {
         }).catch(err=>{
             console.error(err)
             setError('获取用户信息时发生错误：' + (err.message || '未知错误'))
-            navigate({ to: '/login' })
+            navigate({ to: '/login' }).then(() => {
+                console.log('获取用户信息出错，已重定向到登录页面')
+            })
         })
     }, []) // 仅在组件挂载时执行
 
@@ -187,28 +205,36 @@ export default function Profile() {
                                 <Button
                                     variant="outlined"
                                     color="primary"
-                                    onClick={() => navigate({to: '/addresses'})}
+                                    onClick={() => navigate({to: '/addresses'}).then(() => {
+                console.log('已跳转到地址管理页面')
+            })}
                                 >
                                     管理收货地址
                                 </Button>
                                 <Button
                                     variant="outlined"
                                     color="primary"
-                                    onClick={() => navigate({to: '/credit_cards'})}
+                                    onClick={() => navigate({to: '/credit_cards'}).then(() => {
+                console.log('已跳转到信用卡管理页面')
+            })}
                                 >
                                     管理支付方式
                                 </Button>
                                 <Button
                                     variant="outlined"
                                     color="primary"
-                                    onClick={() => navigate({to: '/orders'})}
+                                    onClick={() => navigate({to: '/orders'}).then(() => {
+                console.log('已跳转到订单管理页面')
+            })}
                                 >
                                     查看订单历史
                                 </Button>
                                 <Button
                                     variant="solid"
                                     color="danger"
-                                    onClick={() => navigate({to: '/logout'})}
+                                    onClick={() => navigate({to: '/logout'}).then(() => {
+                console.log('已跳转到登出页面')
+            })}
                                 >
                                     退出登录
                                 </Button>

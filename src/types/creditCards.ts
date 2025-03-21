@@ -1,16 +1,21 @@
+/**
+ * 信用卡相关类型定义
+ */
+
 // 信用卡信息接口
 export interface CreditCard {
   id: number
   number: string
   cvv: string
-  exp_year: string
-  exp_month: string
+  expYear: string
+  expMonth: string
   owner: string
   name: string
   type: string
   brand: string
   country: string
-  created_time: string
+  createdTime: string
+  currency: string
 }
 
 // 信用卡列表响应接口
@@ -31,11 +36,16 @@ export interface DeleteCreditCardRequest {
 
 // 获取信用卡请求接口
 export interface GetCreditCardRequest {
-  user_id: string
-  number: string
+  userId: string
+  id: number
 }
 
 // 获取信用卡响应接口
 export interface GetCreditCardReply {
   credit_cards: CreditCard
+}
+
+// 搜索信用卡响应
+export interface SearchCreditCardsReply {
+  credit_cards: CreditCard[]
 }

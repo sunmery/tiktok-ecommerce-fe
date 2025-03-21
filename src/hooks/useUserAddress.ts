@@ -1,11 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { userService } from '@/api/userService'
-import {
-  Address,
-  DeleteAddressRequest,
-  DeleteAddressReply,
-  GetAddressesReply
-} from '@/types/user'
+import { Address, DeleteAddressRequest } from '@/types/addresses'
+import { DeleteAddressReply, GetAddressesReply } from '@/types/user'
 
 /**
  * 获取用户地址列表的hook

@@ -7,10 +7,6 @@ import {
   CreateCategoryRequest,
   DeleteCategoryRequest,
   Empty,
-  GetCategoryPathRequest,
-  GetCategoryRequest,
-  GetClosureRequest,
-  GetSubTreeRequest,
   UpdateCategoryRequest,
   UpdateClosureDepthRequest
 } from '@/types/category'
@@ -33,7 +29,7 @@ export function useCategory(categoryId: string) {
 export function useCategories() {
   return useQuery<Categories>({
     queryKey: ['categories'],
-    queryFn: () => categoryService.listCategories(),
+    queryFn: () => categoryService.listLeafCategories(),
   })
 }
 

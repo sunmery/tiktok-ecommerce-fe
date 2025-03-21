@@ -85,7 +85,6 @@ export interface UpdateClosureDepthRequest {
   categoryId: string;
   depth: number;
 }
-
 // API路径常量
 export const CreateCategory = 'categories';
 export const GetCategory = 'categories';

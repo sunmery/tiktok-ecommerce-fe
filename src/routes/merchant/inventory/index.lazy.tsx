@@ -69,10 +69,10 @@ export default function Inventory() {
 
   const checkLowStock = (products: Product[]) => {
     const newAlerts = products
-      .filter(product => (product.stock || 0) < (alerts.find(a => a.productId === product.id)?.threshold || 10))
+      .filter(product => (product.stock || 0) < (alerts.find(a => a.productId === product.productId || product.id)?.threshold || 10))
       .map(product => ({
-        productId: product.id,
-        threshold: alerts.find(a => a.productId === product.id)?.threshold || 10,
+        productId: product.productId || product.id,
+        threshold: alerts.find(a => a.productId === (product.productId || product.id))?.threshold || 10,
         currentStock: product.stock || 0
       }))
     setAlerts(newAlerts)
@@ -81,11 +81,11 @@ export default function Inventory() {
   const handleSetAlert = async () => {
     if (selectedProduct && threshold > 0) {
       const newAlert: InventoryAlert = {
-        productId: selectedProduct.id,
+        productId: selectedProduct.productId || selectedProduct.id,
         threshold: threshold,
         currentStock: selectedProduct.stock || 0
       }
-      setAlerts(prev => [...prev.filter(a => a.productId !== selectedProduct.id), newAlert])
+      setAlerts(prev => [...prev.filter(a => a.productId !== (selectedProduct.productId || selectedProduct.id)), newAlert])
       setAlertOpen(false)
       setSnackbar({
         open: true,

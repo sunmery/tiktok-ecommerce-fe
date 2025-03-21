@@ -1,4 +1,4 @@
-import userFlow from '@/assets/img.png'
+import userFlow from '@/shared/assets/images/img.png'
 
 /**
  * 应用程入口

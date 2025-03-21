@@ -1,32 +1,28 @@
 /**
  * 助手服务相关类型定义
- * 基于proto文件生成的TypeScript类型
  */
 
-// API路径常量
+/**
+ * 处理查询的API路径
+ */
 export const ProcessQuery = 'process';
 
-// 处理请求
+/**
+ * 处理查询请求参数
+ */
 export interface ProcessRequest {
+  /**
+   * 用户提问的问题
+   */
   question: string;
 }
 
-// 订单响应
-export interface OrderResponse {
-  id: string;
-  product: string;
-  status: string;
-  createdAt: number;
-}
-
-// 订单列表
-export interface OrderList {
-  orders: OrderResponse[];
-}
-
-// 处理响应
+/**
+ * 处理查询响应结果
+ */
 export interface ProcessResponse {
-  order?: OrderResponse;
-  orders?: OrderList;
-  message?: string;
+  /**
+   * 助手回复的消息
+   */
+  message: string;
 }

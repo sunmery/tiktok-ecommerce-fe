@@ -1,9 +1,7 @@
 import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
-import {FavoriteBorder, Add, Remove, ShoppingCart} from '@mui/icons-material'
-import type {ModalDialogProps} from '@mui/joy'
+import {FavoriteBorder, Add, Remove, ShoppingCart, CheckBox, CheckBoxOutlineBlank} from '@mui/icons-material'
 import {
     Box,
-    Chip,
     Table,
     Button,
     Typography,
@@ -24,11 +22,23 @@ function Cart() {
     const [error, setError] = useState<string | null>(null)
     const navigate = useNavigate()
 
-    const {cartItems, isLoading, removeItem: apiRemoveItem, updateQuantity: apiUpdateQuantity, clearCart: apiClearCart} = useCart()
+    const {
+        cartItems,
+        isLoading,
+        removeItem: apiRemoveItem,
+        updateQuantity: apiUpdateQuantity,
+        clearCart: apiClearCart,
+        getSelectedTotalPrice,
+        toggleItemSelection,
+        selectAllItems,
+        unselectAllItems,
+        isAllSelected,
+        getSelectedItemsCount
+    } = useCart()
 
     const removeItem = (id: string) => {
         try {
-            apiRemoveItem(Number(id))
+            apiRemoveItem(id)
         } catch (err) {
             setError('删除商品失败，请稍后重试')
         }
@@ -36,11 +46,11 @@ function Cart() {
 
     const updateQuantity = (id: string, change: number) => {
         try {
-            const item = cartItems.find(item => item.id === id)
+            const item = cartItems.find(item => item.productId === id)
             if (item) {
                 const newQuantity = item.quantity + change
                 if (newQuantity > 0) {
-                    apiUpdateQuantity({itemId: Number(id), quantity: newQuantity})
+                    apiUpdateQuantity({itemId: id, quantity: newQuantity})
                 } else {
                     removeItem(id)
                 }
@@ -58,19 +68,9 @@ function Cart() {
         }
     }
 
-    // 定义结账对话框的变体类型
-    const [variant, setVariant] = useState<
-        ModalDialogProps['variant'] | undefined
-    >(undefined)
-
     // 计算商品小计
     const getItemSubtotal = (price: number, quantity: number) => {
         return price * quantity
-    }
-
-    // 获取购物车总价
-    const getTotalPrice = () => {
-        return cartItems.reduce((total, item) => total + (item.price || 0) * (item.quantity || 0), 0)
     }
 
     // 处理结算逻辑
@@ -80,20 +80,32 @@ function Cart() {
             return
         }
 
+        const selectedCount = getSelectedItemsCount()
+        if (selectedCount === 0) {
+            setError('请至少选择一件商品进行结算')
+            return
+        }
+
         try {
             setLoading(true)
             // 跳转到结算页面
-            navigate({to: '/checkout/'})
+            navigate({to: '/checkout/'}).then(() => {
+                console.log('已跳转到结算页面')
+            })
         } catch (err) {
             setError('跳转到结算页面失败，请稍后重试')
             setLoading(false)
         }
     }
 
+    if (loading) {
+        return <div>加载中...</div>
+    }
+
     if (isLoading) {
         return <div>获取线上的购物车数据中</div>
     }
-    
+
     return (
         <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
             {/* 删除了面包屑导航 */}
@@ -110,7 +122,15 @@ function Cart() {
                         <Table>
                             <thead>
                             <tr>
-                                <th style={{width: '30%'}}>商品信息</th>
+                                <th style={{width: '5%'}}>
+                                    <IconButton
+                                        size="sm"
+                                        onClick={() => isAllSelected() ? unselectAllItems() : selectAllItems()}
+                                    >
+                                        {isAllSelected() ? <CheckBox /> : <CheckBoxOutlineBlank />}
+                                    </IconButton>
+                                </th>
+                                <th style={{width: '25%'}}>商品信息</th>
                                 <th style={{width: '15%'}}>单价</th>
                                 <th style={{width: '20%'}}>数量</th>
                                 <th style={{width: '15%'}}>小计</th>
@@ -119,41 +139,42 @@ function Cart() {
                             </thead>
                             <tbody>
                             {cartItems.map((item) => (
-                                <tr key={item.id}>
+                                <tr key={item.productId}>
+                                    <td>
+                                        <IconButton
+                                            size="sm"
+                                            onClick={() => toggleItemSelection(item.productId)}
+                                        >
+                                            {item.selected ? <CheckBox /> : <CheckBoxOutlineBlank />}
+                                        </IconButton>
+                                    </td>
                                     <td>
                                         <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
-                                            {item.images && item.images.length > 0 && (
-                                                <Box
-                                                    component="img"
-                                                    src={item.images[0]}
-                                                    alt={item.name}
-                                                    width={80}
-                                                    height={80}
-                                                    sx={{objectFit: 'cover', borderRadius: 'sm'}}
-                                                />
-                                            )}
+                                            <Box
+                                                component="img"
+                                                src={item.picture}
+                                                alt={item.name}
+                                                width={80}
+                                                height={80}
+                                                sx={{objectFit: 'cover', borderRadius: 'sm'}}
+                                            />
                                             <Box>
                                                 <Typography level="title-md">{item.name}</Typography>
-                                                {item.description && (
-                                                    <Typography level="body-sm" noWrap sx={{maxWidth: 250}}>
-                                                        {item.description}
-                                                    </Typography>
-                                                )}
-                                                {item.categories && item.categories.length > 0 && (
-                                                    <Box
-                                                        sx={{display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap'}}>
-                                                        {item.categories.map((category, index) => (
-                                                            <Chip
-                                                                key={index}
-                                                                size="sm"
-                                                                variant="soft"
-                                                                color="primary"
-                                                            >
-                                                                {category}
-                                                            </Chip>
-                                                        ))}
-                                                    </Box>
-                                                )}
+                                                {/*{item && item.categories.length > 0 && (*/}
+                                                {/*    <Box*/}
+                                                {/*        sx={{display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap'}}>*/}
+                                                {/*        {item.categories.map((category, index) => (*/}
+                                                {/*            <Chip*/}
+                                                {/*                key={index}*/}
+                                                {/*                size="sm"*/}
+                                                {/*                variant="soft"*/}
+                                                {/*                color="primary"*/}
+                                                {/*            >*/}
+                                                {/*                {category}*/}
+                                                {/*            </Chip>*/}
+                                                {/*        ))}*/}
+                                                {/*    </Box>*/}
+                                                {/*)}*/}
                                             </Box>
                                         </Box>
                                     </td>
@@ -166,7 +187,7 @@ function Cart() {
                                                 size="sm"
                                                 variant="outlined"
                                                 color="neutral"
-                                                onClick={() => updateQuantity(item.id, -1)}
+                                                onClick={() => updateQuantity(item.productId, -1)}
                                             >
                                                 <Remove/>
                                             </IconButton>
@@ -177,7 +198,7 @@ function Cart() {
                                                 size="sm"
                                                 variant="outlined"
                                                 color="neutral"
-                                                onClick={() => updateQuantity(item.id, 1)}
+                                                onClick={() => updateQuantity(item.productId, 1)}
                                             >
                                                 <Add/>
                                             </IconButton>
@@ -192,7 +213,7 @@ function Cart() {
                                         <Button
                                             variant="soft"
                                             color="danger"
-                                            onClick={() => removeItem(item.id)}
+                                            onClick={() => removeItem(item.productId)}
                                         >
                                             删除
                                         </Button>
@@ -214,7 +235,10 @@ function Cart() {
                         </Button>
                         <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
                             <Typography level="h4">
-                                总计: ¥{(getTotalPrice() || 0).toFixed(2)}
+                                总计: ¥{getSelectedTotalPrice().toFixed(2)}
+                            </Typography>
+                            <Typography level="body-sm" sx={{ ml: 1 }}>
+                                已选择 {getSelectedItemsCount()} 件商品
                             </Typography>
                             <Button
                                 size="lg"
@@ -222,7 +246,7 @@ function Cart() {
                                 variant="solid"
                                 startDecorator={<ShoppingCart/>}
                                 onClick={handleCheckout}
-                                disabled={!cartItems || cartItems.length === 0}
+                                disabled={!cartItems || cartItems.length === 0 || getSelectedItemsCount() === 0}
                             >
                                 去结算
                             </Button>

@@ -18,7 +18,9 @@ function ConsumerDashboard() {
   // 检查用户是否为消费者，如果不是则重定向到首页
   useEffect(() => {
     if (account.role !== 'consumer') {
-      navigate({ to: '/' })
+      navigate({ to: '/' }).then(() => {
+        console.log('非消费者用户，已重定向到首页')
+      })
     }
     // 模拟加载数据
     const timer = setTimeout(() => {
@@ -55,7 +57,9 @@ function ConsumerDashboard() {
                   <ListItem>
                     <Button 
                       variant="plain" 
-                      onClick={() => navigate({ to: '/consumer/orders' })}
+                      onClick={() => navigate({ to: '/consumer/orders' }).then(() => {
+                        console.log('已跳转到订单历史页面')
+                      })}
                       sx={{ width: '100%', justifyContent: 'flex-start' }}
                     >
                       查看所有订单历史
@@ -64,7 +68,9 @@ function ConsumerDashboard() {
                   <ListItem>
                     <Button 
                       variant="plain" 
-                      onClick={() => navigate({ to: '/consumer/orders' })}
+                      onClick={() => navigate({ to: '/consumer/orders' }).then(() => {
+                        console.log('已跳转到订单状态页面')
+                      })}
                       sx={{ width: '100%', justifyContent: 'flex-start' }}
                     >
                       跟踪订单状态
@@ -73,7 +79,9 @@ function ConsumerDashboard() {
                   <ListItem>
                     <Button 
                       variant="plain" 
-                      onClick={() => navigate({ to: '/consumer/orders' })}
+                      onClick={() => navigate({ to: '/consumer/orders' }).then(() => {
+                        console.log('已跳转到订单详情页面')
+                      })}
                       sx={{ width: '100%', justifyContent: 'flex-start' }}
                     >
                       订单详情查询

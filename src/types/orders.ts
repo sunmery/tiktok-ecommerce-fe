@@ -1,12 +1,12 @@
 // 订单状态枚举
 export enum OrderStatus {
-  NOT_PAID = 'NOT_PAID',       // 未支付
-  PROCESSING = 'PROCESSING',   // 处理中
-  PAID = 'PAID',              // 已支付
-  FAILED = 'FAILED',          // 支付失败
-  CANCELLED = 'CANCELLED',    // 取消支付
-  SHIPPED = 'SHIPPED',        // 已发货
-  OUT_OF_STOCK = 'OUT_OF_STOCK' // 无库存
+  notPaid = 'notPaid',       // 未支付
+  processing = 'processing',   // 处理中
+  paid = 'paid',              // 已支付
+  failed = 'failed',          // 支付失败
+  cancelled = 'cancelled',    // 取消支付
+  shipped = 'shipped',        // 已发货
+  outOfStock = 'outOfStock' // 无库存
 }
 
 // 为了保持兼容性，保留原有的PaymentStatus

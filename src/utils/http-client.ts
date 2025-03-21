@@ -8,7 +8,7 @@ import {config} from './config';
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 interface RequestOptions extends RequestInit {
-    params?: Record<string, string>;
+    params?: Record<string, any>;
     timeout?: number;
 }
 
@@ -153,14 +153,14 @@ export const httpClient = {
     /**
      * 发送POST请求
      */
-    post<T, D = any>(url: string, data?: D, options?: RequestOptions): Promise<T> {
+    post<T, D extends BodyInit | null | undefined = any>(url: string, data?: D, options?: RequestOptions): Promise<T> {
         return request<T>(url, 'POST', {...options, body: data});
     },
 
     /**
      * 发送PUT请求
      */
-    put<T, D = any>(url: string, data?: D, options?: RequestOptions): Promise<T> {
+    put<T, D extends BodyInit | null | undefined = any>(url: string, data?: D, options?: RequestOptions): Promise<T> {
         return request<T>(url, 'PUT', {...options, body: data});
     },
 
@@ -174,7 +174,7 @@ export const httpClient = {
     /**
      * 发送PATCH请求
      */
-    patch<T, D = any>(url: string, data?: D, options?: RequestOptions): Promise<T> {
+    patch<T, D extends BodyInit | null | undefined = any>(url: string, data?: D, options?: RequestOptions): Promise<T> {
         return request<T>(url, 'PATCH', {...options, body: data});
     },
 

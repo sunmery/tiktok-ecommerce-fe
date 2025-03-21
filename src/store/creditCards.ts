@@ -1,25 +1,26 @@
 import {proxy, subscribe} from 'valtio'
-import type {CreditCard} from '@/types/user'
+import type {CreditCard} from '@/types/creditCards'
 
 // 定义购物车状态
 export interface CreditCardsState {
-    credit_cards: CreditCard[]
-    default_credit_cards: CreditCard
+    creditCards: CreditCard[]
+    defaultCreditCards: CreditCard
 }
 
 // 默认数据
 const initialState: CreditCard = {
-    id: 0,
-    number: "",
-    cvv: "",
-    expYear: "",
-    expMonth: "",
-    owner: "",
-    name: "",
-    type: "",
     brand: "",
     country: "",
     createdTime: "",
+    currency: "",
+    id: 0,
+    name: "",
+    owner: "",
+    type: "",
+    number: '1234-5678-1234-5678',
+    cvv: "1234",
+    expYear: "2050",
+    expMonth: "12"
 }
 
 // 恢复本地存储的数据
@@ -29,14 +30,14 @@ const initialItems: CreditCard[] = savedCreditCards
     : []
 
 export const creditCardsStore = proxy<CreditCardsState>({
-    credit_cards: initialItems,
-    default_credit_cards: initialState,
+    creditCards: initialItems,
+    defaultCreditCards: initialState,
 })
 
 export const setCreditCardArray = (creditCardData: CreditCard[]) => {
     // 使用一个 Map 或 Set 进行去重
     const existingIds = new Set(
-        creditCardsStore.credit_cards.map((card) => card.id),
+        creditCardsStore.creditCards.map((card) => card.id),
     )
 
     // 过滤掉重复的数据
@@ -46,26 +47,26 @@ export const setCreditCardArray = (creditCardData: CreditCard[]) => {
 
     // 如果有新数据，才更新状态
     if (uniqueCreditCards.length > 0) {
-        creditCardsStore.credit_cards = [
-            ...creditCardsStore.credit_cards,
+        creditCardsStore.creditCards = [
+            ...creditCardsStore.creditCards,
             ...uniqueCreditCards,
         ]
         console.log(
-            'Updated creditCardsStore.credit_cards:',
-            creditCardsStore.credit_cards,
+            'Updated creditCardsStore.creditCards:',
+            creditCardsStore.creditCards,
         )
     }
 }
 
 export const setDefaultCreditCard = (creditCardData: CreditCard) => {
-    creditCardsStore.default_credit_cards = creditCardData
-    console.log(creditCardsStore.default_credit_cards)
+    creditCardsStore.defaultCreditCards = creditCardData
+    console.log(creditCardsStore.defaultCreditCards)
 }
 
 // 订阅状态变化，将数据存储到 localStorage
 subscribe(creditCardsStore, () => {
     localStorage.setItem(
         'creditCards',
-        JSON.stringify(creditCardsStore.credit_cards),
+        JSON.stringify(creditCardsStore.creditCards),
     )
 })

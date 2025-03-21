@@ -21,7 +21,9 @@ function MerchantDashboard() {
   // 检查用户是否为商家，如果不是则重定向到首页
   useEffect(() => {
     if (account.role !== 'merchant') {
-      navigate({ to: '/' })
+      navigate({ to: '/' }).then(() => {
+        console.log('非商家用户，已重定向到首页')
+      })
     }
     // 模拟加载数据
     const timer = setTimeout(() => {
@@ -74,7 +76,9 @@ function MerchantDashboard() {
                   variant="solid" 
                   color="primary" 
                   startDecorator={<AddIcon />}
-                  onClick={() => navigate({ to: '/merchant/products' })}
+                  onClick={() => navigate({ to: '/merchant/products' }).then(() => {
+                    console.log('已跳转到产品管理页面')
+                  })}
                   fullWidth
                   sx={{ mt: 2 }}
                 >
@@ -105,7 +109,9 @@ function MerchantDashboard() {
                   variant="solid" 
                   color="primary" 
                   startDecorator={<AddIcon />}
-                  onClick={() => navigate({ to: '/merchant/orders' })}
+                  onClick={() => navigate({ to: '/merchant/orders' }).then(() => {
+                    console.log('已跳转到订单管理页面')
+                  })}
                   fullWidth
                   sx={{ mt: 2 }}
                 >
@@ -157,7 +163,9 @@ function MerchantDashboard() {
                   variant="solid" 
                   color="primary" 
                   startDecorator={<BarChartIcon />}
-                  onClick={() => navigate({ to: '/merchant/analytics' })}
+                  onClick={() => navigate({ to: '/merchant/analytics' }).then(() => {
+                    console.log('已跳转到销售报告页面')
+                  })}
                   fullWidth
                   sx={{ mt: 2 }}
                 >

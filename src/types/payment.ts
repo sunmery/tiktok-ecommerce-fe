@@ -24,39 +24,38 @@ export interface PaymentNotifyResp {
 
 // 创建支付请求
 export interface CreatePaymentReq {
-  order_id: string;
+  orderId: string;
   currency: string;
   amount: string;
-  payment_method: string;
+  paymentMethod: string;
 }
 
 // 支付响应
 export interface PaymentResp {
-  payment_id: string;
+  paymentId: string;
   status: string;
-  payment_url: string;
-  created_at: Timestamp;
+  paymentUrl: string;
+  createdAt: Timestamp;
 }
 
 // 获取支付信息请求
 export interface GetPaymentReq {
-  payment_id: string;
+  paymentId: string;
 }
 
 // 支付回调请求
 export interface PaymentCallbackReq {
-  payment_id: string;
+  paymentId: string;
   status: string;
-  gateway_response: string;
-  processed_at: Timestamp;
-  request_form: Record<string, StringList>;
+  gatewayResponse: string;
+  processedAt: Timestamp;
+  requestForm: Record<string, StringList>;
 }
 
 // 支付回调响应
 export interface PaymentCallbackResp {
   // 目前为空
 }
-
 // API路径常量
 export const CreatePayment = 'payments';
 export const PaymentNotify = 'payments/notify';

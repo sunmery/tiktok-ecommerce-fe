@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Box,
   Typography,
@@ -24,10 +24,10 @@ import {
 } from '@mui/joy'
 import { Edit, Delete, Add } from '@mui/icons-material'
 import { useCreditCards, useCreateCreditCard, useUpdateCreditCard, useDeleteCreditCard } from '@/hooks/useCreditCard'
-import type { CreditCard } from '@/types/user'
+import type { CreditCard } from '@/types/creditCards'
 import Breadcrumbs from '@/components/Breadcrumbs'
 // 移除 framer-motion 导入
-import { getCardBackgroundStyle } from '@/assets/cardBackgrounds';
+// cardBackgrounds已被移除，使用内联样式替代
 
 export const Route = createLazyFileRoute('/credit_cards/')({  
   component: RouteComponent,
@@ -52,6 +52,7 @@ function RouteComponent() {
   
   // 表单数据
   const [formData, setFormData] = useState<CreditCard>({
+    createdTime: "",
     id: 0,
     number: '',
     cvv: '',
@@ -62,8 +63,7 @@ function RouteComponent() {
     type: '',
     brand: '',
     country: '',
-    currency: '',
-    createdAt: ''
+    currency: ''
   })
   
   // 处理表单输入变化
@@ -194,7 +194,12 @@ function RouteComponent() {
                 <Card
                   sx={{
                     height: '100%',
-                    background: getCardBackgroundStyle(card.brand, card.id || 0),
+                    background: card.brand === 'visa' ? 'linear-gradient(135deg, #0033a0, #00b2a9)' :
+                              card.brand === 'mastercard' ? 'linear-gradient(135deg, #ff5f00, #eb001b)' :
+                              card.brand === 'amex' ? 'linear-gradient(135deg, #108168, #1B6FA3)' :
+                              card.brand === 'discover' ? 'linear-gradient(135deg, #ff6600, #d35400)' :
+                              card.brand === 'unionpay' ? 'linear-gradient(135deg, #e21836, #00447c)' :
+                              'linear-gradient(135deg, #5f6368, #3c4043)',
                     color: 'white',
                     position: 'relative',
                     overflow: 'hidden'
@@ -202,24 +207,24 @@ function RouteComponent() {
                 >
                   <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                      <Typography level="title-md">{card.name || '我的卡'}</Typography>
+                      <Typography level="title-md" sx={{ color: 'white' }}>{card.name || '我的卡'}</Typography>
                       <Chip size="sm" variant="soft">
                         {card.brand.toUpperCase()}
                       </Chip>
                     </Box>
                     
-                    <Typography level="h4" sx={{ mb: 2, letterSpacing: '2px' }}>
+                    <Typography level="h4" sx={{ mb: 2, letterSpacing: '2px', color: 'white' }}>
                       {formatCardNumber(card.number)}
                     </Typography>
                     
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Box>
-                        <Typography level="body-xs">持卡人</Typography>
-                        <Typography level="body-md">{card.owner}</Typography>
+                        <Typography level="body-xs" sx={{ color: 'white' }}>持卡人</Typography>
+                        <Typography level="body-md" sx={{ color: 'white' }}>{card.owner}</Typography>
                       </Box>
                       <Box>
-                        <Typography level="body-xs">有效期</Typography>
-                        <Typography level="body-md">{card.expMonth}/{card.expYear}</Typography>
+                        <Typography level="body-xs" sx={{ color: 'white' }}>有效期</Typography>
+                        <Typography level="body-md" sx={{ color: 'white' }}>{card.expMonth}/{card.expYear}</Typography>
                       </Box>
                     </Box>
                   </CardContent>

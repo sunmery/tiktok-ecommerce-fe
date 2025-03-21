@@ -1,6 +1,6 @@
 import {showMessage} from '@/utils/casdoor'
 
-export const baseURL = import.meta.env.VITE_URL
+export const BASE_URL = import.meta.env.VITE_URL
 
 // 错误处理
 const handleError = (error: Error) => {
@@ -10,7 +10,16 @@ const handleError = (error: Error) => {
   if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
     errorMessage = '网络连接失败，请检查您的网络连接';
   } else if (error.message) {
-    errorMessage = `${errorMessage}: ${error.message}`;
+    // 处理UUID相关错误
+    if (error.message.includes('UUID') || error.message.includes('uuid')) {
+      if (error.message.includes('invalid UUID length: 0')) {
+        errorMessage = '商品ID格式错误: ID不能为空';
+      } else {
+        errorMessage = '商品ID格式错误: ' + error.message;
+      }
+    } else {
+      errorMessage = `${errorMessage}: ${error.message}`;
+    }
   }
   
   // 使用error类型显示红色警告框
@@ -35,18 +44,33 @@ export async function fetchApi<T>(
     const token = localStorage.getItem('token')
     const headers = new Headers(options.headers || defaultConfig.headers)
 
+    // 只在特定方法中设置Content-Type
+    const method = options.method || 'GET' || 'OPTIONS'
+    if (!headers.has('Content-Type') && ['POST', 'PUT', 'PATCH'].includes(method)) {
+      headers.set('Content-Type', 'application/json')
+    }
+
     if (token) {
       headers.set('Authorization', `Bearer ${token}`)
     }
 
-    const response = await fetch(`${baseURL}${endpoint}`, {
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
       ...defaultConfig,
       ...options,
       headers,
     })
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({message: '网络请求失败'}))
+      const error = await response.json().catch(() => {
+        // 如果无法解析JSON，检查响应的Content-Type
+        const contentType = response.headers.get('Content-Type')
+        if (contentType && contentType.includes('text/plain')) {
+          return response.text().then(text => ({
+            message: `服务器返回了纯文本响应: ${text}`
+          }))
+        }
+        return {message: `HTTP error! status: ${response.status}`}
+      })
       throw new Error(error.message || `HTTP error! status: ${response.status}`)
     }
 

@@ -27,7 +27,9 @@ function ConsumerOrders() {
   // 检查用户是否为消费者，如果不是则重定向到首页
   useEffect(() => {
     if (account.role !== 'consumer') {
-      navigate({ to: '/' })
+      navigate({ to: '/' }).then(() => {
+        console.log('非消费者用户，已重定向到首页')
+      })
     }
   }, [account.role, navigate])
 

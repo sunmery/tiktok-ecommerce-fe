@@ -1,8 +1,8 @@
-import {createLazyFileRoute} from '@tanstack/react-router'
+import {    Link, createLazyFileRoute} from '@tanstack/react-router'
 import {
     Box, Button, Card, CardContent, Typography, AspectRatio,
     Grid, Chip, Divider, Stack,
-    Link
+
 } from '@mui/joy'
 import {useTranslation} from 'react-i18next'
 import {useState, useEffect} from 'react'
@@ -33,7 +33,15 @@ function Home() {
 
     // 添加商品到购物车
     const addToCart = (product: CartItem) => {
-        cartStore.addItem(product.id, product.merchantId, product.name, product.price, 1);
+        // 确保productId不为空
+        const productId = product.productId || product.id;
+        if (!productId || productId.trim() === '') {
+            console.error('添加商品失败: 商品ID不能为空');
+            return;
+        }
+        
+        // 修正参数顺序：productId, name, merchantId, picture, quantity
+        cartStore.addItem(productId, product.name, product.merchantId, product.picture || '', 1);
     }
 
 
@@ -42,21 +50,21 @@ function Home() {
         {
             id: 1,
             image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8',
-            title: '夏季大促销',
+            name: '夏季大促销',
             description: '全场商品低至5折，限时抢购中！',
             buttonText: '立即抢购'
         },
         {
             id: 2,
             image: 'https://images.unsplash.com/photo-1607082349566-187342175e2f',
-            title: '新品上市',
+            name: '新品上市',
             description: '2023最新款时尚单品，引领潮流',
             buttonText: '查看详情'
         },
         {
             id: 3,
             image: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db',
-            title: '会员专享',
+            name: '会员专享',
             description: '注册会员即送200元优惠券',
             buttonText: '立即注册'
         }
@@ -216,7 +224,7 @@ function Home() {
                             <AspectRatio ratio="21/9" maxHeight={500} sx={{borderRadius: 'xl', overflow: 'hidden'}}>
                                 <img
                                     src={banners[currentBanner].image}
-                                    alt={banners[currentBanner].title}
+                                    alt={banners[currentBanner].name}
                                     style={{width: '100%', height: '100%', objectFit: 'cover'}}
                                 />
                                 <Box
@@ -233,7 +241,7 @@ function Home() {
                                     <Typography level="h1" sx={{
                                         mb: 2,
                                         fontSize: {xs: '2rem', md: '3rem'}
-                                    }}>{banners[currentBanner].title}</Typography>
+                                    }}>{banners[currentBanner].name}</Typography>
                                     <Typography level="body-lg" sx={{
                                         mb: 3,
                                         fontSize: {xs: '1rem', md: '1.25rem'}
@@ -282,14 +290,12 @@ function Home() {
                         <Box sx={{mb: 6}}>
                             <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
                                 <Typography level="h2">热门分类</Typography>
-                                <Button
-                                    endDecorator={<ArrowForwardIcon/>}
+                                <Link
                                     variant="plain"
-                                    component={Link}
                                     to="/products"
                                 >
                                     查看全部
-                                </Button>
+                                </Link>
                             </Box>
 
                             <Box sx={{
@@ -299,41 +305,44 @@ function Home() {
                             }}>
                                 {[
                                     {
-                                        title: '手机数码',
+                                        id: 3,
+                                        name: '手机',
                                         image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9',
-                                        slug: 'phone-digital'
+                                        slug: 'phone'
                                     },
                                     {
-                                        title: '家用电器',
+                                        id: 8,
+                                        name: '电器',
                                         image: 'https://images.unsplash.com/photo-1556911220-bff31c812dba',
-                                        slug: 'home-appliance'
+                                        slug: 'appliance'
                                     },
                                     {
-                                        title: '电脑办公',
+                                        id: 9,
+                                        name: '电脑',
                                         image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661',
-                                        slug: 'computer-office'
+                                        slug: 'computer'
                                     },
                                     {
-                                        title: '服饰鞋包',
+                                        name: '服饰',
                                         image: 'https://images.unsplash.com/photo-1560243563-062bfc001d68',
-                                        slug: 'clothing-shoes'
+                                        slug: 'clothing'
                                     },
                                     {
-                                        title: '美妆个护',
+                                        name: '美妆',
                                         image: 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da',
-                                        slug: 'beauty-personal-care'
+                                        slug: 'beauty'
                                     },
                                     {
-                                        title: '运动户外',
+                                        name: '运动',
                                         image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b',
-                                        slug: 'sports-outdoors'
+                                        slug: 'sports'
                                     }
                                 ].map((category, index) => (
                                     <Card
                                         key={index}
                                         variant="outlined"
                                         component={Link}
-                                        to={`/products/category/${category.slug}`}
+                                        to={`/products/category/${category.id}`}
                                         sx={{
                                             cursor: 'pointer',
                                             transition: 'transform 0.2s, box-shadow 0.2s',
@@ -344,18 +353,18 @@ function Home() {
                                         }}
                                     >
                                         <AspectRatio ratio="1/1">
-                                            <img src={category.image} alt={category.title}
+                                            <img src={category.image} alt={category.name}
                                                  style={{objectFit: 'cover'}}/>
                                         </AspectRatio>
                                         <CardContent>
                                             <Typography
-                                                level="title-md"
+                                                level="name-md"
                                                 sx={{
                                                     textAlign: 'center',
                                                     fontWeight: 'bold'
                                                 }}
                                             >
-                                                {category.title}
+                                                {category.name}
                                             </Typography>
                                         </CardContent>
                                     </Card>
@@ -418,7 +427,7 @@ function Home() {
                                             <img src={product.image} alt={product.name} style={{objectFit: 'cover'}}/>
                                         </AspectRatio>
                                         <CardContent>
-                                            <Typography level="title-md">{product.name}</Typography>
+                                            <Typography level="name-md">{product.name}</Typography>
                                             <Box sx={{display: 'flex', alignItems: 'center', gap: 0.5, mt: 1}}>
                                                 {[...Array(5)].map((_, i) => (
                                                     <StarIcon
@@ -454,7 +463,7 @@ function Home() {
                                                         merchantId:
                                                         product.merchantId,
                                                         quantity: 0,
-                                                        id: product.id,
+                                                        productId: product.id,
                                                         name: product.name,
                                                         price: product.discount || product.price,
                                                         image: product.image,
@@ -525,7 +534,7 @@ function Home() {
                                             <img src={product.image} alt={product.name} style={{objectFit: 'cover'}}/>
                                         </AspectRatio>
                                         <CardContent>
-                                            <Typography level="title-md">{product.name}</Typography>
+                                            <Typography level="name-md">{product.name}</Typography>
                                             <Box sx={{display: 'flex', alignItems: 'center', mt: 1.5}}>
                                                 <Typography level="h3" sx={{
                                                     color: 'primary.500',
@@ -537,7 +546,7 @@ function Home() {
                                                     color="primary"
                                                     sx={{ml: 'auto', fontWeight: 600}}
                                                     onClick={() => addToCart({
-                                                        id: product.id,
+                                                        productId: product.id,
                                                         name: product.name,
                                                         price: product.price,
                                                         image: product.image,
@@ -557,7 +566,7 @@ function Home() {
                         <Box sx={{mt: 8, pt: 4, borderTop: '1px solid', borderColor: 'divider'}}>
                             <Grid container spacing={4}>
                                 <Grid xs={12} sm={6} md={3}>
-                                    <Typography level="title-lg" sx={{mb: 2}}>项目信息</Typography>
+                                    <Typography level="name-lg" sx={{mb: 2}}>项目信息</Typography>
                                     <Stack spacing={1}>
                                         <Typography level="body-sm"><Link href='https://github.com/sunmery/tiktok-ecommerce'>后端</Link></Typography>
                                         <Typography level="body-sm"><Link href='https://github.com/sunmery/tiktok-ecommerce-fe'>前端</Link></Typography>
@@ -566,13 +575,13 @@ function Home() {
                                     </Stack>
                                 </Grid>
                                 <Grid xs={12} sm={6} md={3}>
-                                    <Typography level="title-lg" sx={{mb: 2}}>支付方式</Typography>
+                                    <Typography level="name-lg" sx={{mb: 2}}>支付方式</Typography>
                                     <Stack spacing={1}>
                                         <Typography level="body-sm">支付宝沙箱</Typography>
                                     </Stack>
                                 </Grid>
                                 <Grid xs={12} sm={6} md={3}>
-                                    <Typography level="title-lg" sx={{mb: 2}}>关注我</Typography>
+                                    <Typography level="name-lg" sx={{mb: 2}}>关注我</Typography>
                                     <Stack spacing={1}>
                                         <Typography level="body-sm"><a href="https://github.com/sunmery">GitHub</a></Typography>
                                         <Typography level="body-sm">微信公众号</Typography>

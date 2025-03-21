@@ -63,7 +63,9 @@ export default function Template() {
     // 处理搜索提交
     const handleSearch = () => {
         if (searchQuery.trim()) {
-            navigate({to: '/products', search: {query: searchQuery}})
+            navigate({to: '/products', search: {query: searchQuery}}).then(() => {
+            // 跳转完成后的回调逻辑
+            })
             if (isMobile) {
                 setMobileMenuOpen(false)
             }
@@ -87,11 +89,17 @@ export default function Template() {
             
             // 根据角色自动导航到对应页面
             if (newRole === 'merchant') {
-                navigate({ to: '/merchant' })
+                navigate({ to: '/merchant' }).then(() => {
+                // 跳转完成后的回调逻辑
+                })
             } else if (newRole === 'admin') {
-                navigate({ to: '/admin' })
+                navigate({ to: '/admin' }).then(() => {
+                // 跳转完成后的回调逻辑
+                })
             } else {
-                navigate({ to: '/' })
+                navigate({ to: '/' }).then(() => {
+                // 跳转完成后的回调逻辑
+                })
             }
             
             if (isMobile) {
