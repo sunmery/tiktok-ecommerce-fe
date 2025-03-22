@@ -48,24 +48,29 @@ function RouteComponent() {
 	}, [addresses, creditCards])
 	
 	const createCheckout = () => {
-		fetch(`${import.meta.env.VITE_CHECKOUT_URL}`, {
+		console.log('正在请求结算接口:', `${import.meta.env.VITE_URL}${import.meta.env.VITE_CHECKOUT_URL}`);
+		fetch(`${import.meta.env.VITE_URL}${import.meta.env.VITE_CHECKOUT_URL}`, {
 			method: 'POST',
 			headers: {
 				'Authorization': 'Bearer ' + localStorage.getItem('token'),
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify({
-				owner: account.owner,
-				name: account.name,
+				userId: account.id,
+				firstname: account.firstname,
+				lastname: account.lastname,
 				email: account.email,
 				addressId: selectedAddressId,
-				creditCardId: selectedCardId,
+				creditCardId: selectedCardId
+
 			}),
 		})
 			.then((res) => {
+				console.log('收到响应状态码:', res.status);
 				if (!res.ok) {
-					return res.json().then(errData => {
-						throw new Error(errData.message || `结算失败: ${res.status}`);
+					return res.text().then(text => {
+						console.error('响应内容:', text);
+						throw new Error(text || `结算失败: ${res.status}`);
 					});
 				}
 				return res.json();
@@ -75,6 +80,7 @@ function RouteComponent() {
 				// 导入showMessage函数
 				import('@/utils/casdoor').then(({ showMessage }) => {
 					showMessage('结算成功', 'success');
+					window.open(data.paymentUrl, '_blank');
 				});
 			})
 			.catch((e) => {

@@ -27,8 +27,8 @@ import { useCreditCards, useCreateCreditCard, useDeleteCreditCard } from '@/hook
 import type { CreditCard } from '@/types/creditCards'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import CreditCardDetailModal from '@/components/CreditCard/DetailModal.tsx'
-// 移除 framer-motion 导入
-// cardBackgrounds已被移除，使用内联样式替代
+import CardBackground from '@/components/CreditCard/CardBackground.tsx'
+import CardDecoration from '@/components/CreditCard/CardDecoration.tsx'
 
 export const Route = createLazyFileRoute('/credit_cards/')({  
   component: RouteComponent,
@@ -167,26 +167,19 @@ function RouteComponent() {
         </Sheet>
       ) : (
         <Grid container spacing={2}>
-          {creditCards.map((card, index) => (
-            <Grid key={card.id} xs={12} sm={6} md={4}>
-              <div
-                style={{
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                  perspective: '1000px'
-                }}
-              >
-                <Card
-                  sx={{
-                    height: '100%',
-                    background: card.brand === 'visa' ? 'linear-gradient(135deg, #0033a0, #00b2a9)' :
-                              card.brand === 'mastercard' ? 'linear-gradient(135deg, #ff5f00, #eb001b)' :
-                              card.brand === 'amex' ? 'linear-gradient(135deg, #108168, #1B6FA3)' :
-                              card.brand === 'discover' ? 'linear-gradient(135deg, #ff6600, #d35400)' :
-                              card.brand === 'unionpay' ? 'linear-gradient(135deg, #e21836, #00447c)' :
-                              'linear-gradient(135deg, #5f6368, #3c4043)',
-                    color: 'white',
-                    position: 'relative',
-                    overflow: 'hidden',
+          {creditCards.map((card, index) => {
+            // 为每张卡片分配不同的背景变体
+            // 使用索引来交替显示不同的背景样式
+            const bgVariant = index % 3 === 0 ? 'green' : 
+                            index % 3 === 1 ? 'purple' : 'default';
+            
+            return (
+              <Grid key={card.id} xs={12} sm={6} md={4}>
+                <div
+                  style={{
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                    perspective: '1000px',
+                    borderRadius: '12px',
                     cursor: 'pointer' // 添加指针样式，提示可点击
                   }}
                   onClick={() => {
@@ -194,45 +187,114 @@ function RouteComponent() {
                     setDetailOpen(true);
                   }}
                 >
-                  <CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                      <Typography level="title-md" sx={{ color: 'white' }}>{card.name || '我的卡'}</Typography>
-                      <Chip size="sm" variant="soft">
-                        {card.brand.toUpperCase()}
-                      </Chip>
-                    </Box>
-                    
-                    <Typography level="h4" sx={{ mb: 2, letterSpacing: '2px', color: 'white' }}>
-                      {formatCardNumber(card.number)}
-                    </Typography>
-                    
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Box>
-                        <Typography level="body-xs" sx={{ color: 'white' }}>持卡人</Typography>
-                        <Typography level="body-md" sx={{ color: 'white' }}>{card.owner}</Typography>
-                      </Box>
-                      <Box>
-                        <Typography level="body-xs" sx={{ color: 'white' }}>有效期</Typography>
-                        <Typography level="body-md" sx={{ color: 'white' }}>{card.expMonth}/{card.expYear}</Typography>
-                      </Box>
-                    </Box>
-                  </CardContent>
-                  <CardActions sx={{ justifyContent: 'flex-end' }}>
-                    <IconButton
-                      variant="soft"
-                      color="danger"
-                      onClick={(e) => {
-                        e.stopPropagation(); // 阻止事件冒泡
-                        handleDelete(card.id);
+                  {bgVariant === 'default' ? (
+                    // 默认样式使用原有的品牌渐变
+                    <Card
+                      sx={{
+                        height: '100%',
+                        background: card.brand === 'visa' ? 'linear-gradient(135deg, #0033a0, #00b2a9)' :
+                                  card.brand === 'mastercard' ? 'linear-gradient(135deg, #ff5f00, #eb001b)' :
+                                  card.brand === 'amex' ? 'linear-gradient(135deg, #108168, #1B6FA3)' :
+                                  card.brand === 'discover' ? 'linear-gradient(135deg, #ff6600, #d35400)' :
+                                  card.brand === 'unionpay' ? 'linear-gradient(135deg, #e21836, #00447c)' :
+                                  'linear-gradient(135deg, #5f6368, #3c4043)',
+                        color: 'white',
+                        position: 'relative',
+                        overflow: 'hidden'
                       }}
                     >
-                      <Delete />
-                    </IconButton>
-                  </CardActions>
-                </Card>
-              </div>
-            </Grid>
-          ))}
+                      <CardContent>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                          <Typography level="title-md" sx={{ color: 'white' }}>{card.name || '我的卡'}</Typography>
+                          <Chip size="sm" variant="soft">
+                            {card.brand.toUpperCase()}
+                          </Chip>
+                        </Box>
+                        
+                        <Typography level="h4" sx={{ mb: 2, letterSpacing: '2px', color: 'white' }}>
+                          {formatCardNumber(card.number)}
+                        </Typography>
+                        
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Box>
+                            <Typography level="body-xs" sx={{ color: 'white' }}>持卡人</Typography>
+                            <Typography level="body-md" sx={{ color: 'white' }}>{card.owner}</Typography>
+                          </Box>
+                          <Box>
+                            <Typography level="body-xs" sx={{ color: 'white' }}>有效期</Typography>
+                            <Typography level="body-md" sx={{ color: 'white' }}>{card.expMonth}/{card.expYear}</Typography>
+                          </Box>
+                        </Box>
+                      </CardContent>
+                      <CardActions sx={{ justifyContent: 'flex-end' }}>
+                        <IconButton
+                          variant="soft"
+                          color="danger"
+                          onClick={(e) => {
+                            e.stopPropagation(); // 阻止事件冒泡
+                            handleDelete(card.id);
+                          }}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </CardActions>
+                    </Card>
+                  ) : (
+                    // 使用新的背景组件
+                    <CardBackground variant={bgVariant}>
+                      <Card
+                        sx={{
+                          height: '100%',
+                          background: 'transparent',
+                          color: 'white',
+                          boxShadow: 'none'
+                        }}
+                      >
+                        {/* 添加装饰效果 */}
+                        <CardDecoration variant={bgVariant === 'green' ? 'green' : 'purple'} />
+                        
+                        <CardContent>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                            <Typography level="title-md" sx={{ color: 'white' }}>{card.name || '我的卡'}</Typography>
+                            <Chip size="sm" variant="soft">
+                              {card.brand.toUpperCase()}
+                            </Chip>
+                          </Box>
+                          
+                          <Typography level="h4" sx={{ mb: 2, letterSpacing: '2px', color: 'white' }}>
+                            {formatCardNumber(card.number)}
+                          </Typography>
+                          
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Box>
+                              <Typography level="body-xs" sx={{ color: 'white' }}>持卡人</Typography>
+                              <Typography level="body-md" sx={{ color: 'white' }}>{card.owner}</Typography>
+                            </Box>
+                            <Box>
+                              <Typography level="body-xs" sx={{ color: 'white' }}>有效期</Typography>
+                              <Typography level="body-md" sx={{ color: 'white' }}>{card.expMonth}/{card.expYear}</Typography>
+                            </Box>
+                          </Box>
+                        </CardContent>
+                        <CardActions sx={{ justifyContent: 'flex-end' }}>
+                          <IconButton
+                            variant="soft"
+                            color="danger"
+                            onClick={(e) => {
+                              e.stopPropagation(); // 阻止事件冒泡
+                              handleDelete(card.id);
+                            }}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </CardActions>
+                      </Card>
+                    </CardBackground>
+                  )}
+                </div>
+              </Grid>
+            );
+          })}
         </Grid>
       )}
       

@@ -2,6 +2,7 @@ import { createLazyFileRoute } from '@tanstack/react-router'
 import { Box, Typography, Grid, Card, CardContent, List, ListItem, Divider, Button } from '@mui/joy'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import AddIcon from '@mui/icons-material/Add'
+import InventoryIcon from '@mui/icons-material/Inventory'
 import { useSnapshot } from 'valtio/react'
 import { userStore } from '@/store/user.ts'
 import { useNavigate } from '@tanstack/react-router'
@@ -138,6 +139,41 @@ function MerchantDashboard() {
                     <ListItem>库存调整记录</ListItem>
                   </ListItem>
                 </List>
+                <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+                  <Button 
+                    variant="solid" 
+                    color="primary" 
+                    startDecorator={<InventoryIcon />}
+                    onClick={() => navigate({ to: '/merchant/inventory' }).then(() => {
+                      console.log('已跳转到库存管理页面')
+                    })}
+                    fullWidth
+                  >
+                    库存调整
+                  </Button>
+                </Box>
+                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                  <Button 
+                    variant="outlined" 
+                    color="primary" 
+                    onClick={() => navigate({ to: '/merchant/inventory/monitoring' }).then(() => {
+                      console.log('已跳转到库存监控页面')
+                    })}
+                    fullWidth
+                  >
+                    实时监控
+                  </Button>
+                  <Button 
+                    variant="outlined" 
+                    color="warning" 
+                    onClick={() => navigate({ to: '/merchant/inventory/alerts' }).then(() => {
+                      console.log('已跳转到库存警报设置页面')
+                    })}
+                    fullWidth
+                  >
+                    警报设置
+                  </Button>
+                </Box>
               </CardContent>
             </Card>
           </Grid>

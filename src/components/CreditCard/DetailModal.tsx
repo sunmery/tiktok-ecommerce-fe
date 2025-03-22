@@ -1,5 +1,7 @@
 import { Modal, ModalDialog, ModalClose, Typography, Box, Stack, Divider, Grid, Card, CardContent, Chip } from '@mui/joy'
 import type { CreditCard } from '@/types/creditCards.ts'
+import CardBackground from './CardBackground'
+import CardDecoration from './CardDecoration'
 
 interface CreditCardDetailModalProps {
   open: boolean
@@ -32,20 +34,23 @@ const CreditCardDetailModal = ({ open, onClose, card }: CreditCardDetailModalPro
       >
         <ModalClose />
         
-        {/* 卡片预览 */}
-        <Box
+        {/* 卡片预览 - 使用新的背景组件 */}
+        <CardBackground 
+          variant={card.brand === 'visa' ? 'green' : 'purple'}
           sx={{
-            p: 3,
-            background: card.brand === 'visa' ? 'linear-gradient(135deg, #0033a0, #00b2a9)' :
-                      card.brand === 'mastercard' ? 'linear-gradient(135deg, #ff5f00, #eb001b)' :
-                      card.brand === 'amex' ? 'linear-gradient(135deg, #108168, #1B6FA3)' :
-                      card.brand === 'discover' ? 'linear-gradient(135deg, #ff6600, #d35400)' :
-                      card.brand === 'unionpay' ? 'linear-gradient(135deg, #e21836, #00447c)' :
-                      'linear-gradient(135deg, #5f6368, #3c4043)',
-            color: 'white',
             borderRadius: '12px 12px 0 0'
           }}
         >
+          {/* 添加装饰效果 */}
+          <CardDecoration variant={card.brand === 'visa' ? 'green' : 'purple'} />
+          
+          <Box
+            sx={{
+              p: 3,
+              color: 'white',
+              position: 'relative'
+            }}
+          >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
             <Typography level="title-md" sx={{ color: 'white' }}>{card.name || '我的卡'}</Typography>
             <Chip size="sm" variant="soft">
@@ -67,7 +72,8 @@ const CreditCardDetailModal = ({ open, onClose, card }: CreditCardDetailModalPro
               <Typography level="body-md" sx={{ color: 'white' }}>{card.expMonth}/{card.expYear}</Typography>
             </Box>
           </Box>
-        </Box>
+          </Box>
+        </CardBackground>
         
         {/* 详细信息 */}
         <Box sx={{ p: 3 }}>

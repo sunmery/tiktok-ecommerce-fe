@@ -1,8 +1,12 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { Box, Button, Card, CardContent, Grid, Typography, Table, Sheet, Modal, FormControl, FormLabel, Input, Alert, Snackbar } from '@mui/joy'
+import { Box, Button, Card, CardContent, Grid, Typography, Table, Sheet, Modal, FormControl, FormLabel, Input, Alert, Snackbar, Divider } from '@mui/joy'
 import { Product } from '@/types/product'
 import { productService } from '@/api/productService'
+import { useNavigate } from '@tanstack/react-router'
+import InventoryIcon from '@mui/icons-material/Inventory'
+import TimelineIcon from '@mui/icons-material/Timeline'
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 
 export const Route = createLazyFileRoute('/merchant/inventory/')({ 
   component: Inventory,
