@@ -54,12 +54,10 @@ export const cartStore: CartState = proxy<CartState>({
         }
 
         const existingItem = cartStore.items.find(item => item.productId === productId)
-        const oldQuantity = existingItem?.quantity || 0
-        const newQuantity = oldQuantity + quantity
 
         try {
             if (existingItem) {
-                existingItem.quantity = newQuantity
+                existingItem.quantity = quantity
             } else {
                 cartStore.items.push({
                     picture,
@@ -75,13 +73,12 @@ export const cartStore: CartState = proxy<CartState>({
             cartService.upsertItem({
                 productId: productId,
                 merchantId: merchantId,
-                quantity: newQuantity,
+                quantity: quantity,
             }).catch(error => {
                 console.error('同步购物车到后端失败:', error)
                 // 回滚本地状态
                 if (existingItem) {
-                    existingItem.quantity = oldQuantity
-                } else {
+                    existingItem.quantity = 0
                     cartStore.items = cartStore.items.filter(item => item.productId !== productId)
                 }
                 cartStore.lastError = '添加商品失败，请稍后重试'
@@ -233,17 +230,12 @@ export const cartStore: CartState = proxy<CartState>({
             const localItem = cartStore.items.find(item => item.productId === backendItem.productId)
     
             if (localItem) {
-                // 更新本地商品信息
-                // 直接使用后端返回的数量
+                // 更新本地商品信息，直接使用后端返回的数量和其他信息
                 localItem.quantity = backendItem.quantity
-                // 如果后端有价格信息但本地没有，则更新
-                if (backendItem.price && !localItem.price) {
-                    localItem.price = backendItem.price
-                }
-                // 如果后端有图片信息但本地没有，则更新
-                if (backendItem.picture && !localItem.picture) {
-                    localItem.picture = backendItem.picture
-                }
+                // 更新价格信息
+                localItem.price = backendItem.price || localItem.price
+                // 更新图片信息
+                localItem.picture = backendItem.picture || localItem.picture
             } else {
                 // 如果后端商品包含完整信息，直接添加到本地
                 if (backendItem.name && backendItem.picture) {
