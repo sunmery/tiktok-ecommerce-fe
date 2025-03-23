@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Box, Typography, Button } from '@mui/joy'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import { showMessage } from '@/utils/casdoor.ts'
+import { useQueryClient } from '@tanstack/react-query'
 
 export const Route = createLazyFileRoute('/logout/')({  
 	component: () => <LogoutCompose />,
@@ -13,13 +14,20 @@ export const Route = createLazyFileRoute('/logout/')({
 function LogoutCompose() {
 	const navigate = useNavigate()
 	const { t } = useTranslation()
+	const queryClient = useQueryClient()
 	
 	const logout = () => {
+		// 清除本地存储
 		localStorage.removeItem('token')
 		localStorage.removeItem('user')
 		localStorage.removeItem('creditCards')
 		localStorage.removeItem('cart')
 		localStorage.removeItem('addresses')
+		
+		// 清除React Query缓存，特别是userinfo查询
+		queryClient.removeQueries({ queryKey: ['userinfo'] })
+		// 清除所有查询缓存
+		queryClient.clear()
 		
 		// 显示退出成功提示
 		showMessage('退出登录成功', 'success')

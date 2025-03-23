@@ -23,10 +23,11 @@ export interface CartState {
     unselectAllItems: () => void
     isAllSelected: () => boolean
     getSelectedItemsCount: () => number
-    syncWithBackend: () => Promise<void>
+    syncWithBackend: (onSuccess?: () => void, onError?: (error: any) => void) => Promise<void>
     mergeWithBackendCart: (backendItems: CartItem[]) => void
     syncTimeout: NodeJS.Timeout | null
     lastError: string | null
+    isSyncing: boolean
 }
 
 // 恢复本地存储的数据或使用空数组
@@ -36,6 +37,7 @@ const initialItems: CartItem[] = savedCart ? JSON.parse(savedCart) : []
 export const cartStore: CartState = proxy<CartState>({
     syncTimeout: null,
     lastError: null,
+    isSyncing: false,
     items: initialItems.map(item => ({ ...item, selected: true })), // 默认全选
     addItem(
         productId: string,
@@ -232,9 +234,8 @@ export const cartStore: CartState = proxy<CartState>({
     
             if (localItem) {
                 // 更新本地商品信息
-                if (localItem.quantity !== backendItem.quantity) {
-                    localItem.quantity = Math.max(localItem.quantity, backendItem.quantity)
-                }
+                // 直接使用后端返回的数量
+                localItem.quantity = backendItem.quantity
                 // 如果后端有价格信息但本地没有，则更新
                 if (backendItem.price && !localItem.price) {
                     localItem.price = backendItem.price
@@ -287,8 +288,18 @@ export const cartStore: CartState = proxy<CartState>({
             }
         })
     },
-    async syncWithBackend() {
+    async syncWithBackend(onSuccess?: () => void, onError?: (error: any) => void) {
+        // 如果已经在同步中，直接返回
+        if (cartStore.isSyncing) {
+            console.log('购物车同步已在进行中，跳过重复请求');
+            return;
+        }
+        
+        // 设置同步状态为进行中
+        cartStore.isSyncing = true;
+        
         try {
+            console.log('开始同步购物车...');
             const response = await cartService.getCart()
             console.log('Backend cart response:', response)
             const backendItems = response?.items || []
@@ -311,7 +322,7 @@ export const cartStore: CartState = proxy<CartState>({
                 // 即使清空失败，我们仍然继续同步过程
             }
 
-            this.mergeWithBackendCart(backendItems)
+            cartStore.mergeWithBackendCart(backendItems)
 
             // 过滤掉无效的商品项，确保productId和merchantId都有效
             const validItems = cartStore.items.filter(item => {
@@ -329,6 +340,8 @@ export const cartStore: CartState = proxy<CartState>({
             // 如果过滤后没有有效商品，直接返回
             if (validItems.length === 0) {
                 console.log('购物车中没有有效商品项，跳过同步');
+                cartStore.isSyncing = false;
+                if (onSuccess) onSuccess();
                 return;
             }
             
@@ -357,10 +370,22 @@ export const cartStore: CartState = proxy<CartState>({
             await Promise.all(syncPromises)
             cartStore.lastError = null
             console.log('购物车同步完成')
+            
+            // 同步完成，设置状态为非同步中
+            cartStore.isSyncing = false;
+            
+            // 调用成功回调
+            if (onSuccess) onSuccess();
         } catch (error) {
             console.error('同步购物车失败:', error)
             cartStore.lastError = '同步购物车失败，请稍后重试'
-            throw error
+            
+            // 同步失败，设置状态为非同步中
+            cartStore.isSyncing = false;
+            
+            // 调用错误回调
+            if (onError) onError(error);
+            throw error;
         }
     }
 })

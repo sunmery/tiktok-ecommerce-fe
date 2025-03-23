@@ -14,6 +14,8 @@ interface CityData {
   value: number
 }
 
+
+
 // 城市坐标映射
 const geoCoordMap: Record<string, [number, number]> = {
   '北京': [116.4551, 40.2539],
@@ -28,16 +30,22 @@ const geoCoordMap: Record<string, [number, number]> = {
   '宁波': [121.5967, 29.6466]
 }
 
+
+
 interface YearData {
   year: number
   cities: CityData[]
 }
+
+
 
 interface ChinaEcommerceMapProps {
   title?: string
   height?: string | number
   width?: string | number
 }
+
+
 
 // 模拟2013-2019年各城市电商数据
 const mockEcommerceData: YearData[] = [
@@ -146,6 +154,8 @@ const mockEcommerceData: YearData[] = [
       { name: '宁波', value: 130 },
     ]
   }
+
+
 ]
 
 const ChinaEcommerceMap: React.FC<ChinaEcommerceMapProps> = ({
@@ -170,11 +180,17 @@ const ChinaEcommerceMap: React.FC<ChinaEcommerceMapProps> = ({
       if (chart) {
         chart.dispose()
       }
+
+
       // 清除播放定时器
       if (playInterval) {
         clearInterval(playInterval)
       }
+
+
     }
+
+
   }, [])
   
   // 初始化图表
@@ -197,6 +213,8 @@ const ChinaEcommerceMap: React.FC<ChinaEcommerceMapProps> = ({
           subtextStyle: {
             color: '#ccc'
           }
+
+
         },
         tooltip: {
           trigger: 'item',
@@ -211,11 +229,15 @@ const ChinaEcommerceMap: React.FC<ChinaEcommerceMapProps> = ({
             dataView: { readOnly: false },
             restore: {},
             saveAsImage: {}
+
+
           }
+
+
         },
         visualMap: {
-          min: 0,
-          max: 200,
+          min: 55,
+          max: 175,
           text: ['高', '低'],
           realtime: false,
           calculable: true,
@@ -225,6 +247,8 @@ const ChinaEcommerceMap: React.FC<ChinaEcommerceMapProps> = ({
           textStyle: {
             color: '#fff'
           }
+
+
         },
         geo: {
           map: 'china',
@@ -237,11 +261,15 @@ const ChinaEcommerceMap: React.FC<ChinaEcommerceMapProps> = ({
             itemStyle: {
               areaColor: '#2a333d'
             }
+
+
           },
           itemStyle: {
             areaColor: '#323c48',
             borderColor: '#111'
           }
+
+
         },
         series: [
           {
@@ -253,13 +281,13 @@ const ChinaEcommerceMap: React.FC<ChinaEcommerceMapProps> = ({
               show: true,
               color: '#fff'
             },
-            data: yearData.cities
+            data: mockEcommerceData[currentYearIndex].cities
           },
           {
             name: '城市电商指数',
             type: 'scatter',
             coordinateSystem: 'geo',
-            data: convertData(yearData.cities),
+            data: convertData(mockEcommerceData[currentYearIndex].cities),
             symbolSize: function (val) {
               return val[2] / 10;
             },
@@ -272,13 +300,21 @@ const ChinaEcommerceMap: React.FC<ChinaEcommerceMapProps> = ({
               label: {
                 show: true
               }
+
+
             },
             itemStyle: {
               color: '#ddb926'
             }
+
+
           }
+
+
         ]
       }
+
+
       
       newChart.hideLoading()
       newChart.setOption(option)
@@ -292,7 +328,11 @@ const ChinaEcommerceMap: React.FC<ChinaEcommerceMapProps> = ({
       console.error('初始化图表失败:', error)
       newChart.hideLoading()
     }
+
+
   }
+
+
   
   // 转换城市数据为地图坐标点
   const convertData = (data: CityData[]) => {
@@ -305,9 +345,13 @@ const ChinaEcommerceMap: React.FC<ChinaEcommerceMapProps> = ({
           value: [...geoCoord, item.value]
         })
       }
+
+
     })
     return result
   }
+
+
   
   // 更新图表数据
   const updateChartData = (yearIndex: number) => {
@@ -321,14 +365,18 @@ const ChinaEcommerceMap: React.FC<ChinaEcommerceMapProps> = ({
       series: [
         {
           name: '电商指数',
-          data: convertData(yearData.cities)
+          data: convertData(mockEcommerceData[currentYearIndex].cities)
         },
         {
-          data: yearData.cities
+          data: mockEcommerceData[currentYearIndex].cities
         }
+
+
       ]
     })
   }
+
+
   
   // 处理年份变化
   useEffect(() => {
@@ -343,6 +391,8 @@ const ChinaEcommerceMap: React.FC<ChinaEcommerceMapProps> = ({
         clearInterval(playInterval)
         setPlayIntervalState(null)
       }
+
+
     } else {
       // 播放
       const interval = window.setInterval(() => {
@@ -351,7 +401,7 @@ const ChinaEcommerceMap: React.FC<ChinaEcommerceMapProps> = ({
           // 循环播放
           return next >= mockEcommerceData.length ? 0 : next
         })
-      }, 2000) // 每2秒切换一次
+      }, 2000)
       
       setPlayIntervalState(interval)
     }
@@ -359,59 +409,55 @@ const ChinaEcommerceMap: React.FC<ChinaEcommerceMapProps> = ({
     setPlaying(!playing)
   }
   
-  // 处理滑块变化
-  const handleSliderChange = (_event: Event, newValue: number | number[]) => {
-    const value = Array.isArray(newValue) ? newValue[0] : newValue
-    setCurrentYearIndex(value)
-  }
-  
-  // 修复年份显示
   return (
-    <Box
-      sx={{
-        width,
-        height,
-        display: 'flex',
-        flexDirection: 'column',
-        bgcolor: '#061d33',
-        borderRadius: '8px',
-        overflow: 'hidden',
-        p: 2
-      }}
-    >
-      <Box ref={chartRef} sx={{ flex: 1 }} />
+    <Box sx={{ height, width, position: 'relative', bgcolor: '#061633' }}>
+      <div ref={chartRef} style={{ width: '100%', height: '100%' }} />
       
-      <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', color: 'white' }}>
-        <IconButton
-          onClick={togglePlay}
-          sx={{ mr: 2, color: 'white' }}
-        >
-          {playing ? <PauseIcon /> : <PlayArrowIcon />}
-        </IconButton>
-        
-        <Typography level="body-sm" sx={{ mr: 2, minWidth: '50px' }}>
-          {mockEcommerceData[currentYearIndex].year}
+      {/* 年份选择器和播放控制 */}
+      <Box sx={{ 
+        position: 'absolute', 
+        bottom: 20, 
+        left: 0, 
+        right: 0, 
+        display: 'flex', 
+        flexDirection: 'column',
+        alignItems: 'center',
+        px: 4
+      }}>
+        <Typography level="body-md" sx={{ color: '#fff', mb: 1 }}>
+          {mockEcommerceData[currentYearIndex].year}年数据
         </Typography>
         
-        <Slider
-          value={currentYearIndex}
-          min={0}
-          max={mockEcommerceData.length - 1}
-          onChange={handleSliderChange}
-          sx={{
-            flex: 1,
-            '& .MuiSlider-thumb': {
-              color: 'white',
-            },
-            '& .MuiSlider-track': {
-              color: 'white',
-            },
-            '& .MuiSlider-rail': {
-              color: 'rgba(255, 255, 255, 0.3)',
-            }
-          }}
-        />
+        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: 500 }}>
+          <IconButton 
+            onClick={togglePlay}
+            sx={{ color: '#fff', mr: 2 }}
+          >
+            {playing ? <PauseIcon /> : <PlayArrowIcon />}
+          </IconButton>
+          
+          <Slider
+            value={currentYearIndex}
+            min={0}
+            max={mockEcommerceData.length - 1}
+            onChange={(_, value) => setCurrentYearIndex(value as number)}
+            sx={{ 
+              flexGrow: 1,
+              '& .MuiSlider-thumb': {
+                bgcolor: '#fff'
+              },
+              '& .MuiSlider-track': {
+                bgcolor: '#4caf50'
+              },
+              '& .MuiSlider-rail': {
+                bgcolor: 'rgba(255, 255, 255, 0.3)'
+              }
+            }}
+          />
+        </Box>
       </Box>
     </Box>
   )
 }
+
+export default ChinaEcommerceMap

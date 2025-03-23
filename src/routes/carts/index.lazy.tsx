@@ -7,6 +7,7 @@ import {
     Typography,
     IconButton,
     Card,
+    Input
 } from '@mui/joy'
 import {useState} from 'react'
 
@@ -33,7 +34,8 @@ function Cart() {
         selectAllItems,
         unselectAllItems,
         isAllSelected,
-        getSelectedItemsCount
+        getSelectedItemsCount,
+        syncWithBackend
     } = useCart()
 
     const removeItem = (id: string) => {
@@ -88,12 +90,33 @@ function Cart() {
 
         try {
             setLoading(true)
-            // 跳转到结算页面
-            navigate({to: '/checkout/'}).then(() => {
-                console.log('已跳转到结算页面')
-            })
+            setError(null)
+            
+            // 先同步购物车数据到后端，确保前后端数据一致
+            console.log('结算前同步购物车数据...')
+            syncWithBackend(
+                // 同步成功回调
+                () => {
+                    console.log('购物车同步成功，准备跳转到结算页面')
+                    // 同步成功后跳转到结算页面
+                    navigate({to: '/checkout/'}).then(() => {
+                        console.log('已跳转到结算页面')
+                    }).catch(navError => {
+                        console.error('跳转到结算页面失败:', navError)
+                        setError('跳转到结算页面失败，请稍后重试')
+                        setLoading(false)
+                    })
+                },
+                // 同步失败回调
+                (error) => {
+                    console.error('购物车同步失败:', error)
+                    setError('同步购物车失败，请稍后重试')
+                    setLoading(false)
+                }
+            )
         } catch (err) {
-            setError('跳转到结算页面失败，请稍后重试')
+            console.error('结算过程发生错误:', err)
+            setError('结算失败，请稍后重试')
             setLoading(false)
         }
     }
@@ -191,9 +214,26 @@ function Cart() {
                                             >
                                                 <Remove/>
                                             </IconButton>
-                                            <Typography sx={{minWidth: '40px', textAlign: 'center'}}>
-                                                {item.quantity}
-                                            </Typography>
+                                            <Input
+                                              value={item.quantity}
+                                              variant="outlined"
+                                              size="sm"
+                                              sx={{ width: '60px', textAlign: 'center' }}
+                                              onChange={(e) => {
+                                                const value = Math.max(1, parseInt(e.target.value) || 1);
+                                                apiUpdateQuantity({ itemId: item.productId, quantity: value });
+                                              }}
+                                              onBlur={(e) => {
+                                                const value = Math.max(1, parseInt(e.target.value) || 1);
+                                                apiUpdateQuantity({ itemId: item.productId, quantity: value });
+                                              }}
+                                              onKeyPress={(e) => {
+                                                if (e.key === 'Enter') {
+                                                  const value = Math.max(1, parseInt((e.target as HTMLInputElement).value) || 1);
+                                                  apiUpdateQuantity({ itemId: item.productId, quantity: value });
+                                                }
+                                              }}
+                                            />
                                             <IconButton
                                                 size="sm"
                                                 variant="outlined"

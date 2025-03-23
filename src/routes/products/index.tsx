@@ -312,6 +312,9 @@ function Products() {
                                     >
                                         ¥{product.price}
                                     </Typography>
+                                    <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
+                                        库存: {product.inventory?.stock || product.quantity || 0}
+                                    </Typography>
                                 </Box>
                                 <Button
                                     variant="solid"
@@ -330,8 +333,9 @@ function Products() {
                                         minWidth: 100,
                                         boxShadow: 'sm'
                                     }}
+                                    disabled={(product.inventory?.stock || product.quantity || 0) <= 0}
                                 >
-                                    加入购物车
+                                    {(product.inventory?.stock || product.quantity || 0) > 0 ? '加入购物车' : '缺货'}
                                 </Button>
                             </Box>
                         </CardContent>

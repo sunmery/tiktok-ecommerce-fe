@@ -101,7 +101,7 @@ export default function ProductDetail() {
                             </Typography>
 
                             <Typography level="body-md" sx={{mt: 2}}>
-                                库存: {product.quantity || 0} 件
+                                库存: {product.inventory?.stock || product.quantity || 0} 件
                             </Typography>
 
                             <Typography level="body-md" sx={{mt: 1}}>
@@ -144,7 +144,7 @@ export default function ProductDetail() {
                             </Typography>
 
                             <Box sx={{display: 'flex', alignItems: 'center', gap: 2, mt: 3}}>
-                                <Typography>库存: {product.quantity}</Typography>
+                                <Typography>库存: {product.inventory?.stock || product.quantity || 0}</Typography>
                             </Box>
 
                             <Button
@@ -154,9 +154,9 @@ export default function ProductDetail() {
                                 fullWidth
                                 sx={{mt: 3}}
                                 onClick={addToCartHandler}
-                                disabled={product.quantity <= 0}
+                                disabled={(product.inventory?.stock || product.quantity || 0) <= 0}
                             >
-                                {product.quantity > 0 ? '加入购物车' : '暂时缺货'}
+                                {(product.inventory?.stock || product.quantity || 0) > 0 ? '加入购物车' : '暂时缺货'}
                             </Button>
                         </CardContent>
                     </Card>

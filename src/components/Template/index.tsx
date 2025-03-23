@@ -90,14 +90,16 @@ export default function Template() {
             // 根据角色自动导航到对应页面
             if (newRole === 'merchant') {
                 navigate({ to: '/merchant' }).then(() => {
-                // 跳转完成后的回调逻辑
+                    console.log(`用户角色:${newRole}, 已跳转到商家路由`)
                 })
             } else if (newRole === 'admin') {
                 navigate({ to: '/admin' }).then(() => {
-                // 跳转完成后的回调逻辑
+                    console.log(`用户角色:${newRole}, 已跳转到管理员路由`)
                 })
             } else {
-                navigate({ to: '/' }).then(() => {
+                // 普通用户角色导航到个人中心页面，而不是首页
+                navigate({ to: '/profile' }).then(() => {
+                    console.log(`用户角色:${newRole}, 已跳转到用户路由`)
                 // 跳转完成后的回调逻辑
                 })
             }

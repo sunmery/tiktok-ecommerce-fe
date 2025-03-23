@@ -18,10 +18,9 @@ const initialUser: Account = savedUser
         email: "",
         id: "",
         role: "",
-        display_name: "",
-        is_deleted: "",
-        created_time: "",
-        updated_time: "",
+        isDeleted: false,
+        createdTime: "",
+        updatedTime: "",
     }
 
 export const userStore = proxy<UserState>({

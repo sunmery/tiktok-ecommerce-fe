@@ -19,11 +19,20 @@ export const setToken = (token: string) => {
     localStorage.setItem('token', token)
 }
 
-// TODO 跳转到指定链接, 这里写的不好, 结合react router等路由库来跳转
+// 使用React Router进行导航，避免页面刷新
 export const goToLink = (link: string) => {
-    // 强制浏览器完全刷新页面
-    // replace 避免历史记录堆积
-    window.location.replace(link)
+    // 检查是否在React Router环境中
+    if (typeof window !== 'undefined' && window.__TANSTACK_ROUTER_DEVTOOLS_GLOBAL_HANDLE) {
+        // 使用React Router的导航API
+        const router = window.__TANSTACK_ROUTER_DEVTOOLS_GLOBAL_HANDLE.router;
+        if (router) {
+            router.navigate({ to: link, replace: true });
+            return;
+        }
+    }
+    
+    // 如果不在React Router环境中，则使用传统方式
+    window.location.replace(link);
 }
 
 // 获取登录接口的URL

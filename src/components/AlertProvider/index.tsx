@@ -64,12 +64,33 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
         autoHideDuration={5000}
         onClose={hideAlert}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        sx={{
+          zIndex: 9999, // 增加z-index确保消息显示在最上层
+          mt: 2, // 增加顶部边距
+          '& .MuiSnackbar-content': {
+            p: 0, // 移除Snackbar内容的内边距
+            borderRadius: 0, // 移除圆角
+            overflow: 'visible' // 确保内容可见
+          }
+        }}
       >
         <Alert
-          variant="soft"
+          variant="solid" // 改为solid变体以增强可见性
           color={alertType}
           onClose={hideAlert}
-          sx={{ width: '100%' }}
+          sx={{
+            width: '100%',
+            boxShadow: 'md', // 添加阴影增强视觉效果
+            border: 'none', // 移除边框
+            borderRadius: 0, // 移除圆角
+            margin: 0, // 移除外边距
+            // padding: '12px 16px', // 调整内边距
+            fontWeight: 'medium', // 增加字体粗细以提高可读性
+            '& .MuiAlert-action': { // 调整关闭按钮位置
+              padding: '0 0 0 8px',
+              marginRight: 0
+            }
+          }}
         >
           {message}
         </Alert>

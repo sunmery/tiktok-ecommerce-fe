@@ -29,7 +29,9 @@ const CreditCardDetailModal = ({ open, onClose, card }: CreditCardDetailModalPro
         sx={{ 
           maxWidth: 500,
           overflow: 'hidden',
-          p: 0
+          p: 0,
+          boxShadow: 'lg',
+          borderRadius: 'md'
         }}
       >
         <ModalClose />
@@ -47,79 +49,79 @@ const CreditCardDetailModal = ({ open, onClose, card }: CreditCardDetailModalPro
           <Box
             sx={{
               p: 3,
-              color: 'white',
-              position: 'relative'
+              position: 'relative',
+              zIndex: 2
             }}
           >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-            <Typography level="title-md" sx={{ color: 'white' }}>{card.name || '我的卡'}</Typography>
-            <Chip size="sm" variant="soft">
-              {card.brand.toUpperCase()}
-            </Chip>
-          </Box>
-          
-          <Typography level="h4" sx={{ mb: 2, letterSpacing: '2px', color: 'white' }}>
-            {formatCardNumber(card.number)}
-          </Typography>
-          
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Box>
-              <Typography level="body-xs" sx={{ color: 'white' }}>持卡人</Typography>
-              <Typography level="body-md" sx={{ color: 'white' }}>{card.owner}</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+              <Typography level="title-md" sx={{ color: 'white', fontWeight: 'bold', textShadow: '0px 1px 2px rgba(0,0,0,0.3)' }}>{card.name || '我的卡'}</Typography>
+              <Chip size="sm" variant="soft" sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }}>
+                {card.brand.toUpperCase()}
+              </Chip>
             </Box>
-            <Box>
-              <Typography level="body-xs" sx={{ color: 'white' }}>有效期</Typography>
-              <Typography level="body-md" sx={{ color: 'white' }}>{card.expMonth}/{card.expYear}</Typography>
+            
+            <Typography level="h4" sx={{ mb: 2, letterSpacing: '2px', color: 'white', fontWeight: 'bold', textShadow: '0px 1px 3px rgba(0,0,0,0.4)' }}>
+              {formatCardNumber(card.number)}
+            </Typography>
+            
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography level="body-xs" sx={{ color: 'rgba(255,255,255,0.8)', mb: 0.5 }}>持卡人</Typography>
+                <Typography level="body-md" sx={{ color: 'white', fontWeight: 'medium', textShadow: '0px 1px 2px rgba(0,0,0,0.3)' }}>{card.owner}</Typography>
+              </Box>
+              <Box>
+                <Typography level="body-xs" sx={{ color: 'rgba(255,255,255,0.8)', mb: 0.5 }}>有效期</Typography>
+                <Typography level="body-md" sx={{ color: 'white', fontWeight: 'medium', textShadow: '0px 1px 2px rgba(0,0,0,0.3)' }}>{card.expMonth}/{card.expYear}</Typography>
+              </Box>
             </Box>
-          </Box>
           </Box>
         </CardBackground>
         
         {/* 详细信息 */}
-        <Box sx={{ p: 3 }}>
-          <Typography level="title-lg" sx={{ mb: 2 }}>卡片详细信息</Typography>
-          <Divider sx={{ mb: 2 }} />
+        <Box sx={{ p: 3, pt: 2.5 }}>
+          <Typography level="title-lg" sx={{ mb: 2, color: 'text.primary', fontWeight: 'bold' }}>卡片详细信息</Typography>
+          <Divider sx={{ mb: 2.5 }} />
           
-          <Grid container spacing={2}>
+          <Grid container spacing={2.5}>
             <Grid xs={6}>
-              <Typography level="body-sm" color="neutral">卡号</Typography>
-              <Typography level="body-md">{formatCardNumber(card.number)}</Typography>
+              <Typography level="body-sm" sx={{ color: 'text.secondary', mb: 0.5 }}>卡号</Typography>
+              <Typography level="body-md" sx={{ color: 'text.primary', fontWeight: 'medium' }}>{formatCardNumber(card.number)}</Typography>
             </Grid>
             <Grid xs={6}>
-              <Typography level="body-sm" color="neutral">安全码 (CVV)</Typography>
-              <Typography level="body-md">{card.cvv}</Typography>
+              <Typography level="body-sm" sx={{ color: 'text.secondary', mb: 0.5 }}>安全码 (CVV)</Typography>
+              <Typography level="body-md" sx={{ color: 'text.primary', fontWeight: 'medium' }}>{card.cvv}</Typography>
             </Grid>
             <Grid xs={6}>
-              <Typography level="body-sm" color="neutral">持卡人</Typography>
-              <Typography level="body-md">{card.owner}</Typography>
+              <Typography level="body-sm" sx={{ color: 'text.secondary', mb: 0.5 }}>持卡人</Typography>
+              <Typography level="body-md" sx={{ color: 'text.primary', fontWeight: 'medium' }}>{card.owner}</Typography>
             </Grid>
             <Grid xs={6}>
-              <Typography level="body-sm" color="neutral">有效期</Typography>
-              <Typography level="body-md">{card.expMonth}/{card.expYear}</Typography>
+              <Typography level="body-sm" sx={{ color: 'text.secondary', mb: 0.5 }}>有效期</Typography>
+              <Typography level="body-md" sx={{ color: 'text.primary', fontWeight: 'medium' }}>{card.expMonth}/{card.expYear}</Typography>
             </Grid>
             <Grid xs={6}>
-              <Typography level="body-sm" color="neutral">卡片名称</Typography>
-              <Typography level="body-md">{card.name || '-'}</Typography>
+              <Typography level="body-sm" sx={{ color: 'text.secondary', mb: 0.5 }}>卡片名称</Typography>
+              <Typography level="body-md" sx={{ color: 'text.primary', fontWeight: 'medium' }}>{card.name || '-'}</Typography>
             </Grid>
             <Grid xs={6}>
-              <Typography level="body-sm" color="neutral">卡片类型</Typography>
-              <Typography level="body-md">{card.type}</Typography>
+              <Typography level="body-sm" sx={{ color: 'text.secondary', mb: 0.5 }}>卡片类型</Typography>
+              <Typography level="body-md" sx={{ color: 'text.primary', fontWeight: 'medium' }}>{card.type}</Typography>
             </Grid>
             <Grid xs={6}>
-              <Typography level="body-sm" color="neutral">发卡机构</Typography>
-              <Typography level="body-md">{card.brand}</Typography>
+              <Typography level="body-sm" sx={{ color: 'text.secondary', mb: 0.5 }}>发卡机构</Typography>
+              <Typography level="body-md" sx={{ color: 'text.primary', fontWeight: 'medium' }}>{card.brand}</Typography>
             </Grid>
             <Grid xs={6}>
-              <Typography level="body-sm" color="neutral">发行国家</Typography>
-              <Typography level="body-md">{card.country}</Typography>
+              <Typography level="body-sm" sx={{ color: 'text.secondary', mb: 0.5 }}>发行国家</Typography>
+              <Typography level="body-md" sx={{ color: 'text.primary', fontWeight: 'medium' }}>{card.country}</Typography>
             </Grid>
             <Grid xs={6}>
-              <Typography level="body-sm" color="neutral">币种</Typography>
-              <Typography level="body-md">{card.currency}</Typography>
+              <Typography level="body-sm" sx={{ color: 'text.secondary', mb: 0.5 }}>币种</Typography>
+              <Typography level="body-md" sx={{ color: 'text.primary', fontWeight: 'medium' }}>{card.currency}</Typography>
             </Grid>
             <Grid xs={6}>
-              <Typography level="body-sm" color="neutral">创建时间</Typography>
-              <Typography level="body-md">{formatDate(card.createdAt)}</Typography>
+              <Typography level="body-sm" sx={{ color: 'text.secondary', mb: 0.5 }}>创建时间</Typography>
+              <Typography level="body-md" sx={{ color: 'text.primary', fontWeight: 'medium' }}>{formatDate(card.createdAt)}</Typography>
             </Grid>
           </Grid>
         </Box>
