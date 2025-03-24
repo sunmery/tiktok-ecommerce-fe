@@ -164,9 +164,9 @@ export const mockProducts: Product[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     inventory: {
-      productId: '10',
-      merchantId: '1007',
-      stock: 200
+      productId: '8',
+      merchantId: '1006',
+      stock: 25
     }
   },
   {
@@ -191,9 +191,9 @@ export const mockProducts: Product[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     inventory: {
-      productId: '10',
-      merchantId: '1007',
-      stock: 200
+      productId: '8',
+      merchantId: '1006',
+      stock: 25
     }
   },
   {
@@ -218,9 +218,9 @@ export const mockProducts: Product[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     inventory: {
-      productId: '10',
-      merchantId: '1007',
-      stock: 200
+      productId: '8',
+      merchantId: '1006',
+      stock: 25
     }
   },
   {
@@ -245,9 +245,9 @@ export const mockProducts: Product[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     inventory: {
-      productId: '10',
-      merchantId: '1007',
-      stock: 200
+      productId: '8',
+      merchantId: '1006',
+      stock: 25
     }
   },
   {
@@ -272,9 +272,9 @@ export const mockProducts: Product[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     inventory: {
-      productId: '10',
-      merchantId: '1007',
-      stock: 200
+      productId: '8',
+      merchantId: '1006',
+      stock: 25
     }
   },
   {
@@ -299,9 +299,9 @@ export const mockProducts: Product[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     inventory: {
-      productId: '10',
-      merchantId: '1007',
-      stock: 200
+      productId: '8',
+      merchantId: '1006',
+      stock: 25
     }
   },
   {
@@ -326,9 +326,9 @@ export const mockProducts: Product[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     inventory: {
-      productId: '10',
-      merchantId: '1007',
-      stock: 200
+      productId: '8',
+      merchantId: '1006',
+      stock: 25
     }
   }
 ];

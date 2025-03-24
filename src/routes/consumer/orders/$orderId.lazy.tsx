@@ -75,11 +75,11 @@ function ConsumerOrderDetail() {
   // 获取状态颜色
   const getStatusColor = (status: PaymentStatus) => {
     switch (status) {
-      case PaymentStatus.paid:
+      case PaymentStatus.Paid:
         return 'success'
-      case PaymentStatus.processing:
+      case PaymentStatus.Processing:
         return 'primary'
-      case PaymentStatus.failed:
+      case PaymentStatus.Failed:
         return 'danger'
       default:
         return 'neutral'
@@ -89,13 +89,13 @@ function ConsumerOrderDetail() {
   // 获取状态文本
   const getStatusText = (status: PaymentStatus) => {
     switch (status) {
-      case PaymentStatus.paid:
+      case PaymentStatus.Paid:
         return '已支付'
-      case PaymentStatus.processing:
+      case PaymentStatus.Processing:
         return '处理中'
-      case PaymentStatus.failed:
+      case PaymentStatus.Failed:
         return '支付失败'
-      case PaymentStatus.notPaid:
+      case PaymentStatus.NotPaid:
         return '待支付'
       default:
         return '未知状态'
@@ -247,24 +247,24 @@ function ConsumerOrderDetail() {
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Chip
                       variant="soft"
-                      color={order.paymentStatus >= PaymentStatus.paid ? 'success' : order.paymentStatus === PaymentStatus.processing ? 'primary' : 'neutral'}
+                      color={order.paymentStatus >= PaymentStatus.Paid ? 'success' : order.paymentStatus === PaymentStatus.Processing ? 'primary' : 'neutral'}
                       sx={{ mr: 2 }}
                     >
-                      {order.paymentStatus >= PaymentStatus.paid ? '已完成' : order.paymentStatus === PaymentStatus.processing ? '处理中' : '未开始'}
+                      {order.paymentStatus >= PaymentStatus.Paid ? '已完成' : order.paymentStatus === PaymentStatus.Processing ? '处理中' : '未开始'}
                     </Chip>
                     <Typography level="body-md">支付处理</Typography>
                     <Typography level="body-sm" color="neutral" sx={{ ml: 'auto' }}>
-                      {order.paymentStatus >= PaymentStatus.paid ? formatDate(order.createdAt) : '-'}
+                      {order.paymentStatus >= PaymentStatus.Paid ? formatDate(order.createdAt) : '-'}
                     </Typography>
                   </Box>
                   
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Chip
                       variant="soft"
-                      color={order.paymentStatus === PaymentStatus.paid ? 'primary' : 'neutral'}
+                      color={order.paymentStatus === PaymentStatus.Paid ? 'primary' : 'neutral'}
                       sx={{ mr: 2 }}
                     >
-                      {order.paymentStatus === PaymentStatus.paid ? '处理中' : '未开始'}
+                      {order.paymentStatus === PaymentStatus.Paid ? '处理中' : '未开始'}
                     </Chip>
                     <Typography level="body-md">商品配送</Typography>
                     <Typography level="body-sm" color="neutral" sx={{ ml: 'auto' }}>
