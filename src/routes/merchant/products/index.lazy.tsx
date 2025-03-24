@@ -202,7 +202,7 @@ export default function Products() {
     // 处理商品上架（提交审核）
     const handlePublish = (product: Product) => {
         // 如果商品是草稿状态，需要提交审核
-        if (product.status === ProductStatus.draft || product.status === ProductStatus.rejected) {
+        if (product.status === ProductStatus.DRAFT || product.status === ProductStatus.REJECTED) {
             handleSubmitAudit(product.id)
         }
     }
@@ -316,7 +316,7 @@ export default function Products() {
                                         上传图片
                                     </Button>
                                     {/* 上架按钮 - 仅在草稿或驳回状态显示 */}
-                                    {(product.status === ProductStatus.draft || product.status === ProductStatus.rejected) && (
+                                    {(product.status === ProductStatus.DRAFT || product.status === ProductStatus.REJECTED) && (
                                         <Button
                                             size="sm"
                                             color="primary"
@@ -327,7 +327,7 @@ export default function Products() {
                                         </Button>
                                     )}
                                     {/* 下架按钮 - 仅在审核通过或待审核状态显示 */}
-                                    {(product.status === ProductStatus.approved || product.status === ProductStatus.pending) && (
+                                    {(product.status === ProductStatus.APPROVED || product.status === ProductStatus.PENDING) && (
                                         <Button
                                             size="sm"
                                             variant="outlined"

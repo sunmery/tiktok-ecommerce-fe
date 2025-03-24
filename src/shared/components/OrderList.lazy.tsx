@@ -1,6 +1,6 @@
 import { Box, Card, CardContent, Typography, Chip, Grid, Divider, Button } from '@mui/joy'
-import { Order as FrontendOrder, Order as ApiOrder, PaymentStatus } from '@/types/orders'
-import { formatCurrency } from '@/utils/format'
+import { Order as FrontendOrder, Order as ApiOrder, PaymentStatus } from '@/types/orders.ts'
+import { formatCurrency } from '@/utils/format.ts'
 import { Link } from '@tanstack/react-router'
 
 // 定义一个通用的Order类型，兼容前端和API的Order类型

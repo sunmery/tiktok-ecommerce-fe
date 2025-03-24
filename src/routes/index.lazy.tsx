@@ -14,7 +14,7 @@ import {useSearchProducts} from '@/hooks/useProduct'
 
 import {cartStore} from '@/store/cartStore'
 import Breadcrumbs from '@/components/Breadcrumbs'
-import {CartItem} from "@/types/carts.ts";
+import {CartItem} from "@/types/cart";
 
 export const Route = createLazyFileRoute('/')({
     component: Home,

@@ -12,6 +12,7 @@ import {
 import {useState} from 'react'
 
 import {useCart} from "@/hooks/useCart.ts";
+import type { CartItem } from '@/types/cart';
 
 export const Route = createLazyFileRoute('/carts/')({component: () => <Cart/>})
 

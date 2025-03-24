@@ -5,15 +5,7 @@
 
 import { httpClient } from '@/utils/http-client';
 import {
-  PlaceOrderReq,
-  PlaceOrderResp,
-  ListOrderReq,
-  ListOrderResp,
-  MarkOrderPaidReq,
-  MarkOrderPaidResp,
-  // API方法名常量导入
   PlaceOrder,
-  ListOrder,
   MarkOrderPaid,
 } from '@/types/orders';
 
@@ -34,7 +26,7 @@ export const orderService = {
    * GET /v1/orders
    */
   listOrder: (request: ListOrderReq) => {
-    return httpClient.get<ListOrderResp>(`${import.meta.env.VITE_ORDERS_URL}/${ListOrder}`, {
+    return httpClient.get<ListOrderResp>(`${import.meta.env.VITE_ORDERS_URL}`, {
       params: request as unknown as Record<string, string>
     });
   },

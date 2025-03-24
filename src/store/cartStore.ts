@@ -1,5 +1,5 @@
 import {proxy, subscribe} from 'valtio'
-import type {CartItem} from '@/types/carts'
+import type {CartItem} from '@/types/cart'
 import {cartService} from '@/api/cartService'
 
 // 定义购物车状态
@@ -25,7 +25,7 @@ export interface CartState {
     getSelectedItemsCount: () => number
     syncWithBackend: (onSuccess?: () => void, onError?: (error: any) => void) => Promise<void>
     mergeWithBackendCart: (backendItems: CartItem[]) => void
-    syncTimeout: NodeJS.Timeout | null
+    syncTimeout: ReturnType<typeof setTimeout> | null
     lastError: string | null
     isSyncing: boolean
 }

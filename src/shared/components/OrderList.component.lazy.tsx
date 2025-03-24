@@ -4,7 +4,7 @@
  * 它导出了OrderList.lazy.tsx中的组件
  */
 
-import OrderList from './OrderList.lazy';
+import OrderList from './OrderList.lazy.tsx';
 import Pagination from '@/components/Pagination';
 
 export { OrderList };

@@ -3,8 +3,8 @@
  * 基于proto文件生成的TypeScript类型
  */
 
-// 导入用户服务中的信用卡类型
-import { CreditCard } from './user';
+// 导入信用卡类型
+import { CreditCard } from './creditCards';
 
 // 结账请求
 export interface CheckoutReq {

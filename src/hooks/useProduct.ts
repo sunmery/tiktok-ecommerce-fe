@@ -22,12 +22,12 @@ export function useProduct(id: string, merchantId: string) {
                     new Promise((_, reject) => 
                         setTimeout(() => reject(new Error('请求超时')), 10000)
                     )
-                ])
+                ]) as ProductResponse; // 添加类型断言
                 
-                const data = response.data
+                const data = response.data;
                 
-                if (!data) {
-                    throw new Error('商品数据为空')
+                if (!data || typeof data !== 'object') {
+                    throw new Error('商品数据格式错误');
                 }
 
                 // 增强图片数据完整性检查和处理

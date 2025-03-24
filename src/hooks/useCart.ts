@@ -3,7 +3,7 @@ import {getCartItems, addToCart, removeFromCart, updateCartItemQuantity, clearCa
 import {useSnapshot} from 'valtio'
 import {cartStore} from '@/store/cartStore'
 import {useEffect} from 'react'
-import {CartItem} from "@/types/carts.ts";
+import {CartItem} from "@/types/cart";
 
 export const useCart = () => {
     const queryClient = useQueryClient()

@@ -6,9 +6,9 @@ import { PaymentStatus } from '@/types/orders'
 export interface OrderState {
   orders: Order[]
   setOrders: (orders: Order[]) => void
-  updateOrderStatus: (orderId: number, status: PaymentStatus) => void
+  updateOrderStatus: (orderId: string, status: PaymentStatus) => void
   addOrder: (order: Order) => void
-  removeOrder: (orderId: number) => void
+  removeOrder: (orderId: string) => void
 }
 
 // 初始化订单状态
@@ -18,17 +18,17 @@ export const orderStore = proxy<OrderState>({
     orderStore.orders = orders
   },
   updateOrderStatus(orderId, status) {
-    const order = orderStore.orders.find(o => o.id === orderId)
+    const order = orderStore.orders.find(o => o.orderId === orderId)
     if (order) {
-      order.status = status
-      order.updatedAt = new Date().toISOString()
+      order.paymentStatus = status
+      // 不使用 updatedAt，因为 Order 接口中没有这个属性
     }
   },
   addOrder(order) {
     orderStore.orders.push(order)
   },
   removeOrder(orderId) {
-    orderStore.orders = orderStore.orders.filter(o => o.id !== orderId)
+    orderStore.orders = orderStore.orders.filter(o => o.orderId !== orderId)
   },
 })
 

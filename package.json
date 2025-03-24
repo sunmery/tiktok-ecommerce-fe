@@ -2,9 +2,11 @@
   "name": "frontend",
   "private": false,
   "version": "1.0.0",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "prepare": "husky .husky || true",
+    "tsc": "npx tsc --noEmit",
     "oxlint": "oxlint",
     "oxlint:fix": "oxlint --fix",
     "stylelint": "stylelint **/**.{css,scss,sass}",
