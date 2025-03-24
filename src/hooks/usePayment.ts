@@ -55,8 +55,6 @@ export function useProcessPaymentCallback() {
  * 处理支付异步通知的hook
  */
 export function usePaymentNotify() {
-  const queryClient = useQueryClient()
-
   return useMutation<PaymentNotifyResp, Error, PaymentNotifyReq>({
     mutationFn: (request) => paymentService.paymentNotify(request),
     onSuccess: () => {

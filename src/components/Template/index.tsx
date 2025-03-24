@@ -17,7 +17,11 @@ import {Avatar, Badge, Typography} from '@mui/joy'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import {useState, useEffect} from 'react'
 import {useTranslation} from 'react-i18next'
+import {recordTranslationKeyUsage} from '@/utils/i18n'
 import ChatAssistant from '@/components/ChatAssistant'
+import TranslationDebugger from '@/components/TranslationDebugger'
+import { log } from '@/utils/env'
+import { TOptions } from 'i18next'
 
 /**
  * 页面模板组件
@@ -34,6 +38,47 @@ export default function Template() {
     
     // 使用 window.matchMedia 替代 useMediaQuery
     const [isMobile, setIsMobile] = useState(false)
+    
+    // 记录翻译键的使用
+    const trackTranslation = (key: string) => {
+        recordTranslationKeyUsage(key)
+    }
+    
+    // 在使用t函数的地方，调用trackTranslation函数记录使用的翻译键
+    useEffect(() => {
+        // 记录所有常用的翻译键
+        const commonKeys = [
+            'nav.project',
+            'nav.search',
+            'actions.search',
+            'roles.consumer',
+            'roles.merchant',
+            'roles.admin',
+            'nav.products',
+            'nav.profile',
+            'profile.avatar',
+            'nav.orders',
+            'profile.addresses',
+            'profile.payment',
+            'nav.logout',
+            'nav.login',
+            'nav.register',
+            'nav.menu',
+            'nav.home',
+            'nav.cart',
+            'nav.language',
+            'nav.switchRole'
+        ]
+        commonKeys.forEach(trackTranslation)
+    }, [])
+    
+    // 增强版的t函数，会记录使用的翻译键
+    const tWithTracking = (key: string, defaultValue?: string) => {
+        trackTranslation(key)
+        // 创建一个选项对象，如果有默认值则包含它
+        const options: TOptions = defaultValue ? { defaultValue } : {}
+        return t(key, options)
+    }
     
     // 使用 useEffect 监听媒体查询变化
     useEffect(() => {
@@ -90,16 +135,16 @@ export default function Template() {
             // 根据角色自动导航到对应页面
             if (newRole === 'merchant') {
                 navigate({ to: '/merchant' }).then(() => {
-                    console.log(`用户角色:${newRole}, 已跳转到商家路由`)
+                    log(`用户角色:${newRole}, 已跳转到商家路由`)
                 })
             } else if (newRole === 'admin') {
                 navigate({ to: '/admin' }).then(() => {
-                    console.log(`用户角色:${newRole}, 已跳转到管理员路由`)
+                    log(`用户角色:${newRole}, 已跳转到管理员路由`)
                 })
             } else {
                 // 普通用户角色导航到个人中心页面，而不是首页
                 navigate({ to: '/profile' }).then(() => {
-                    console.log(`用户角色:${newRole}, 已跳转到用户路由`)
+                    log(`用户角色:${newRole}, 已跳转到用户路由`)
                 // 跳转完成后的回调逻辑
                 })
             }
@@ -117,6 +162,14 @@ export default function Template() {
         }
     }
 
+    // 安全的路由定义
+    const routeMap = {
+        orders: '/orders' as any,
+        addresses: '/addresses' as any,
+        creditCards: '/credit_cards' as any,
+        logout: '/logout' as any,
+    }
+    
     return (
         <Box sx={{display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative'}}>
             <Box
@@ -148,7 +201,9 @@ export default function Template() {
                                             fontWeight: 'bold',
                                             color: 'primary.main',
                                             fontSize: {xs: '1.2rem', md: '1.5rem'}
-                                        }}>{t('nav.project', 'TT电商')}</Typography>
+                                        }}>
+                                {tWithTracking('nav.project', 'TT电商')}
+                            </Typography>
                         </Box>
                     </Link>
 
@@ -159,7 +214,7 @@ export default function Template() {
                                 size="lg"
                                 variant="soft"
                                 startDecorator={<SearchIcon/>}
-                                placeholder={t('nav.search', '搜索商品')}
+                                placeholder={tWithTracking('nav.search', '搜索商品')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyPress={handleKeyPress}
@@ -178,7 +233,7 @@ export default function Template() {
                                             }
                                         }}
                                     >
-                                        {t('actions.search', '搜索')}
+                                        {tWithTracking('actions.search', '搜索')}
                                     </Box>
                                 }
                                 sx={{
@@ -202,15 +257,15 @@ export default function Template() {
                                         onChange={(_, value) => handleRoleChange(value as string)}
                                         sx={{minWidth: 120}}
                                     >
-                                        <Option value="consumer">{t('roles.consumer', '消费者')}</Option>
-                                        <Option value="merchant">{t('roles.merchant', '商家')}</Option>
-                                        <Option value="admin">{t('roles.admin', '管理员')}</Option>
+                                        <Option value="consumer">{tWithTracking('roles.consumer', '消费者')}</Option>
+                                        <Option value="merchant">{tWithTracking('roles.merchant', '商家')}</Option>
+                                        <Option value="admin">{tWithTracking('roles.admin', '管理员')}</Option>
                                     </Select>
                                 </ListItem>
                             )}
                             <ListItem>
                                 <Link to="/products" search={{query: ''}} style={{textDecoration: 'none', color: 'inherit'}} onClick={handleNavLinkClick}>
-                                    <Typography level="title-lg">{t('nav.products', '商品')}</Typography>
+                                    <Typography level="title-lg">{tWithTracking('nav.products', '商品')}</Typography>
                                 </Link>
                             </ListItem>
                             <ListItem>
@@ -222,7 +277,7 @@ export default function Template() {
                             </ListItem>
                             <ListItem>
                                 <Link to="/profile" style={{textDecoration: 'none', color: 'inherit'}} onClick={handleNavLinkClick}>
-                                    <Typography level="title-lg">{t('nav.profile', '个人中心')}</Typography>
+                                    <Typography level="title-lg">{tWithTracking('nav.profile', '个人中心')}</Typography>
                                 </Link>
                             </ListItem>
                             <ListItem>
@@ -267,7 +322,7 @@ export default function Template() {
                                                 <Avatar
                                                     size="md"
                                                     src={user.account.avatar}
-                                                    alt={t('profile.avatar', '用户头像')}
+                                                    alt={tWithTracking('profile.avatar', '用户头像')}
                                                 />
                                             ) : (
                                                 <Person sx={{fontSize: 24}}/>
@@ -277,42 +332,42 @@ export default function Template() {
                                     {userLoggedIn ? (
                                         <>
                                             <MenuItem>
-                                                <Link to="/orders" style={{
+                                                <Link to={routeMap.orders} style={{
                                                     textDecoration: 'none',
                                                     color: 'inherit',
                                                     width: '100%'
-                                                }}>{t('nav.orders', '我的订单')}</Link>
+                                                }}>{tWithTracking('nav.orders', '我的订单')}</Link>
                                             </MenuItem>
                                             <MenuItem>
-                                                <Link to="/addresses" style={{
+                                                <Link to={routeMap.addresses} style={{
                                                     textDecoration: 'none',
                                                     color: 'inherit',
                                                     width: '100%'
-                                                }}>{t('profile.addresses', '收货地址')}</Link>
+                                                }}>{tWithTracking('profile.addresses', '收货地址')}</Link>
                                             </MenuItem>
                                             <MenuItem>
-                                                <Link to="/credit_cards" style={{
+                                                <Link to={routeMap.creditCards} style={{
                                                     textDecoration: 'none',
                                                     color: 'inherit',
                                                     width: '100%'
-                                                }}>{t('profile.payment', '支付方式')}</Link>
+                                                }}>{tWithTracking('profile.payment', '支付方式')}</Link>
                                             </MenuItem>
 
                                             <MenuItem>
-                                                <Link to="/logout" style={{
+                                                <Link to={routeMap.logout} style={{
                                                     textDecoration: 'none',
                                                     color: 'inherit',
                                                     width: '100%'
-                                                }}>{t('nav.logout', '退出登录')}</Link>
+                                                }}>{tWithTracking('nav.logout', '退出登录')}</Link>
                                             </MenuItem>
                                         </>
                                     ) : (
                                         <>
                                             <MenuItem onClick={() => goToLink(getSigninUrl())}>
-                                                {t('nav.login', '登录')}
+                                                {tWithTracking('nav.login', '登录')}
                                             </MenuItem>
                                             <MenuItem onClick={() => goToLink(getSigninUrl())}>
-                                                {t('nav.register', '注册')}
+                                                {tWithTracking('nav.register', '注册')}
                                             </MenuItem>
                                         </>
                                     )}
@@ -362,7 +417,7 @@ export default function Template() {
                 }}
             >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography level="title-lg">{t('nav.menu', '菜单')}</Typography>
+                    <Typography level="title-lg">{tWithTracking('nav.menu', '菜单')}</Typography>
                     <IconButton onClick={() => setMobileMenuOpen(false)}>
                         <CloseIcon />
                     </IconButton>
@@ -373,7 +428,7 @@ export default function Template() {
                     <Input
                         size="md"
                         variant="outlined"
-                        placeholder={t('nav.search', '搜索商品')}
+                        placeholder={tWithTracking('nav.search', '搜索商品')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyPress={handleKeyPress}
@@ -394,7 +449,7 @@ export default function Template() {
                             style={{ textDecoration: 'none', color: 'inherit', width: '100%' }}
                             onClick={handleNavLinkClick}
                         >
-                            <Typography level="title-md">{t('nav.home', '首页')}</Typography>
+                            <Typography level="title-md">{tWithTracking('nav.home', '首页')}</Typography>
                         </Link>
                     </ListItem>
                     <ListItem>
@@ -404,7 +459,7 @@ export default function Template() {
                             style={{ textDecoration: 'none', color: 'inherit', width: '100%' }}
                             onClick={handleNavLinkClick}
                         >
-                            <Typography level="title-md">{t('nav.products', '商品')}</Typography>
+                            <Typography level="title-md">{tWithTracking('nav.products', '商品')}</Typography>
                         </Link>
                     </ListItem>
                     <ListItem>
@@ -414,7 +469,7 @@ export default function Template() {
                             onClick={handleNavLinkClick}
                         >
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Typography level="title-md">{t('nav.cart', '购物车')}</Typography>
+                                <Typography level="title-md">{tWithTracking('nav.cart', '购物车')}</Typography>
                                 <Badge badgeContent={cart.items.length} color="primary" />
                             </Box>
                         </Link>
@@ -425,31 +480,31 @@ export default function Template() {
                             style={{ textDecoration: 'none', color: 'inherit', width: '100%' }}
                             onClick={handleNavLinkClick}
                         >
-                            <Typography level="title-md">{t('nav.profile', '个人中心')}</Typography>
+                            <Typography level="title-md">{tWithTracking('nav.profile', '个人中心')}</Typography>
                         </Link>
                     </ListItem>
                     <ListItem>
                         <Link 
-                            to="/orders" 
+                            to={routeMap.orders}
                             style={{ textDecoration: 'none', color: 'inherit', width: '100%' }}
                             onClick={handleNavLinkClick}
                         >
-                            <Typography level="title-md">{t('nav.orders', '我的订单')}</Typography>
+                            <Typography level="title-md">{tWithTracking('nav.orders', '我的订单')}</Typography>
                         </Link>
                     </ListItem>
                     
                     {userLoggedIn && (
                         <ListItem>
                             <Box sx={{ width: '100%' }}>
-                                <Typography level="body-sm" sx={{ mb: 1 }}>{t('nav.switchRole', '切换角色')}</Typography>
+                                <Typography level="body-sm" sx={{ mb: 1 }}>{tWithTracking('nav.switchRole', '切换角色')}</Typography>
                                 <Select
                                     value={user.account.role || 'consumer'}
                                     onChange={(_, value) => handleRoleChange(value as string)}
                                     sx={{ width: '100%' }}
                                 >
-                                    <Option value="consumer">{t('roles.consumer', '消费者')}</Option>
-                                    <Option value="merchant">{t('roles.merchant', '商家')}</Option>
-                                    <Option value="admin">{t('roles.admin', '管理员')}</Option>
+                                    <Option value="consumer">{tWithTracking('roles.consumer', '消费者')}</Option>
+                                    <Option value="merchant">{tWithTracking('roles.merchant', '商家')}</Option>
+                                    <Option value="admin">{tWithTracking('roles.admin', '管理员')}</Option>
                                 </Select>
                             </Box>
                         </ListItem>
@@ -457,7 +512,7 @@ export default function Template() {
                     
                     <ListItem>
                         <Box sx={{ width: '100%' }}>
-                            <Typography level="body-sm" sx={{ mb: 1 }}>{t('nav.language', '语言')}</Typography>
+                            <Typography level="body-sm" sx={{ mb: 1 }}>{tWithTracking('nav.language', '语言')}</Typography>
                             <LanguageSwitcher />
                         </Box>
                     </ListItem>
@@ -465,11 +520,11 @@ export default function Template() {
                     {userLoggedIn ? (
                         <ListItem>
                             <Link 
-                                to="/logout" 
+                                to={routeMap.logout}
                                 style={{ textDecoration: 'none', color: 'inherit', width: '100%' }}
                                 onClick={handleNavLinkClick}
                             >
-                                <Typography level="title-md" color="danger">{t('nav.logout', '退出登录')}</Typography>
+                                <Typography level="title-md" color="danger">{tWithTracking('nav.logout', '退出登录')}</Typography>
                             </Link>
                         </ListItem>
                     ) : (
@@ -481,7 +536,7 @@ export default function Template() {
                                 }}
                                 sx={{ width: '100%', cursor: 'pointer' }}
                             >
-                                <Typography level="title-md" color="primary">{t('nav.login', '登录/注册')}</Typography>
+                                <Typography level="title-md" color="primary">{tWithTracking('nav.login', '登录/注册')}</Typography>
                             </Box>
                         </ListItem>
                     )}
@@ -494,6 +549,9 @@ export default function Template() {
 
             {/* AI客服助手 */}
             <ChatAssistant/>
+            
+            {/* 翻译调试器（仅在开发环境中显示） */}
+            <TranslationDebugger />
         </Box>
     )
 }

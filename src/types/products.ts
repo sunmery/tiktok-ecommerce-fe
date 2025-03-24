@@ -2,10 +2,10 @@
 import {Timestamp} from "@/types/user.ts";
 
 export enum ProductStatus {
-    draft = 0,     // 草稿状态
-    pending = 1,  // 待审核
-    approved = 2, // 审核通过
-    rejected = 3  // 审核驳回
+    DRAFT = 0,     // 草稿状态
+    PENDING = 1,  // 待审核
+    APPROVED = 2, // 审核通过
+    REJECTED = 3  // 审核驳回
 }
 
 // 审核动作枚举
@@ -28,10 +28,7 @@ export interface ProductImage {
 }
 
 // 商品属性值类型
-export type AttributeValue =
-    | { stringValue: string }
-    | { arrayValue: string[] }
-    | { objectValue: Record<string, AttributeValue> }
+export type AttributeValue = string | string[] | Record<string, any>;
 
 // 审核信息
 export interface AuditInfo {
@@ -56,7 +53,7 @@ export interface Product {
     updatedAt: string;
     auditInfo?: AuditInfo;
     category?: CategoryInfo;
-    inventory: {
+    inventory?: {
         productId: string
         merchantId: string
         stock: number
@@ -68,6 +65,24 @@ export interface ProductResponse {
     state: string
     msg?: string
     data: Product
+    // 直接访问属性，兼容旧代码
+    id?: string
+    productId?: string
+    name?: string
+    description?: string
+    price?: number
+    status?: ProductStatus
+    merchantId?: string
+    images?: ProductImage[]
+    quantity?: number
+    inventory?: {
+        productId: string
+        merchantId: string
+        stock: number
+    }
+    category?: CategoryInfo
+    createdAt?: string
+    updatedAt?: string
 }
 
 // 创建商品响应
@@ -107,7 +122,10 @@ export interface CreateProductRequest {
 // 更新商品请求参数
 export interface UpdateProductRequest {
     id: string
-    product: Partial<Omit<Product, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'auditInfo'>>
+    product: Partial<Omit<Product, 'id' | 'createdAt' | 'updatedAt' | 'auditInfo'>> & {
+        status?: ProductStatus
+        stock?: number
+    }
 }
 
 // 提交审核请求参数

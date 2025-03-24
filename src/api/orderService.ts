@@ -63,4 +63,22 @@ export const orderService = {
       orderId: request.orderId
     });
   },
+
+  /**
+   * 更新订单状态
+   * PUT /v1/orders/{orderId}/status
+   */
+  updateOrderStatus: (orderId: string, status: any) => {
+    const url = httpClient.replacePathParams(
+      `${import.meta.env.VITE_ORDERS_URL}/{orderId}/status`,
+      { orderId: orderId }
+    );
+    return httpClient.put(url, JSON.stringify({
+      status: status
+    }), {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  },
 };

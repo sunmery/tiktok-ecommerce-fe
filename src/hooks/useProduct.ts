@@ -4,7 +4,9 @@ import type {
     CreateProductRequest,
     UpdateProductRequest,
     SubmitAuditRequest,
-} from '@/types/product'
+    Product,
+    Products
+} from '@/types/products.ts'
 import {AuditProductRequest, AuditRecordResponse, CreateProductResponse, ProductResponse} from "@/types/products.ts";
 
 // 获取商品详情的hook
@@ -19,49 +21,31 @@ export function useProduct(id: string, merchantId: string) {
                 
                 const response = await Promise.race([
                     api.get<ProductResponse>(`/v1/products/${id}?${params.toString()}`, { signal: controller.signal }),
-                    new Promise((_, reject) => 
+                    new Promise<never>((_, reject) => 
                         setTimeout(() => reject(new Error('请求超时')), 10000)
                     )
-                ]) as ProductResponse; // 添加类型断言
+                ]);
                 
-                const data = response.data;
-                
-                if (!data || typeof data !== 'object') {
-                    throw new Error('商品数据格式错误');
-                }
-
-                // 增强图片数据完整性检查和处理
-                const processedImages = (Array.isArray(data.images) ? data.images : []).map((img, index) => ({
-                    ...img,
-                    isPrimary: img.isPrimary ?? (index === 0),
-                    sortOrder: img.sortOrder ?? index,
-                    url: img.url || data.picture || 'https://picsum.photos/300/200'
-                }))
-
-                return {
-                    ...data,
-                    images: processedImages.length > 0 ? processedImages : [{
-                        url: data.picture || 'https://picsum.photos/300/200',
-                        isPrimary: true,
-                        sortOrder: 0
-                    }]
-                } as Product
-            } catch (err) {
+                return response as ProductResponse;
+            } catch (err: unknown) {
                 if (err instanceof DOMException && err.name === 'AbortError') {
                     throw new Error('请求已取消')
                 }
                 
-                if (err.message === '请求超时') {
+                if (err instanceof Error && err.message === '请求超时') {
                     throw new Error('获取商品详情超时，请稍后重试')
                 }
 
                 // 如果API请求失败，尝试使用mock数据
                 try {
                     const { mockProducts } = await import('@/utils/mockData')
-                    const mockProduct = mockProducts.find(p => p.id === id)
+                    const mockProduct = mockProducts.find((p: any) => p.id === id)
                     if (mockProduct) {
                         console.warn('使用mock数据显示商品详情:', mockProduct)
-                        return mockProduct
+                        return {
+                            state: "success",
+                            data: mockProduct
+                        } as ProductResponse
                     }
                 } catch (mockErr) {
                     console.error('加载mock数据失败:', mockErr)
@@ -73,17 +57,17 @@ export function useProduct(id: string, merchantId: string) {
         enabled: !!id,
         retry: 1,
         staleTime: 1000 * 60 * 5, // 5分钟内数据不会重新请求
-        cacheTime: 1000 * 60 * 30, // 缓存30分钟
+        gcTime: 1000 * 60 * 30, // 缓存30分钟
     })
 }
 
 // 搜索商品的hook
 export function useSearchProducts(name: string) {
-    return useQuery<Product>({
+    return useQuery<Products>({
         queryKey: ['products', 'search', name],
         queryFn: async () => {
             const params = new URLSearchParams({name})
-            return api.get<ProductResponse>(`/v1/products?${params.toString()}`)
+            return api.get<Products>(`/v1/products?${params.toString()}`)
         },
         enabled: !!name,
     })

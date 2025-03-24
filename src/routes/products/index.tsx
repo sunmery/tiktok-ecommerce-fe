@@ -15,6 +15,7 @@ import CardContent from "@mui/joy/CardContent";
 import Button from "@mui/joy/Button";
 import Breadcrumbs from '@/components/Breadcrumbs';
 import {styled} from '@mui/joy';
+import {useTranslation} from "react-i18next";
 
 export const Route = createFileRoute('/products/')({
     component: RouteComponent,
@@ -36,6 +37,7 @@ function Products() {
     const pageSize = 20
     const status = 2
     const snapshot = useSnapshot(cartStore)
+    const {t} = useTranslation();
 
     // 使用React Query获取商品列表
     const {data, isError, isLoading} = useQuery({
@@ -77,12 +79,12 @@ function Products() {
     if (isError) {
         return (
             <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
-                <Breadcrumbs pathMap={{'products': '全部商品'}}/>
-                <Typography level="h2" sx={{mb: 3}}>{search.query ? `搜索结果: ${search.query}` : '全部商品'}</Typography>
+                <Breadcrumbs pathMap={{'products': t('allProducts')}}/>
+                <Typography level="h2" sx={{mb: 3}}>{search.query ? `${t('searchResults')}: ${search.query}` : t('allProducts')}</Typography>
                 <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 8}}>
-                    <Typography color="danger" level="h4" sx={{mb: 2}}>加载数据失败</Typography>
-                    <Typography color="neutral" level="body-md" sx={{mb: 4}}>抱歉，无法获取商品数据，请稍后再试</Typography>
-                    <Button onClick={() => window.location.reload()} variant="outlined">重新加载</Button>
+                    <Typography color="danger" level="h4" sx={{mb: 2}}>{t('errorLoadingProducts')}</Typography>
+                    <Typography color="neutral" level="body-md" sx={{mb: 4}}>{t('tryAgain')}</Typography>
+                    <Button onClick={() => window.location.reload()} variant="outlined">{t('refresh')}</Button>
                 </Box>
             </Box>
         )
@@ -92,10 +94,10 @@ function Products() {
     if (isLoading) {
         return (
             <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
-                <Breadcrumbs pathMap={{'products': '全部商品'}}/>
-                <Typography level="h2" sx={{mb: 3}}>{search.query ? `搜索结果: ${search.query}` : '全部商品'}</Typography>
+                <Breadcrumbs pathMap={{'products': t('allProducts')}}/>
+                <Typography level="h2" sx={{mb: 3}}>{search.query ? `${t('searchResults')}: ${search.query}` : t('allProducts')}</Typography>
                 <Box sx={{display: 'flex', justifyContent: 'center', py: 8}}>
-                    <Typography level="body-lg">加载中...</Typography>
+                    <Typography level="body-lg">{t('loading')}</Typography>
                 </Box>
             </Box>
         )
@@ -165,21 +167,21 @@ function Products() {
     return (
         <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
             {/* 面包屑导航 */}
-            <Breadcrumbs pathMap={{'products': '全部商品'}}/>
+            <Breadcrumbs pathMap={{'products': t('allProducts')}}/>
 
             {/* 根据是否有搜索词显示不同标题 */}
             {search.query ? (
                 <Typography level="h2" sx={{mb: 3}}>
-                    搜索结果: {search.query} {displayData.length > 0 ? `(${displayData.length}个结果)` : ''}
+                    {t('searchResults')}: {search.query} {displayData.length > 0 ? `(${displayData.length}${t('results')})` : ''}
                 </Typography>
             ) : (
-                <Typography level="h2" sx={{mb: 3}}>全部商品</Typography>
+                <Typography level="h2" sx={{mb: 3}}>{t('allProducts')}</Typography>
             )}
 
             {/* 没有搜索结果时显示提示 */}
             {search.query && displayData.length === 0 && (
                 <Typography level="body-lg" sx={{mb: 3}}>
-                    没有找到与 "{search.query}" 相关的商品
+                    {t('noResultsFound')} "{search.query}" {t('noResultsFoundSuffix')}
                 </Typography>
             )}
 
@@ -240,13 +242,13 @@ function Products() {
                             if (e.defaultPrevented) return;
                             await navigate({
                                 to: `/products/${product.id}`,
-                                search: { merchantId: product.merchantId }
+                                search: (prev) => ({ ...prev, merchantId: product.merchantId })
                             });
                         }}
                     >
                         <AspectRatio ratio="4/3" objectFit="cover">
                             <img
-                                src={product.images && product.images.length > 0 ? product.images[0].imageUrl : "https://picsum.photos/300/200"}
+                                src={product.images && product.images.length > 0 ? product.images[0].url : "https://picsum.photos/300/200"}
                                 loading="lazy"
                                 alt={product.name}
                             />
@@ -285,7 +287,7 @@ function Products() {
                                 minHeight: '2.5em',
                                 mb: 1
                             }}>
-                                {product.description || '暂无描述'}
+                                {product.description || t('noDescription')}
                             </Typography>
                             
                             {product.category && (
@@ -302,7 +304,7 @@ function Products() {
                             
                             <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <Box>
-                                    <Typography level="body-xs" sx={{ color: 'text.secondary' }}>价格</Typography>
+                                    <Typography level="body-xs" sx={{ color: 'text.secondary' }}>{t('price')}</Typography>
                                     <Typography 
                                         level="h4" 
                                         sx={{ 
@@ -313,7 +315,7 @@ function Products() {
                                         ¥{product.price}
                                     </Typography>
                                     <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
-                                        库存: {product.inventory?.stock || product.quantity || 0}
+                                        {t('stock')}: {product.inventory?.stock || product.quantity || 0}
                                     </Typography>
                                 </Box>
                                 <Button
@@ -335,7 +337,7 @@ function Products() {
                                     }}
                                     disabled={(product.inventory?.stock || product.quantity || 0) <= 0}
                                 >
-                                    {(product.inventory?.stock || product.quantity || 0) > 0 ? '加入购物车' : '缺货'}
+                                    {(product.inventory?.stock || product.quantity || 0) > 0 ? t('addToCart') : t('outOfStock')}
                                 </Button>
                             </Box>
                         </CardContent>
@@ -343,7 +345,7 @@ function Products() {
                 ))}
             </Box>
             <Typography level="body-lg">
-                Cart Total: {snapshot.items.length} items
+                {t('cartTotal')}: {snapshot.items.length} {t('cartItems')}
             </Typography>
         </Box>
     );

@@ -65,6 +65,7 @@ export const cartStore: CartState = proxy<CartState>({
                     merchantId,
                     name,
                     quantity,
+                    price: 0, // 添加默认的价格，后续会通过产品信息更新
                     selected: true, // 新添加的商品默认选中
                 })
             }

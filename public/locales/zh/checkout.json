@@ -1,43 +1,58 @@
 {
   "title": "结算",
-  "summary": {
-    "title": "订单摘要",
-    "items": "商品",
-    "subtotal": "小计",
-    "shipping": "运费",
-    "tax": "税费",
-    "total": "总计"
+  "steps": {
+    "shipping": "收货信息",
+    "payment": "支付方式",
+    "review": "订单确认"
   },
   "shipping": {
-    "title": "收货信息",
-    "address": "收货地址",
-    "change": "更改",
-    "add": "添加新地址"
+    "title": "收货地址",
+    "addNew": "添加新地址",
+    "selectAddress": "选择收货地址",
+    "fullName": "收货人姓名",
+    "phone": "联系电话",
+    "address": "详细地址",
+    "city": "城市",
+    "state": "省份",
+    "zipCode": "邮政编码",
+    "country": "国家"
   },
   "payment": {
     "title": "支付方式",
-    "creditCard": "信用卡",
-    "alipay": "支付宝",
-    "wechat": "微信支付",
-    "change": "更改",
-    "add": "添加新卡"
+    "selectMethod": "选择支付方式",
+    "cardNumber": "卡号",
+    "expiryDate": "有效期",
+    "cvv": "安全码",
+    "nameOnCard": "持卡人姓名"
   },
-  "contact": {
-    "title": "联系信息",
-    "email": "电子邮箱",
-    "phone": "手机号码"
-  },
-  "actions": {
-    "placeOrder": "提交订单",
-    "backToCart": "返回购物车",
-    "continue": "继续购物"
+  "review": {
+    "title": "订单确认",
+    "items": "商品清单",
+    "shipping": "收货信息",
+    "payment": "支付信息",
+    "total": "总计",
+    "placeOrder": "提交订单"
   },
   "messages": {
     "processing": "正在处理您的订单...",
     "success": "订单提交成功！",
-    "error": "订单提交失败，请重试",
-    "emptyCart": "您的购物车是空的，无法结算",
-    "addressRequired": "请选择收货地址",
-    "paymentRequired": "请选择支付方式"
-  }
+    "error": "提交订单时发生错误，请重试"
+  },
+  "shippingAddress": "收货地址",
+  "billingAddress": "账单地址",
+  "orderSummary": "订单摘要",
+  "subtotal": "小计",
+  "shipping": "运费",
+  "tax": "税费",
+  "total": "总计",
+  "placeOrder": "下单",
+  "backToCart": "返回购物车",
+  "sameAsShipping": "与收货地址相同",
+  "selectAddress": "选择地址",
+  "addNewAddress": "添加新地址",
+  "cardNumber": "卡号",
+  "expiryDate": "有效期",
+  "cvv": "CVV",
+  "orderComplete": "感谢您的订单！",
+  "orderNumber": "订单号"
 }

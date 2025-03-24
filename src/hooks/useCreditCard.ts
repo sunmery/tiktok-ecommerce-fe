@@ -54,12 +54,12 @@ export function useUpdateCreditCard() {
   const queryClient = useQueryClient()
 
   return useMutation<CardsReply, Error, CreditCard>({
-    mutationFn: (creditCard) => userService.updateCreditCard(creditCard),
-    onSuccess: () => {
+    mutationFn: (card) => userService.updateCreditCard(card),
+    onSuccess: (_, card) => {
       // 更新信用卡成功后刷新信用卡列表和详情
       queryClient.invalidateQueries({ queryKey: ['creditCards'] })
-      if (creditCard.id) {
-        queryClient.invalidateQueries({ queryKey: ['creditCard', creditCard.id] })
+      if (card.id) {
+        queryClient.invalidateQueries({ queryKey: ['creditCard', card.id] })
       }
     },
   })

@@ -1,0 +1,27 @@
+{
+  "title": "Shopping Cart",
+  "empty": {
+    "title": "Your cart is empty",
+    "description": "Add some items to your cart!",
+    "continueShopping": "Continue Shopping"
+  },
+  "items": {
+    "remove": "Remove",
+    "quantity": "Quantity",
+    "price": "Price",
+    "total": "Total"
+  },
+  "summary": {
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "tax": "Tax",
+    "total": "Total",
+    "checkout": "Checkout",
+    "continueShopping": "Continue Shopping"
+  },
+  "messages": {
+    "itemRemoved": "Item removed from cart",
+    "quantityUpdated": "Quantity updated",
+    "error": "Error updating cart"
+  }
+} 

@@ -32,6 +32,10 @@ export interface ListOrderResp {
 export interface OrderItem {
   item: CartItem
   cost: number
+  id: string
+  name: string
+  price: number
+  quantity: number
 }
 
 // 订单详情
@@ -44,6 +48,7 @@ export interface Order {
   email: string
   createdAt: string
   paymentStatus: PaymentStatus
+  orderItems?: OrderItem[]
 }
 
 // 订单列表

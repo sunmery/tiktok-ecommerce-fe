@@ -15,7 +15,8 @@ import {
     Input,
     Textarea,
     Snackbar,
-    Alert
+    Alert,
+    IconButton
 } from '@mui/joy'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
@@ -23,8 +24,11 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import UploadIcon from '@mui/icons-material/Upload'
 import PublishIcon from '@mui/icons-material/Publish'
 import UnpublishedIcon from '@mui/icons-material/Unpublished'
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 import {Product, ProductStatus, AuditProductRequest, AuditRecordResponse, CreateProductResponse, ProductResponse} from '@/types/products.ts'
 import {productService} from '@/api/productService'
+import {ProductAttributes} from '@/components/ui/ProductAttributes'
+import { ProductEditForm } from '@/components/ProductEditForm'
 
 export const Route = createLazyFileRoute('/merchant/products/')({
     component: Products,
@@ -35,10 +39,14 @@ export default function Products() {
     const [open, setOpen] = useState(false)
     const [editProduct, setEditProduct] = useState<Product | null>(null)
     const [formData, setFormData] = useState<Product>()
-    const [snackbar, setSnackbar] = useState({
+    const [snackbar, setSnackbar] = useState<{
+        open: boolean;
+        message: string;
+        severity: 'success' | 'danger';
+    }>({
         open: false,
         message: '',
-        severity: 'success' as 'success' | 'error'
+        severity: 'success'
     })
     const [loading, setLoading] = useState(false)
     const [uploadOpen, setUploadOpen] = useState(false)
@@ -65,7 +73,7 @@ export default function Products() {
             setSnackbar({
                 open: true,
                 message: '加载产品失败',
-                severity: 'error'
+                severity: 'danger'
             })
         } finally {
             setLoading(false)
@@ -87,7 +95,7 @@ export default function Products() {
             setSnackbar({
                 open: true,
                 message: '删除产品失败',
-                severity: 'error'
+                severity: 'danger'
             })
         } finally {
             setLoading(false)
@@ -141,10 +149,28 @@ export default function Products() {
                         console.log('永久访问URL:', permanentUrl);
 
                         // 将永久URL保存到表单数据中
-                        setFormData(prev => ({
-                            ...prev,
-                            image: permanentUrl
-                        }))
+                        setFormData(prev => {
+                            if (!prev) return {
+                                id: '',
+                                name: '',
+                                description: '',
+                                price: 0,
+                                status: ProductStatus.DRAFT,
+                                merchantId: '',
+                                picture: permanentUrl,
+                                images: [{url: permanentUrl, isPrimary: true, sortOrder: 0}],
+                                quantity: 0,
+                                attributes: {},
+                                createdAt: new Date().toISOString(),
+                                updatedAt: new Date().toISOString(),
+                                inventory: {productId: '', merchantId: '', stock: 0}
+                            };
+                            return {
+                                ...prev,
+                                picture: permanentUrl,
+                                images: [{url: permanentUrl, isPrimary: true, sortOrder: 0}]
+                            };
+                        })
 
                         setSnackbar({
                             open: true,
@@ -159,7 +185,7 @@ export default function Products() {
                     setSnackbar({
                         open: true,
                         message: '上传文件失败',
-                        severity: 'error'
+                        severity: 'danger'
                     })
                 })
             }
@@ -168,7 +194,7 @@ export default function Products() {
             setSnackbar({
                 open: true,
                 message: '获取上传URL失败',
-                severity: 'error'
+                severity: 'danger'
             })
         })
     }
@@ -189,11 +215,22 @@ export default function Products() {
             loadProducts() // 重新加载产品列表
         } catch (error) {
             console.error('提交审核失败:', error)
-            setSnackbar({
-                open: true,
-                message: '提交审核失败',
-                severity: 'error'
-            })
+            try {
+                // 处理错误类型
+                const errorMsg = error instanceof Error ? error.message : String(error);
+                setSnackbar({
+                    open: true,
+                    message: '提交审核失败: ' + errorMsg,
+                    severity: 'danger'
+                })
+            } catch (error) {
+                console.error('提交审核失败:', error)
+                setSnackbar({
+                    open: true,
+                    message: '提交审核失败',
+                    severity: 'danger'
+                })
+            }
         } finally {
             setLoading(false)
         }
@@ -215,8 +252,8 @@ export default function Products() {
             await productService.updateProduct({
                 id: product.id,
                 product: {
-                    ...product,
-                    status: ProductStatus.DRAFT, // 确保状态为草稿状态
+                    ...product
+                    // 注意：状态应该在后端更改，前端无法直接修改status字段
                 }
             })
             setSnackbar({
@@ -227,11 +264,22 @@ export default function Products() {
             loadProducts() // 重新加载产品列表
         } catch (error) {
             console.error('下架商品失败:', error)
-            setSnackbar({
-                open: true,
-                message: '下架商品失败',
-                severity: 'error'
-            })
+            try {
+                // 处理错误类型
+                const errorMsg = error instanceof Error ? error.message : String(error);
+                setSnackbar({
+                    open: true,
+                    message: '更新商品失败: ' + errorMsg,
+                    severity: 'danger'
+                })
+            } catch (error) {
+                console.error('更新商品失败:', error)
+                setSnackbar({
+                    open: true,
+                    message: '更新商品失败',
+                    severity: 'danger'
+                })
+            }
         } finally {
             setLoading(false)
         }
@@ -248,11 +296,19 @@ export default function Products() {
                     onClick={() => {
                         setEditProduct(null)
                         setFormData({
+                            id: '',
                             name: '',
                             description: '',
                             price: 0,
-                            stock: 0,
-                            image: ''
+                            status: ProductStatus.DRAFT,
+                            merchantId: '',
+                            picture: '',
+                            images: [],
+                            quantity: 0,
+                            attributes: {},
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString(),
+                            inventory: {productId: '', merchantId: '', stock: 0}
                         })
                         setOpen(true)
                     }}
@@ -265,11 +321,12 @@ export default function Products() {
                 <Table>
                     <thead>
                     <tr>
-                        <th>产品名称</th>
+                        <th>名称</th>
                         <th>描述</th>
                         <th>价格</th>
                         <th>库存</th>
                         <th>状态</th>
+                        <th>属性</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -279,8 +336,13 @@ export default function Products() {
                             <td>{product.name}</td>
                             <td>{product.description}</td>
                             <td>{product.price}</td>
-                            <td>{product.stock}</td>
+                            <td>{product.inventory?.stock || 0}</td>
                             <td>{product.status}</td>
+                            <td>
+                                {product.attributes && Object.keys(product.attributes).length > 0 && (
+                                    <ProductAttributes attributes={product.attributes} />
+                                )}
+                            </td>
                             <td>
                                 <Box sx={{display: 'flex', gap: 1, flexWrap: 'wrap'}}>
                                     <Button
@@ -290,13 +352,7 @@ export default function Products() {
                                         startDecorator={<EditIcon/>}
                                         onClick={() => {
                                             setEditProduct(product)
-                                            setFormData({
-                                                name: product.name,
-                                                description: product.description,
-                                                price: product.price,
-                                                stock: product.stock || 0,
-                                                image: product.images?.[0]?.url || ''
-                                            })
+                                            setFormData(product)
                                             setOpen(true)
                                         }}
                                     >
@@ -406,6 +462,61 @@ export default function Products() {
                 </Card>
             </Modal>
 
+            {/* 添加商品编辑表单的 Modal */}
+            <Modal
+                open={open}
+                onClose={() => setOpen(false)}
+                sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+            >
+                <Card sx={{ maxWidth: 800, mx: 2, maxHeight: '90vh', overflow: 'auto' }}>
+                    <CardContent>
+                        <Typography level="h3" sx={{ mb: 2 }}>
+                            {editProduct ? '编辑商品' : '添加商品'}
+                        </Typography>
+                        <ProductEditForm
+                            product={editProduct || undefined}
+                            onSubmit={async (product) => {
+                                try {
+                                    setLoading(true);
+                                    if (editProduct) {
+                                        await productService.updateProduct({
+                                            id: editProduct.id,
+                                            product,
+                                        });
+                                        setSnackbar({
+                                            open: true,
+                                            message: '商品更新成功',
+                                            severity: 'success',
+                                        });
+                                    } else {
+                                        await productService.createProduct({
+                                            product: product as Omit<Product, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'auditInfo'>,
+                                        });
+                                        setSnackbar({
+                                            open: true,
+                                            message: '商品创建成功',
+                                            severity: 'success',
+                                        });
+                                    }
+                                    setOpen(false);
+                                    loadProducts();
+                                } catch (error) {
+                                    console.error('保存商品失败:', error);
+                                    setSnackbar({
+                                        open: true,
+                                        message: '保存商品失败',
+                                        severity: 'danger',
+                                    });
+                                } finally {
+                                    setLoading(false);
+                                }
+                            }}
+                            onCancel={() => setOpen(false)}
+                        />
+                    </CardContent>
+                </Card>
+            </Modal>
+
             {/* 提示消息 */}
             <Snackbar
                 open={snackbar.open}
@@ -413,8 +524,13 @@ export default function Products() {
                 onClose={() => setSnackbar(prev => ({...prev, open: false}))}
             >
                 <Alert
-                    color={snackbar.severity}
                     variant="soft"
+                    color={snackbar.severity}
+                    endDecorator={
+                        <IconButton variant="soft" size="sm" onClick={() => setSnackbar(prev => ({...prev, open: false}))}>
+                            <CloseRoundedIcon/>
+                        </IconButton>
+                    }
                 >
                     {snackbar.message}
                 </Alert>

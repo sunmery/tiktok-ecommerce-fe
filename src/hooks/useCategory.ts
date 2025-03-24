@@ -111,7 +111,7 @@ export function useDeleteCategory() {
 export function useCategoryClosure(categoryId: string) {
   return useQuery<ClosureRelations>({
     queryKey: ['categories', 'closure', categoryId],
-    queryFn: () => categoryService.getClosure({ categoryId: categoryId }),
+    queryFn: () => categoryService.getClosureRelations({ categoryId: categoryId }),
     enabled: !!categoryId, // 只有当categoryId存在时才发起请求
   })
 }

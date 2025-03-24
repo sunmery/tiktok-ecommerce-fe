@@ -1,0 +1,58 @@
+{
+  "title": "My Account",
+  "sections": {
+    "profile": "Profile",
+    "orders": "My Orders",
+    "addresses": "Addresses",
+    "payment": "Payment Methods",
+    "settings": "Settings"
+  },
+  "profile": {
+    "title": "Profile Information",
+    "avatar": "Avatar",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "update": "Update Profile"
+  },
+  "orders": {
+    "title": "My Orders",
+    "all": "All Orders",
+    "pending": "Pending",
+    "processing": "Processing",
+    "shipped": "Shipped",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "viewDetails": "View Details"
+  },
+  "addresses": {
+    "title": "Addresses",
+    "addNew": "Add New Address",
+    "edit": "Edit Address",
+    "delete": "Delete Address",
+    "default": "Set as Default"
+  },
+  "payment": {
+    "title": "Payment Methods",
+    "addNew": "Add New Card",
+    "edit": "Edit Card",
+    "delete": "Delete Card",
+    "default": "Set as Default"
+  },
+  "settings": {
+    "title": "Account Settings",
+    "language": "Language",
+    "notifications": "Notifications",
+    "privacy": "Privacy",
+    "security": "Security"
+  },
+  "messages": {
+    "profileUpdated": "Profile updated successfully",
+    "addressAdded": "New address added",
+    "addressUpdated": "Address updated",
+    "addressDeleted": "Address deleted",
+    "cardAdded": "New card added",
+    "cardUpdated": "Card updated",
+    "cardDeleted": "Card deleted"
+  }
+} 

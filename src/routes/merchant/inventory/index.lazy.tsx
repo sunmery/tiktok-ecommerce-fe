@@ -15,7 +15,7 @@ import {
     Table,
     Typography
 } from '@mui/joy'
-import {Product} from '@/types/product'
+import {Product} from '@/types/products'
 import {productService} from '@/api/productService'
 
 export const Route = createLazyFileRoute('/merchant/inventory/')({
@@ -361,7 +361,7 @@ export default function Inventory() {
                 onClose={() => setSnackbar(prev => ({...prev, open: false}))}
             >
                 <Alert
-                    color={snackbar.severity}
+                    color={snackbar.severity === 'error' ? 'danger' : 'success'}
                     variant="soft"
                 >
                     {snackbar.message}

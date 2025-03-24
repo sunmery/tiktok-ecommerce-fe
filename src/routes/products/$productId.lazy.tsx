@@ -10,22 +10,26 @@ export const Route = createLazyFileRoute('/products/$productId')({component: Pro
 export default function ProductDetail() {
     const {productId} = useParams({from: '/products/$productId'})
     const merchantId = new URLSearchParams(window.location.search).get('merchantId') || ''
-    const {data: product, isLoading: loading, error} = useProduct(productId, merchantId)
+    const {data: productResponse, isLoading: loading, error} = useProduct(productId, merchantId)
+
+    // 确保我们正确获取商品数据，无论是在 productResponse.data 中还是直接在 productResponse 中
+    const product = productResponse?.data || productResponse
 
     // 添加到购物车
     const addToCartHandler = () => {
         if (product) {
             try {
                 // 确保productId不为空
-                if (!product.id && !product.productId) {
-                    throw new Error('商品ID不能为空');
-                }
+                const productIdentifier = typeof product === 'object' && 'id' in product && product.id ? product.id : '';
+                const productName = product.name || '';
+                const merchantId = product.merchantId || '';
+                const imageUrl = product.images && product.images[0] && product.images[0].url ? product.images[0].url : '';
                 
                 cartStore.addItem(
-                    product.productId || product.id,
-                    product.name,
-                    product.merchantId,
-                    product.images?.[0]?.url || '',
+                    productIdentifier,
+                    productName,
+                    merchantId,
+                    imageUrl,
                     1
                 );
             } catch (error) {
@@ -56,12 +60,19 @@ export default function ProductDetail() {
         )
     }
 
+    const productId_string = productId || '';
+    const productName = product.name || '';
+    const productIdValue = product.id || '';
+    const merchantIdValue = product.merchantId || '';
+    const createdAt = product.createdAt ? new Date(product.createdAt).toLocaleString() : '未知';
+    const updatedAt = product.updatedAt ? new Date(product.updatedAt).toLocaleString() : '未知';
+
     return (
         <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
             <Breadcrumbs
                 pathMap={{
                     'products': '全部商品',
-                    [productId]: product.name
+                    [productId_string]: productName
                 }}
             />
 
@@ -70,8 +81,8 @@ export default function ProductDetail() {
                     <Card variant="outlined">
                         <AspectRatio ratio="1" objectFit="contain">
                             <img
-                                src={product.images?.[0]?.url}
-                                alt={product.name}
+                                src={product.images?.[0]?.url || ''}
+                                alt={productName}
                                 loading="lazy"
                                 style={{ objectFit: 'contain', width: '100%', height: '100%' }}
                                 onError={(e) => {
@@ -86,7 +97,7 @@ export default function ProductDetail() {
                 <Grid xs={12} md={6}>
                     <Card variant="outlined" sx={{height: '100%'}}>
                         <CardContent>
-                            <Typography level="h2">{product.name}</Typography>
+                            <Typography level="h2">{productName}</Typography>
 
                             {product.category && (
                                 <Box sx={{display: 'flex', gap: 1, mt: 1, mb: 2, flexWrap: 'wrap'}}>
@@ -100,24 +111,20 @@ export default function ProductDetail() {
                                 ¥{(product.price || 0).toLocaleString()}
                             </Typography>
 
-                            <Typography level="body-md" sx={{mt: 2}}>
-                                库存: {product.inventory?.stock || product.quantity || 0} 件
+                            <Typography level="body-md" sx={{mt: 1}}>
+                                商品ID: {productIdValue}
                             </Typography>
 
                             <Typography level="body-md" sx={{mt: 1}}>
-                                商品ID: {product.id}
+                                商家ID: {merchantIdValue}
                             </Typography>
 
                             <Typography level="body-md" sx={{mt: 1}}>
-                                商家ID: {product.merchantId}
+                                创建时间: {createdAt}
                             </Typography>
 
                             <Typography level="body-md" sx={{mt: 1}}>
-                                创建时间: {new Date(product.createdAt).toLocaleString()}
-                            </Typography>
-
-                            <Typography level="body-md" sx={{mt: 1}}>
-                                更新时间: {new Date(product.updatedAt).toLocaleString()}
+                                更新时间: {updatedAt}
                             </Typography>
 
                             <Divider sx={{my: 2}}/>
@@ -126,22 +133,10 @@ export default function ProductDetail() {
                                 商品描述
                             </Typography>
                             <Typography level="body-md">
-                                {product.description}
+                                {product.description || '暂无描述'}
                             </Typography>
 
                             <Divider sx={{my: 2}}/>
-
-                            <Typography level="body-lg" sx={{
-                                mb: 2,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                display: '-webkit-box',
-                                WebkitLineClamp: 3,
-                                WebkitBoxOrient: 'vertical',
-                                minHeight: '3.6em'
-                            }}>
-                                {product.description || '暂无描述'}
-                            </Typography>
 
                             <Box sx={{display: 'flex', alignItems: 'center', gap: 2, mt: 3}}>
                                 <Typography>库存: {product.inventory?.stock || product.quantity || 0}</Typography>

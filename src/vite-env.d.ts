@@ -1,4 +1,24 @@
 /// <reference types="vite/client" />
+/// <reference types="jest" />
+/// <reference types="@testing-library/jest-dom" />
+
+// 确保.png文件可以被导入
+declare module '*.png' {
+	const content: any;
+	export default content;
+}
+
+// 确保.svg文件可以被导入
+declare module '*.svg' {
+	const content: any;
+	export default content;
+}
+
+// 扩展Window接口以支持自定义属性
+interface Window {
+	// 如果有需要在Window上定义的全局属性，可以在这里添加
+	__TANSTACK_ROUTER_DEVTOOLS_GLOBAL_HANDLE?: any;
+}
 
 interface ImportMetaEnv {
 	readonly VITE_APP_TITLE: string

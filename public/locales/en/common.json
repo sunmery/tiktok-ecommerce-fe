@@ -1,8 +1,16 @@
 {
   "app": {
-    "title": "TikTok E-commerce",
-    "slogan": "Shopping And Department Store.",
-    "name": "Shopcart"
+    "title": "TikTok E-commerce Platform",
+    "slogan": "Shopping and Department Store.",
+    "name": "Shopping Cart",
+    "steps": "Steps",
+    "step1": "Click the user icon",
+    "step2": "Click the Login button",
+    "step3": "If you are a new user, click the Register button",
+    "step4": "If you are an existing user, enter your username and password",
+    "step5": "Return to the index page and click on products to add them to your cart",
+    "step6": "Click the Cart page to check your items",
+    "step7": "Click the Payment button to proceed with the checkout"
   },
   "nav": {
     "home": "Home",
@@ -13,7 +21,7 @@
     "login": "Login",
     "logout": "Logout",
     "register": "Register",
-    "search": "Search products"
+    "search": "Search Products"
   },
   "actions": {
     "submit": "Submit",
@@ -57,5 +65,26 @@
     "defaultResponse": "Thank you for your inquiry, we will process your request as soon as possible.",
     "error": "Sorry, an error occurred. Please try again later.",
     "poweredBy": "We run on Chatra"
+  },
+  "loading": "Loading...",
+  "error": "An error occurred",
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "edit": "Edit",
+  "add": "Add",
+  "search": "Search",
+  "language": "Language",
+  "language.switch": "Switch Language",
+  "welcome": "Welcome to Lisa TikTok E-Commerce",
+  "navigation": {
+    "home": "Home",
+    "products": "Products",
+    "cart": "Cart",
+    "orders": "Orders",
+    "profile": "Profile",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
   }
 }

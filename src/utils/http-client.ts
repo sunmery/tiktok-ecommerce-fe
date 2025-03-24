@@ -73,8 +73,8 @@ async function request<T>(url: string, method: HttpMethod, options: RequestOptio
     const headers = new Headers(fetchOptions.headers);
     // 为所有请求添加Authorization和token头
     if (!['GET', 'OPTIONS'].includes(method)) {
-  headers.set('Content-Type', headers.has('Content-Type') ? headers.get('Content-Type')! : 'application/json');
-}
+        headers.set('Content-Type', headers.has('Content-Type') ? headers.get('Content-Type')! : 'application/json');
+    }
 
     // 获取token并确保正确设置Authorization头
     const token = localStorage.getItem('token');
@@ -103,7 +103,7 @@ async function request<T>(url: string, method: HttpMethod, options: RequestOptio
 
         // 检查响应内容类型
         const contentType = response.headers.get('content-type');
-        
+
         // 解析响应数据
         let data;
         if (contentType && contentType.includes('application/json')) {

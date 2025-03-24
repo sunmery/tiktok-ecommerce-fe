@@ -294,7 +294,7 @@ export default function InventoryAlerts() {
         onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
       >
         <Alert
-          color={snackbar.severity}
+          color={snackbar.severity === 'error' ? 'danger' : 'success'}
           variant="soft"
         >
           {snackbar.message}

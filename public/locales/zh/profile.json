@@ -1,46 +1,58 @@
 {
   "title": "个人中心",
-  "info": {
-    "title": "个人信息",
-    "name": "姓名",
-    "email": "电子邮箱",
-    "phone": "电话号码",
-    "edit": "编辑信息"
+  "sections": {
+    "profile": "个人信息",
+    "orders": "我的订单",
+    "addresses": "收货地址",
+    "payment": "支付方式",
+    "settings": "账户设置"
   },
-  "addresses": {
-    "title": "我的地址",
-    "default": "默认地址",
-    "add": "添加新地址",
-    "edit": "编辑地址",
-    "delete": "删除地址",
-    "empty": "您还没有添加任何地址"
+  "profile": {
+    "title": "个人信息",
+    "avatar": "头像",
+    "name": "姓名",
+    "email": "邮箱",
+    "phone": "手机号",
+    "update": "更新信息"
   },
   "orders": {
     "title": "我的订单",
-    "view": "查看全部",
-    "empty": "您还没有任何订单",
-    "status": {
-      "pending": "待付款",
-      "processing": "处理中",
-      "shipped": "已发货",
-      "delivered": "已送达",
-      "cancelled": "已取消"
-    }
+    "all": "全部订单",
+    "pending": "待付款",
+    "processing": "处理中",
+    "shipped": "已发货",
+    "delivered": "已送达",
+    "cancelled": "已取消",
+    "viewDetails": "查看详情"
+  },
+  "addresses": {
+    "title": "收货地址",
+    "addNew": "添加新地址",
+    "edit": "编辑地址",
+    "delete": "删除地址",
+    "default": "设为默认"
   },
   "payment": {
     "title": "支付方式",
-    "cards": "我的银行卡",
-    "add": "添加新卡",
-    "edit": "编辑卡信息",
-    "delete": "删除卡",
-    "empty": "您还没有添加任何支付方式"
+    "addNew": "添加新卡",
+    "edit": "编辑卡片",
+    "delete": "删除卡片",
+    "default": "设为默认"
   },
   "settings": {
     "title": "账户设置",
-    "language": "语言偏好",
+    "language": "语言设置",
     "notifications": "通知设置",
     "privacy": "隐私设置",
-    "security": "安全设置",
-    "logout": "退出登录"
+    "security": "安全设置"
+  },
+  "messages": {
+    "profileUpdated": "个人信息已更新",
+    "addressAdded": "新地址已添加",
+    "addressUpdated": "地址已更新",
+    "addressDeleted": "地址已删除",
+    "cardAdded": "新卡片已添加",
+    "cardUpdated": "卡片信息已更新",
+    "cardDeleted": "卡片已删除"
   }
 }

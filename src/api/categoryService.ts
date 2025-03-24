@@ -5,6 +5,7 @@
 
 import {
     Categories,
+    Category,
     ClosureRelations,
     CreateCategoryRequest,
     DeleteCategoryRequest,
@@ -30,11 +31,6 @@ import {
 /**
  * 分类服务API
  */
-export interface Category {
-    id: number
-    name: string
-    parentId?: number
-}
 
 export const categoryService = {
     /**

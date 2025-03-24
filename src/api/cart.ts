@@ -4,7 +4,6 @@
  */
 
 import { cartService } from './cartService';
-import type { CartItem as ApiCartItem } from '@/types/cart';
 import { cartStore } from '@/store/cartStore';
 import type { CartItem } from '@/types/cart';
 

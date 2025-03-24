@@ -10,7 +10,7 @@ import {
     RemoveCartItemResp,
     UpsertItemReq,
     UpsertItemResp,
-} from '@/types/carts';
+} from '@/types/cart';
 import { api } from './config';
 
 /**

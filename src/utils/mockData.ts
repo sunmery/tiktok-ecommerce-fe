@@ -12,7 +12,7 @@ export const mockProducts: Product[] = [
     name: 'iPhone 15 Pro',
     description: '最新款苹果手机，搭载A17芯片，性能强劲',
     price: 8999,
-    status: ProductStatus.approved,
+    status: ProductStatus.APPROVED,
     merchantId: '1001',
     images: [{
       url: 'https://picsum.photos/id/1/300/200',
@@ -39,7 +39,7 @@ export const mockProducts: Product[] = [
     name: '华为Mate 60 Pro',
     description: '华为旗舰手机，搭载麒麟9000芯片',
     price: 6999,
-    status: ProductStatus.approved,
+    status: ProductStatus.APPROVED,
     merchantId: '1002',
     images: [{
       url: 'https://picsum.photos/id/2/300/200',
@@ -66,7 +66,7 @@ export const mockProducts: Product[] = [
     name: 'MacBook Pro 16英寸',
     description: '搭载M2 Pro芯片，性能强劲的专业笔记本',
     price: 18999,
-    status: ProductStatus.approved,
+    status: ProductStatus.APPROVED,
     merchantId: '1003',
     images: [{
       url: 'https://picsum.photos/id/3/300/200',
@@ -93,7 +93,7 @@ export const mockProducts: Product[] = [
     name: '戴尔XPS 15',
     description: '轻薄高性能笔记本，适合商务人士',
     price: 12999,
-    status: ProductStatus.approved,
+    status: ProductStatus.APPROVED,
     merchantId: '1003',
     images: [{
       url: 'https://picsum.photos/id/4/300/200',
@@ -120,7 +120,7 @@ export const mockProducts: Product[] = [
     name: '索尼WH-1000XM5',
     description: '顶级降噪耳机，音质出色',
     price: 2999,
-    status: ProductStatus.approved,
+    status: ProductStatus.APPROVED,
     merchantId: '1004',
     images: [{
       url: 'https://picsum.photos/id/5/300/200',
@@ -147,7 +147,7 @@ export const mockProducts: Product[] = [
     name: 'iPad Pro 12.9英寸',
     description: 'M2芯片加持的专业平板电脑',
     price: 8499,
-    status: ProductStatus.approved,
+    status: ProductStatus.APPROVED,
     merchantId: '1001',
     images: [{
       url: 'https://picsum.photos/id/6/300/200',
@@ -174,7 +174,7 @@ export const mockProducts: Product[] = [
     name: '小米电视6 OLED 65英寸',
     description: '高端OLED电视，画质细腻',
     price: 6999,
-    status: ProductStatus.approved,
+    status: ProductStatus.APPROVED,
     merchantId: '1005',
     images: [{
       url: 'https://picsum.photos/id/7/300/200',
@@ -201,7 +201,7 @@ export const mockProducts: Product[] = [
     name: '海尔冰箱BCD-470WDPG',
     description: '对开门冰箱，风冷无霜',
     price: 4999,
-    status: ProductStatus.approved,
+    status: ProductStatus.APPROVED,
     merchantId: '1006',
     images: [{
       url: 'https://picsum.photos/id/8/300/200',
@@ -228,7 +228,7 @@ export const mockProducts: Product[] = [
     name: 'Nike Air Max 270',
     description: '舒适透气的运动鞋',
     price: 1299,
-    status: ProductStatus.approved,
+    status: ProductStatus.APPROVED,
     merchantId: '1007',
     images: [{
       url: 'https://picsum.photos/id/9/300/200',
@@ -255,7 +255,7 @@ export const mockProducts: Product[] = [
     name: 'Adidas三叶草卫衣',
     description: '经典款卫衣，舒适保暖',
     price: 699,
-    status: ProductStatus.approved,
+    status: ProductStatus.APPROVED,
     merchantId: '1007',
     images: [{
       url: 'https://picsum.photos/id/10/300/200',
@@ -282,7 +282,7 @@ export const mockProducts: Product[] = [
     name: 'SK-II神仙水',
     description: '明星产品，改善肤质',
     price: 1599,
-    status: ProductStatus.approved,
+    status: ProductStatus.APPROVED,
     merchantId: '1008',
     images: [{
       url: 'https://picsum.photos/id/11/300/200',
@@ -309,7 +309,7 @@ export const mockProducts: Product[] = [
     name: '兰蔻小黑瓶精华',
     description: '抗老精华，改善肌肤状态',
     price: 1299,
-    status: ProductStatus.approved,
+    status: ProductStatus.APPROVED,
     merchantId: '1008',
     images: [{
       url: 'https://picsum.photos/id/12/300/200',

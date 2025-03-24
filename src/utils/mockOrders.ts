@@ -9,12 +9,15 @@ import { Address } from '@/types/addresses';
 // 模拟地址
 const mockAddress: Address = {
   id: 1,
-  userId: '1',
+  userId: 'user123',
   city: '上海市',
   state: '上海',
   country: '中国',
   zipCode: '200000',
-  streetAddress: '浦东新区张江高科技园区'
+  streetAddress: '南京路 123 号',
+  province: '上海',
+  district: '黄浦区',
+  detail: '南京路 123 号'
 };
 
 // 所有订单的模拟数据

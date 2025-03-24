@@ -1,16 +1,27 @@
 {
   "title": "购物车",
   "empty": {
-    "message": "您的购物车是空的",
-    "suggestion": "浏览我们的商品并添加到购物车",
-    "button": "继续购物"
+    "title": "购物车是空的",
+    "description": "快去添加一些商品吧！",
+    "continueShopping": "继续购物"
   },
+  "checkout": "结算",
+  "total": "总计",
+  "remove": "移除",
+  "quantity": "数量",
+  "addedToCart": "商品已添加到购物车",
+  "removedFromCart": "商品已从购物车中移除",
+  "emptyCart": "购物车已清空",
+  "cartUpdated": "购物车已更新",
+  "continueShop": "继续购物",
+  "itemCount": "{{count}} 件商品",
   "items": {
     "product": "商品",
     "price": "价格",
     "quantity": "数量",
-    "total": "小计",
-    "actions": "操作"
+    "total": "总计",
+    "actions": "操作",
+    "remove": "移除"
   },
   "summary": {
     "title": "订单摘要",
@@ -18,7 +29,8 @@
     "shipping": "运费",
     "tax": "税费",
     "total": "总计",
-    "checkout": "去结算"
+    "checkout": "结算",
+    "continueShopping": "继续购物"
   },
   "actions": {
     "update": "更新购物车",
@@ -30,6 +42,8 @@
     "updated": "购物车已更新",
     "removed": "商品已从购物车中移除",
     "cleared": "购物车已清空",
-    "error": "操作失败，请重试"
+    "error": "操作失败，请重试",
+    "itemRemoved": "商品已从购物车中移除",
+    "quantityUpdated": "商品数量已更新"
   }
 }

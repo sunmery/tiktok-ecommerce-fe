@@ -200,7 +200,7 @@ function Home() {
                                                 <Typography level="h3" sx={{fontSize: '1.25rem', fontWeight: 'bold'}}>
                                                     {product.name}
                                                 </Typography>
-                                                <Typography level="body-sm" sx={{mt: 1}}>
+                                                <Typography level="body-md" sx={{mt: 1}}>
                                                     ¥{product.price}
                                                 </Typography>
                                             </CardContent>
@@ -242,7 +242,7 @@ function Home() {
                                         mb: 2,
                                         fontSize: {xs: '2rem', md: '3rem'}
                                     }}>{banners[currentBanner].name}</Typography>
-                                    <Typography level="body-lg" sx={{
+                                    <Typography level="body-md" sx={{
                                         mb: 3,
                                         fontSize: {xs: '1rem', md: '1.25rem'}
                                     }}>{banners[currentBanner].description}</Typography>
@@ -427,7 +427,7 @@ function Home() {
                                             <img src={product.image} alt={product.name} style={{objectFit: 'cover'}}/>
                                         </AspectRatio>
                                         <CardContent>
-                                            <Typography level="name-md">{product.name}</Typography>
+                                            <Typography level="body-md">{product.name}</Typography>
                                             <Box sx={{display: 'flex', alignItems: 'center', gap: 0.5, mt: 1}}>
                                                 {[...Array(5)].map((_, i) => (
                                                     <StarIcon
@@ -436,8 +436,8 @@ function Home() {
                                                         sx={{color: i < Math.floor(product.rating) ? 'warning.500' : 'grey.300'}}
                                                     />
                                                 ))}
-                                                <Typography level="body-sm" sx={{ml: 1}}>{product.rating}</Typography>
-                                                <Typography level="body-sm" sx={{
+                                                <Typography level="body-md" sx={{ml: 1}}>{product.rating}</Typography>
+                                                <Typography level="body-md" sx={{
                                                     ml: 'auto',
                                                     color: 'text.secondary'
                                                 }}>{product.sales}人已购买</Typography>
@@ -448,7 +448,7 @@ function Home() {
                                                     fontWeight: 'bold'
                                                 }}>¥{product.discount}</Typography>
                                                 {product.discount && (
-                                                    <Typography level="body-sm" sx={{
+                                                    <Typography level="body-md" sx={{
                                                         ml: 1,
                                                         textDecoration: 'line-through',
                                                         color: 'text.tertiary'
@@ -534,7 +534,7 @@ function Home() {
                                             <img src={product.image} alt={product.name} style={{objectFit: 'cover'}}/>
                                         </AspectRatio>
                                         <CardContent>
-                                            <Typography level="name-md">{product.name}</Typography>
+                                            <Typography level="body-md">{product.name}</Typography>
                                             <Box sx={{display: 'flex', alignItems: 'center', mt: 1.5}}>
                                                 <Typography level="h3" sx={{
                                                     color: 'primary.500',
@@ -566,32 +566,32 @@ function Home() {
                         <Box sx={{mt: 8, pt: 4, borderTop: '1px solid', borderColor: 'divider'}}>
                             <Grid container spacing={4}>
                                 <Grid xs={12} sm={6} md={3}>
-                                    <Typography level="name-lg" sx={{mb: 2}}>项目信息</Typography>
+                                    <Typography level="title-lg" sx={{mb: 2}}>项目信息</Typography>
                                     <Stack spacing={1}>
-                                        <Typography level="body-sm"><Link href='https://github.com/sunmery/tiktok-ecommerce'>后端</Link></Typography>
-                                        <Typography level="body-sm"><Link href='https://github.com/sunmery/tiktok-ecommerce-fe'>前端</Link></Typography>
-                                        <Typography level="body-sm"><Link href='https://github.com/sunmery/tiktok-ecommerce-gateway'>网关</Link></Typography>
-                                        <Typography level="body-sm"><Link href='https://github.com/sunmery/tiktok-ecommerce-gateway'>运维</Link></Typography>
+                                        <Typography level="body-md"><Link to='https://github.com/sunmery/tiktok-ecommerce'>后端</Link></Typography>
+                                        <Typography level="body-md"><Link to='https://github.com/sunmery/tiktok-ecommerce-fe'>前端</Link></Typography>
+                                        <Typography level="body-md"><Link to='https://github.com/sunmery/tiktok-ecommerce-gateway'>网关</Link></Typography>
+                                        <Typography level="body-md"><Link to='https://github.com/sunmery/tiktok-ecommerce-gateway'>运维</Link></Typography>
                                     </Stack>
                                 </Grid>
                                 <Grid xs={12} sm={6} md={3}>
-                                    <Typography level="name-lg" sx={{mb: 2}}>支付方式</Typography>
+                                    <Typography level="title-lg" sx={{mb: 2}}>支付方式</Typography>
                                     <Stack spacing={1}>
-                                        <Typography level="body-sm">支付宝沙箱</Typography>
+                                        <Typography level="body-md">支付宝沙箱</Typography>
                                     </Stack>
                                 </Grid>
                                 <Grid xs={12} sm={6} md={3}>
-                                    <Typography level="name-lg" sx={{mb: 2}}>关注我</Typography>
+                                    <Typography level="title-lg" sx={{mb: 2}}>关注我</Typography>
                                     <Stack spacing={1}>
-                                        <Typography level="body-sm"><a href="https://github.com/sunmery">GitHub</a></Typography>
-                                        <Typography level="body-sm">微信公众号</Typography>
-                                        <Typography level="body-sm">掘金</Typography>
-                                        <Typography level="body-sm">Blog</Typography>
+                                        <Typography level="body-md"><a href="https://github.com/sunmery">GitHub</a></Typography>
+                                        <Typography level="body-md">微信公众号</Typography>
+                                        <Typography level="body-md">掘金</Typography>
+                                        <Typography level="body-md">Blog</Typography>
                                     </Stack>
                                 </Grid>
                             </Grid>
                             <Divider sx={{my: 4}}/>
-                            <Typography level="body-sm" textAlign="center" sx={{pb: 4}}>
+                            <Typography level="body-md" textAlign="center" sx={{pb: 4}}>
                                 © {new Date().getFullYear()} 基于Golang技术栈和基于角色的访问控制的领域驱动设计电商微服务
                             </Typography>
                         </Box>

@@ -1,0 +1,32 @@
+{
+  "title": "Welcome to Our Shop",
+  "subtitle": "Find the best products for the best prices",
+  "featuredProducts": "Featured Products",
+  "newArrivals": "New Arrivals",
+  "seeAll": "See All",
+  "hero": {
+    "title": "Welcome to TikTok E-commerce",
+    "subtitle": "Discover Quality Products, Enjoy Shopping",
+    "cta": "Start Shopping Now"
+  },
+  "featuredProducts": {
+    "title": "Featured Products",
+    "viewAll": "View All"
+  },
+  "categories": {
+    "title": "Categories",
+    "viewAll": "View All Categories"
+  },
+  "newArrivals": {
+    "title": "New Arrivals",
+    "viewAll": "View All New"
+  },
+  "bestSellers": {
+    "title": "Best Sellers",
+    "viewAll": "View All Bestsellers"
+  },
+  "promotions": {
+    "title": "Special Offers",
+    "viewAll": "View All Promotions"
+  }
+} 
