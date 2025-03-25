@@ -29,6 +29,7 @@ import Breadcrumbs from '@/components/Breadcrumbs'
 import CreditCardDetailModal from '@/components/CreditCard/DetailModal.tsx'
 import CardBackground from '@/components/CreditCard/CardBackground.tsx'
 import CardDecoration from '@/components/CreditCard/CardDecoration.tsx'
+import { useTranslation } from 'react-i18next'
 
 export const Route = createLazyFileRoute('/credit_cards/')({  
   component: RouteComponent,
@@ -39,6 +40,7 @@ export const Route = createLazyFileRoute('/credit_cards/')({
  * @returns Element
  */
 function RouteComponent() {
+  const { t } = useTranslation()
   // 获取信用卡列表数据
   const { data: { creditCards } = { creditCards: [] }, isLoading, isError, error, refetch } = useCreditCards()
   
@@ -119,7 +121,7 @@ function RouteComponent() {
   
   // 删除信用卡
   const handleDelete = (id: number) => {
-    if (window.confirm('确定要删除这张卡吗？')) {
+    if (window.confirm(t('payment.deleteConfirm'))) {
       deleteCreditCardMutation.mutate({ id }, {
         onSuccess: () => {
           refetch()
@@ -135,34 +137,34 @@ function RouteComponent() {
 
   return (
     <Box sx={{ p: 2, maxWidth: '1200px', mx: 'auto' }}>
-      <Breadcrumbs />
+      <Breadcrumbs pathMap={{ 'credit_cards': t('payment.title') }} />
       
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography level="h2">我的银行卡</Typography>
+        <Typography level="h2">{t('payment.title')}</Typography>
         <Button
           startDecorator={<Add />}
           onClick={handleOpenCreateModal}
           color="primary"
         >
-          添加新卡
+          {t('payment.addNew')}
         </Button>
       </Box>
       
       {isLoading ? (
-        <Typography>加载中...</Typography>
+        <Typography>{t('loading')}</Typography>
       ) : isError ? (
         <Typography color="danger">
-          加载失败: {error instanceof Error ? error.message : '未知错误'}
+          {t('payment.loadFailed')}: {error instanceof Error ? error.message : t('error.unknown')}
         </Typography>
       ) : !creditCards || creditCards.length === 0 ? (
         <Sheet sx={{ p: 4, textAlign: 'center', borderRadius: 'md' }}>
-          <Typography level="body-lg" sx={{ mb: 2 }}>您还没有添加任何银行卡</Typography>
+          <Typography level="body-lg" sx={{ mb: 2 }}>{t('payment.noCards')}</Typography>
           <Button
             startDecorator={<Add />}
             onClick={handleOpenCreateModal}
             color="primary"
           >
-            添加新卡
+            {t('payment.addNew')}
           </Button>
         </Sheet>
       ) : (
@@ -205,7 +207,7 @@ function RouteComponent() {
                     >
                       <CardContent>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                          <Typography level="title-md" sx={{ color: 'white' }}>{card.name || '我的卡'}</Typography>
+                          <Typography level="title-md" sx={{ color: 'white' }}>{card.name || t('payment.myCard')}</Typography>
                           <Chip size="sm" variant="soft">
                             {card.brand.toUpperCase()}
                           </Chip>
@@ -217,11 +219,11 @@ function RouteComponent() {
                         
                         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                           <Box>
-                            <Typography level="body-xs" sx={{ color: 'white' }}>持卡人</Typography>
+                            <Typography level="body-xs" sx={{ color: 'white' }}>{t('payment.cardHolder')}</Typography>
                             <Typography level="body-md" sx={{ color: 'white' }}>{card.owner}</Typography>
                           </Box>
                           <Box>
-                            <Typography level="body-xs" sx={{ color: 'white' }}>有效期</Typography>
+                            <Typography level="body-xs" sx={{ color: 'white' }}>{t('payment.expiryDate')}</Typography>
                             <Typography level="body-md" sx={{ color: 'white' }}>{card.expMonth}/{card.expYear}</Typography>
                           </Box>
                         </Box>
@@ -250,32 +252,30 @@ function RouteComponent() {
                           boxShadow: 'none'
                         }}
                       >
-                        {/* 添加装饰效果 */}
-                        <CardDecoration variant={bgVariant === 'green' ? 'green' : 'purple'} />
-                        
                         <CardContent>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                            <Typography level="title-md" sx={{ color: 'white' }}>{card.name || '我的卡'}</Typography>
+                            <Typography level="title-md">{card.name || t('payment.myCard')}</Typography>
                             <Chip size="sm" variant="soft">
                               {card.brand.toUpperCase()}
                             </Chip>
                           </Box>
                           
-                          <Typography level="h4" sx={{ mb: 2, letterSpacing: '2px', color: 'white' }}>
+                          <Typography level="h4" sx={{ mb: 2, letterSpacing: '2px' }}>
                             {formatCardNumber(card.number)}
                           </Typography>
                           
                           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography level="body-xs" sx={{ color: 'white' }}>持卡人</Typography>
-                              <Typography level="body-md" sx={{ color: 'white' }}>{card.owner}</Typography>
+                              <Typography level="body-xs">{t('payment.cardHolder')}</Typography>
+                              <Typography level="body-md">{card.owner}</Typography>
                             </Box>
                             <Box>
-                              <Typography level="body-xs" sx={{ color: 'white' }}>有效期</Typography>
-                              <Typography level="body-md" sx={{ color: 'white' }}>{card.expMonth}/{card.expYear}</Typography>
+                              <Typography level="body-xs">{t('payment.expiryDate')}</Typography>
+                              <Typography level="body-md">{card.expMonth}/{card.expYear}</Typography>
                             </Box>
                           </Box>
                         </CardContent>
+                        <CardDecoration />
                         <CardActions sx={{ justifyContent: 'flex-end' }}>
                           <IconButton
                             variant="soft"
@@ -298,62 +298,92 @@ function RouteComponent() {
         </Grid>
       )}
       
-      {/* 创建模态框 */}
+      {/* 银行卡详情模态框 */}
+      {selectedCard && (
+        <CreditCardDetailModal
+          open={detailOpen}
+          onClose={() => setDetailOpen(false)}
+          card={selectedCard}
+        />
+      )}
+      
+      {/* 创建/编辑银行卡模态框 */}
       <Modal open={open} onClose={() => setOpen(false)}>
-        <ModalDialog>
+        <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
           <ModalClose />
-          <Typography level="h4">
-            添加新卡
+          <Typography level="h4" mb={2}>
+            {t('payment.addNew')}
           </Typography>
-          <Divider sx={{ my: 2 }} />
           
           <form onSubmit={handleSubmit}>
             <Stack spacing={2}>
               <FormControl required>
-                <FormLabel>卡号</FormLabel>
-                <Input
-                  name="number"
-                  value={formData.number}
-                  onChange={handleInputChange}
-                  placeholder="请输入卡号"
-                />
-              </FormControl>
-              
-              <FormControl required>
-                <FormLabel>持卡人姓名</FormLabel>
+                <FormLabel>{t('payment.cardHolder')}</FormLabel>
                 <Input
                   name="owner"
                   value={formData.owner}
                   onChange={handleInputChange}
-                  placeholder="请输入持卡人姓名"
+                  placeholder={t('payment.cardHolderPlaceholder')}
+                />
+              </FormControl>
+              
+              <FormControl required>
+                <FormLabel>{t('payment.cardName')}</FormLabel>
+                <Input
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder={t('payment.cardNamePlaceholder')}
+                />
+              </FormControl>
+              
+              <FormControl required>
+                <FormLabel>{t('payment.cardNumber')}</FormLabel>
+                <Input
+                  name="number"
+                  value={formData.number}
+                  onChange={handleInputChange}
+                  placeholder={t('payment.cardNumberPlaceholder')}
                 />
               </FormControl>
               
               <Grid container spacing={2}>
                 <Grid xs={6}>
                   <FormControl required>
-                    <FormLabel>有效期月</FormLabel>
+                    <FormLabel>{t('payment.expiryMonth')}</FormLabel>
                     <Select
+                      name="expMonth"
                       value={formData.expMonth}
                       onChange={(_, value) => handleSelectChange('expMonth', value)}
+                      placeholder={t('payment.monthPlaceholder')}
                     >
                       {Array.from({ length: 12 }, (_, i) => {
-                        const month = (i + 1).toString().padStart(2, '0')
-                        return <Option key={month} value={month}>{month}</Option>
+                        const month = (i + 1).toString().padStart(2, '0');
+                        return (
+                          <Option key={month} value={month}>
+                            {month}
+                          </Option>
+                        );
                       })}
                     </Select>
                   </FormControl>
                 </Grid>
                 <Grid xs={6}>
                   <FormControl required>
-                    <FormLabel>有效期年</FormLabel>
+                    <FormLabel>{t('payment.expiryYear')}</FormLabel>
                     <Select
+                      name="expYear"
                       value={formData.expYear}
                       onChange={(_, value) => handleSelectChange('expYear', value)}
+                      placeholder={t('payment.yearPlaceholder')}
                     >
                       {Array.from({ length: 10 }, (_, i) => {
-                        const year = (new Date().getFullYear() + i).toString()
-                        return <Option key={year} value={year}>{year}</Option>
+                        const year = (new Date().getFullYear() + i).toString();
+                        return (
+                          <Option key={year} value={year.slice(-2)}>
+                            {year}
+                          </Option>
+                        );
                       })}
                     </Select>
                   </FormControl>
@@ -361,69 +391,49 @@ function RouteComponent() {
               </Grid>
               
               <FormControl required>
-                <FormLabel>安全码 (CVV)</FormLabel>
+                <FormLabel>{t('payment.cvv')}</FormLabel>
                 <Input
                   name="cvv"
                   value={formData.cvv}
                   onChange={handleInputChange}
-                  placeholder="请输入安全码"
-                />
-              </FormControl>
-              
-              <FormControl>
-                <FormLabel>卡名称</FormLabel>
-                <Input
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="为您的卡取个名字（可选）"
+                  placeholder={t('payment.cvvPlaceholder')}
                 />
               </FormControl>
               
               <FormControl required>
-                <FormLabel>卡类型</FormLabel>
+                <FormLabel>{t('payment.cardBrand')}</FormLabel>
                 <Select
-                  value={formData.type}
-                  onChange={(_, value) => handleSelectChange('type', value)}
-                >
-                  <Option value="credit">信用卡</Option>
-                  <Option value="debit">借记卡</Option>
-                </Select>
-              </FormControl>
-              
-              <FormControl required>
-                <FormLabel>卡品牌</FormLabel>
-                <Select
+                  name="brand"
                   value={formData.brand}
                   onChange={(_, value) => handleSelectChange('brand', value)}
                 >
                   <Option value="visa">Visa</Option>
-                  <Option value="mastercard">MasterCard</Option>
+                  <Option value="mastercard">Mastercard</Option>
                   <Option value="amex">American Express</Option>
                   <Option value="discover">Discover</Option>
-                  <Option value="unionpay">银联</Option>
+                  <Option value="unionpay">UnionPay</Option>
                 </Select>
               </FormControl>
-              
-              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', pt: 2 }}>
-                <Button variant="plain" color="neutral" onClick={() => setOpen(false)}>
-                  取消
+
+              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2 }}>
+                <Button
+                  variant="outlined"
+                  color="neutral"
+                  onClick={() => setOpen(false)}
+                >
+                  {t('cancel')}
                 </Button>
-                <Button type="submit" loading={createCreditCardMutation.isPending}>
-                  添加
+                <Button
+                  type="submit"
+                  loading={createCreditCardMutation.isPending}
+                >
+                  {t('save')}
                 </Button>
               </Box>
             </Stack>
           </form>
         </ModalDialog>
       </Modal>
-
-      {/* 详情模态框 */}
-      <CreditCardDetailModal 
-        open={detailOpen} 
-        onClose={() => setDetailOpen(false)} 
-        card={selectedCard} 
-      />
     </Box>
   )
 }

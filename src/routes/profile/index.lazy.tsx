@@ -9,11 +9,13 @@ import {setAccount, userStore} from '@/store/user'
 import {useSnapshot} from 'valtio/react'
 import { useQuery } from '@tanstack/react-query'
 import Skeleton from '@/components/Skeleton'
+import { useTranslation } from 'react-i18next'
 
 /**
  *@returns JSXElement
  */
 export default function Profile() {
+    const { t } = useTranslation()
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
     
@@ -23,12 +25,12 @@ export default function Profile() {
       queryFn: async () => {
         if (!isLoggedIn()) {
           navigate({ to: '/login' })
-          return Promise.reject('未登录')
+          return Promise.reject(t('error.notLoggedIn'))
         }
         
         const res = await getUserinfo()
         if (Object.keys(res).length === 0) {
-          throw new Error('获取用户信息失败')
+          throw new Error(t('error.failedToGetUserInfo'))
         }
         
         setAccount({
@@ -62,30 +64,29 @@ export default function Profile() {
                 role: newRole,
             })
 
-
             switch (newRole) {
                 case 'merchant':
                     navigate({to: '/merchant'}).then(() => {
                         // 商家角色切换成功后的回调
-                        console.log('已切换到商家角色')
+                        console.log(t('log.switchedToMerchant'))
                     })
                     break
                 case 'admin':
                     navigate({to: '/admin'}).then(() => {
                         // 管理员角色切换成功后的回调
-                        console.log('已切换到管理员角色')
+                        console.log(t('log.switchedToAdmin'))
                     })
                     break
                 case 'consumer':
                     navigate({to: '/profile'}).then(() => {
                         // 普通用户角色切换成功后的回调
-                        console.log('已切换到普通用户角色')
+                        console.log(t('log.switchedToConsumer'))
                     })
                     break
                 default:
                     navigate({to: '/profile'}).then(() => {
                         // 普通用户角色切换成功后的回调
-                        console.log('已切换到访客角色')
+                        console.log(t('log.switchedToGuest'))
                     })
             }
         }
@@ -96,7 +97,7 @@ export default function Profile() {
             {/* 显示错误信息 */}
             {queryError && (
                 <Alert color="danger" sx={{mb: 2}}>
-                    {queryError.message || '获取用户信息失败'}
+                    {queryError.message || t('error.failedToGetUserInfo')}
                 </Alert>
             )}
 
@@ -105,7 +106,7 @@ export default function Profile() {
             ) : isAccountEmpty(account) ? (
                 <Card variant="outlined" sx={{textAlign: 'center', p: 4}}>
                     <Typography level="h2" sx={{mb: 2}}>
-                        您尚未登录
+                        {t('profile.notLoggedIn')}
                     </Typography>
                     <Stack direction="row" spacing={2} justifyContent="center">
                         <Button
@@ -114,7 +115,7 @@ export default function Profile() {
                             variant="solid"
                             onClick={() => goToLink(getSigninUrl())}
                         >
-                            登录
+                            {t('profile.login')}
                         </Button>
                     </Stack>
                 </Card>
@@ -135,13 +136,13 @@ export default function Profile() {
                                         {account.displayName || account.name}
                                     </Typography>
                                     <Typography level="body-md" sx={{mt: 1}}>
-                                        邮箱: {account.email}
+                                        {t('profile.email')}: {account.email}
                                     </Typography>
                                     <Typography level="body-md">
-                                        账号ID: {account.id}
+                                        {t('profile.accountId')}: {account.id}
                                     </Typography>
                                     <Typography level="body-md">
-                                        创建时间: {new Date(account.createdTime).toLocaleString()}
+                                        {t('profile.createdTime')}: {new Date(account.createdTime).toLocaleString()}
                                     </Typography>
                                 </Grid>
                             </Grid>
@@ -151,41 +152,41 @@ export default function Profile() {
                     <Card variant="outlined">
                         <CardContent>
                             <Typography level="h4" sx={{mb: 2}}>
-                                账号角色
+                                {t('profile.accountRole')}
                             </Typography>
                             <Divider sx={{my: 2}}/>
                             <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                                 <Box>
                                     <Typography level="body-md">
-                                        当前角色: {(() => {
+                                        {t('profile.currentRole')}: {(() => {
                                         switch (account.role) {
                                             case 'consumer':
-                                                return '消费者'
+                                                return t('roles.consumer')
                                             case 'merchant':
-                                                return '商家'
+                                                return t('roles.merchant')
                                             case 'admin':
-                                                return '管理员'
+                                                return t('roles.admin')
                                             default:
-                                                return '访客'
+                                                return t('roles.guest')
                                         }
                                     })()}
                                     </Typography>
                                 </Box>
                                 <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
                                     <Typography level="body-md">
-                                        切换角色:
+                                        {t('profile.switchRole')}:
                                     </Typography>
                                     <Select
-                                        defaultValue={account.role || '访客'}
+                                        defaultValue={account.role || 'guest'}
                                         onChange={(_, value) => handleRoleChange(value as string)}
                                         sx={{minWidth: 150}}
                                     >
                                         {(account.role === null || account.role === '') &&
-                                            <Option value="">访客</Option>
+                                            <Option value="guest">{t('roles.guest')}</Option>
                                         }
-                                        <Option value="consumer">消费者</Option>
-                                        <Option value="merchant">商家</Option>
-                                        <Option value="admin">管理员</Option>
+                                        <Option value="consumer">{t('roles.consumer')}</Option>
+                                        <Option value="merchant">{t('roles.merchant')}</Option>
+                                        <Option value="admin">{t('roles.admin')}</Option>
                                     </Select>
                                 </Box>
                             </Box>
@@ -196,7 +197,7 @@ export default function Profile() {
                     <Card variant="outlined">
                         <CardContent>
                             <Typography level="h4" sx={{mb: 2}}>
-                                账号管理
+                                {t('profile.accountManagement')}
                             </Typography>
                             <Divider sx={{my: 2}}/>
                             <Stack spacing={2}>
@@ -205,174 +206,91 @@ export default function Profile() {
                                     variant="outlined"
                                     color="primary"
                                     onClick={() => navigate({to: '/addresses'}).then(() => {
-                                        console.log('已跳转到地址管理页面')
+                                        console.log(t('log.navigatedToAddresses'))
                                     })}
                                 >
-                                    管理收货地址
+                                    {t('profile.shippingAddresses')}
                                 </Button>
                                 <Button
                                     variant="outlined"
                                     color="primary"
                                     onClick={() => navigate({to: '/credit_cards'}).then(() => {
-                                        console.log('已跳转到信用卡管理页面')
+                                        console.log(t('log.navigatedToPaymentMethods'))
                                     })}
                                 >
-                                    管理支付方式
+                                    {t('profile.paymentMethods')}
                                 </Button>
                                 
                                 {/* 根据用户角色显示不同功能区 */}
                                 {account.role === 'consumer' && (
                                     <>
-                                        <Divider>消费者功能</Divider>
+                                        <Divider>{t('profile.consumerFeatures')}</Divider>
                                         <Button
                                             variant="outlined"
                                             color="primary"
                                             onClick={() => navigate({to: '/orders'}).then(() => {
-                                                console.log('已跳转到订单历史页面')
+                                                console.log(t('log.navigatedToOrderHistory'))
                                             })}
                                         >
-                                            查看订单历史
+                                            {t('profile.orderHistory')}
                                         </Button>
                                         <Button
                                             variant="outlined"
                                             color="primary"
                                             onClick={() => navigate({to: '/consumer/orders'}).then(() => {
-                                                console.log('已跳转到订单历史页面')
+                                                console.log(t('log.navigatedToMyOrders'))
                                             })}
                                         >
-                                            我的订单
+                                            {t('profile.myOrders')}
                                         </Button>
                                         <Button
                                             variant="outlined"
                                             color="primary"
                                             onClick={() => navigate({to: '/consumer'}).then(() => {
-                                                console.log('已跳转到消费者中心')
+                                                console.log(t('log.navigatedToConsumerCenter'))
                                             })}
                                         >
-                                            消费者中心
+                                            {t('profile.consumerCenter')}
                                         </Button>
                                     </>
                                 )}
                                 
                                 {account.role === 'merchant' && (
                                     <>
-                                        <Divider>商家功能</Divider>
+                                        <Divider>{t('profile.merchantFeatures')}</Divider>
                                         <Button
                                             variant="outlined"
-                                            color="success"
+                                            color="primary"
                                             onClick={() => navigate({to: '/merchant'}).then(() => {
-                                                console.log('已跳转到商家控制台')
+                                                console.log(t('log.navigatedToMerchantCenter'))
                                             })}
                                         >
-                                            商家控制台
-                                        </Button>
-                                        <Button
-                                            variant="outlined"
-                                            color="success"
-                                            onClick={() => navigate({to: '/merchant/products'}).then(() => {
-                                                console.log('已跳转到产品管理页面')
-                                            })}
-                                        >
-                                            管理产品
-                                        </Button>
-                                        <Button
-                                            variant="outlined"
-                                            color="success"
-                                            onClick={() => navigate({to: '/merchant/orders'}).then(() => {
-                                                console.log('已跳转到订单管理页面')
-                                            })}
-                                        >
-                                            管理订单
-                                        </Button>
-                                        <Button
-                                            variant="outlined"
-                                            color="success"
-                                            onClick={() => navigate({to: '/merchant/inventory'}).then(() => {
-                                                console.log('已跳转到库存管理页面')
-                                            })}
-                                        >
-                                            库存管理
-                                        </Button>
-                                        <Button
-                                            variant="outlined"
-                                            color="success"
-                                            onClick={() => navigate({to: '/merchant/analytics'}).then(() => {
-                                                console.log('已跳转到销售分析页面')
-                                            })}
-                                        >
-                                            销售分析
+                                            {t('profile.merchantCenter')}
                                         </Button>
                                     </>
                                 )}
                                 
                                 {account.role === 'admin' && (
                                     <>
-                                        <Divider>管理员功能</Divider>
+                                        <Divider>{t('profile.adminFeatures')}</Divider>
                                         <Button
                                             variant="outlined"
-                                            color="warning"
+                                            color="primary"
                                             onClick={() => navigate({to: '/admin'}).then(() => {
-                                                console.log('已跳转到管理员控制台')
+                                                console.log(t('log.navigatedToAdminPanel'))
                                             })}
                                         >
-                                            管理员控制台
-                                        </Button>
-                                        <Button
-                                            variant="outlined"
-                                            color="warning"
-                                            onClick={() => navigate({to: '/admin/users'}).then(() => {
-                                                console.log('已跳转到用户管理页面')
-                                            })}
-                                        >
-                                            用户管理
-                                        </Button>
-                                        <Button
-                                            variant="outlined"
-                                            color="warning"
-                                            onClick={() => navigate({to: '/admin/analytics'}).then(() => {
-                                                console.log('已跳转到数据分析页面')
-                                            })}
-                                        >
-                                            数据分析
-                                        </Button>
-                                        <Button
-                                            variant="outlined"
-                                            color="warning"
-                                            onClick={() => navigate({to: '/admin/database'}).then(() => {
-                                                console.log('已跳转到数据库管理页面')
-                                            })}
-                                        >
-                                            数据库管理
-                                        </Button>
-                                        <Button
-                                            variant="outlined"
-                                            color="warning"
-                                            onClick={() => navigate({to: '/admin/ecommerce-map'}).then(() => {
-                                                console.log('已跳转到电商地图页面')
-                                            })}
-                                        >
-                                            电商地图
+                                            {t('profile.adminPanel')}
                                         </Button>
                                     </>
                                 )}
-                                
-                                <Divider />
-                                <Button
-                                    variant="solid"
-                                    color="danger"
-                                    onClick={() => navigate({to: '/logout'}).then(() => {
-                                        console.log('已跳转到登出页面')
-                                    })}
-                                >
-                                    退出登录
-                                </Button>
                             </Stack>
                         </CardContent>
                     </Card>
                 </Stack>
             )}
         </Box>
-    )
+    );
 }
 
 export const Route = createLazyFileRoute('/profile/')({  

@@ -122,10 +122,10 @@ export interface CreateProductRequest {
 // 更新商品请求参数
 export interface UpdateProductRequest {
     id: string
-    product: Partial<Omit<Product, 'id' | 'createdAt' | 'updatedAt' | 'auditInfo'>> & {
-        status?: ProductStatus
-        stock?: number
-    }
+    merchantId: string
+    name: string
+    description: string
+    price: number
 }
 
 // 提交审核请求参数

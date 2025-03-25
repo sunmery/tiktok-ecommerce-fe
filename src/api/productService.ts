@@ -38,8 +38,8 @@ export const productService = {
      * PUT /v1/products/{id}
      */
     updateProduct: (request: UpdateProductRequest) => {
-        const url = httpClient.replacePathParams(`${import.meta.env.VITE_PRODUCERS_URL}`, {
-            productId: request.id
+        const url = httpClient.replacePathParams(`${import.meta.env.VITE_MERCHANTS_URL}/products/{id}`, {
+            id: request.id
         });
         return httpClient.put<Product>(url, request);
     },

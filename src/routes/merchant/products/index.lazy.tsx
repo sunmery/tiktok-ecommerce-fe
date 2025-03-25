@@ -29,12 +29,14 @@ import {Product, ProductStatus, AuditProductRequest, AuditRecordResponse, Create
 import {productService} from '@/api/productService'
 import {ProductAttributes} from '@/components/ui/ProductAttributes'
 import { ProductEditForm } from '@/components/ProductEditForm'
+import { useTranslation } from 'react-i18next'
 
 export const Route = createLazyFileRoute('/merchant/products/')({
     component: Products,
 })
 
 export default function Products() {
+    const { t } = useTranslation()
     const [products, setProducts] = useState<Product[]>([])
     const [open, setOpen] = useState(false)
     const [editProduct, setEditProduct] = useState<Product | null>(null)
@@ -69,10 +71,10 @@ export default function Products() {
             const response = await productService.getMerchantProducts()
             setProducts(response.items || [])
         } catch (error) {
-            console.error('加载产品失败:', error)
+            console.error(t('products.loadFailed'), error)
             setSnackbar({
                 open: true,
-                message: '加载产品失败',
+                message: t('products.loadFailed'),
                 severity: 'danger'
             })
         } finally {
@@ -86,15 +88,15 @@ export default function Products() {
             await productService.deleteProduct({id, merchantId: ''}) // merchantId为空，后端会自动获取当前商家ID
             setSnackbar({
                 open: true,
-                message: '产品删除成功',
+                message: t('products.deleteSuccess'),
                 severity: 'success'
             })
             loadProducts() // 重新加载产品列表
         } catch (error) {
-            console.error('删除产品失败:', error)
+            console.error(t('products.deleteFailed'), error)
             setSnackbar({
                 open: true,
-                message: '删除产品失败',
+                message: t('products.deleteFailed'),
                 severity: 'danger'
             })
         } finally {
@@ -134,19 +136,19 @@ export default function Products() {
                 fileName: selectedFile.name
             })
         }).then(res => res.json()).then(data => {
-            console.log('上传URL:', data)
+            console.log(t('log.uploadUrl'), data)
             if (data.downloadUrl) {
                 fetch(data.downloadUrl, {
                     method: 'PUT',
                     body: selectedFile
                 }).then(res => {
                     if (res.status === 200) {
-                        console.log('文件上传成功')
+                        console.log(t('log.fileUploadSuccess'))
                         // 从downloadUrl中提取永久访问URL
                         // 通常downloadUrl格式为：http://domain/bucket/objectName?签名参数
                         // 我们需要提取不带签名参数的部分作为永久URL
                         const permanentUrl = data.downloadUrl.split('?')[0];
-                        console.log('永久访问URL:', permanentUrl);
+                        console.log(t('log.permanentUrl'), permanentUrl);
 
                         // 将永久URL保存到表单数据中
                         setFormData(prev => {
@@ -174,26 +176,26 @@ export default function Products() {
 
                         setSnackbar({
                             open: true,
-                            message: '图片上传成功',
+                            message: t('products.uploadSuccess'),
                             severity: 'success'
                         })
 
                         setUploadOpen(false)
                     }
                 }).catch(err => {
-                    console.error('上传文件失败:', err)
+                    console.error(t('products.uploadFailed'), err)
                     setSnackbar({
                         open: true,
-                        message: '上传文件失败',
+                        message: t('products.uploadFailed'),
                         severity: 'danger'
                     })
                 })
             }
         }).catch(err => {
-            console.error('获取上传URL失败:', err)
+            console.error(t('products.getUploadUrlFailed'), err)
             setSnackbar({
                 open: true,
-                message: '获取上传URL失败',
+                message: t('products.getUploadUrlFailed'),
                 severity: 'danger'
             })
         })
@@ -209,25 +211,25 @@ export default function Products() {
             })
             setSnackbar({
                 open: true,
-                message: '提交审核成功',
+                message: t('products.publishSuccess'),
                 severity: 'success'
             })
             loadProducts() // 重新加载产品列表
         } catch (error) {
-            console.error('提交审核失败:', error)
+            console.error(t('products.publishFailed'), error)
             try {
                 // 处理错误类型
                 const errorMsg = error instanceof Error ? error.message : String(error);
                 setSnackbar({
                     open: true,
-                    message: '提交审核失败: ' + errorMsg,
+                    message: t('products.publishFailed') + ': ' + errorMsg,
                     severity: 'danger'
                 })
             } catch (error) {
-                console.error('提交审核失败:', error)
+                console.error(t('products.publishFailed'), error)
                 setSnackbar({
                     open: true,
-                    message: '提交审核失败',
+                    message: t('products.publishFailed'),
                     severity: 'danger'
                 })
             }
@@ -251,32 +253,32 @@ export default function Products() {
             // 将商品状态更新为草稿
             await productService.updateProduct({
                 id: product.id,
-                product: {
-                    ...product
-                    // 注意：状态应该在后端更改，前端无法直接修改status字段
-                }
+                merchantId: product.merchantId as string,
+                name: product.name as string,
+                description: product.description as string,
+                price: product.price as number
             })
             setSnackbar({
                 open: true,
-                message: '商品已下架',
+                message: t('products.unpublishSuccess'),
                 severity: 'success'
             })
             loadProducts() // 重新加载产品列表
         } catch (error) {
-            console.error('下架商品失败:', error)
+            console.error(t('products.unpublishFailed'), error)
             try {
                 // 处理错误类型
                 const errorMsg = error instanceof Error ? error.message : String(error);
                 setSnackbar({
                     open: true,
-                    message: '更新商品失败: ' + errorMsg,
+                    message: t('products.unpublishFailed') + ': ' + errorMsg,
                     severity: 'danger'
                 })
             } catch (error) {
-                console.error('更新商品失败:', error)
+                console.error(t('products.unpublishFailed'), error)
                 setSnackbar({
                     open: true,
-                    message: '更新商品失败',
+                    message: t('products.unpublishFailed'),
                     severity: 'danger'
                 })
             }
@@ -290,7 +292,7 @@ export default function Products() {
             {/* 删除了面包屑导航 */}
 
             <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 2}}>
-                <Typography level="h2">产品管理</Typography>
+                <Typography level="h2">{t('products.title')}</Typography>
                 <Button
                     startDecorator={<AddIcon/>}
                     onClick={() => {
@@ -313,7 +315,7 @@ export default function Products() {
                         setOpen(true)
                     }}
                 >
-                    添加产品
+                    {t('products.addProduct')}
                 </Button>
             </Box>
 
@@ -321,13 +323,13 @@ export default function Products() {
                 <Table>
                     <thead>
                     <tr>
-                        <th>名称</th>
-                        <th>描述</th>
-                        <th>价格</th>
-                        <th>库存</th>
-                        <th>状态</th>
-                        <th>属性</th>
-                        <th>操作</th>
+                        <th>{t('products.name')}</th>
+                        <th>{t('products.description')}</th>
+                        <th>{t('products.price')}</th>
+                        <th>{t('products.stock')}</th>
+                        <th>{t('products.status')}</th>
+                        <th>{t('products.attributes')}</th>
+                        <th>{t('products.actions')}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -356,7 +358,7 @@ export default function Products() {
                                             setOpen(true)
                                         }}
                                     >
-                                        编辑
+                                        {t('products.edit')}
                                     </Button>
                                     <Button
                                         size="sm"
@@ -369,7 +371,7 @@ export default function Products() {
                                             setUploadOpen(true)
                                         }}
                                     >
-                                        上传图片
+                                        {t('products.uploadImage')}
                                     </Button>
                                     {/* 上架按钮 - 仅在草稿或驳回状态显示 */}
                                     {(product.status === ProductStatus.DRAFT || product.status === ProductStatus.REJECTED) && (
@@ -379,7 +381,7 @@ export default function Products() {
                                             variant="soft"
                                             onClick={() => handleSubmitAudit(product.id)}
                                         >
-                                            上架
+                                            {t('products.publish')}
                                         </Button>
                                     )}
                                     {/* 下架按钮 - 仅在审核通过或待审核状态显示 */}
@@ -391,7 +393,7 @@ export default function Products() {
                                             startDecorator={<UnpublishedIcon/>}
                                             onClick={() => handleUnpublish(product)}
                                         >
-                                            下架
+                                            {t('products.unpublish')}
                                         </Button>
                                     )}
                                     <Button
@@ -401,7 +403,7 @@ export default function Products() {
                                         startDecorator={<DeleteIcon/>}
                                         onClick={() => handleDelete(product.id)}
                                     >
-                                        删除
+                                        {t('products.delete')}
                                     </Button>
                                 </Box>
                             </td>
@@ -419,7 +421,7 @@ export default function Products() {
             >
                 <Card sx={{maxWidth: 500, mx: 2}}>
                     <CardContent>
-                        <Typography level="h3" sx={{mb: 2}}>上传产品图片</Typography>
+                        <Typography level="h3" sx={{mb: 2}}>{t('products.uploadTitle')}</Typography>
                         <Box sx={{mb: 2}}>
                             <input
                                 type="file"
@@ -433,7 +435,7 @@ export default function Products() {
                                     component="span"
                                     startDecorator={<UploadIcon/>}
                                 >
-                                    选择图片
+                                    {t('products.selectImage')}
                                 </Button>
                             </label>
                         </Box>
@@ -441,21 +443,21 @@ export default function Products() {
                             <Box sx={{mb: 2, textAlign: 'center'}}>
                                 <img
                                     src={imagePreview}
-                                    alt="预览"
+                                    alt={t('products.preview')}
                                     style={{maxWidth: '100%', maxHeight: '200px'}}
                                 />
                             </Box>
                         )}
                         <Box sx={{display: 'flex', gap: 1, justifyContent: 'flex-end'}}>
                             <Button variant="outlined" color="neutral" onClick={() => setUploadOpen(false)}>
-                                取消
+                                {t('products.cancel')}
                             </Button>
                             <Button
                                 onClick={handleUpload}
                                 disabled={!selectedFile}
                                 loading={loading}
                             >
-                                上传
+                                {t('products.upload')}
                             </Button>
                         </Box>
                     </CardContent>
@@ -471,7 +473,7 @@ export default function Products() {
                 <Card sx={{ maxWidth: 800, mx: 2, maxHeight: '90vh', overflow: 'auto' }}>
                     <CardContent>
                         <Typography level="h3" sx={{ mb: 2 }}>
-                            {editProduct ? '编辑商品' : '添加商品'}
+                            {editProduct ? t('products.editProduct') : t('products.addProduct')}
                         </Typography>
                         <ProductEditForm
                             product={editProduct || undefined}
@@ -481,11 +483,14 @@ export default function Products() {
                                     if (editProduct) {
                                         await productService.updateProduct({
                                             id: editProduct.id,
-                                            product,
+                                            merchantId: product.merchantId as string,
+                                            name: product.name as string,
+                                            description: product.description as string,
+                                            price: product.price as number
                                         });
                                         setSnackbar({
                                             open: true,
-                                            message: '商品更新成功',
+                                            message: t('products.saveSuccess'),
                                             severity: 'success',
                                         });
                                     } else {
@@ -494,17 +499,17 @@ export default function Products() {
                                         });
                                         setSnackbar({
                                             open: true,
-                                            message: '商品创建成功',
+                                            message: t('products.saveSuccess'),
                                             severity: 'success',
                                         });
                                     }
                                     setOpen(false);
                                     loadProducts();
                                 } catch (error) {
-                                    console.error('保存商品失败:', error);
+                                    console.error(t('products.saveFailed'), error);
                                     setSnackbar({
                                         open: true,
-                                        message: '保存商品失败',
+                                        message: t('products.saveFailed'),
                                         severity: 'danger',
                                     });
                                 } finally {

@@ -28,12 +28,14 @@ import { useAddresses, useCreateAddress, useUpdateAddress, useDeleteAddress } fr
 import { useSnapshot } from 'valtio/react'
 import { userStore } from '@/store/user.ts'
 import type { Address } from '@/types/addresses'
+import { useTranslation } from 'react-i18next'
 
 export const Route = createLazyFileRoute('/addresses/')({ 
   component: AddressesRoute,
 })
 
 function AddressesRoute() {
+  const { t } = useTranslation()
   const { account } = useSnapshot(userStore)
   const { data: addressesData, isLoading, isError, refetch } = useAddresses()
   const createAddressMutation = useCreateAddress()
@@ -97,17 +99,17 @@ function AddressesRoute() {
       
       setSnackbar({
         open: true,
-        message: '地址删除成功',
+        message: t('addresses.deleteSuccess'),
         severity: 'success'
       })
       
       // 刷新地址列表
       refetch()
     } catch (error) {
-      console.error('删除地址失败:', error)
+      console.error(t('addresses.deleteFailed'), error)
       setSnackbar({
         open: true,
-        message: '删除地址失败，请稍后重试',
+        message: t('addresses.deleteFailed'),
         severity: 'error'
       })
     }
@@ -123,7 +125,7 @@ function AddressesRoute() {
         await updateAddressMutation.mutateAsync(formData)
         setSnackbar({
           open: true,
-          message: '地址更新成功',
+          message: t('addresses.saveSuccess'),
           severity: 'success'
         })
       } else {
@@ -131,7 +133,7 @@ function AddressesRoute() {
         await createAddressMutation.mutateAsync(formData)
         setSnackbar({
           open: true,
-          message: '地址创建成功',
+          message: t('addresses.saveSuccess'),
           severity: 'success'
         })
       }
@@ -140,10 +142,10 @@ function AddressesRoute() {
       // 刷新地址列表
       refetch()
     } catch (error) {
-      console.error('保存地址失败:', error)
+      console.error(t('addresses.saveFailed'), error)
       setSnackbar({
         open: true,
-        message: '保存地址失败，请稍后重试',
+        message: t('addresses.saveFailed'),
         severity: 'error'
       })
     }
@@ -152,22 +154,22 @@ function AddressesRoute() {
   return (
     <Box sx={{ p: 2, maxWidth: '1200px', mx: 'auto' }}>
       {/* 面包屑导航 */}
-      <Breadcrumbs pathMap={{ 'addresses': '地址管理' }} />
+      <Breadcrumbs pathMap={{ 'addresses': t('addresses.title') }} />
       
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography level="h2">地址管理</Typography>
+        <Typography level="h2">{t('addresses.title')}</Typography>
         <Button
           startDecorator={<AddIcon />}
           onClick={handleAddAddress}
         >
-          添加新地址
+          {t('addresses.addNew')}
         </Button>
       </Box>
       
       {isLoading ? (
-        <Typography>加载中...</Typography>
+        <Typography>{t('loading')}</Typography>
       ) : isError ? (
-        <Typography color="danger">加载地址数据失败，请刷新页面重试</Typography>
+        <Typography color="danger">{t('addresses.loadFailed')}</Typography>
       ) : addressesData?.addresses && addressesData.addresses.length > 0 ? (
         <Grid container spacing={2}>
           {addressesData.addresses.map((address) => (
@@ -176,19 +178,19 @@ function AddressesRoute() {
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                     <LocationOnIcon color="primary" sx={{ mr: 1 }} />
-                    <Typography level="title-lg">{address.city} 地址</Typography>
+                    <Typography level="title-lg">{address.city} {t('addresses.addressLabel')}</Typography>
                   </Box>
                   <Divider sx={{ my: 1 }} />
                   <Box sx={{ mb: 2 }}>
-                    <Typography level="body-sm" sx={{ mb: 0.5 }}>详细地址:</Typography>
+                    <Typography level="body-sm" sx={{ mb: 0.5 }}>{t('addresses.detail')}:</Typography>
                     <Typography>{address.streetAddress}</Typography>
                   </Box>
                   <Box sx={{ mb: 2 }}>
-                    <Typography level="body-sm" sx={{ mb: 0.5 }}>城市/州/国家:</Typography>
+                    <Typography level="body-sm" sx={{ mb: 0.5 }}>{t('addresses.cityStateCountry')}:</Typography>
                     <Typography>{address.city}, {address.state}, {address.country}</Typography>
                   </Box>
                   <Box sx={{ mb: 2 }}>
-                    <Typography level="body-sm" sx={{ mb: 0.5 }}>邮政编码:</Typography>
+                    <Typography level="body-sm" sx={{ mb: 0.5 }}>{t('addresses.zipCode')}:</Typography>
                     <Typography>{address.zipCode}</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
@@ -215,13 +217,13 @@ function AddressesRoute() {
       ) : (
         <Card variant="outlined" sx={{ p: 4, textAlign: 'center' }}>
           <LocationOnIcon sx={{ fontSize: 60, color: 'neutral.400', mb: 2 }} />
-          <Typography level="h3" sx={{ mb: 2 }}>暂无地址信息</Typography>
-          <Typography sx={{ mb: 3 }}>您还没有添加任何地址，点击"添加新地址"按钮创建一个新地址</Typography>
+          <Typography level="h3" sx={{ mb: 2 }}>{t('addresses.noAddresses')}</Typography>
+          <Typography sx={{ mb: 3 }}>{t('addresses.noAddressesPrompt')}</Typography>
           <Button
             startDecorator={<AddIcon />}
             onClick={handleAddAddress}
           >
-            添加新地址
+            {t('addresses.addNew')}
           </Button>
         </Card>
       )}
@@ -235,67 +237,71 @@ function AddressesRoute() {
         <Card sx={{ maxWidth: 500, width: '100%', mx: 2 }}>
           <form onSubmit={handleSubmit}>
             <CardContent>
-              <Typography level="h3" sx={{ mb: 2 }}>{editAddress ? '编辑地址' : '添加新地址'}</Typography>
+              <Typography level="h3" sx={{ mb: 2 }}>{editAddress ? t('addresses.edit') : t('addresses.addNew')}</Typography>
               <Grid container spacing={2}>
                 <Grid xs={12}>
                   <FormControl required>
-                    <FormLabel>详细地址</FormLabel>
+                    <FormLabel>{t('addresses.detail')}</FormLabel>
                     <Input
                       value={formData.streetAddress}
                       onChange={(e) => setFormData({ ...formData, streetAddress: e.target.value })}
-                      placeholder="街道、门牌号等"
+                      placeholder={t('addresses.streetPlaceholder')}
                     />
                   </FormControl>
                 </Grid>
                 <Grid xs={12} sm={6}>
                   <FormControl required>
-                    <FormLabel>城市</FormLabel>
+                    <FormLabel>{t('addresses.city')}</FormLabel>
                     <Input
                       value={formData.city}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                      placeholder={t('addresses.cityPlaceholder')}
                     />
                   </FormControl>
                 </Grid>
                 <Grid xs={12} sm={6}>
                   <FormControl required>
-                    <FormLabel>州/省</FormLabel>
+                    <FormLabel>{t('addresses.province')}</FormLabel>
                     <Input
                       value={formData.state}
                       onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                      placeholder={t('addresses.provincePlaceholder')}
                     />
                   </FormControl>
                 </Grid>
                 <Grid xs={12} sm={6}>
                   <FormControl required>
-                    <FormLabel>国家</FormLabel>
+                    <FormLabel>{t('addresses.country')}</FormLabel>
                     <Input
                       value={formData.country}
                       onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                      placeholder={t('addresses.countryPlaceholder')}
                     />
                   </FormControl>
                 </Grid>
                 <Grid xs={12} sm={6}>
                   <FormControl required>
-                    <FormLabel>邮政编码</FormLabel>
+                    <FormLabel>{t('addresses.zipCode')}</FormLabel>
                     <Input
                       value={formData.zipCode}
                       onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
+                      placeholder={t('addresses.zipCodePlaceholder')}
                     />
                   </FormControl>
                 </Grid>
+                <Grid xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+                  <Button
+                    variant="outlined"
+                    color="neutral"
+                    onClick={() => setOpen(false)}
+                  >
+                    {t('cancel')}
+                  </Button>
+                  <Button type="submit">
+                    {t('save')}
+                  </Button>
+                </Grid>
               </Grid>
-              <Box sx={{ mt: 3, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-                <Button
-                  variant="outlined"
-                  color="neutral"
-                  onClick={() => setOpen(false)}
-                >
-                  取消
-                </Button>
-                <Button type="submit" loading={createAddressMutation.isPending || updateAddressMutation.isPending}>
-                  {editAddress ? '更新' : '保存'}
-                </Button>
-              </Box>
             </CardContent>
           </form>
         </Card>
@@ -308,8 +314,8 @@ function AddressesRoute() {
         onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
       >
         <Alert
-          color={snackbar.severity}
           variant="soft"
+          color={snackbar.severity === 'success' ? 'success' : 'danger'}
         >
           {snackbar.message}
         </Alert>

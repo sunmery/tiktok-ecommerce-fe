@@ -1,11 +1,7 @@
-import {    Link, createLazyFileRoute} from '@tanstack/react-router'
-import {
-    Box, Button, Card, CardContent, Typography, AspectRatio,
-    Grid, Chip, Divider, Stack,
-
-} from '@mui/joy'
+import {createLazyFileRoute, Link} from '@tanstack/react-router'
+import {AspectRatio, Box, Button, Card, CardContent, Chip, Divider, Grid, Stack, Typography,} from '@mui/joy'
 import {useTranslation} from 'react-i18next'
-import {useState, useEffect} from 'react'
+import {useEffect, useState} from 'react'
 import LocalOfferIcon from '@mui/icons-material/LocalOffer'
 import NewReleasesIcon from '@mui/icons-material/NewReleases'
 import StarIcon from '@mui/icons-material/Star'
@@ -39,7 +35,7 @@ function Home() {
             console.error('添加商品失败: 商品ID不能为空');
             return;
         }
-        
+
         // 修正参数顺序：productId, name, merchantId, picture, quantity
         cartStore.addItem(productId, product.name, product.merchantId, product.picture || '', 1);
     }
@@ -568,10 +564,14 @@ function Home() {
                                 <Grid xs={12} sm={6} md={3}>
                                     <Typography level="title-lg" sx={{mb: 2}}>项目信息</Typography>
                                     <Stack spacing={1}>
-                                        <Typography level="body-md"><Link to='https://github.com/sunmery/tiktok-ecommerce'>后端</Link></Typography>
-                                        <Typography level="body-md"><Link to='https://github.com/sunmery/tiktok-ecommerce-fe'>前端</Link></Typography>
-                                        <Typography level="body-md"><Link to='https://github.com/sunmery/tiktok-ecommerce-gateway'>网关</Link></Typography>
-                                        <Typography level="body-md"><Link to='https://github.com/sunmery/tiktok-ecommerce-gateway'>运维</Link></Typography>
+                                        <Typography level="body-md"><Link
+                                            to='https://github.com/sunmery/tiktok-ecommerce'>后端</Link></Typography>
+                                        <Typography level="body-md"><Link
+                                            to='https://github.com/sunmery/tiktok-ecommerce-fe'>前端</Link></Typography>
+                                        <Typography level="body-md"><Link
+                                            to='https://github.com/sunmery/tiktok-ecommerce-gateway'>网关</Link></Typography>
+                                        <Typography level="body-md"><Link
+                                            to='https://github.com/sunmery/tiktok-ecommerce-gateway'>运维</Link></Typography>
                                     </Stack>
                                 </Grid>
                                 <Grid xs={12} sm={6} md={3}>
@@ -583,7 +583,8 @@ function Home() {
                                 <Grid xs={12} sm={6} md={3}>
                                     <Typography level="title-lg" sx={{mb: 2}}>关注我</Typography>
                                     <Stack spacing={1}>
-                                        <Typography level="body-md"><a href="https://github.com/sunmery">GitHub</a></Typography>
+                                        <Typography level="body-md"><a
+                                            href="https://github.com/sunmery">GitHub</a></Typography>
                                         <Typography level="body-md">微信公众号</Typography>
                                         <Typography level="body-md">掘金</Typography>
                                         <Typography level="body-md">Blog</Typography>
