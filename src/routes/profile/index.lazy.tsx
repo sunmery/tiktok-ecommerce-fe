@@ -1,13 +1,13 @@
 import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
 
 import {useEffect, useState} from 'react'
-import {getSigninUrl, getUserinfo, goToLink, isLoggedIn,} from '@/utils/casdoor.ts'
+import {getSigninUrl, getUserinfo, goToLink, isLoggedIn, logout} from '@/utils/casdoor.ts'
 import type {Account} from '@/types/account'
 
 import {Alert, Avatar, Box, Button, Card, CardContent, Divider, Grid, Option, Select, Stack, Typography} from '@mui/joy'
 import {setAccount, userStore} from '@/store/user'
 import {useSnapshot} from 'valtio/react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Skeleton from '@/components/Skeleton'
 import { useTranslation } from 'react-i18next'
 
@@ -18,6 +18,7 @@ export default function Profile() {
     const { t } = useTranslation()
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
+    const queryClient = useQueryClient()
     
     // 使用useQuery获取用户信息
     const { data: userInfo, error: queryError, isLoading } = useQuery({
@@ -90,6 +91,32 @@ export default function Profile() {
                     })
             }
         }
+    }
+    
+    // 退出登录处理函数
+    const handleLogout = () => {
+        // 清除token和会话信息
+        logout()
+        
+        // 清空 React Query 缓存
+        queryClient.clear()
+        
+        // 重置账户状态
+        setAccount({
+            createdTime: '',
+            displayName: '',
+            isDeleted: false,
+            role: '',
+            updatedTime: '',
+            id: '',
+            avatar: '',
+            email: '',
+            name: '',
+            owner: '',
+        })
+        
+        // 导航到首页
+        navigate({ to: '/' })
     }
 
     return (
@@ -228,7 +255,7 @@ export default function Profile() {
                                         <Button
                                             variant="outlined"
                                             color="primary"
-                                            onClick={() => navigate({to: '/orders'}).then(() => {
+                                            onClick={() => navigate({to: '/consumer/orders'}).then(() => {
                                                 console.log(t('log.navigatedToOrderHistory'))
                                             })}
                                         >
@@ -284,6 +311,17 @@ export default function Profile() {
                                         </Button>
                                     </>
                                 )}
+                                
+                                <Divider />
+                                
+                                {/* 退出登录按钮 */}
+                                <Button
+                                    variant="solid"
+                                    color="danger"
+                                    onClick={handleLogout}
+                                >
+                                    {t('logout')}
+                                </Button>
                             </Stack>
                         </CardContent>
                     </Card>

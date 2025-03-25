@@ -111,11 +111,11 @@ function Products() {
         console.log('文件大小:', file.size, 'bytes');
         console.log('文件类型:', file.type);
 
-        fetch(`http://localhost:8000/v1/products/uploadfile`, {
+        fetch(`https://gw.localhost/v1/products/uploadfile`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // 'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
             },
             body: JSON.stringify({
                 method: "POST",

@@ -51,14 +51,6 @@ export default function Products() {
         severity: 'success'
     })
     const [loading, setLoading] = useState(false)
-    const [uploadOpen, setUploadOpen] = useState(false)
-    const [selectedFile, setSelectedFile] = useState<File | null>(null)
-    const [imagePreview, setImagePreview] = useState('')
-
-    // 审核相关状态
-    // const [auditOpen, setAuditOpen] = useState(false)
-    // const [auditProduct, setAuditProduct] = useState<Product | null>(null)
-    // const [auditReason, setAuditReason] = useState('')
 
     useEffect(() => {
         // 获取商家的产品列表
@@ -102,103 +94,6 @@ export default function Products() {
         } finally {
             setLoading(false)
         }
-    }
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0]
-            setSelectedFile(file)
-
-            // 创建预览URL
-            const reader = new FileReader()
-            reader.onload = (e) => {
-                if (e.target && e.target.result) {
-                    setImagePreview(e.target.result as string)
-                }
-            }
-            reader.readAsDataURL(file)
-        }
-    }
-
-    const handleUpload = async () => {
-        if (!selectedFile || !editProduct) return
-
-        fetch(`http://localhost:8000/v1/products/uploadfile`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                // 'Authorization': 'Bearer ' + localStorage.getItem('access_token')
-            },
-            body: JSON.stringify({
-                method: "POST",
-                contentType: selectedFile.type,
-                bucketName: "ecommerce",
-                fileName: selectedFile.name
-            })
-        }).then(res => res.json()).then(data => {
-            console.log(t('log.uploadUrl'), data)
-            if (data.downloadUrl) {
-                fetch(data.downloadUrl, {
-                    method: 'PUT',
-                    body: selectedFile
-                }).then(res => {
-                    if (res.status === 200) {
-                        console.log(t('log.fileUploadSuccess'))
-                        // 从downloadUrl中提取永久访问URL
-                        // 通常downloadUrl格式为：http://domain/bucket/objectName?签名参数
-                        // 我们需要提取不带签名参数的部分作为永久URL
-                        const permanentUrl = data.downloadUrl.split('?')[0];
-                        console.log(t('log.permanentUrl'), permanentUrl);
-
-                        // 将永久URL保存到表单数据中
-                        setFormData(prev => {
-                            if (!prev) return {
-                                id: '',
-                                name: '',
-                                description: '',
-                                price: 0,
-                                status: ProductStatus.DRAFT,
-                                merchantId: '',
-                                picture: permanentUrl,
-                                images: [{url: permanentUrl, isPrimary: true, sortOrder: 0}],
-                                quantity: 0,
-                                attributes: {},
-                                createdAt: new Date().toISOString(),
-                                updatedAt: new Date().toISOString(),
-                                inventory: {productId: '', merchantId: '', stock: 0}
-                            };
-                            return {
-                                ...prev,
-                                picture: permanentUrl,
-                                images: [{url: permanentUrl, isPrimary: true, sortOrder: 0}]
-                            };
-                        })
-
-                        setSnackbar({
-                            open: true,
-                            message: t('products.uploadSuccess'),
-                            severity: 'success'
-                        })
-
-                        setUploadOpen(false)
-                    }
-                }).catch(err => {
-                    console.error(t('products.uploadFailed'), err)
-                    setSnackbar({
-                        open: true,
-                        message: t('products.uploadFailed'),
-                        severity: 'danger'
-                    })
-                })
-            }
-        }).catch(err => {
-            console.error(t('products.getUploadUrlFailed'), err)
-            setSnackbar({
-                open: true,
-                message: t('products.getUploadUrlFailed'),
-                severity: 'danger'
-            })
-        })
     }
 
     // 提交商品审核
@@ -360,19 +255,7 @@ export default function Products() {
                                     >
                                         {t('products.edit')}
                                     </Button>
-                                    <Button
-                                        size="sm"
-                                        variant="outlined"
-                                        color="primary"
-                                        startDecorator={<UploadIcon/>}
-                                        onClick={() => {
-                                            setEditProduct(product)
-                                            setImagePreview(product.images?.[0]?.url || '')
-                                            setUploadOpen(true)
-                                        }}
-                                    >
-                                        {t('products.uploadImage')}
-                                    </Button>
+
                                     {/* 上架按钮 - 仅在草稿或驳回状态显示 */}
                                     {(product.status === ProductStatus.DRAFT || product.status === ProductStatus.REJECTED) && (
                                         <Button
@@ -412,57 +295,6 @@ export default function Products() {
                     </tbody>
                 </Table>
             </Sheet>
-
-            {/* 图片上传弹窗 */}
-            <Modal
-                open={uploadOpen}
-                onClose={() => setUploadOpen(false)}
-                sx={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}
-            >
-                <Card sx={{maxWidth: 500, mx: 2}}>
-                    <CardContent>
-                        <Typography level="h3" sx={{mb: 2}}>{t('products.uploadTitle')}</Typography>
-                        <Box sx={{mb: 2}}>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                style={{display: 'none'}}
-                                id="upload-image"
-                            />
-                            <label htmlFor="upload-image">
-                                <Button
-                                    component="span"
-                                    startDecorator={<UploadIcon/>}
-                                >
-                                    {t('products.selectImage')}
-                                </Button>
-                            </label>
-                        </Box>
-                        {imagePreview && (
-                            <Box sx={{mb: 2, textAlign: 'center'}}>
-                                <img
-                                    src={imagePreview}
-                                    alt={t('products.preview')}
-                                    style={{maxWidth: '100%', maxHeight: '200px'}}
-                                />
-                            </Box>
-                        )}
-                        <Box sx={{display: 'flex', gap: 1, justifyContent: 'flex-end'}}>
-                            <Button variant="outlined" color="neutral" onClick={() => setUploadOpen(false)}>
-                                {t('products.cancel')}
-                            </Button>
-                            <Button
-                                onClick={handleUpload}
-                                disabled={!selectedFile}
-                                loading={loading}
-                            >
-                                {t('products.upload')}
-                            </Button>
-                        </Box>
-                    </CardContent>
-                </Card>
-            </Modal>
 
             {/* 添加商品编辑表单的 Modal */}
             <Modal

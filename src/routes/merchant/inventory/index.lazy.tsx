@@ -17,6 +17,7 @@ import {
 } from '@mui/joy'
 import {Product} from '@/types/products'
 import {productService} from '@/api/productService'
+import {inventoryService} from '@/api/inventoryService'
 
 export const Route = createLazyFileRoute('/merchant/inventory/')({
     component: Inventory,
@@ -57,7 +58,55 @@ export default function Inventory() {
 
     useEffect(() => {
         loadProducts()
+        loadStockAlerts()
+        loadStockAdjustmentHistory()
     }, [])
+
+    const loadStockAlerts = async () => {
+        try {
+            const response = await inventoryService.getStockAlerts({
+                merchantId: '',  // 由服务端从上下文获取
+                page: 1,
+                pageSize: 100
+            })
+            
+            // 将获取到的警戒值转换为前端格式
+            if (response.alerts && response.alerts.length > 0) {
+                const newAlerts = response.alerts.map(alert => ({
+                    productId: alert.productId,
+                    threshold: alert.threshold,
+                    currentStock: alert.currentStock
+                }))
+                setAlerts(newAlerts)
+            }
+        } catch (error) {
+            console.error('加载库存警戒值失败:', error)
+        }
+    }
+
+    const loadStockAdjustmentHistory = async () => {
+        try {
+            const response = await inventoryService.getStockAdjustmentHistory({
+                merchantId: '',  // 由服务端从上下文获取
+                page: 1,
+                pageSize: 20
+            })
+            
+            // 将获取到的调整记录转换为前端格式
+            if (response.adjustments && response.adjustments.length > 0) {
+                const newAdjustments = response.adjustments.map(adj => ({
+                    id: adj.id,
+                    productId: adj.productId,
+                    quantity: adj.quantity,
+                    reason: adj.reason,
+                    date: adj.createdAt
+                }))
+                setAdjustments(newAdjustments)
+            }
+        } catch (error) {
+            console.error('加载库存调整历史失败:', error)
+        }
+    }
 
     const loadProducts = async () => {
         try {
@@ -68,6 +117,7 @@ export default function Inventory() {
                 status: 1
             })
             setProducts(response.items || [])
+            
             // 检查库存警报
             checkLowStock(response.items || [])
         } catch (error) {
@@ -83,70 +133,86 @@ export default function Inventory() {
     }
 
     const checkLowStock = (products: Product[]) => {
-        const newAlerts = products
-            .filter(product => (product.stock || 0) < (alerts.find(a => a.productId === product.productId || product.id)?.threshold || 10))
-            .map(product => ({
-                productId: product.productId || product.id,
-                threshold: alerts.find(a => a.productId === (product.productId || product.id))?.threshold || 10,
-                currentStock: product.stock || 0
-            }))
-        setAlerts(newAlerts)
+        // 首先，确保 alerts 是最新的
+        const updatedAlerts = [...alerts];
+        
+        // 更新所有 alert 的当前库存数据
+        products.forEach(product => {
+            const index = updatedAlerts.findIndex(a => a.productId === product.id);
+            if (index >= 0) {
+                // 更新现有警报的当前库存
+                updatedAlerts[index] = {
+                    ...updatedAlerts[index],
+                    currentStock: product.inventory?.stock || 0
+                };
+            }
+        });
+        
+        // 更新 alerts 状态
+        setAlerts(updatedAlerts);
     }
 
     const handleSetAlert = async () => {
         if (selectedProduct && threshold > 0) {
-            const newAlert: InventoryAlert = {
-                productId: selectedProduct.productId || selectedProduct.id,
-                threshold: threshold,
-                currentStock: selectedProduct.stock || 0
+            try {
+                setLoading(true)
+                // 调用后端API设置库存警戒值
+                await inventoryService.setStockAlert({
+                    productId: selectedProduct.id,
+                    merchantId: selectedProduct?.inventory?.merchantId || '',
+                    threshold: threshold
+                })
+                
+                // 设置成功后，重新加载所有警戒值数据
+                await loadStockAlerts()
+                
+                setAlertOpen(false)
+                setSnackbar({
+                    open: true,
+                    message: '库存警戒值设置成功',
+                    severity: 'success'
+                })
+                
+                // 重新检查库存警报
+                checkLowStock(products)
+            } catch (error) {
+                console.error('设置库存警戒值失败:', error)
+                setSnackbar({
+                    open: true,
+                    message: '设置库存警戒值失败',
+                    severity: 'error'
+                })
+            } finally {
+                setLoading(false)
             }
-            setAlerts(prev => [...prev.filter(a => a.productId !== (selectedProduct.productId || selectedProduct.id)), newAlert])
-            setAlertOpen(false)
-            setSnackbar({
-                open: true,
-                message: '库存警戒值设置成功',
-                severity: 'success'
-            })
-            checkLowStock(products)
         }
     }
 
     const handleStockAdjustment = async (productId: string, quantity: number, reason: string) => {
         try {
             setLoading(true)
-            // 这里应该调用后端API更新库存
-            // 模拟API调用
-            setTimeout(() => {
-                const adjustment: StockAdjustment = {
-                    id: Date.now().toString(),
-                    productId,
-                    quantity,
-                    reason,
-                    date: new Date().toISOString()
-                }
-                setAdjustments(prev => [adjustment, ...prev])
+            // 调用后端API更新库存
+            await inventoryService.updateProductStock({
+                productId: productId,
+                merchantId: selectedProduct?.inventory?.merchantId || '',
+                stock: quantity,
+                reason: reason
+            })
 
-                // 更新本地产品库存数据
-                setProducts(prev => prev.map(p => {
-                    if (p.id === productId) {
-                        return {
-                            ...p,
-                            stock: (p.stock || 0) + quantity
-                        }
-                    }
-                    return p
-                }))
+            // 调整成功后重新加载数据
+            await loadProducts()
+            await loadStockAdjustmentHistory()
+            
+            setSnackbar({
+                open: true,
+                message: '库存调整成功',
+                severity: 'success'
+            })
 
-                setSnackbar({
-                    open: true,
-                    message: '库存调整成功',
-                    severity: 'success'
-                })
-
-                setLoading(false)
-                setAdjustmentOpen(false)
-                checkLowStock(products) // 重新检查库存警报
-            }, 500)
+            setAdjustmentOpen(false)
+            
+            // 使用最新的产品数据重新检查库存警报
+            checkLowStock(products)
         } catch (error) {
             console.error('调整库存失败:', error)
             setSnackbar({
@@ -154,6 +220,7 @@ export default function Inventory() {
                 message: '调整库存失败',
                 severity: 'error'
             })
+        } finally {
             setLoading(false)
         }
     }
@@ -175,18 +242,20 @@ export default function Inventory() {
             {alerts.length > 0 && (
                 <Box sx={{mb: 3}}>
                     <Typography level="h3" sx={{mb: 2}}>库存警报</Typography>
-                    {alerts.map((alert) => {
-                        const product = products.find(p => p.id === alert.productId)
-                        return (
-                            <Alert
-                                key={alert.productId}
-                                color="warning"
-                                sx={{mb: 1}}
-                            >
-                                {product?.name} 当前库存 ({alert.currentStock}) 低于警戒值 ({alert.threshold})
-                            </Alert>
-                        )
-                    })}
+                    {alerts
+                        .filter(alert => alert.currentStock < alert.threshold)
+                        .map((alert) => {
+                            const product = products.find(p => p.id === alert.productId)
+                            return (
+                                <Alert
+                                    key={alert.productId}
+                                    color="warning"
+                                    sx={{mb: 1}}
+                                >
+                                    {product?.name} 当前库存 ({alert.currentStock}) 低于警戒值 ({alert.threshold})
+                                </Alert>
+                            )
+                        })}
                 </Box>
             )}
 
@@ -205,7 +274,7 @@ export default function Inventory() {
                     {products.map((product) => (
                         <tr key={product.id}>
                             <td>{product.name}</td>
-                            <td>{product.stock || 0}</td>
+                            <td>{product.inventory?.stock || 0}</td>
                             <td>{alerts.find(a => a.productId === product.id)?.threshold || '-'}</td>
                             <td>
                                 <Box sx={{display: 'flex', gap: 1}}>
@@ -314,7 +383,7 @@ export default function Inventory() {
                             产品: {selectedProduct?.name}
                         </Typography>
                         <Typography level="body-md" sx={{mb: 2}}>
-                            当前库存: {selectedProduct?.stock || 0}
+                            当前库存: {selectedProduct?.inventory.stock || 0}
                         </Typography>
                         <FormControl sx={{mb: 2}}>
                             <FormLabel>调整数量 (正数增加，负数减少)</FormLabel>

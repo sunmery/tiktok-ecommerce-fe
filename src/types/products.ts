@@ -53,7 +53,7 @@ export interface Product {
     updatedAt: string;
     auditInfo?: AuditInfo;
     category?: CategoryInfo;
-    inventory?: {
+    inventory: {
         productId: string
         merchantId: string
         stock: number

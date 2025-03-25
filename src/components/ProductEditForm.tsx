@@ -10,8 +10,15 @@ import {
     Typography,
     Card,
     CardContent,
+    AspectRatio,
+    IconButton,
+    SvgIcon,
+    Alert
 } from '@mui/joy';
 import { Product, AttributeValue } from '@/types/products';
+import PhotoIcon from '@mui/icons-material/PhotoCamera';
+import { styled } from '@mui/joy';
+import { useTranslation } from 'react-i18next';
 
 interface ProductEditFormProps {
     product?: Product;
@@ -90,11 +97,24 @@ const AttributeEditor: React.FC<{
     );
 };
 
+const VisuallyHiddenInput = styled('input')`
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    white-space: nowrap;
+    width: 1px;
+`;
+
 export const ProductEditForm: React.FC<ProductEditFormProps> = ({
     product,
     onSubmit,
     onCancel,
-}) => {
+}): JSX.Element => {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState<Partial<Product>>(
         product || {
             name: '',
@@ -109,10 +129,138 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
             inventory: { productId: '', merchantId: '', stock: 0 },
         }
     );
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string>(product?.picture || '');
+    const [uploadStatus, setUploadStatus] = useState<{
+        loading: boolean;
+        error: string | null;
+    }>({
+        loading: false,
+        error: null
+    });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        // 验证文件类型
+        if (!file.type.startsWith('image/')) {
+            setUploadStatus({
+                loading: false,
+                error: t('products.onlyImageAllowed')
+            });
+            return;
+        }
+
+        // 验证文件大小（最大5MB）
+        if (file.size > 5 * 1024 * 1024) {
+            setUploadStatus({
+                loading: false,
+                error: t('products.fileTooLarge')
+            });
+            return;
+        }
+
+        setSelectedFile(file);
+        setUploadStatus({
+            loading: false,
+            error: null
+        });
+
+        // 创建预览URL
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            if (e.target && e.target.result) {
+                setImagePreview(e.target.result as string);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleImageUpload = async () => {
+        if (!selectedFile) return null;
+
+        try {
+            const response = await fetch(`https://gw.localhost/v1/products/uploadfile`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
+                body: JSON.stringify({
+                    method: "POST",
+                    contentType: selectedFile.type,
+                    bucketName: "ecommerce",
+                    fileName: selectedFile.name
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server responded with ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            if (data.downloadUrl) {
+                const uploadResponse = await fetch(data.downloadUrl, {
+                    method: 'PUT',
+                    body: selectedFile
+                });
+
+                if (uploadResponse.status === 200) {
+                    // 从downloadUrl中提取永久访问URL
+                    const permanentUrl = data.downloadUrl.split('?')[0];
+                    return permanentUrl;
+                } else {
+                    throw new Error(`Upload failed with status ${uploadResponse.status}`);
+                }
+            } else {
+                throw new Error('No download URL received');
+            }
+        } catch (error) {
+            console.error('Image upload failed:', error);
+            throw error;
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit(formData);
+        setUploadStatus({ loading: true, error: null });
+
+        try {
+            let updatedFormData = { ...formData };
+
+            // 如果有选择新图片，先上传图片
+            if (selectedFile) {
+                try {
+                    const imageUrl = await handleImageUpload();
+                    if (imageUrl) {
+                        updatedFormData = {
+                            ...updatedFormData,
+                            picture: imageUrl,
+                            images: [{url: imageUrl, isPrimary: true, sortOrder: 0}]
+                        };
+                    }
+                } catch (error) {
+                    console.error('Image upload failed:', error);
+                    setUploadStatus({
+                        loading: false,
+                        error: t('products.uploadFailed')
+                    });
+                    return; // 如果图片上传失败，不继续提交表单
+                }
+            }
+
+            // 提交表单数据
+            await onSubmit(updatedFormData);
+            setUploadStatus({ loading: false, error: null });
+        } catch (error) {
+            console.error('Form submission failed:', error);
+            setUploadStatus({
+                loading: false,
+                error: error instanceof Error ? error.message : String(error)
+            });
+        }
     };
 
     const handleAttributeChange = (name: string, value: AttributeValue) => {
@@ -131,8 +279,85 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                 <CardContent>
                     <Grid container spacing={2}>
                         <Grid xs={12}>
-                            <FormControl fullWidth>
-                                <FormLabel>商品名称</FormLabel>
+                            <Typography level="h4" sx={{ mb: 2 }}>{t('products.productImage')}</Typography>
+                            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, alignItems: 'flex-start' }}>
+                                <Box sx={{ width: { xs: '100%', sm: 200 }, flexShrink: 0 }}>
+                                    <AspectRatio ratio="1" sx={{ 
+                                        width: '100%', 
+                                        bgcolor: 'neutral.100',
+                                        borderRadius: 'md',
+                                        mb: 1
+                                    }}>
+                                        {imagePreview ? (
+                                            <img
+                                                src={imagePreview}
+                                                alt={t('products.preview')}
+                                                style={{ 
+                                                    objectFit: 'contain', 
+                                                    width: '100%', 
+                                                    height: '100%' 
+                                                }}
+                                            />
+                                        ) : (
+                                            <Box sx={{ 
+                                                display: 'flex', 
+                                                alignItems: 'center', 
+                                                justifyContent: 'center',
+                                                color: 'text.tertiary' 
+                                            }}>
+                                                <PhotoIcon sx={{ fontSize: 40 }} />
+                                            </Box>
+                                        )}
+                                    </AspectRatio>
+                                </Box>
+                                
+                                <Box sx={{ flexGrow: 1 }}>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
+                                        <Button
+                                            component="label"
+                                            role={undefined}
+                                            tabIndex={-1}
+                                            variant="outlined"
+                                            color="neutral"
+                                            startDecorator={
+                                                <SvgIcon>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        strokeWidth={1.5}
+                                                        stroke="currentColor"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
+                                                        />
+                                                    </svg>
+                                                </SvgIcon>
+                                            }
+                                        >
+                                            {t('products.selectImage')}
+                                            <VisuallyHiddenInput type="file" accept="image/*" onChange={handleImageChange} />
+                                        </Button>
+                                    </Box>
+                                    
+                                    {uploadStatus.error && (
+                                        <Alert color="danger" sx={{ mb: 2 }}>
+                                            {uploadStatus.error}
+                                        </Alert>
+                                    )}
+                                    
+                                    <Typography level="body-sm">
+                                        {t('products.imageRequirements')}
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        </Grid>
+
+                        <Grid xs={12}>
+                            <FormControl sx={{ width: '100%' }}>
+                                <FormLabel>{t('products.name')}</FormLabel>
                                 <Input
                                     value={formData.name}
                                     onChange={(e) =>
@@ -144,8 +369,8 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                         </Grid>
 
                         <Grid xs={12}>
-                            <FormControl fullWidth>
-                                <FormLabel>商品描述</FormLabel>
+                            <FormControl sx={{ width: '100%' }}>
+                                <FormLabel>{t('products.description')}</FormLabel>
                                 <Textarea
                                     value={formData.description}
                                     onChange={(e) =>
@@ -157,8 +382,8 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                         </Grid>
 
                         <Grid xs={12} sm={6}>
-                            <FormControl fullWidth>
-                                <FormLabel>价格</FormLabel>
+                            <FormControl sx={{ width: '100%' }}>
+                                <FormLabel>{t('products.price')}</FormLabel>
                                 <Input
                                     type="number"
                                     value={formData.price}
@@ -171,20 +396,34 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                         </Grid>
 
                         <Grid xs={12} sm={6}>
-                            <FormControl fullWidth>
-                                <FormLabel>库存</FormLabel>
+                            <FormControl sx={{ width: '100%' }}>
+                                <FormLabel>{t('products.stock')}</FormLabel>
                                 <Input
                                     type="number"
                                     value={formData.inventory?.stock || 0}
-                                    onChange={(e) =>
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            inventory: {
-                                                ...prev.inventory,
-                                                stock: Number(e.target.value),
-                                            },
-                                        }))
-                                    }
+                                    onChange={(e) => {
+                                        const stockValue = Number(e.target.value);
+                                        setFormData(prev => {
+                                            // 确保inventory对象结构正确
+                                            const inventory = prev.inventory 
+                                                ? { 
+                                                    ...prev.inventory, 
+                                                    stock: stockValue,
+                                                    productId: prev.inventory.productId || '',
+                                                    merchantId: prev.inventory.merchantId || ''
+                                                } 
+                                                : { 
+                                                    stock: stockValue, 
+                                                    productId: '', 
+                                                    merchantId: '' 
+                                                };
+                                            
+                                            return {
+                                                ...prev,
+                                                inventory
+                                            };
+                                        });
+                                    }}
                                     required
                                 />
                             </FormControl>
@@ -216,10 +455,10 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                         <Grid xs={12}>
                             <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
                                 <Button variant="outlined" onClick={onCancel}>
-                                    取消
+                                    {t('products.cancel')}
                                 </Button>
-                                <Button type="submit">
-                                    保存
+                                <Button type="submit" loading={uploadStatus.loading}>
+                                    {t('products.save')}
                                 </Button>
                             </Box>
                         </Grid>

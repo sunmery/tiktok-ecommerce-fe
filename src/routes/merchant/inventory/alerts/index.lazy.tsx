@@ -1,6 +1,6 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { Box, Typography, Grid, Card, CardContent, Table, Sheet, Alert, CircularProgress, Divider, Button, Modal, FormControl, FormLabel, Input, Snackbar } from '@mui/joy'
+import { Box, Typography, Card, CardContent, Table, Sheet, Alert, CircularProgress, Divider, Button, Modal, FormControl, FormLabel, Input, Snackbar } from '@mui/joy'
 import { useSnapshot } from 'valtio/react'
 import { userStore } from '@/store/user'
 import { inventoryService, StockAlert, SetStockAlertRequest } from '@/api/inventoryService'
@@ -225,7 +225,7 @@ export default function InventoryAlerts() {
                     .map((product) => (
                       <tr key={product.id}>
                         <td>{product.name}</td>
-                        <td>{product.stock || 0}</td>
+                        <td>{product.inventory.stock || 0}</td>
                         <td>
                           <Button
                             size="sm"
@@ -267,7 +267,7 @@ export default function InventoryAlerts() {
               产品: {selectedProduct?.name}
             </Typography>
             <Typography level="body-md" sx={{ mb: 2 }}>
-              当前库存: {selectedProduct?.stock || 0}
+              当前库存: {selectedProduct?.inventory.stock || 0}
             </Typography>
             <FormControl>
               <FormLabel>警戒值</FormLabel>
