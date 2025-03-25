@@ -11,6 +11,7 @@ import {useSearchProducts} from '@/hooks/useProduct'
 import {cartStore} from '@/store/cartStore'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import {CartItem} from "@/types/cart";
+import {Product} from "@/types/products.ts";
 
 export const Route = createLazyFileRoute('/')({
     component: Home,
@@ -30,7 +31,7 @@ function Home() {
     // 添加商品到购物车
     const addToCart = (product: CartItem) => {
         // 确保productId不为空
-        const productId = product.productId || product.id;
+        const productId = product.productId;
         if (!productId || productId.trim() === '') {
             console.error('添加商品失败: 商品ID不能为空');
             return;
@@ -163,14 +164,14 @@ function Home() {
 
                         {isLoading ? (
                             <Typography>{t('search.loading')}</Typography>
-                        ) : searchResults?.data ? (
+                        ) : searchResults?.items ? (
                             <Box sx={{
                                 display: 'grid',
                                 gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
                                 gap: 3
                             }}>
-                                {Array.isArray(searchResults.data) ? (
-                                    searchResults.data.map((product, index: number) => (
+                                {Array.isArray(searchResults.items) ? (
+                                    searchResults.items.map((product: Product, index: number) => (
                                         <Card
                                             key={index}
                                             variant="outlined"

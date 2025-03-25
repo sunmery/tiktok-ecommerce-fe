@@ -12,6 +12,8 @@ const savedUser = localStorage.getItem('user')
 const initialUser: Account = savedUser
     ? JSON.parse(savedUser)
     : {
+        firstname: "",
+        lastname: "",
         owner: "",
         name: "",
         avatar: "",

@@ -1,6 +1,4 @@
 import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
-
-import {useEffect, useState} from 'react'
 import {getSigninUrl, getUserinfo, goToLink, isLoggedIn, logout} from '@/utils/casdoor.ts'
 import type {Account} from '@/types/account'
 
@@ -21,11 +19,11 @@ export default function Profile() {
     const queryClient = useQueryClient()
     
     // 使用useQuery获取用户信息
-    const { data: userInfo, error: queryError, isLoading } = useQuery({
+    const { error: queryError, isLoading } = useQuery({
       queryKey: ['userinfo'],
       queryFn: async () => {
         if (!isLoggedIn()) {
-          navigate({ to: '/login' })
+          await navigate({to: '/login'})
           return Promise.reject(t('error.notLoggedIn'))
         }
         
@@ -34,11 +32,14 @@ export default function Profile() {
           throw new Error(t('error.failedToGetUserInfo'))
         }
         
+        // 将后端"user"角色映射为前端"consumer"角色
+        const frontendRole = res.role === 'user' ? 'consumer' : res.role;
+
         setAccount({
             createdTime: res.createdTime,
             displayName: res.displayName,
             isDeleted: res.isDeleted,
-            role: res.role,
+            role: frontendRole, // 使用映射后的角色
             updatedTime: res.updatedTime,
             id: res.id,
             avatar: res.avatar,
@@ -60,33 +61,31 @@ export default function Profile() {
     // 角色切换处理函数
     const handleRoleChange = (newRole: string) => {
         if (account) {
+            // 更新用户状态中的角色
             setAccount({
                 ...account,
                 role: newRole,
             })
 
+            // 根据新角色导航到相应页面
             switch (newRole) {
                 case 'merchant':
                     navigate({to: '/merchant'}).then(() => {
-                        // 商家角色切换成功后的回调
                         console.log(t('log.switchedToMerchant'))
                     })
                     break
                 case 'admin':
                     navigate({to: '/admin'}).then(() => {
-                        // 管理员角色切换成功后的回调
                         console.log(t('log.switchedToAdmin'))
                     })
                     break
                 case 'consumer':
                     navigate({to: '/profile'}).then(() => {
-                        // 普通用户角色切换成功后的回调
                         console.log(t('log.switchedToConsumer'))
                     })
                     break
                 default:
                     navigate({to: '/profile'}).then(() => {
-                        // 普通用户角色切换成功后的回调
                         console.log(t('log.switchedToGuest'))
                     })
             }
@@ -116,7 +115,9 @@ export default function Profile() {
         })
         
         // 导航到首页
-        navigate({ to: '/' })
+        navigate({ to: '/' }).then(() => {
+            console.log(t('log.loggedOut'))
+        })
     }
 
     return (
@@ -204,7 +205,7 @@ export default function Profile() {
                                         {t('profile.switchRole')}:
                                     </Typography>
                                     <Select
-                                        defaultValue={account.role || 'guest'}
+                                        value={account.role || 'guest'}
                                         onChange={(_, value) => handleRoleChange(value as string)}
                                         sx={{minWidth: 150}}
                                     >

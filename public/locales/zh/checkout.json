@@ -42,7 +42,6 @@
   "billingAddress": "账单地址",
   "orderSummary": "订单摘要",
   "subtotal": "小计",
-  "shipping": "运费",
   "tax": "税费",
   "total": "总计",
   "placeOrder": "下单",

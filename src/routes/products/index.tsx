@@ -1,11 +1,10 @@
-import {createFileRoute} from '@tanstack/react-router'
-import {useNavigate, useSearch} from "@tanstack/react-router";
+import {createFileRoute, useNavigate, useSearch} from '@tanstack/react-router'
 import {useQuery} from "@tanstack/react-query";
 import {productService} from "@/api/productService.ts";
 import {useSnapshot} from "valtio/react";
 import {cartStore} from "@/store/cartStore.ts";
 import {ChangeEvent} from 'react';
-import {Box, SvgIcon} from "@mui/joy";
+import {Box, styled, SvgIcon} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import Card from "@mui/joy/Card";
 import IconButton from "@mui/joy/IconButton";
@@ -14,7 +13,6 @@ import AspectRatio from "@mui/joy/AspectRatio";
 import CardContent from "@mui/joy/CardContent";
 import Button from "@mui/joy/Button";
 import Breadcrumbs from '@/components/Breadcrumbs';
-import {styled} from '@mui/joy';
 import {useTranslation} from "react-i18next";
 
 export const Route = createFileRoute('/products/')({
@@ -60,16 +58,17 @@ function Products() {
         id: string,
         name: string,
         merchantId: string,
-        price: number,
+        // price: number,
     ) => {
         // 确保productId不为空
         if (!id || id.trim() === '') {
             console.error('添加商品失败: 商品ID不能为空');
             return;
         }
-        
+
         // 修正参数顺序：productId, name, merchantId, picture, quantity
-        await cartStore.addItem(id, name, merchantId, '', 1) // 固定添加1个商品到购物车
+        cartStore.addItem(id, name, merchantId, '', 1) // 固定添加1个商品到购物车
+        // 固定添加1个商品到购物车
     }
 
     // 使用网络数据
@@ -80,8 +79,15 @@ function Products() {
         return (
             <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
                 <Breadcrumbs pathMap={{'products': t('allProducts')}}/>
-                <Typography level="h2" sx={{mb: 3}}>{search.query ? `${t('searchResults')}: ${search.query}` : t('allProducts')}</Typography>
-                <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 8}}>
+                <Typography level="h2"
+                            sx={{mb: 3}}>{search.query ? `${t('searchResults')}: ${search.query}` : t('allProducts')}</Typography>
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    py: 8
+                }}>
                     <Typography color="danger" level="h4" sx={{mb: 2}}>{t('errorLoadingProducts')}</Typography>
                     <Typography color="neutral" level="body-md" sx={{mb: 4}}>{t('tryAgain')}</Typography>
                     <Button onClick={() => window.location.reload()} variant="outlined">{t('refresh')}</Button>
@@ -95,7 +101,8 @@ function Products() {
         return (
             <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
                 <Breadcrumbs pathMap={{'products': t('allProducts')}}/>
-                <Typography level="h2" sx={{mb: 3}}>{search.query ? `${t('searchResults')}: ${search.query}` : t('allProducts')}</Typography>
+                <Typography level="h2"
+                            sx={{mb: 3}}>{search.query ? `${t('searchResults')}: ${search.query}` : t('allProducts')}</Typography>
                 <Box sx={{display: 'flex', justifyContent: 'center', py: 8}}>
                     <Typography level="body-lg">{t('loading')}</Typography>
                 </Box>
@@ -242,7 +249,7 @@ function Products() {
                             if (e.defaultPrevented) return;
                             await navigate({
                                 to: `/products/${product.id}`,
-                                search: (prev) => ({ ...prev, merchantId: product.merchantId })
+                                search: (prev) => ({...prev, merchantId: product.merchantId})
                             });
                         }}
                     >
@@ -253,9 +260,9 @@ function Products() {
                                 alt={product.name}
                             />
                         </AspectRatio>
-                        <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1, p: 2 }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <Typography level="title-lg" sx={{ 
+                        <CardContent sx={{flex: 1, display: 'flex', flexDirection: 'column', gap: 1, p: 2}}>
+                            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+                                <Typography level="title-lg" sx={{
                                     fontSize: 'md',
                                     fontWeight: 'bold',
                                     overflow: 'hidden',
@@ -273,10 +280,10 @@ function Products() {
                                     color="neutral"
                                     size="sm"
                                 >
-                                    <BookmarkAdd />
+                                    <BookmarkAdd/>
                                 </IconButton>
                             </Box>
-                            
+
                             <Typography level="body-sm" sx={{
                                 color: 'text.secondary',
                                 overflow: 'hidden',
@@ -289,7 +296,7 @@ function Products() {
                             }}>
                                 {product.description || t('noDescription')}
                             </Typography>
-                            
+
                             {product.category && (
                                 <Typography
                                     level="body-xs"
@@ -301,20 +308,25 @@ function Products() {
                                     {product.category.categoryName}
                                 </Typography>
                             )}
-                            
-                            <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+
+                            <Box sx={{
+                                mt: 'auto',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
+                            }}>
                                 <Box>
-                                    <Typography level="body-xs" sx={{ color: 'text.secondary' }}>{t('price')}</Typography>
-                                    <Typography 
-                                        level="h4" 
-                                        sx={{ 
+                                    <Typography level="body-xs" sx={{color: 'text.secondary'}}>{t('price')}</Typography>
+                                    <Typography
+                                        level="h4"
+                                        sx={{
                                             color: 'primary.600',
-                                            fontWeight: 'bold' 
+                                            fontWeight: 'bold'
                                         }}
                                     >
                                         ¥{product.price}
                                     </Typography>
-                                    <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
+                                    <Typography level="body-xs" sx={{color: 'text.secondary'}}>
                                         {t('stock')}: {product.inventory?.stock || product.quantity || 0}
                                     </Typography>
                                 </Box>
@@ -328,8 +340,12 @@ function Products() {
                                             product.id,
                                             product.name,
                                             product.merchantId,
-                                            product.price
-                                        );
+                                            // product.price
+                                        ).then(r => {
+                                            console.log("addToCartHandler", r)
+                                        }).catch(e => {
+                                            console.error("addToCartHandler", e)
+                                        })
                                     }}
                                     sx={{
                                         minWidth: 100,

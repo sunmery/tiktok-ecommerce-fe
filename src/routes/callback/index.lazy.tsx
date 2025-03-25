@@ -1,6 +1,6 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
 import {AuthCallback} from 'casdoor-react-sdk'
-import {CASDOOR_SDK, goToLink, setToken} from '@/utils/casdoor.ts'
+import {CASDOOR_SDK, setToken} from '@/utils/casdoor.ts'
 import type {SigninReply} from '@/types/callback.ts'
 
 export const Route = createLazyFileRoute('/callback/')({

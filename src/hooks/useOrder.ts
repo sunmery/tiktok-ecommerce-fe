@@ -7,7 +7,6 @@ import {
   MarkOrderPaidResp,
   PlaceOrderReq,
   PlaceOrderResp,
-  PaymentStatus
 } from '@/types/orders'
 
 /**
@@ -46,26 +45,6 @@ export function useMarkOrderPaid() {
     mutationFn: (request) => orderService.markOrderPaid(request),
     onSuccess: (_, variables) => {
       // 标记订单为已支付成功后刷新订单列表和订单详情
-      queryClient.invalidateQueries({ queryKey: ['orders'] })
-      queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] })
-    },
-  })
-}
-
-/**
- * 更新订单状态的hook
- */
-export function useUpdateOrderStatus() {
-  const queryClient = useQueryClient()
-
-  return useMutation<void, Error, { orderId: string; status: PaymentStatus }>({
-    mutationFn: ({ orderId, status }) => {
-      // 临时实现，因为 orderService 中没有 updateOrderStatus 方法
-      console.warn('updateOrderStatus 方法未实现');
-      return Promise.resolve();
-    },
-    onSuccess: (_, variables) => {
-      // 更新订单状态成功后刷新订单列表和订单详情
       queryClient.invalidateQueries({ queryKey: ['orders'] })
       queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] })
     },

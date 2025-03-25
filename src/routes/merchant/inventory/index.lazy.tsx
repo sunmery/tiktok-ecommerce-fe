@@ -57,9 +57,21 @@ export default function Inventory() {
     })
 
     useEffect(() => {
-        loadProducts()
-        loadStockAlerts()
-        loadStockAdjustmentHistory()
+        loadProducts().then((r) => {
+            console.log('routes/merchant/inventory/index.lazy.tsx触发loadProducts', r)
+        }).catch((error) => {
+            console.error('loadProducts error:', error)
+        })
+        loadStockAlerts().then((r) => {
+            console.log('routes/merchant/inventory/index.lazy.tsx触发loadStockAlerts', r)
+        }).catch((error) => {
+            console.error('loadProducts error:', error)
+        })
+        loadStockAdjustmentHistory().then((r) => {
+            console.log('routes/merchant/inventory/index.lazy.tsx触发loadStockAdjustmentHistory', r)
+        }).catch((error) => {
+            console.error('loadProducts error:', error)
+        })
     }, [])
 
     const loadStockAlerts = async () => {
@@ -69,7 +81,7 @@ export default function Inventory() {
                 page: 1,
                 pageSize: 100
             })
-            
+
             // 将获取到的警戒值转换为前端格式
             if (response.alerts && response.alerts.length > 0) {
                 const newAlerts = response.alerts.map(alert => ({
@@ -91,7 +103,7 @@ export default function Inventory() {
                 page: 1,
                 pageSize: 20
             })
-            
+
             // 将获取到的调整记录转换为前端格式
             if (response.adjustments && response.adjustments.length > 0) {
                 const newAdjustments = response.adjustments.map(adj => ({
@@ -117,7 +129,7 @@ export default function Inventory() {
                 status: 1
             })
             setProducts(response.items || [])
-            
+
             // 检查库存警报
             checkLowStock(response.items || [])
         } catch (error) {
@@ -135,7 +147,7 @@ export default function Inventory() {
     const checkLowStock = (products: Product[]) => {
         // 首先，确保 alerts 是最新的
         const updatedAlerts = [...alerts];
-        
+
         // 更新所有 alert 的当前库存数据
         products.forEach(product => {
             const index = updatedAlerts.findIndex(a => a.productId === product.id);
@@ -147,7 +159,7 @@ export default function Inventory() {
                 };
             }
         });
-        
+
         // 更新 alerts 状态
         setAlerts(updatedAlerts);
     }
@@ -162,17 +174,17 @@ export default function Inventory() {
                     merchantId: selectedProduct?.inventory?.merchantId || '',
                     threshold: threshold
                 })
-                
+
                 // 设置成功后，重新加载所有警戒值数据
                 await loadStockAlerts()
-                
+
                 setAlertOpen(false)
                 setSnackbar({
                     open: true,
                     message: '库存警戒值设置成功',
                     severity: 'success'
                 })
-                
+
                 // 重新检查库存警报
                 checkLowStock(products)
             } catch (error) {
@@ -202,7 +214,7 @@ export default function Inventory() {
             // 调整成功后重新加载数据
             await loadProducts()
             await loadStockAdjustmentHistory()
-            
+
             setSnackbar({
                 open: true,
                 message: '库存调整成功',
@@ -210,7 +222,7 @@ export default function Inventory() {
             })
 
             setAdjustmentOpen(false)
-            
+
             // 使用最新的产品数据重新检查库存警报
             checkLowStock(products)
         } catch (error) {

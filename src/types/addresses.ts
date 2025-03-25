@@ -11,9 +11,6 @@ export interface Address {
   state: string
   country: string
   zipCode: string
-  province: string
-  district: string
-  detail: string
 }
 
 // 地址列表接口

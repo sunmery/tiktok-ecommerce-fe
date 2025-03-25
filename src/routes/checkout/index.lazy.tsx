@@ -10,7 +10,7 @@ import Breadcrumbs from '@/components/Breadcrumbs'
 import Skeleton from '@/components/Skeleton'
 import AddressSelector from '@/components/AddressSelector'
 import CardSelector from '@/components/CardSelector'
-import { Box, Typography, Card, CardContent, Divider, Grid, Table, Chip } from '@mui/joy'
+import { Box, Typography, Card, CardContent, Divider, Grid, Table } from '@mui/joy'
 
 export const Route = createLazyFileRoute('/checkout/')({
 	component: RouteComponent,
@@ -57,21 +57,19 @@ function RouteComponent() {
 			},
 			body: JSON.stringify({
 				userId: account.id,
-				firstname: account.firstname,
-				lastname: account.lastname,
+				firstname: account?.firstName,
+				lastname: account?.lastName,
 				email: account.email,
 				addressId: selectedAddressId,
 				creditCardId: selectedCardId
-
 			}),
 		})
-			.then((res) => {
+			.then(async (res) => {
 				console.log('收到响应状态码:', res.status);
 				if (!res.ok) {
-					return res.text().then(text => {
-						console.error('响应内容:', text);
-						throw new Error(text || `结算失败: ${res.status}`);
-					});
+					const text = await res.text()
+					console.error('响应内容:', text)
+					throw new Error(text || `结算失败: ${res.status}`)
 				}
 				return res.json();
 			})
@@ -149,25 +147,25 @@ function RouteComponent() {
 															)}
 															<Box>
 																<Typography level="title-md">{item.name}</Typography>
-																{item.description && (
-																	<Typography level="body-sm" noWrap sx={{ maxWidth: 250 }}>
-																		{item.description}
-																	</Typography>
-																)}
-																{item.categories && item.categories.length > 0 && (
-																	<Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
-																		{item.categories.map((category, index) => (
-																			<Chip
-																				key={index}
-																				size="sm"
-																				variant="soft"
-																				color="primary"
-																			>
-																				{category}
-																			</Chip>
-																		))}
-																	</Box>
-																)}
+																{/*{item.description && (*/}
+																{/*	<Typography level="body-sm" noWrap sx={{ maxWidth: 250 }}>*/}
+																{/*		{item.description}*/}
+																{/*	</Typography>*/}
+																{/*)}*/}
+																{/*{item.categories && item.categories.length > 0 && (*/}
+																{/*	<Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>*/}
+																{/*		{item.categories.map((category, index) => (*/}
+																{/*			<Chip*/}
+																{/*				key={index}*/}
+																{/*				size="sm"*/}
+																{/*				variant="soft"*/}
+																{/*				color="primary"*/}
+																{/*			>*/}
+																{/*				{category}*/}
+																{/*			</Chip>*/}
+																{/*		))}*/}
+																{/*	</Box>*/}
+																{/*)}*/}
 															</Box>
 														</Box>
 													</td>

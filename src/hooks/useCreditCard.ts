@@ -5,7 +5,6 @@ import {
   CardsReply,
   DeleteCreditCardRequest,
   GetCreditCardReply,
-  GetCreditCardRequest,
   ListCreditCardsReply
 } from '@/types/creditCards'
 

@@ -1,6 +1,6 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { Box, Button, Card, CardContent, Grid, Typography, Table, Sheet, Modal, FormControl, FormLabel, Select, Option, Snackbar, Alert, IconButton } from '@mui/joy'
+import { Box, Button, Card, CardContent, Grid, Typography, Table, Sheet, Modal, FormControl,  Select, Option, Snackbar, Alert, IconButton } from '@mui/joy'
 import { Order } from '@/types/orders'
 import { PaymentStatus } from '@/types/orders'
 import { orderService } from '@/api/orderService'
@@ -15,7 +15,7 @@ export default function Orders() {
   const [orders, setOrders] = useState<Order[]>([])
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [, setLoading] = useState(false)
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -27,7 +27,11 @@ export default function Orders() {
   })
 
   useEffect(() => {
-    loadOrders()
+    loadOrders().then((data) => {
+      console.log('获取订单列表成功:', data)
+    }).catch((e) => {
+      console.error('获取订单列表失败:', e)
+    })
   }, [])
 
   const loadOrders = async () => {
@@ -279,7 +283,7 @@ export default function Orders() {
         message: '订单状态更新成功',
         severity: 'success'
       })
-      loadOrders() // 重新加载订单列表
+      await loadOrders() // 重新加载订单列表
     } catch (error) {
       console.error('更新订单状态失败:', error)
       setSnackbar({
@@ -391,7 +395,7 @@ export default function Orders() {
                 <Grid xs={12}>
                   <Typography level="body-sm">收货地址:</Typography>
                   <Typography>
-                    {`${selectedOrder.address.province} ${selectedOrder.address.city} ${selectedOrder.address.district} ${selectedOrder.address.detail}`}
+                    {`${selectedOrder.address.city}`}
                   </Typography>
                 </Grid>
                 <Grid xs={12}>

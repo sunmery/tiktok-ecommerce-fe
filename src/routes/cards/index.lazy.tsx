@@ -3,7 +3,7 @@ import {createLazyFileRoute} from '@tanstack/react-router'
 import type {ChangeEvent} from 'react'
 import {useState} from 'react'
 import {useMutation} from '@tanstack/react-query'
-import type {CreditCard} from '@/types/user.ts'
+import type {CreditCard} from '@/types/creditCards.ts'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 export const Route = createLazyFileRoute('/cards/')({

@@ -5,15 +5,12 @@ import {
     Button,
     Card,
     CardContent,
-    Grid,
+
     Typography,
     Table,
     Sheet,
     Modal,
-    FormControl,
-    FormLabel,
-    Input,
-    Textarea,
+
     Snackbar,
     Alert,
     IconButton
@@ -21,11 +18,10 @@ import {
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
-import UploadIcon from '@mui/icons-material/Upload'
-import PublishIcon from '@mui/icons-material/Publish'
+
 import UnpublishedIcon from '@mui/icons-material/Unpublished'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
-import {Product, ProductStatus, AuditProductRequest, AuditRecordResponse, CreateProductResponse, ProductResponse} from '@/types/products.ts'
+import {Product, ProductStatus, } from '@/types/products.ts'
 import {productService} from '@/api/productService'
 import {ProductAttributes} from '@/components/ui/ProductAttributes'
 import { ProductEditForm } from '@/components/ProductEditForm'
@@ -40,7 +36,7 @@ export default function Products() {
     const [products, setProducts] = useState<Product[]>([])
     const [open, setOpen] = useState(false)
     const [editProduct, setEditProduct] = useState<Product | null>(null)
-    const [formData, setFormData] = useState<Product>()
+    const [, setFormData] = useState<Product>()
     const [snackbar, setSnackbar] = useState<{
         open: boolean;
         message: string;
@@ -50,7 +46,44 @@ export default function Products() {
         message: '',
         severity: 'success'
     })
-    const [loading, setLoading] = useState(false)
+    const [, setLoading] = useState(false)
+
+    // 翻译商品状态
+    const translateProductStatus = (status: any): string => {
+        if (typeof status === 'string') {
+            switch (status) {
+                case 'PRODUCT_STATUS_DRAFT':
+                    return '草稿状态';
+                case 'PRODUCT_STATUS_PENDING':
+                    return '待审核';
+                case 'PRODUCT_STATUS_APPROVED':
+                    return '审核通过';
+                case 'PRODUCT_STATUS_REJECTED':
+                    return '审核驳回';
+                case 'PRODUCT_STATUS_SOLDOUT':
+                    return '下架';
+                default:
+                    return status; // 若无法匹配则返回原状态
+            }
+        } else if (typeof status === 'number') {
+            // 兼容数字状态码
+            switch (status) {
+                case ProductStatus.DRAFT:
+                    return '草稿状态';
+                case ProductStatus.PENDING:
+                    return '待审核';
+                case ProductStatus.APPROVED:
+                    return '审核通过';
+                case ProductStatus.REJECTED:
+                    return '审核驳回';
+                case ProductStatus.SOLDOUT:
+                    return '下架';
+                default:
+                    return `未知状态(${status})`;
+            }
+        }
+        return String(status); // 其他类型转为字符串
+    }
 
     useEffect(() => {
         // 获取商家的产品列表
@@ -83,7 +116,7 @@ export default function Products() {
                 message: t('products.deleteSuccess'),
                 severity: 'success'
             })
-            loadProducts() // 重新加载产品列表
+            await loadProducts() // 重新加载产品列表
         } catch (error) {
             console.error(t('products.deleteFailed'), error)
             setSnackbar({
@@ -109,7 +142,7 @@ export default function Products() {
                 message: t('products.publishSuccess'),
                 severity: 'success'
             })
-            loadProducts() // 重新加载产品列表
+            await loadProducts() // 重新加载产品列表
         } catch (error) {
             console.error(t('products.publishFailed'), error)
             try {
@@ -134,12 +167,12 @@ export default function Products() {
     }
 
     // 处理商品上架（提交审核）
-    const handlePublish = (product: Product) => {
-        // 如果商品是草稿状态，需要提交审核
-        if (product.status === ProductStatus.DRAFT || product.status === ProductStatus.REJECTED) {
-            handleSubmitAudit(product.id)
-        }
-    }
+    // const handlePublish = (product: Product) => {
+    //     // 如果商品是草稿状态，需要提交审核
+    //     if (product.status === ProductStatus.DRAFT || product.status === ProductStatus.REJECTED) {
+    //         handleSubmitAudit(product.id)
+    //     }
+    // }
 
     // 处理商品下架（直接更新状态为草稿）
     const handleUnpublish = async (product: Product) => {
@@ -158,7 +191,7 @@ export default function Products() {
                 message: t('products.unpublishSuccess'),
                 severity: 'success'
             })
-            loadProducts() // 重新加载产品列表
+            await loadProducts() // 重新加载产品列表
         } catch (error) {
             console.error(t('products.unpublishFailed'), error)
             try {
@@ -234,7 +267,7 @@ export default function Products() {
                             <td>{product.description}</td>
                             <td>{product.price}</td>
                             <td>{product.inventory?.stock || 0}</td>
-                            <td>{product.status}</td>
+                            <td>{translateProductStatus(product.status)}</td>
                             <td>
                                 {product.attributes && Object.keys(product.attributes).length > 0 && (
                                     <ProductAttributes attributes={product.attributes} />
@@ -336,7 +369,7 @@ export default function Products() {
                                         });
                                     }
                                     setOpen(false);
-                                    loadProducts();
+                                    await loadProducts();
                                 } catch (error) {
                                     console.error(t('products.saveFailed'), error);
                                     setSnackbar({

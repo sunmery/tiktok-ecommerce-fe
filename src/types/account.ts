@@ -1,4 +1,7 @@
 export interface Account {
+  firstName?: string
+  lastName?: string
+  phone: string
   owner: string
   name: string
   avatar: string

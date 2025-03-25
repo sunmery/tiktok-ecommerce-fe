@@ -5,7 +5,8 @@ export enum ProductStatus {
     DRAFT = 0,     // 草稿状态
     PENDING = 1,  // 待审核
     APPROVED = 2, // 审核通过
-    REJECTED = 3  // 审核驳回
+    REJECTED = 3,  // 审核驳回
+    SOLDOUT = 4   // 下架
 }
 
 // 审核动作枚举

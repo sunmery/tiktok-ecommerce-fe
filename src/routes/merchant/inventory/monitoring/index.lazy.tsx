@@ -117,7 +117,11 @@ export default function InventoryMonitoring() {
             setRefreshInterval(null)
         } else {
             const interval = window.setInterval(() => {
-                refreshData()
+                refreshData().then(() => {
+                    setLastUpdated(new Date())
+                }).catch((err) => {
+                    console.error('自动刷新数据失败:', err)
+                })
             }, 30000) // 每30秒刷新一次
             setRefreshInterval(interval)
         }
@@ -125,7 +129,11 @@ export default function InventoryMonitoring() {
 
     // 初始加载数据
     useEffect(() => {
-        refreshData()
+        refreshData().then(() => {
+            setLastUpdated(new Date())
+        }).catch((err) => {
+            console.error('初始加载数据失败:', err)
+        })
         return () => {
             if (refreshInterval) {
                 clearInterval(refreshInterval)

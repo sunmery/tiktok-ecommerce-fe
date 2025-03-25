@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import {ChangeEvent, FormEvent, useState} from 'react'
 import {
   Box,
   Typography,
@@ -16,7 +16,6 @@ import {
   Card,
   CardContent,
   CardActions,
-  Divider,
   IconButton,
   Sheet,
   Grid,
@@ -70,7 +69,7 @@ function RouteComponent() {
   })
   
   // 处理表单输入变化
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
@@ -108,13 +107,20 @@ function RouteComponent() {
   }
   
   // 提交表单
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     
     createCreditCardMutation.mutate(formData, {
       onSuccess: () => {
         setOpen(false)
-        refetch()
+        refetch().then(r => {
+          if (r?.data?.creditCards?.length) {
+            setSelectedCard(r.data.creditCards[0])
+            setDetailOpen(true)
+          }
+        }).catch(e => {
+          console.error(e)
+        })
       }
     })
   }
@@ -124,7 +130,14 @@ function RouteComponent() {
     if (window.confirm(t('payment.deleteConfirm'))) {
       deleteCreditCardMutation.mutate({ id }, {
         onSuccess: () => {
-          refetch()
+          refetch().then(r => {
+            if (r?.data?.creditCards?.length) {
+              setSelectedCard(r.data.creditCards[0])
+              setDetailOpen(true)
+            }
+          }).catch(e => {
+            console.error(e)
+          })
         }
       })
     }

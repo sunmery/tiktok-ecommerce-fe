@@ -12,7 +12,6 @@ import {
 import {useState} from 'react'
 
 import {useCart} from "@/hooks/useCart.ts";
-import type { CartItem } from '@/types/cart';
 
 export const Route = createLazyFileRoute('/carts/')({component: () => <Cart/>})
 
@@ -100,7 +99,7 @@ function Cart() {
                 () => {
                     console.log('购物车同步成功，准备跳转到结算页面')
                     // 同步成功后跳转到结算页面
-                    navigate({to: '/checkout/'}).then(() => {
+                    navigate({to: '/checkout'}).then(() => {
                         console.log('已跳转到结算页面')
                     }).catch(navError => {
                         console.error('跳转到结算页面失败:', navError)
@@ -114,7 +113,9 @@ function Cart() {
                     setError('同步购物车失败，请稍后重试')
                     setLoading(false)
                 }
-            )
+            ).then(r => {
+                console.log("同步购物车数据完成",r)
+            })
         } catch (err) {
             console.error('结算过程发生错误:', err)
             setError('结算失败，请稍后重试')

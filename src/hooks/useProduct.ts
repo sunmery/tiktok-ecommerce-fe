@@ -4,7 +4,6 @@ import type {
     CreateProductRequest,
     UpdateProductRequest,
     SubmitAuditRequest,
-    Product,
     Products
 } from '@/types/products.ts'
 import {AuditProductRequest, AuditRecordResponse, CreateProductResponse, ProductResponse} from "@/types/products.ts";
@@ -96,7 +95,9 @@ export function useUpdateProduct() {
         onSuccess: (data, variables) => {
             // 更新成功后刷新商品详情和列表
             queryClient.setQueryData(['product', variables.id], data)
-            queryClient.invalidateQueries({queryKey: ['products']})
+            queryClient.invalidateQueries({queryKey: ['products']}).then(r => {
+                console.log("更新成功后刷新商品详情和列表",r)
+            })
         },
     })
 }

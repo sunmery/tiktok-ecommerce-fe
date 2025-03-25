@@ -23,7 +23,10 @@ export function useCreateAddress() {
     mutationFn: (address) => userService.createAddress(address),
     onSuccess: () => {
       // 创建地址成功后刷新地址列表
-      queryClient.invalidateQueries({ queryKey: ['addresses'] })
+      queryClient.invalidateQueries({ queryKey: ['addresses'] }).then(() => {
+        // 刷新完成后的回调逻辑
+        console.log('地址列表刷新完成')
+      })
     },
   })
 }
@@ -38,7 +41,10 @@ export function useUpdateAddress() {
     mutationFn: (address) => userService.updateAddress(address),
     onSuccess: () => {
       // 更新地址成功后刷新地址列表
-      queryClient.invalidateQueries({ queryKey: ['addresses'] })
+      queryClient.invalidateQueries({ queryKey: ['addresses'] }).then(() => {
+        // 刷新完成后的回调逻辑
+        console.log('地址列表刷新完成')
+      })
     },
   })
 }
@@ -53,7 +59,10 @@ export function useDeleteAddress() {
     mutationFn: (request) => userService.deleteAddress(request),
     onSuccess: () => {
       // 删除地址成功后刷新地址列表
-      queryClient.invalidateQueries({ queryKey: ['addresses'] })
+      queryClient.invalidateQueries({ queryKey: ['addresses'] }).then(() => {
+        // 刷新完成后的回调逻辑
+        console.log('地址列表刷新完成')
+      })
     },
   })
 }

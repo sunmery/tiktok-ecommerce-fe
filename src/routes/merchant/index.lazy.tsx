@@ -7,37 +7,51 @@ import { useSnapshot } from 'valtio/react'
 import { userStore } from '@/store/user.ts'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import Breadcrumbs from '@/components/Breadcrumbs'
 import Skeleton from '@/components/Skeleton'
+import { useTranslation } from 'react-i18next'
 
 export const Route = createLazyFileRoute('/merchant/')({ 
   component: MerchantDashboard,
 })
 
 function MerchantDashboard() {
+  const { t, i18n } = useTranslation('merchant')
   const { account } = useSnapshot(userStore)
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
 
-  // 检查用户是否为商家，如果不是则重定向到首页
+  useEffect(() => {
+    const loadTranslations = async () => {
+      try {
+        await i18n.loadNamespaces('merchant');
+        console.log('商家命名空间加载成功');
+      } catch (err) {
+        console.error('加载商家命名空间失败:', err);
+      }
+    };
+
+    if (!i18n.hasResourceBundle(i18n.language, 'merchant')) {
+      loadTranslations().then((r) => {
+        console.log('商家命名空间加载完成',r)
+      });
+    }
+  }, [i18n]);
+
   useEffect(() => {
     if (account.role !== 'merchant') {
       navigate({ to: '/' }).then(() => {
-        console.log('非商家用户，已重定向到首页')
+        console.log(t('log.redirectedNonMerchant'))
       })
     }
-    // 模拟加载数据
     const timer = setTimeout(() => {
       setLoading(false)
     }, 800)
     return () => clearTimeout(timer)
-  }, [account.role, navigate])
+  }, [account.role, navigate, t])
 
   return (
     <Box sx={{ p: 2 }}>
-      {/* 删除了面包屑导航 */}
-      
-      <Typography level="h2" sx={{ mb: 3 }}>商家控制台</Typography>
+      <Typography level="h2" sx={{ mb: 3 }}>{t('merchant.dashboard')}</Typography>
       
       {loading ? (
         <Grid container spacing={3}>
@@ -56,21 +70,20 @@ function MerchantDashboard() {
         </Grid>
       ) : (
         <Grid container spacing={3}>
-          {/* 产品管理卡片 */}
           <Grid xs={12} md={6}>
             <Card variant="outlined" sx={{ height: '100%' }}>
               <CardContent>
-                <Typography level="h3">产品管理</Typography>
+                <Typography level="h3">{t('merchant.productManagement')}</Typography>
                 <Divider sx={{ my: 2 }} />
                 <List>
                   <ListItem>
-                    <ListItem>添加、编辑、删除产品</ListItem>
+                    <ListItem>{t('merchant.productFeatures.addEditDelete')}</ListItem>
                   </ListItem>
                   <ListItem>
-                    <ListItem>上传产品图片和描述</ListItem>
+                    <ListItem>{t('merchant.productFeatures.uploadImages')}</ListItem>
                   </ListItem>
                   <ListItem>
-                    <ListItem>设置价格和库存</ListItem>
+                    <ListItem>{t('merchant.productFeatures.setPriceStock')}</ListItem>
                   </ListItem>
                 </List>
                 <Button 
@@ -78,32 +91,31 @@ function MerchantDashboard() {
                   color="primary" 
                   startDecorator={<AddIcon />}
                   onClick={() => navigate({ to: '/merchant/products' }).then(() => {
-                    console.log('已跳转到产品管理页面')
+                    console.log(t('merchant.log.navigatedToProducts'))
                   })}
                   fullWidth
                   sx={{ mt: 2 }}
                 >
-                  管理产品
+                  {t('merchant.manageProducts')}
                 </Button>
               </CardContent>
             </Card>
           </Grid>
 
-          {/* 订单管理卡片 */}
           <Grid xs={12} md={6}>
             <Card variant="outlined" sx={{ height: '100%' }}>
               <CardContent>
-                <Typography level="h3">订单管理</Typography>
+                <Typography level="h3">{t('merchant.orderManagement')}</Typography>
                 <Divider sx={{ my: 2 }} />
                 <List>
                   <ListItem>
-                    <ListItem>查看所有订单</ListItem>
+                    <ListItem>{t('merchant.orderFeatures.viewAll')}</ListItem>
                   </ListItem>
                   <ListItem>
-                    <ListItem>处理订单状态</ListItem>
+                    <ListItem>{t('merchant.orderFeatures.processStatus')}</ListItem>
                   </ListItem>
                   <ListItem>
-                    <ListItem>订单详情查询</ListItem>
+                    <ListItem>{t('merchant.orderFeatures.orderDetails')}</ListItem>
                   </ListItem>
                 </List>
                 <Button 
@@ -111,32 +123,31 @@ function MerchantDashboard() {
                   color="primary" 
                   startDecorator={<AddIcon />}
                   onClick={() => navigate({ to: '/merchant/orders' }).then(() => {
-                    console.log('已跳转到订单管理页面')
+                    console.log(t('merchant.log.navigatedToOrders'))
                   })}
                   fullWidth
                   sx={{ mt: 2 }}
                 >
-                  管理订单
+                  {t('merchant.manageOrders')}
                 </Button>
               </CardContent>
             </Card>
           </Grid>
 
-          {/* 库存管理卡片 */}
           <Grid xs={12} md={6} sx={{ mt: 2 }}>
             <Card variant="outlined" sx={{ height: '100%' }}>
               <CardContent>
-                <Typography level="h3">库存管理</Typography>
+                <Typography level="h3">{t('merchant.inventoryManagement')}</Typography>
                 <Divider sx={{ my: 2 }} />
                 <List>
                   <ListItem>
-                    <ListItem>实时监控库存水平</ListItem>
+                    <ListItem>{t('merchant.inventoryFeatures.monitor')}</ListItem>
                   </ListItem>
                   <ListItem>
-                    <ListItem>设置低库存警报</ListItem>
+                    <ListItem>{t('merchant.inventoryFeatures.alerts')}</ListItem>
                   </ListItem>
                   <ListItem>
-                    <ListItem>库存调整记录</ListItem>
+                    <ListItem>{t('merchant.inventoryFeatures.adjustments')}</ListItem>
                   </ListItem>
                 </List>
                 <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
@@ -145,11 +156,11 @@ function MerchantDashboard() {
                     color="primary" 
                     startDecorator={<InventoryIcon />}
                     onClick={() => navigate({ to: '/merchant/inventory' }).then(() => {
-                      console.log('已跳转到库存管理页面')
+                      console.log(t('merchant.log.navigatedToInventory'))
                     })}
                     fullWidth
                   >
-                    库存调整
+                    {t('merchant.adjustInventory')}
                   </Button>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
@@ -157,42 +168,41 @@ function MerchantDashboard() {
                     variant="outlined" 
                     color="primary" 
                     onClick={() => navigate({ to: '/merchant/inventory/monitoring' }).then(() => {
-                      console.log('已跳转到库存监控页面')
+                      console.log(t('merchant.log.navigatedToInventoryMonitoring'))
                     })}
                     fullWidth
                   >
-                    实时监控
+                    {t('merchant.realTimeMonitoring')}
                   </Button>
                   <Button 
                     variant="outlined" 
                     color="warning" 
                     onClick={() => navigate({ to: '/merchant/inventory/alerts' }).then(() => {
-                      console.log('已跳转到库存警报设置页面')
+                      console.log(t('merchant.log.navigatedToInventoryAlerts'))
                     })}
                     fullWidth
                   >
-                    警报设置
+                    {t('merchant.alertSettings')}
                   </Button>
                 </Box>
               </CardContent>
             </Card>
           </Grid>
 
-          {/* 销售报告卡片 */}
           <Grid xs={12} md={6} sx={{ mt: 2 }}>
             <Card variant="outlined" sx={{ height: '100%' }}>
               <CardContent>
-                <Typography level="h3">销售报告</Typography>
+                <Typography level="h3">{t('merchant.salesReports')}</Typography>
                 <Divider sx={{ my: 2 }} />
                 <List>
                   <ListItem>
-                    <ListItem>生成销售数据分析报告</ListItem>
+                    <ListItem>{t('merchant.reportFeatures.generateReports')}</ListItem>
                   </ListItem>
                   <ListItem>
-                    <ListItem>销售趋势图表</ListItem>
+                    <ListItem>{t('merchant.reportFeatures.trends')}</ListItem>
                   </ListItem>
                   <ListItem>
-                    <ListItem>优化经营策略建议</ListItem>
+                    <ListItem>{t('merchant.reportFeatures.strategies')}</ListItem>
                   </ListItem>
                 </List>
                 <Button 
@@ -200,12 +210,12 @@ function MerchantDashboard() {
                   color="primary" 
                   startDecorator={<BarChartIcon />}
                   onClick={() => navigate({ to: '/merchant/analytics' }).then(() => {
-                    console.log('已跳转到销售报告页面')
+                    console.log(t('merchant.log.navigatedToAnalytics'))
                   })}
                   fullWidth
                   sx={{ mt: 2 }}
                 >
-                  查看销售报告
+                  {t('merchant.viewReports')}
                 </Button>
               </CardContent>
             </Card>
