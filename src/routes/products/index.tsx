@@ -3,8 +3,7 @@ import {useQuery} from "@tanstack/react-query";
 import {productService} from "@/api/productService.ts";
 import {useSnapshot} from "valtio/react";
 import {cartStore} from "@/store/cartStore.ts";
-import {ChangeEvent} from 'react';
-import {Box, styled, SvgIcon} from "@mui/joy";
+import {Box} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import Card from "@mui/joy/Card";
 import IconButton from "@mui/joy/IconButton";
@@ -32,7 +31,7 @@ function Products() {
     const navigate = useNavigate()
     const search = useSearch({from: '/products/'})
     const page = 1
-    const pageSize = 20
+    const pageSize = 200
     const status = 2
     const snapshot = useSnapshot(cartStore)
     const {t} = useTranslation();
@@ -110,65 +109,65 @@ function Products() {
         )
     }
 
-    const UpdateImage = (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-
-        console.log('文件名称:', file.name);
-        console.log('文件大小:', file.size, 'bytes');
-        console.log('文件类型:', file.type);
-
-        fetch(`https://gw.localhost/v1/products/uploadfile`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
-            },
-            body: JSON.stringify({
-                method: "POST",
-                contentType: file.type,
-                bucketName: "ecommerce",
-                fileName: file.name
-            })
-        }).then(res => res.json()).then(data => {
-            console.log('上传URL:', data)
-            if (data.downloadUrl) {
-                fetch(data.downloadUrl, {
-                    method: 'PUT',
-                    body: file
-                }).then(res => {
-                    if (res.status === 200) {
-                        console.log('文件上传成功')
-                        // 保存图片URL到本地状态，可以在后续创建商品时使用
-                        // 从downloadUrl中提取永久访问URL
-                        // 通常downloadUrl格式为：http://domain/bucket/objectName?签名参数
-                        // 我们需要提取不带签名参数的部分作为永久URL
-                        const permanentUrl = data.downloadUrl.split('?')[0];
-                        console.log('永久访问URL:', permanentUrl);
-
-                        // 这里可以将URL保存到本地状态或者直接用于创建商品
-                        // 例如，可以将URL显示在界面上或保存到表单中
-                        // 在实际应用中，您可能需要将此URL与商品ID关联起来
-                    }
-                }).catch(err => {
-                    console.error('上传文件失败:', err)
-                })
-            }
-        }).catch(err => {
-            console.error('获取上传URL失败:', err)
-        })
-    }
-    const VisuallyHiddenInput = styled('input')`
-        clip: rect(0 0 0 0);
-        clip-path: inset(50%);
-        height: 1px;
-        overflow: hidden;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        white-space: nowrap;
-        width: 1px;
-    `;
+    // const UpdateImage = (event: ChangeEvent<HTMLInputElement>) => {
+    //     const file = event.target.files?.[0];
+    //     if (!file) return;
+    //
+    //     console.log('文件名称:', file.name);
+    //     console.log('文件大小:', file.size, 'bytes');
+    //     console.log('文件类型:', file.type);
+    //
+    //     fetch(`https://gw.localhost/v1/products/uploadfile`, {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'Authorization': 'Bearer ' + localStorage.getItem('token')
+    //         },
+    //         body: JSON.stringify({
+    //             method: "POST",
+    //             contentType: file.type,
+    //             bucketName: "ecommerce",
+    //             fileName: file.name
+    //         })
+    //     }).then(res => res.json()).then(data => {
+    //         console.log('上传URL:', data)
+    //         if (data.downloadUrl) {
+    //             fetch(data.downloadUrl, {
+    //                 method: 'PUT',
+    //                 body: file
+    //             }).then(res => {
+    //                 if (res.status === 200) {
+    //                     console.log('文件上传成功')
+    //                     // 保存图片URL到本地状态，可以在后续创建商品时使用
+    //                     // 从downloadUrl中提取永久访问URL
+    //                     // 通常downloadUrl格式为：http://domain/bucket/objectName?签名参数
+    //                     // 我们需要提取不带签名参数的部分作为永久URL
+    //                     const permanentUrl = data.downloadUrl.split('?')[0];
+    //                     console.log('永久访问URL:', permanentUrl);
+    //
+    //                     // 这里可以将URL保存到本地状态或者直接用于创建商品
+    //                     // 例如，可以将URL显示在界面上或保存到表单中
+    //                     // 在实际应用中，您可能需要将此URL与商品ID关联起来
+    //                 }
+    //             }).catch(err => {
+    //                 console.error('上传文件失败:', err)
+    //             })
+    //         }
+    //     }).catch(err => {
+    //         console.error('获取上传URL失败:', err)
+    //     })
+    // }
+    // const VisuallyHiddenInput = styled('input')`
+    //     clip: rect(0 0 0 0);
+    //     clip-path: inset(50%);
+    //     height: 1px;
+    //     overflow: hidden;
+    //     position: absolute;
+    //     bottom: 0;
+    //     left: 0;
+    //     white-space: nowrap;
+    //     width: 1px;
+    // `;
 
 
     return (
@@ -198,35 +197,35 @@ function Products() {
                     gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
                 }}
             >
-                <Box>
-                    <Button
-                        component="label"
-                        role={undefined}
-                        tabIndex={-1}
-                        variant="outlined"
-                        color="neutral"
-                        startDecorator={
-                            <SvgIcon>
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={1.5}
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
-                                    />
-                                </svg>
-                            </SvgIcon>
-                        }
-                    >
-                        Upload a file
-                        <VisuallyHiddenInput type="file" onChange={UpdateImage}/>
-                    </Button>
-                </Box>
+                {/*<Box>*/}
+                {/*    <Button*/}
+                {/*        component="label"*/}
+                {/*        role={undefined}*/}
+                {/*        tabIndex={-1}*/}
+                {/*        variant="outlined"*/}
+                {/*        color="neutral"*/}
+                {/*        startDecorator={*/}
+                {/*            <SvgIcon>*/}
+                {/*                <svg*/}
+                {/*                    xmlns="http://www.w3.org/2000/svg"*/}
+                {/*                    fill="none"*/}
+                {/*                    viewBox="0 0 24 24"*/}
+                {/*                    strokeWidth={1.5}*/}
+                {/*                    stroke="currentColor"*/}
+                {/*                >*/}
+                {/*                    <path*/}
+                {/*                        strokeLinecap="round"*/}
+                {/*                        strokeLinejoin="round"*/}
+                {/*                        d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"*/}
+                {/*                    />*/}
+                {/*                </svg>*/}
+                {/*            </SvgIcon>*/}
+                {/*        }*/}
+                {/*    >*/}
+                {/*        Upload a file*/}
+                {/*        <VisuallyHiddenInput type="file" onChange={UpdateImage}/>*/}
+                {/*    </Button>*/}
+                {/*</Box>*/}
 
                 {displayData.map((product, index: number) => (
                     <Card

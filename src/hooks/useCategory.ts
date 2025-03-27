@@ -46,6 +46,18 @@ export function useCategorySubTree(rootId: string) {
 }
 
 /**
+ * 获取直接子分类的hook
+ * @param parentId 父分类ID
+ */
+export function useDirectSubCategories(parentId: string) {
+  return useQuery<Categories>({
+    queryKey: ['categories', 'children', parentId],
+    queryFn: () => categoryService.getDirectSubCategories({ parentId: parentId }),
+    enabled: !!parentId, // 只有当parentId存在时才发起请求
+  })
+}
+
+/**
  * 获取分类路径的hook
  * @param categoryId 分类ID
  */

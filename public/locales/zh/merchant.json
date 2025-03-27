@@ -1,5 +1,5 @@
 {
-  "dashboard": "仪表盘",
+  "dashboard": "商家主页",
   "productManagement": "商品管理",
   "orderManagement": "订单管理",
   "inventoryManagement": "库存管理",
@@ -34,6 +34,9 @@
     "redirectedNonMerchant": "非商家用户已跳转至首页",
     "navigatedToProducts": "已进入商品管理页面",
     "navigatedToOrders": "已进入订单管理页面",
-    "navigatedToInventory": "已进入库存管理页面"
+    "navigatedToInventory": "已进入库存管理页面",
+    "navigatedToInventoryMonitoring": "已进入库存监控页面",
+    "navigatedToInventoryAlerts": "已进入库存预警设置页面",
+    "navigatedToAnalytics": "已进入销售报表页面"
   }
 }

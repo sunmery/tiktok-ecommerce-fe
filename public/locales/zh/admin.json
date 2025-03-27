@@ -1,0 +1,73 @@
+{
+  "users": {
+    "title": {
+      "main": "用户管理",
+      "item1": "查看所有用户",
+      "item2": "管理用户角色",
+      "item3": "处理商家申请"
+    },
+    "table": {
+      "id": "ID",
+      "name": "姓名",
+      "email": "邮箱",
+      "role": "角色",
+      "createdTime": "创建时间",
+      "actions": "操作"
+    },
+    "actions": {
+      "edit": "编辑",
+      "delete": "删除",
+      "approve": "批准",
+      "reject": "拒绝"
+    },
+    "modal": {
+      "edit": "编辑用户",
+      "delete": "删除用户",
+      "add": "添加新用户",
+      "approve": "批准申请"
+    }
+  },
+  "products": {
+    "title": "商品审核管理",
+    "table": {
+      "id": "ID",
+      "name": "商品名称",
+      "price": "价格",
+      "merchant": "商家",
+      "stock": "库存",
+      "status": "状态",
+      "createdTime": "创建时间",
+      "actions": "操作"
+    },
+    "status": {
+      "pending": "待审核",
+      "approved": "已通过",
+      "rejected": "已拒绝"
+    },
+    "actions": {
+      "view": "查看详情",
+      "approve": "通过",
+      "reject": "拒绝",
+      "batchApprove": "批量通过",
+      "batchReject": "批量驳回"
+    },
+    "modal": {
+      "view": "商品详情",
+      "audit": "审核商品",
+      "approve": "通过审核",
+      "reject": "驳回审核",
+      "reason": "审核意见/驳回原因",
+      "selected": "已选择 {count} 个商品",
+      "approveReason": "审核意见（可选）",
+      "rejectReason": "请填写驳回原因"
+    }
+  },
+  "common": {
+    "loading": "加载中...",
+    "confirm": "确认",
+    "cancel": "取消",
+    "save": "保存",
+    "success": "操作成功",
+    "error": "操作失败"
+  }
+}

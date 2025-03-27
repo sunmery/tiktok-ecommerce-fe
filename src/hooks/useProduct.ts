@@ -7,6 +7,8 @@ import type {
     Products
 } from '@/types/products.ts'
 import {AuditProductRequest, AuditRecordResponse, CreateProductResponse, ProductResponse} from "@/types/products.ts";
+import {productService} from '@/api/productService';
+import {GetCategoryProductsRequest, ListProductsByCategoryRequest, ListRandomProductsRequest, ProductStatus, SearchProductRequest} from '@/types/products';
 
 // 获取商品详情的hook
 export function useProduct(id: string, merchantId: string) {
@@ -61,15 +63,13 @@ export function useProduct(id: string, merchantId: string) {
 }
 
 // 搜索商品的hook
-export function useSearchProducts(name: string) {
-    return useQuery<Products>({
-        queryKey: ['products', 'search', name],
-        queryFn: async () => {
-            const params = new URLSearchParams({name})
-            return api.get<Products>(`/v1/products?${params.toString()}`)
-        },
-        enabled: !!name,
-    })
+export function useSearchProducts(query: string) {
+    return useQuery({
+        queryKey: ['products', 'search', query],
+        queryFn: () => productService.searchProductsByName({name: query} as SearchProductRequest),
+        enabled: !!query, // 只有当有搜索关键词时才发起请求
+        staleTime: 1000 * 60 * 5, // 5分钟内不重新请求
+    });
 }
 
 // 创建商品的hook
@@ -89,7 +89,7 @@ export function useCreateProduct() {
 export function useUpdateProduct() {
     const queryClient = useQueryClient()
 
-    return useMutation<ProductResponse, Error, UpdateProductRequest>({
+    return useMutation<ProductResponse, Error, {id: string, product: any}>({
         mutationFn: ({id, product}) =>
             api.put<ProductResponse>(`/v1/products/${id}`, {product}),
         onSuccess: (data, variables) => {
@@ -150,4 +150,67 @@ export function useAuditProduct() {
             queryClient.invalidateQueries({queryKey: ['product', variables.productId]})
         },
     })
+}
+
+/**
+ * 获取随机商品
+ * @param options 随机商品选项
+ */
+export function useRandomProducts(options: ListRandomProductsRequest = {page: 1, pageSize: 10, status: ProductStatus.APPROVED}) {
+    return useQuery({
+        queryKey: ['products', 'random', options],
+        queryFn: () => productService.listRandomProducts(options),
+        staleTime: 1000 * 60 * 5, // 5分钟内不重新请求
+    });
+}
+
+/**
+ * 按分类名称获取商品
+ * @param category 分类名称
+ * @param options 分页和其他选项
+ */
+export function useProductsByCategory(
+    categoryName: string,
+    options: Omit<ListProductsByCategoryRequest, 'categoryName'> = {page: 1, pageSize: 10, status: 2}
+) {
+    return useQuery({
+        queryKey: ['products', 'category', categoryName, options],
+        queryFn: () => productService.listProductsByCategory({categoryName, ...options}),
+        enabled: !!categoryName, // 只有当有分类名称时才发起请求
+        staleTime: 1000 * 60 * 5, // 5分钟内不重新请求
+    });
+}
+
+/**
+ * 按分类ID获取商品
+ * @param categoryId 分类ID
+ * @param options 分页和其他选项
+ */
+export function useCategoryProducts(
+    categoryId: number,
+    options: Omit<GetCategoryProductsRequest, 'categoryId'> = {page: 1, pageSize: 10, status: 2}
+) {
+    return useQuery({
+        queryKey: ['products', 'categoryById', categoryId, options],
+        queryFn: () => productService.getCategoryProducts({categoryId, ...options}),
+        enabled: !!categoryId, // 只有当有分类ID时才发起请求
+        staleTime: 1000 * 60 * 5, // 5分钟内不重新请求
+    });
+}
+
+/**
+ * 按分类ID获取包含子分类的商品
+ * @param categoryId 分类ID
+ * @param options 分页和其他选项
+ */
+export function useCategoryWithChildrenProducts(
+    categoryId: number,
+    options: Omit<GetCategoryProductsRequest, 'categoryId'> = {page: 1, pageSize: 10, status: 2}
+) {
+    return useQuery({
+        queryKey: ['products', 'categoryWithChildren', categoryId, options],
+        queryFn: () => productService.getCategoryWithChildrenProducts({categoryId, ...options}),
+        enabled: !!categoryId, // 只有当有分类ID时才发起请求
+        staleTime: 1000 * 60 * 5, // 5分钟内不重新请求
+    });
 }

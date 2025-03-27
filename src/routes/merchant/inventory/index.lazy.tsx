@@ -1,5 +1,6 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
 import {useEffect, useState} from 'react'
+import {useTranslation} from 'react-i18next'
 import {
     Alert,
     Box,
@@ -38,6 +39,7 @@ interface StockAdjustment {
 }
 
 export default function Inventory() {
+    const { t } = useTranslation(['inventory'])
     const [products, setProducts] = useState<Product[]>([])
     const [alerts, setAlerts] = useState<InventoryAlert[]>([])
     const [adjustments, setAdjustments] = useState<StockAdjustment[]>([])
@@ -92,7 +94,7 @@ export default function Inventory() {
                 setAlerts(newAlerts)
             }
         } catch (error) {
-            console.error('加载库存警戒值失败:', error)
+            console.error(t('inventory:alerts.load_error'), error)
         }
     }
 
@@ -116,7 +118,7 @@ export default function Inventory() {
                 setAdjustments(newAdjustments)
             }
         } catch (error) {
-            console.error('加载库存调整历史失败:', error)
+            console.error(t('inventory:adjustments.load_error'), error)
         }
     }
 
@@ -133,10 +135,10 @@ export default function Inventory() {
             // 检查库存警报
             checkLowStock(response.items || [])
         } catch (error) {
-            console.error('加载产品失败:', error)
+            console.error(t('inventory:products.load_error'), error)
             setSnackbar({
                 open: true,
-                message: '加载产品失败',
+                message: t('inventory:products.load_error'),
                 severity: 'error'
             })
         } finally {
@@ -181,17 +183,17 @@ export default function Inventory() {
                 setAlertOpen(false)
                 setSnackbar({
                     open: true,
-                    message: '库存警戒值设置成功',
+                    message: t('inventory:alerts.set_success'),
                     severity: 'success'
                 })
 
                 // 重新检查库存警报
                 checkLowStock(products)
             } catch (error) {
-                console.error('设置库存警戒值失败:', error)
+                console.error(t('inventory:alerts.set_error'), error)
                 setSnackbar({
                     open: true,
-                    message: '设置库存警戒值失败',
+                    message: t('inventory:alerts.set_error'),
                     severity: 'error'
                 })
             } finally {
@@ -217,7 +219,7 @@ export default function Inventory() {
 
             setSnackbar({
                 open: true,
-                message: '库存调整成功',
+                message: t('inventory:adjustments.success'),
                 severity: 'success'
             })
 
@@ -226,10 +228,10 @@ export default function Inventory() {
             // 使用最新的产品数据重新检查库存警报
             checkLowStock(products)
         } catch (error) {
-            console.error('调整库存失败:', error)
+            console.error(t('inventory:adjustments.error'), error)
             setSnackbar({
                 open: true,
-                message: '调整库存失败',
+                message: t('inventory:adjustments.error'),
                 severity: 'error'
             })
         } finally {
@@ -248,12 +250,12 @@ export default function Inventory() {
 
     return (
         <Box sx={{p: 2}}>
-            <Typography level="h2" sx={{mb: 3}}>库存管理</Typography>
+            <Typography level="h2" sx={{mb: 3}}>{t('inventory:title')}</Typography>
 
             {/* 库存警报 */}
             {alerts.length > 0 && (
                 <Box sx={{mb: 3}}>
-                    <Typography level="h3" sx={{mb: 2}}>库存警报</Typography>
+                    <Typography level="h3" sx={{mb: 2}}>{t('inventory:alerts.title')}</Typography>
                     {alerts
                         .filter(alert => alert.currentStock < alert.threshold)
                         .map((alert) => {
@@ -264,7 +266,7 @@ export default function Inventory() {
                                     color="warning"
                                     sx={{mb: 1}}
                                 >
-                                    {product?.name} 当前库存 ({alert.currentStock}) 低于警戒值 ({alert.threshold})
+                                    {t('inventory:alerts.low_stock', { product: product?.name, current: alert.currentStock, threshold: alert.threshold })}
                                 </Alert>
                             )
                         })}
@@ -276,10 +278,10 @@ export default function Inventory() {
                 <Table>
                     <thead>
                     <tr>
-                        <th>产品名称</th>
-                        <th>当前库存</th>
-                        <th>警戒值</th>
-                        <th>操作</th>
+                        <th>{t('inventory:table.product_name')}</th>
+                        <th>{t('inventory:table.current_stock')}</th>
+                        <th>{t('inventory:table.threshold')}</th>
+                        <th>{t('inventory:table.actions')}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -299,7 +301,7 @@ export default function Inventory() {
                                             setAlertOpen(true)
                                         }}
                                     >
-                                        设置警戒值
+                                        {t('inventory:buttons.set_alert')}
                                     </Button>
                                     <Button
                                         size="sm"
@@ -307,7 +309,7 @@ export default function Inventory() {
                                         color="primary"
                                         onClick={() => openAdjustmentModal(product)}
                                     >
-                                        调整库存
+                                        {t('inventory:buttons.adjust_stock')}
                                     </Button>
                                 </Box>
                             </td>

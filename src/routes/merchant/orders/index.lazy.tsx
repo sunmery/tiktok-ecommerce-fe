@@ -15,12 +15,12 @@ export default function Orders() {
   const [orders, setOrders] = useState<Order[]>([])
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
-  const [, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
     severity: 'success' | 'danger';
-  }>({
+  }>({    
     open: false,
     message: '',
     severity: 'success'

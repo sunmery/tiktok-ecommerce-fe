@@ -1,5 +1,6 @@
 import React from 'react';
 import { AttributeValue } from '@/types/products';
+import { Box, Chip, Typography, Stack, Sheet } from '@mui/joy';
 
 interface ProductAttributesProps {
   attributes: Record<string, AttributeValue>;
@@ -11,7 +12,7 @@ const AttributeItem: React.FC<{
   value: AttributeValue;
   level?: number;
 }> = ({ name, value, level = 0 }) => {
-  const paddingLeft = `${level * 1.5}rem`;
+  const paddingLeft = `${level * 12}px`;
 
   // 格式化属性名称
   const formatName = (name: string) => {
@@ -24,22 +25,23 @@ const AttributeItem: React.FC<{
   const renderValue = (value: AttributeValue) => {
     if (Array.isArray(value)) {
       return (
-        <div className="flex flex-wrap gap-2">
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
           {value.map((item, index) => (
-            <span
+            <Chip
               key={index}
-              className="px-2 py-1 bg-gray-100 rounded-md text-sm"
+              size="sm"
+              variant="soft"
             >
               {item}
-            </span>
+            </Chip>
           ))}
-        </div>
+        </Stack>
       );
     }
 
     if (typeof value === 'object' && value !== null) {
       return (
-        <div className="space-y-2">
+        <Stack spacing={1} sx={{ mt: 0.5 }}>
           {Object.entries(value).map(([key, val]) => (
             <AttributeItem
               key={key}
@@ -48,18 +50,27 @@ const AttributeItem: React.FC<{
               level={level + 1}
             />
           ))}
-        </div>
+        </Stack>
       );
     }
 
-    return <span className="text-gray-700">{value}</span>;
+    // 处理数字、布尔值和字符串
+    return (
+      <Typography level="body-sm" sx={{ color: 'text.secondary' }}>
+        {typeof value === 'boolean' ? (value ? '是' : '否') : String(value)}
+      </Typography>
+    );
   };
 
   return (
-    <div className="py-1" style={{ paddingLeft }}>
-      <div className="font-medium text-gray-900">{formatName(name)}</div>
-      <div className="mt-1">{renderValue(value)}</div>
-    </div>
+    <Box sx={{ paddingLeft, py: 0.5 }}>
+      <Typography level="body-sm" fontWeight="md">
+        {formatName(name)}
+      </Typography>
+      <Box sx={{ mt: 0.5 }}>
+        {renderValue(value)}
+      </Box>
+    </Box>
   );
 };
 
@@ -67,11 +78,17 @@ export const ProductAttributes: React.FC<ProductAttributesProps> = ({
   attributes,
   className = '',
 }) => {
+  if (!attributes || Object.keys(attributes).length === 0) {
+    return <Typography level="body-sm">无属性</Typography>;
+  }
+
   return (
-    <div className={`space-y-4 ${className}`}>
-      {Object.entries(attributes).map(([name, value]) => (
-        <AttributeItem key={name} name={name} value={value} />
-      ))}
-    </div>
+    <Sheet variant="outlined" sx={{ p: 1, maxHeight: '200px', overflow: 'auto' }}>
+      <Stack spacing={1}>
+        {Object.entries(attributes).map(([name, value]) => (
+          <AttributeItem key={name} name={name} value={value} />
+        ))}
+      </Stack>
+    </Sheet>
   );
 }; 

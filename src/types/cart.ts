@@ -25,3 +25,15 @@ export interface RemoveCartItemReq {
   merchantId: string
   productId: string
 }
+
+export interface UpsertItemResp {
+  success: boolean
+}
+
+export interface EmptyCartResp {
+  success: boolean
+}
+
+export interface RemoveCartItemResp {
+  success: boolean
+}

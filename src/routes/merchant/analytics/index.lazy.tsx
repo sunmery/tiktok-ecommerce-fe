@@ -61,7 +61,6 @@ const mockProductSales: ProductSales[] = [
 
 export default function Analytics() {
     const [salesData, setSalesData] = useState<SalesData[]>([])
-    const [, setProductSales] = useState<ProductSales[]>([])
 
     // 添加图表DOM引用
     const salesTrendChartRef = useRef<HTMLDivElement>(null)

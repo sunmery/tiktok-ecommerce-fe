@@ -8,6 +8,7 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import StorageIcon from '@mui/icons-material/Storage'
 import MapIcon from '@mui/icons-material/Map'
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import Skeleton from '@/components/Skeleton'
 
@@ -117,6 +118,39 @@ function AdminDashboard() {
             </CardContent>
           </Card>
         </Grid>
+        {/* 商品管理卡片 */}
+        <Grid xs={12} md={6}>
+          <Card variant="outlined" sx={{ height: '100%' }}>
+            <CardContent>
+              <Typography level="h3">商品管理</Typography>
+              <Divider sx={{ my: 2 }} />
+              <List>
+                <ListItem>
+                  <ListItem>查看所有商品</ListItem>
+                </ListItem>
+                <ListItem>
+                  <ListItem>审核商家待审核商品</ListItem>
+                </ListItem>
+                <ListItem>
+                  <ListItem>下架违规商品</ListItem>
+                </ListItem>
+              </List>
+              <Button 
+                variant="solid" 
+                color="primary" 
+                startDecorator={<ShoppingCartIcon />}
+                onClick={() => navigate({ to: '/admin/products' }).then(() => {
+                  console.log('已进入商品管理页面')
+                })}
+                fullWidth
+                sx={{ mt: 2 }}
+              >
+                进入商品管理
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+        
         {/* 数据库管理卡片 */}
         <Grid xs={12} md={6}>
           <Card variant="outlined" sx={{ height: '100%' }}>
@@ -145,39 +179,6 @@ function AdminDashboard() {
                 sx={{ mt: 2 }}
               >
                 进入数据库管理
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-        
-        {/* 电子商务地图分析卡片 */}
-        <Grid xs={12} md={6}>
-          <Card variant="outlined" sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography level="h3">电子商务地图分析</Typography>
-              <Divider sx={{ my: 2 }} />
-              <List>
-                <ListItem>
-                  <ListItem>销售地理分布可视化</ListItem>
-                </ListItem>
-                <ListItem>
-                  <ListItem>区域销售趋势分析</ListItem>
-                </ListItem>
-                <ListItem>
-                  <ListItem>热门销售区域排名</ListItem>
-                </ListItem>
-              </List>
-              <Button 
-                variant="solid" 
-                color="primary" 
-                startDecorator={<MapIcon />}
-                onClick={() => navigate({ to: '/admin/ecommerce-map' }).then(() => {
-                  console.log('已进入电子商务地图分析页面')
-                })}
-                fullWidth
-                sx={{ mt: 2 }}
-              >
-                查看销售地图
               </Button>
             </CardContent>
           </Card>

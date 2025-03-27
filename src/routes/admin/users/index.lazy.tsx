@@ -210,7 +210,8 @@ function UserManagement() {
         owner: '',
         avatar: '',
         displayName: newUser.name,
-        updatedTime: now
+        updatedTime: now,
+        phone: ''
       }
     ])
     

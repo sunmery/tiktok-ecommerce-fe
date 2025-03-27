@@ -11,6 +11,7 @@ import {
     CreateProductReply,
     CreateProductRequest,
     DeleteProductRequest,
+    GetCategoryProductsRequest,
     GetProductRequest,
     ListProductsByCategoryRequest,
     ListRandomProductsRequest,
@@ -69,10 +70,10 @@ export const productService = {
             merchantId: request.merchantId,
             action: request.action,
             reason: request.reason,
-            operatorId: request.operatorId
+            // operatorId: request.operatorId
         };
-        const url = httpClient.replacePathParams(`${import.meta.env.VITE_PRODUCERS_URL}`, {
-            productId: request.productId
+        const url = httpClient.replacePathParams(`${import.meta.env.VITE_PRODUCERS_URL}/{product_id}/audit`, {
+            product_id: request.productId
         });
         return httpClient.post<AuditRecord>(url, snakeCaseRequest);
     },
@@ -115,6 +116,40 @@ export const productService = {
     listRandomProducts: (request: ListRandomProductsRequest) => {
         return httpClient.get<Products>(`${import.meta.env.VITE_PRODUCERS_URL}`, {
             params: request
+        });
+    },
+
+    /**
+     * 根据分类ID获取商品
+     * GET /v1/products/category/{categoryId}
+     */
+    getCategoryProducts: (request: GetCategoryProductsRequest) => {
+        const url = httpClient.replacePathParams(`${import.meta.env.VITE_PRODUCERS_URL}/category/{categoryId}`, {
+            categoryId: request.categoryId.toString()
+        });
+        return httpClient.get<Products>(url, {
+            params: {
+                page: request.page,
+                page_size: request.pageSize,
+                status: request.status
+            }
+        });
+    },
+
+    /**
+     * 根据分类ID获取包含子分类的商品
+     * GET /v1/products/category/{categoryId}/with-children
+     */
+    getCategoryWithChildrenProducts: (request: GetCategoryProductsRequest) => {
+        const url = httpClient.replacePathParams(`${import.meta.env.VITE_PRODUCERS_URL}/category/{categoryId}/with-children`, {
+            categoryId: request.categoryId.toString()
+        });
+        return httpClient.get<Products>(url, {
+            params: {
+                page: request.page,
+                page_size: request.pageSize,
+                status: request.status
+            }
         });
     },
 

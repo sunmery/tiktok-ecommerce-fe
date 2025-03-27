@@ -2,17 +2,17 @@
 import {Timestamp} from "@/types/user.ts";
 
 export enum ProductStatus {
-    DRAFT = 0,     // 草稿状态
-    PENDING = 1,  // 待审核
-    APPROVED = 2, // 审核通过
-    REJECTED = 3,  // 审核驳回
-    SOLDOUT = 4   // 下架
+    PRODUCT_STATUS_DRAFT = 0,     // 草稿状态
+    PRODUCT_STATUS_PENDING = 1,  // 待审核
+    PRODUCT_STATUS_APPROVED = 2, // 审核通过
+    PRODUCT_STATUS_REJECTED = 3,  // 审核驳回
+    PRODUCT_STATUS_SOLDOUT = 4   // 下架
 }
 
 // 审核动作枚举
 export enum AuditAction {
-    approve = 0, // 通过审核
-    reject = 1   // 驳回审核
+    AUDIT_ACTION_APPROVED = 0, // 通过审核
+    AUDIT_ACTION_REJECT = 1   // 驳回审核
 }
 
 // 商品分类信息
@@ -36,6 +36,7 @@ export interface AuditInfo {
     auditId: string;
     operatorId: string;
     operatedAt: string;
+    reason?: string; // 审核意见或驳回原因
 }
 
 // 商品核心数据结构
@@ -141,7 +142,7 @@ export interface AuditProductRequest {
     merchantId: string
     action: AuditAction
     reason?: string
-    operatorId: number
+    // operatorId: string
 }
 
 export interface CreateProductReply {
@@ -175,6 +176,14 @@ export interface ListRandomProductsRequest {
     page: number;
     pageSize: number;
     status: ProductStatus;
+}
+
+// 按分类ID获取商品请求
+export interface GetCategoryProductsRequest {
+    categoryId: number;
+    page: number;
+    pageSize: number;
+    status: number;
 }
 
 // 商品列表

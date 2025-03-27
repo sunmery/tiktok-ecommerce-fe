@@ -1,0 +1,73 @@
+{
+  "users": {
+    "title": {
+      "main": "User Management",
+      "item1": "View all users",
+      "item2": "Manage user roles",
+      "item3": "Process merchant applications"
+    },
+    "table": {
+      "id": "ID",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "createdTime": "Created Time",
+      "actions": "Actions"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "approve": "Approve",
+      "reject": "Reject"
+    },
+    "modal": {
+      "edit": "Edit User",
+      "delete": "Delete User",
+      "add": "Add New User",
+      "approve": "Approve Application"
+    }
+  },
+  "products": {
+    "title": "Product Review Management",
+    "table": {
+      "id": "ID",
+      "name": "Product Name",
+      "price": "Price",
+      "merchant": "Merchant",
+      "stock": "Stock",
+      "status": "Status",
+      "createdTime": "Created Time",
+      "actions": "Actions"
+    },
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "actions": {
+      "view": "View Details",
+      "approve": "Approve",
+      "reject": "Reject",
+      "batchApprove": "Batch Approve",
+      "batchReject": "Batch Reject"
+    },
+    "modal": {
+      "view": "Product Details",
+      "audit": "Audit Product",
+      "approve": "Approve Audit",
+      "reject": "Reject Audit",
+      "reason": "Audit Opinion/Reject Reason",
+      "selected": "{count} products selected",
+      "approveReason": "Audit opinion (optional)",
+      "rejectReason": "Please provide reject reason"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "success": "Operation Successful",
+    "error": "Operation Failed"
+  }
+}

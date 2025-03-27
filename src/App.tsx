@@ -1,6 +1,6 @@
 import React from 'react';
 import { RouterProvider } from '@tanstack/react-router';
-import { router } from './routes';
+import { router } from '@/routes';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { CssVarsProvider } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';

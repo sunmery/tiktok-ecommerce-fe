@@ -42,7 +42,7 @@ export interface GetCreditCardRequest {
 
 // 获取信用卡响应接口
 export interface GetCreditCardReply {
-  creditCards: CreditCard
+  creditCards: CreditCard[]
 }
 
 // 搜索信用卡响应

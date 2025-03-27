@@ -497,7 +497,19 @@ const resources = {
       'addresses.provincePlaceholder': 'Province/State',
       'addresses.countryPlaceholder': 'Country',
       'addresses.zipCodePlaceholder': 'ZIP Code',
-      'addresses.country': 'Country'
+      'addresses.country': 'Country',
+      
+      // 商品状态
+      'products.status.draft': 'Draft',
+      'products.status.pending': 'Pending Review',
+      'products.status.approved': 'Approved',
+      'products.status.rejected': 'Rejected',
+      'products.status.soldout': 'Sold Out',
+      'products.status.unknown': 'Unknown Status ({{status}})',
+      'products.rejectReason': 'Rejection Reason',
+      'products.noProductsForAudit': 'No products pending review',
+      'common.refresh': 'Refresh',
+      'products.noProducts': 'No products found'
     }
   },
   zh: {
@@ -957,7 +969,19 @@ const resources = {
       'addresses.provincePlaceholder': '省/州',
       'addresses.countryPlaceholder': '国家',
       'addresses.zipCodePlaceholder': '邮政编码',
-      'addresses.country': '国家'
+      'addresses.country': '国家',
+      
+      // 商品状态
+      'products.status.draft': '草稿状态',
+      'products.status.pending': '待审核',
+      'products.status.approved': '审核通过',
+      'products.status.rejected': '审核驳回',
+      'products.status.soldout': '下架',
+      'products.status.unknown': '未知状态({{status}})',
+      'products.rejectReason': '驳回原因',
+      'products.noProductsForAudit': '没有待审核的商品',
+      'common.refresh': '刷新',
+      'products.noProducts': '暂无商品'
     }
   }
 };

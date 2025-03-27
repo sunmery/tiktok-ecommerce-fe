@@ -15,11 +15,11 @@ export interface Empty {}
 // 分类信息
 export interface Category {
   id: string;
-  name: string;
-  description: string;
-  parentId: string;
+  parentId: number;
   level: number;
   path: string;
+  name: string;
+  isLeaf: boolean;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -85,6 +85,7 @@ export interface UpdateClosureDepthRequest {
   categoryId: string;
   depth: number;
 }
+
 // API路径常量
 export const CreateCategory = 'categories';
 export const GetCategory = 'categories';
@@ -95,3 +96,9 @@ export const GetCategoryPath = 'categories/path';
 export const GetLeafCategories = 'categories/leaves';
 export const GetClosureRelations = 'categories/closure';
 export const UpdateClosureDepth = 'categories/closure';
+export const GetDirectSubCategories = 'categories/children';
+
+// 获取直接子分类请求
+export interface GetDirectSubCategoriesRequest {
+  parentId: string;
+}

@@ -1,21 +1,11 @@
-import {createLazyFileRoute} from '@tanstack/react-router'
-import {
-    Box,
-    Typography,
-    Card,
-    CardContent,
-    AspectRatio,
-    Button,
-    Chip,
-    Breadcrumbs,
-} from '@mui/joy'
+import {createLazyFileRoute, Link} from '@tanstack/react-router'
+import {AspectRatio, Box, Breadcrumbs, Button, Card, CardContent, Chip, Typography,} from '@mui/joy'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
-import {Link} from '@tanstack/react-router'
 import {cartStore} from '@/store/cartStore.ts'
 import Skeleton from '@/components/Skeleton'
-import {useState, useEffect} from 'react'
+import {useEffect, useState} from 'react'
 import {productService} from '@/api/productService'
-import { useCategories } from '@/hooks/useCategory'
+import {useCategories} from '@/hooks/useCategory'
 
 export const Route = createLazyFileRoute('/products/category/$categoryName')({
     component: CategoryProducts
@@ -27,19 +17,15 @@ function CategoryProducts() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
-
-
-    // 获取分类对应的中文名称
-    // 获取分类数据
-const { data: categories, isLoading: categoriesLoading, error: categoriesError } = useCategories()
+    const {data: categories, isLoading: categoriesLoading, error: categoriesError} = useCategories()
 
 // 直接使用接口返回的分类名称
-const getCategoryDisplayName = (name: string): string => {
-    if (categoriesLoading) return '加载中...';
-    if (categoriesError) return '名称加载失败';
-    const category = categories?.categories?.find(c => c.name === name);
-    return category?.name || name;
-}
+    const getCategoryDisplayName = (name: string): string => {
+        if (categoriesLoading) return '加载中...';
+        if (categoriesError) return '名称加载失败';
+        const category = categories?.categories?.find(c => c.name === name);
+        return category?.name || name;
+    }
     // 获取分类商品数据
     useEffect(() => {
         const fetchCategoryProducts = async () => {
@@ -84,7 +70,7 @@ const getCategoryDisplayName = (name: string): string => {
             console.error('添加商品失败: 商品ID不能为空');
             return;
         }
-        
+
         // 修正参数顺序：productId, name, merchantId, picture, quantity
         cartStore.addItem(
             id,

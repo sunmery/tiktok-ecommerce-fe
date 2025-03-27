@@ -10,6 +10,7 @@ import {
     Input
 } from '@mui/joy'
 import {useState} from 'react'
+import {useTranslation} from 'react-i18next'
 
 import {useCart} from "@/hooks/useCart.ts";
 
@@ -19,6 +20,7 @@ export const Route = createLazyFileRoute('/carts/')({component: () => <Cart/>})
  *@returns JSXElement
  */
 function Cart() {
+    const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const navigate = useNavigate()
@@ -42,7 +44,7 @@ function Cart() {
         try {
             apiRemoveItem(id)
         } catch (err) {
-            setError('删除商品失败，请稍后重试')
+            setError(t('cart.error.removeItemFailed'))
         }
     }
 
@@ -58,7 +60,7 @@ function Cart() {
                 }
             }
         } catch (err) {
-            setError('更新商品数量失败，请稍后重试')
+            setError(t('cart.error.updateQuantityFailed'))
         }
     }
 
@@ -66,7 +68,7 @@ function Cart() {
         try {
             apiClearCart()
         } catch (err) {
-            setError('清空购物车失败，请稍后重试')
+            setError(t('cart.error.clearCartFailed'))
         }
     }
 
@@ -78,13 +80,13 @@ function Cart() {
     // 处理结算逻辑
     const handleCheckout = () => {
         if (!cartItems || cartItems.length === 0) {
-            setError('购物车为空，无法结算')
+            setError(t('cart.error.emptyCartCheckout'))
             return
         }
 
         const selectedCount = getSelectedItemsCount()
         if (selectedCount === 0) {
-            setError('请至少选择一件商品进行结算')
+            setError(t('cart.error.noItemSelected'))
             return
         }
 
@@ -103,14 +105,14 @@ function Cart() {
                         console.log('已跳转到结算页面')
                     }).catch(navError => {
                         console.error('跳转到结算页面失败:', navError)
-                        setError('跳转到结算页面失败，请稍后重试')
+                        setError(t('cart.error.navigationFailed'))
                         setLoading(false)
                     })
                 },
                 // 同步失败回调
                 (error) => {
                     console.error('购物车同步失败:', error)
-                    setError('同步购物车失败，请稍后重试')
+                    setError(t('cart.error.syncFailed'))
                     setLoading(false)
                 }
             ).then(r => {
@@ -118,24 +120,24 @@ function Cart() {
             })
         } catch (err) {
             console.error('结算过程发生错误:', err)
-            setError('结算失败，请稍后重试')
+            setError(t('cart.error.checkoutFailed'))
             setLoading(false)
         }
     }
 
     if (loading) {
-        return <div>加载中...</div>
+        return <div>{t('cart.loading')}</div>
     }
 
     if (isLoading) {
-        return <div>获取线上的购物车数据中</div>
+        return <div>{t('cart.fetchingData')}</div>
     }
 
     return (
         <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
             {/* 删除了面包屑导航 */}
 
-            <Typography level="h2" sx={{mb: 3}}>购物车</Typography>
+            <Typography level="h2" sx={{mb: 3}}>{t('cart.title')}</Typography>
             {error && (
                 <Typography color="danger" sx={{mb: 2}}>
                     {error}
@@ -155,11 +157,11 @@ function Cart() {
                                         {isAllSelected() ? <CheckBox /> : <CheckBoxOutlineBlank />}
                                     </IconButton>
                                 </th>
-                                <th style={{width: '25%'}}>商品信息</th>
-                                <th style={{width: '15%'}}>单价</th>
-                                <th style={{width: '20%'}}>数量</th>
-                                <th style={{width: '15%'}}>小计</th>
-                                <th style={{width: '20%'}}>操作</th>
+                                <th style={{width: '25%'}}>{t('cart.table.productInfo')}</th>
+                                <th style={{width: '15%'}}>{t('cart.table.unitPrice')}</th>
+                                <th style={{width: '20%'}}>{t('cart.table.quantity')}</th>
+                                <th style={{width: '15%'}}>{t('cart.table.subtotal')}</th>
+                                <th style={{width: '20%'}}>{t('cart.table.actions')}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -257,7 +259,7 @@ function Cart() {
                                             color="danger"
                                             onClick={() => removeItem(item.productId)}
                                         >
-                                            删除
+                                            {t('cart.button.remove')}
                                         </Button>
                                     </td>
                                 </tr>
@@ -273,14 +275,14 @@ function Cart() {
                             onClick={handleClearCart}
                             startDecorator={<FavoriteBorder/>}
                         >
-                            清空购物车
+                            {t('cart.button.clearCart')}
                         </Button>
                         <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
                             <Typography level="h4">
-                                总计: ¥{getSelectedTotalPrice().toFixed(2)}
+                                {t('cart.total')}: ¥{getSelectedTotalPrice().toFixed(2)}
                             </Typography>
                             <Typography level="body-sm" sx={{ ml: 1 }}>
-                                已选择 {getSelectedItemsCount()} 件商品
+                                {t('cart.selectedItems', {count: getSelectedItemsCount()})}
                             </Typography>
                             <Button
                                 size="lg"
@@ -290,15 +292,15 @@ function Cart() {
                                 onClick={handleCheckout}
                                 disabled={!cartItems || cartItems.length === 0 || getSelectedItemsCount() === 0}
                             >
-                                去结算
+                                {t('cart.button.checkout')}
                             </Button>
                         </Box>
                     </Box>
                 </Box>
             ) : (
                 <Card variant="outlined" sx={{p: 4, textAlign: 'center'}}>
-                    <Typography level="h3" sx={{mb: 2}}>购物车为空</Typography>
-                    <Typography sx={{mb: 3}}>您的购物车中还没有商品，快去选购吧！</Typography>
+                    <Typography level="h3" sx={{mb: 2}}>{t('cart.empty')}</Typography>
+                    <Typography sx={{mb: 3}}>{t('cart.goShopping')}</Typography>
                 </Card>
             )}
         </Box>
