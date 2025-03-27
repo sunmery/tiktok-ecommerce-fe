@@ -1,5 +1,5 @@
-import { UserRole, UserProfile, JwtClaims, AuthErrorType } from '@/types/auth';
-import { jwtDecode } from 'jwt-decode';
+import {JwtClaims, UserProfile, UserRole} from '@/types/auth';
+import {jwtDecode} from 'jwt-decode';
 
 // 路由权限配置
 export const routePermissions: Record<string, UserRole[]> = {
@@ -19,7 +19,8 @@ class AuthService {
     private tokenKey = 'auth_token';
     private profileKey = 'user_profile';
 
-    private constructor() {}
+    private constructor() {
+    }
 
     public static getInstance(): AuthService {
         if (!AuthService.instance) {

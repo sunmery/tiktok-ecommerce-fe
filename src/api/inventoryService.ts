@@ -168,7 +168,7 @@ export const inventoryService = {
      */
     getStockAlerts: (request: GetStockAlertsRequest) => {
         return httpClient.get<GetStockAlertsResponse>(`${import.meta.env.VITE_MERCHANTS_URL}/inventory/alerts`, {
-            params:{
+            params: {
                 merchantId: request.merchantId,
                 page: request.page,
                 pageSize: request.pageSize

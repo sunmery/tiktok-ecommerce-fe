@@ -5,18 +5,17 @@
 
 import {httpClient} from '@/utils/http-client';
 import {
-    // API方法名常量导入
     CreateAddress,
-    UpdateAddress,
-    DeleteAddress,
-    GetAddresses,
-    ListCreditCards,
     CreateCreditCard,
-    UpdateCreditCard,
-    DeleteCreditCard,
-    GetCreditCard,
+    DeleteAddress,
     DeleteAddressReply,
-    GetAddressesReply
+    DeleteCreditCard,
+    GetAddresses,
+    GetAddressesReply,
+    GetCreditCard,
+    ListCreditCards,
+    UpdateAddress,
+    UpdateCreditCard
 } from '@/types/user';
 import {
     CardsReply,
@@ -77,10 +76,10 @@ export const userService = {
      */
     deleteAddress: (request: DeleteAddressRequest) => {
         return httpClient.delete<DeleteAddressReply>(`${import.meta.env.VITE_USERS_URL}/${DeleteAddress}`, {
-           params: {
-               addressesId: request.addressesId,
-               userId: request.userId
-           }
+            params: {
+                addressesId: request.addressesId,
+                userId: request.userId
+            }
         });
     },
 

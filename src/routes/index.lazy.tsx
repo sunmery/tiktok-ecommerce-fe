@@ -1,5 +1,5 @@
 import {createLazyFileRoute, Link} from '@tanstack/react-router'
-import {AspectRatio, Box, Button, Card, CardContent, Chip, Divider, Grid, Stack, Typography,} from '@mui/joy'
+import {AspectRatio, Box, Button, Card, CardContent, Divider, Grid, Stack, Typography,} from '@mui/joy'
 import {useTranslation} from 'react-i18next'
 import {useEffect, useState} from 'react'
 
@@ -189,7 +189,15 @@ function Home() {
 
     if (isLoading) {
         return (
-            <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px'}}>
+            <Box sx={{
+                p: 2,
+                maxWidth: '1200px',
+                mx: 'auto',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '200px'
+            }}>
                 <Typography level="h2" sx={{textAlign: 'center'}}>
                     加载中...
                 </Typography>
@@ -199,7 +207,15 @@ function Home() {
 
     if (error) {
         return (
-            <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px'}}>
+            <Box sx={{
+                p: 2,
+                maxWidth: '1200px',
+                mx: 'auto',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '200px'
+            }}>
                 <Typography level="h2" sx={{textAlign: 'center'}}>
                     加载失败，请重试
                 </Typography>
@@ -341,7 +357,7 @@ function Home() {
                         </Box>
 
                         {/* 商品分类导航 */}
-                        <HotCategories title="热门分类" limit={10} maxLevel={1} />
+                        <HotCategories title="热门分类" limit={10} maxLevel={1}/>
 
                         {/* 热门商品区 */}
                         {/*<Box sx={{mb: 6}}>*/}
@@ -540,10 +556,14 @@ function Home() {
                                 <Grid xs={12} sm={6} md={3}>
                                     <Typography level="title-lg" sx={{mb: 2}}>项目信息</Typography>
                                     <Stack spacing={1}>
-                                        <Typography level="body-md"><a href="https://github.com/sunmery/tiktok-ecommerce">后端</a></Typography>
-                                        <Typography level="body-md"><a href="https://github.com/sunmery/tiktok-ecommerce-fe">前端</a></Typography>
-                                        <Typography level="body-md"><a href="https://github.com/sunmery/tiktok-ecommerce-gateway">网关</a></Typography>
-                                        <Typography level="body-md"><a href="https://github.com/sunmery/tiktok-ecommerce-gateway">运维</a></Typography>
+                                        <Typography level="body-md"><a
+                                            href="https://github.com/sunmery/tiktok-ecommerce">后端</a></Typography>
+                                        <Typography level="body-md"><a
+                                            href="https://github.com/sunmery/tiktok-ecommerce-fe">前端</a></Typography>
+                                        <Typography level="body-md"><a
+                                            href="https://github.com/sunmery/tiktok-ecommerce-gateway">网关</a></Typography>
+                                        <Typography level="body-md"><a
+                                            href="https://github.com/sunmery/tiktok-ecommerce-gateway">运维</a></Typography>
                                     </Stack>
                                 </Grid>
                                 <Grid xs={12} sm={6} md={3}>

@@ -39,7 +39,7 @@ interface StockAdjustment {
 }
 
 export default function Inventory() {
-    const { t } = useTranslation(['inventory'])
+    const {t} = useTranslation(['inventory'])
     const [products, setProducts] = useState<Product[]>([])
     const [alerts, setAlerts] = useState<InventoryAlert[]>([])
     const [adjustments, setAdjustments] = useState<StockAdjustment[]>([])
@@ -266,7 +266,11 @@ export default function Inventory() {
                                     color="warning"
                                     sx={{mb: 1}}
                                 >
-                                    {t('inventory:alerts.low_stock', { product: product?.name, current: alert.currentStock, threshold: alert.threshold })}
+                                    {t('inventory:alerts.low_stock', {
+                                        product: product?.name,
+                                        current: alert.currentStock,
+                                        threshold: alert.threshold
+                                    })}
                                 </Alert>
                             )
                         })}

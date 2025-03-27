@@ -1,6 +1,17 @@
-import {createLazyFileRoute} from '@tanstack/react-router'
-import {useParams} from '@tanstack/react-router'
-import {Box, Typography, Card, CardContent, AspectRatio, Divider, Grid, Button, Chip, CircularProgress, Alert} from '@mui/joy'
+import {createLazyFileRoute, useParams} from '@tanstack/react-router'
+import {
+    Alert,
+    AspectRatio,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    Chip,
+    CircularProgress,
+    Divider,
+    Grid,
+    Typography
+} from '@mui/joy'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import {cartStore} from '@/store/cartStore.ts'
 import {useProduct} from '@/hooks/useProduct'
@@ -24,7 +35,7 @@ export default function ProductDetail() {
                 const productName = product.name || '';
                 const merchantId = product.merchantId || '';
                 const imageUrl = product.images && product.images[0] && product.images[0].url ? product.images[0].url : '';
-                
+
                 cartStore.addItem(
                     productIdentifier,
                     productName,
@@ -35,7 +46,7 @@ export default function ProductDetail() {
             } catch (error) {
                 console.error('添加到购物车失败:', error);
                 // 使用showMessage显示错误信息
-                import('@/utils/casdoor').then(({ showMessage }) => {
+                import('@/utils/casdoor').then(({showMessage}) => {
                     showMessage('添加到购物车失败，请稍后重试', 'error');
                 });
             }
@@ -44,8 +55,16 @@ export default function ProductDetail() {
 
     if (loading) {
         return (
-            <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px'}}>
-                <CircularProgress size="lg" />
+            <Box sx={{
+                p: 2,
+                maxWidth: '1200px',
+                mx: 'auto',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '200px'
+            }}>
+                <CircularProgress size="lg"/>
             </Box>
         )
     }
@@ -84,7 +103,7 @@ export default function ProductDetail() {
                                 src={product.images?.[0]?.url || ''}
                                 alt={productName}
                                 loading="lazy"
-                                style={{ objectFit: 'contain', width: '100%', height: '100%' }}
+                                style={{objectFit: 'contain', width: '100%', height: '100%'}}
                                 onError={(e) => {
                                     console.error('商品图片加载失败，使用默认图片');
                                     e.currentTarget.src = "https://picsum.photos/300/200";

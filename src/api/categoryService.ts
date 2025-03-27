@@ -18,9 +18,7 @@ import {
     GetCategoryRequest,
     GetClosureRelations,
     GetClosureRequest,
-    GetDirectSubCategories,
     GetDirectSubCategoriesRequest,
-    GetLeafCategories,
     GetSubTree,
     GetSubTreeRequest,
     UpdateCategory,
@@ -52,7 +50,7 @@ export const categoryService = {
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        return await (response.json() as Promise<Category>);
+        return await response.json() as Promise<Category>;
     },
 
     /**

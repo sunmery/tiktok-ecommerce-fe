@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
-import { useNavigate, useLocation } from '@tanstack/react-router';
-import { authService } from '@/utils/auth';
+import React, {useEffect} from 'react';
+import {useLocation, useNavigate} from '@tanstack/react-router';
+import {authService} from '@/utils/auth';
 
 interface AuthGuardProps {
     children: React.ReactNode;
 }
 
-export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
+export const AuthGuard: React.FC<AuthGuardProps> = ({children}) => {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -16,7 +16,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
             const hasPermission = authService.checkRoutePermission(location.pathname);
             if (!hasPermission) {
                 // 如果没有权限，重定向到首页
-                navigate({ to: '/' });
+                navigate({to: '/'});
                 return;
             }
 
@@ -26,7 +26,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
                 if (!isValid) {
                     // token 无效，登出并重定向到首页
                     authService.logout();
-                    navigate({ to: '/' });
+                    navigate({to: '/'});
                 }
             }
         };
@@ -34,5 +34,5 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
         checkAuth();
     }, [location.pathname, navigate]);
 
-    return <>{children}</>;
-}; 
+    return children;
+};

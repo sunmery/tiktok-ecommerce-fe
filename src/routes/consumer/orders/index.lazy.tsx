@@ -1,7 +1,7 @@
 import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
 import {Alert, Box, Card, CardContent, CircularProgress, Typography} from '@mui/joy'
 import Pagination from '@/components/Pagination'
-import { useQuery } from '@tanstack/react-query'
+import {useQuery} from '@tanstack/react-query'
 import {SyntheticEvent, useEffect, useState} from 'react'
 import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
@@ -51,7 +51,7 @@ function ConsumerOrders() {
     }
 
     // 初始加载和页码变化时获取订单
-    
+
 
     // 处理页码变化
     const handlePageChange = (_event: SyntheticEvent<Element, Event>, value: number) => {

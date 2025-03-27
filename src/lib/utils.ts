@@ -4,5 +4,5 @@
  * @returns 合并后的类名字符串
  */
 export function cn(...inputs: (string | boolean | undefined | null)[]): string {
-  return inputs.filter(Boolean).join(' ');
+    return inputs.filter(Boolean).join(' ');
 }

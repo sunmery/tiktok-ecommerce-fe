@@ -38,7 +38,7 @@ export const cartStore: CartState = proxy<CartState>({
     syncTimeout: null,
     lastError: null,
     isSyncing: false,
-    items: initialItems.map(item => ({ ...item, selected: true })), // 默认全选
+    items: initialItems.map(item => ({...item, selected: true})), // 默认全选
     addItem(
         productId: string,
         name: string,
@@ -195,7 +195,7 @@ export const cartStore: CartState = proxy<CartState>({
     mergeWithBackendCart(backendItems: CartItem[]) {
         if (!backendItems?.length) return
         console.log('Merging backend cart items:', backendItems)
-        
+
         // 输出后端返回的每个商品ID的详细信息，用于调试
         console.log('后端购物车商品ID详情:', backendItems.map(item => {
             return {
@@ -206,7 +206,7 @@ export const cartStore: CartState = proxy<CartState>({
                 merchantIdLength: item.merchantId ? item.merchantId.length : 0
             }
         }))
-        
+
         // 过滤掉无效的后端商品项
         const validBackendItems = backendItems.filter(item => {
             if (!item.productId || item.productId.trim() === '') {
@@ -219,7 +219,7 @@ export const cartStore: CartState = proxy<CartState>({
             }
             return true;
         });
-    
+
         validBackendItems.forEach(backendItem => {
             // 输出当前处理的商品ID信息
             console.log('处理后端购物车商品:', {
@@ -227,9 +227,9 @@ export const cartStore: CartState = proxy<CartState>({
                 merchantId: backendItem.merchantId,
                 name: backendItem.name
             });
-            
+
             const localItem = cartStore.items.find(item => item.productId === backendItem.productId)
-    
+
             if (localItem) {
                 // 更新本地商品信息，直接使用后端返回的数量和其他信息
                 localItem.quantity = backendItem.quantity
@@ -253,14 +253,17 @@ export const cartStore: CartState = proxy<CartState>({
                 } else {
                     // 否则从产品服务获取完整信息
                     import('@/api/productService').then(({productService}) => {
-                        productService.getProduct({productId: backendItem.productId, merchantId: backendItem.merchantId})
+                        productService.getProduct({
+                            productId: backendItem.productId,
+                            merchantId: backendItem.merchantId
+                        })
                             .then(product => {
                                 // 再次验证商品ID和商家ID
                                 if (!backendItem.productId || !backendItem.merchantId) {
                                     console.error('添加商品到购物车失败: ID不能为空');
                                     return;
                                 }
-                                
+
                                 cartStore.items.push({
                                     picture: product.picture,
                                     productId: backendItem.productId,
@@ -287,10 +290,10 @@ export const cartStore: CartState = proxy<CartState>({
             console.log('购物车同步已在进行中，跳过重复请求');
             return;
         }
-        
+
         // 设置同步状态为进行中
         cartStore.isSyncing = true;
-        
+
         try {
             console.log('开始同步购物车...');
             const response = await cartService.getCart()
@@ -329,7 +332,7 @@ export const cartStore: CartState = proxy<CartState>({
                 }
                 return true;
             });
-            
+
             // 如果过滤后没有有效商品，直接返回
             if (validItems.length === 0) {
                 console.log('购物车中没有有效商品项，跳过同步');
@@ -337,7 +340,7 @@ export const cartStore: CartState = proxy<CartState>({
                 if (onSuccess) onSuccess();
                 return;
             }
-            
+
             // 输出要同步到后端的商品项详情，用于调试
             console.log('准备同步到后端的购物车项:', validItems.map(item => {
                 return {
@@ -348,7 +351,7 @@ export const cartStore: CartState = proxy<CartState>({
                     merchantIdLength: item.merchantId ? item.merchantId.length : 0
                 }
             }))
-            
+
             // 同步有效的本地购物车项到后端
             const syncPromises = validItems.map(item => {
                 const requestData = {
@@ -363,19 +366,19 @@ export const cartStore: CartState = proxy<CartState>({
             await Promise.all(syncPromises)
             cartStore.lastError = null
             console.log('购物车同步完成')
-            
+
             // 同步完成，设置状态为非同步中
             cartStore.isSyncing = false;
-            
+
             // 调用成功回调
             if (onSuccess) onSuccess();
         } catch (error) {
             console.error('同步购物车失败:', error)
             cartStore.lastError = '同步购物车失败，请稍后重试'
-            
+
             // 同步失败，设置状态为非同步中
             cartStore.isSyncing = false;
-            
+
             // 调用错误回调
             if (onError) onError(error);
             throw error;

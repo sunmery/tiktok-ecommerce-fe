@@ -9,10 +9,10 @@
  * @returns 格式化后的货币字符串
  */
 export const formatCurrency = (amount: number, currency: string): string => {
-  return new Intl.NumberFormat('zh-CN', {
-    style: 'currency',
-    currency: currency || 'CNY',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(amount)
+    return new Intl.NumberFormat('zh-CN', {
+        style: 'currency',
+        currency: currency || 'CNY',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(amount)
 }

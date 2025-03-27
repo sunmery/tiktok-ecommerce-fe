@@ -1,14 +1,6 @@
 import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
-import {FavoriteBorder, Add, Remove, ShoppingCart, CheckBox, CheckBoxOutlineBlank} from '@mui/icons-material'
-import {
-    Box,
-    Table,
-    Button,
-    Typography,
-    IconButton,
-    Card,
-    Input
-} from '@mui/joy'
+import {Add, CheckBox, CheckBoxOutlineBlank, FavoriteBorder, Remove, ShoppingCart} from '@mui/icons-material'
+import {Box, Button, Card, IconButton, Input, Table, Typography} from '@mui/joy'
 import {useState} from 'react'
 import {useTranslation} from 'react-i18next'
 
@@ -20,7 +12,7 @@ export const Route = createLazyFileRoute('/carts/')({component: () => <Cart/>})
  *@returns JSXElement
  */
 function Cart() {
-    const { t } = useTranslation()
+    const {t} = useTranslation()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const navigate = useNavigate()
@@ -40,9 +32,9 @@ function Cart() {
         syncWithBackend
     } = useCart()
 
-    const removeItem = (id: string) => {
+    const removeItem = (productId: string, merchantId: string) => {
         try {
-            apiRemoveItem(id)
+            apiRemoveItem({productId, merchantId})
         } catch (err) {
             setError(t('cart.error.removeItemFailed'))
         }
@@ -56,7 +48,7 @@ function Cart() {
                 if (newQuantity > 0) {
                     apiUpdateQuantity({itemId: id, quantity: newQuantity})
                 } else {
-                    removeItem(id)
+                    removeItem(id, item.merchantId)
                 }
             }
         } catch (err) {
@@ -93,7 +85,7 @@ function Cart() {
         try {
             setLoading(true)
             setError(null)
-            
+
             // 先同步购物车数据到后端，确保前后端数据一致
             console.log('结算前同步购物车数据...')
             syncWithBackend(
@@ -116,7 +108,7 @@ function Cart() {
                     setLoading(false)
                 }
             ).then(r => {
-                console.log("同步购物车数据完成",r)
+                console.log("同步购物车数据完成", r)
             })
         } catch (err) {
             console.error('结算过程发生错误:', err)
@@ -154,7 +146,7 @@ function Cart() {
                                         size="sm"
                                         onClick={() => isAllSelected() ? unselectAllItems() : selectAllItems()}
                                     >
-                                        {isAllSelected() ? <CheckBox /> : <CheckBoxOutlineBlank />}
+                                        {isAllSelected() ? <CheckBox/> : <CheckBoxOutlineBlank/>}
                                     </IconButton>
                                 </th>
                                 <th style={{width: '25%'}}>{t('cart.table.productInfo')}</th>
@@ -172,7 +164,7 @@ function Cart() {
                                             size="sm"
                                             onClick={() => toggleItemSelection(item.productId)}
                                         >
-                                            {item.selected ? <CheckBox /> : <CheckBoxOutlineBlank />}
+                                            {item.selected ? <CheckBox/> : <CheckBoxOutlineBlank/>}
                                         </IconButton>
                                     </td>
                                     <td>
@@ -219,24 +211,24 @@ function Cart() {
                                                 <Remove/>
                                             </IconButton>
                                             <Input
-                                              value={item.quantity}
-                                              variant="outlined"
-                                              size="sm"
-                                              sx={{ width: '60px', textAlign: 'center' }}
-                                              onChange={(e) => {
-                                                const value = Math.max(1, parseInt(e.target.value) || 1);
-                                                apiUpdateQuantity({ itemId: item.productId, quantity: value });
-                                              }}
-                                              onBlur={(e) => {
-                                                const value = Math.max(1, parseInt(e.target.value) || 1);
-                                                apiUpdateQuantity({ itemId: item.productId, quantity: value });
-                                              }}
-                                              onKeyPress={(e) => {
-                                                if (e.key === 'Enter') {
-                                                  const value = Math.max(1, parseInt((e.target as HTMLInputElement).value) || 1);
-                                                  apiUpdateQuantity({ itemId: item.productId, quantity: value });
-                                                }
-                                              }}
+                                                value={item.quantity}
+                                                variant="outlined"
+                                                size="sm"
+                                                sx={{width: '60px', textAlign: 'center'}}
+                                                onChange={(e) => {
+                                                    const value = Math.max(1, parseInt(e.target.value) || 1);
+                                                    apiUpdateQuantity({itemId: item.productId, quantity: value});
+                                                }}
+                                                onBlur={(e) => {
+                                                    const value = Math.max(1, parseInt(e.target.value) || 1);
+                                                    apiUpdateQuantity({itemId: item.productId, quantity: value});
+                                                }}
+                                                onKeyPress={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        const value = Math.max(1, parseInt((e.target as HTMLInputElement).value) || 1);
+                                                        apiUpdateQuantity({itemId: item.productId, quantity: value});
+                                                    }
+                                                }}
                                             />
                                             <IconButton
                                                 size="sm"
@@ -257,7 +249,7 @@ function Cart() {
                                         <Button
                                             variant="soft"
                                             color="danger"
-                                            onClick={() => removeItem(item.productId)}
+                                            onClick={() => removeItem(item.productId, item.merchantId)}
                                         >
                                             {t('cart.button.remove')}
                                         </Button>
@@ -281,7 +273,7 @@ function Cart() {
                             <Typography level="h4">
                                 {t('cart.total')}: ¥{getSelectedTotalPrice().toFixed(2)}
                             </Typography>
-                            <Typography level="body-sm" sx={{ ml: 1 }}>
+                            <Typography level="body-sm" sx={{ml: 1}}>
                                 {t('cart.selectedItems', {count: getSelectedItemsCount()})}
                             </Typography>
                             <Button

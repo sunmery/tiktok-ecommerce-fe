@@ -39,9 +39,9 @@ export const showTranslationDebugger = import.meta.env.VITE_SHOW_TRANSLATION_DEB
  * @param args 其他参数
  */
 export const log = (message: string, ...args: any[]): void => {
-  if (isLoggingEnabled) {
-    console.log(message, ...args);
-  }
+    if (isLoggingEnabled) {
+        console.log(message, ...args);
+    }
 };
 
 /**
@@ -50,9 +50,9 @@ export const log = (message: string, ...args: any[]): void => {
  * @param args 其他参数
  */
 export const warn = (message: string, ...args: any[]): void => {
-  if (isLoggingEnabled) {
-    console.warn(message, ...args);
-  }
+    if (isLoggingEnabled) {
+        console.warn(message, ...args);
+    }
 };
 
 /**
@@ -61,21 +61,21 @@ export const warn = (message: string, ...args: any[]): void => {
  * @param args 其他参数
  */
 export const error = (message: string, ...args: any[]): void => {
-  console.error(message, ...args);
+    console.error(message, ...args);
 };
 
 /**
  * 获取API基础URL
  */
 export const getApiBaseUrl = (): string => {
-  return import.meta.env.VITE_URL || '';
+    return import.meta.env.VITE_URL || '';
 };
 
 /**
  * 获取Casdoor URL
  */
 export const getCasdoorUrl = (): string => {
-  return import.meta.env.VITE_CASDOOR_URL || '';
+    return import.meta.env.VITE_CASDOOR_URL || '';
 };
 
 /**
@@ -83,13 +83,13 @@ export const getCasdoorUrl = (): string => {
  * @deprecated 请直接使用导出的函数和变量
  */
 export const Environment = {
-  isDevelopment,
-  isProduction,
-  isDebugEnabled,
-  isLoggingEnabled,
-  log,
-  warn,
-  error,
-  getApiBaseUrl,
-  getCasdoorUrl
+    isDevelopment,
+    isProduction,
+    isDebugEnabled,
+    isLoggingEnabled,
+    log,
+    warn,
+    error,
+    getApiBaseUrl,
+    getCasdoorUrl
 }; 

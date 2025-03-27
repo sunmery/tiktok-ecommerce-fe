@@ -146,7 +146,8 @@ export default function OrderList({orders}: Orders) {
                                             </Chip>
                                         ))}
                                         {order.items.length > 3 && (
-                                            <Chip size="sm" variant="soft" color="neutral">+{order.items.length - 3}件</Chip>
+                                            <Chip size="sm" variant="soft"
+                                                  color="neutral">+{order.items.length - 3}件</Chip>
                                         )}
                                     </Box>
                                 </Box>

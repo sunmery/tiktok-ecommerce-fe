@@ -3,7 +3,7 @@
  * 基于proto文件生成的TypeScript类型
  */
 
-import { Address } from "@/types/addresses";
+import {Address} from "@/types/addresses";
 
 // API路径常量
 export const CreateAddress = 'address';
@@ -19,45 +19,47 @@ export const GetCreditCard = 'credit_cards';
 
 // 时间戳类型（对应google.protobuf.Timestamp）
 export interface Timestamp {
-  seconds: number;
-  nanos: number;
+    seconds: number;
+    nanos: number;
 }
 
 // 空请求类型（对应google.protobuf.Empty）
-export interface Empty {}
+export interface Empty {
+}
 
 // 获取地址列表响应
 export interface GetAddressesReply {
-  addresses: Address[];
+    addresses: Address[];
 }
 
 // 删除地址响应
 export interface DeleteAddressReply {
-  message: string;
-  id: number;
-  code: number;
+    message: string;
+    id: number;
+    code: number;
 }
 
 // 删除地址响应（proto定义）
 export interface DeleteAddressesReply {
-  message: string;
-  id: number;
-  code: number;
+    message: string;
+    id: number;
+    code: number;
 }
 
 // 获取用户个人资料请求
-export interface GetProfileRequest {}
+export interface GetProfileRequest {
+}
 
 // 用户个人资料
 export interface UserProfile {
-  owner: string;
-  name: string;
-  avatar: string;
-  email: string;
-  id: string;
-  role: string;
-  displayName: string;
-  isDeleted: boolean;
-  createdTime: Timestamp;
-  updatedTime: Timestamp;
+    owner: string;
+    name: string;
+    avatar: string;
+    email: string;
+    id: string;
+    role: string;
+    displayName: string;
+    isDeleted: boolean;
+    createdTime: Timestamp;
+    updatedTime: Timestamp;
 }

@@ -1,34 +1,34 @@
-import { Account } from './account'
+import {Account} from './account'
 
 // 用户管理相关类型
 export interface User extends Account {
-  pendingApproval?: boolean
+    pendingApproval?: boolean
 }
 
 // 商家申请相关类型
 export interface MerchantApplication {
-  id: string
-  userId: string
-  businessName: string
-  businessLicense: string
-  contactPhone: string
-  applicationDate: string
-  status: 'pending' | 'approved' | 'rejected'
+    id: string
+    userId: string
+    businessName: string
+    businessLicense: string
+    contactPhone: string
+    applicationDate: string
+    status: 'pending' | 'approved' | 'rejected'
 }
 
 // 编辑用户表单数据类型
 export interface EditUserForm {
-  name: string
-  email: string
-  role: string
+    name: string
+    email: string
+    role: string
 }
 
 // 新用户表单数据类型
 export interface NewUserForm extends EditUserForm {
-  password: string
+    password: string
 }
 
 // 角色名称映射类型
 export interface RoleNames {
-  [key: string]: string
+    [key: string]: string
 }

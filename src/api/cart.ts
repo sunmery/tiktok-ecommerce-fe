@@ -3,9 +3,9 @@
  * 提供购物车相关的操作函数
  */
 
-import { cartService } from './cartService';
-import { cartStore } from '@/store/cartStore';
-import type { CartItem } from '@/types/cart';
+import {cartService} from './cartService';
+import {cartStore} from '@/store/cartStore';
+import type {CartItem} from '@/types/cart';
 
 /**
  * 获取购物车商品列表
@@ -20,8 +20,8 @@ import type { CartItem } from '@/types/cart';
  * console.log(items);
  */
 export const getCartItems = async () => {
-  const response = await cartService.getCart();
-  return response.items || [];
+    const response = await cartService.getCart();
+    return response.items || [];
 };
 
 /**
@@ -45,11 +45,11 @@ export const getCartItems = async () => {
  * });
  */
 export const addToCart = async (item: CartItem) => {
-  return await cartService.upsertItem({
-    productId: item.productId,
-    merchantId: item.merchantId,
-    quantity: item.quantity
-  });
+    return await cartService.upsertItem({
+        productId: item.productId,
+        merchantId: item.merchantId,
+        quantity: item.quantity
+    });
 };
 
 /**
@@ -68,10 +68,10 @@ export const addToCart = async (item: CartItem) => {
  * await removeFromCart('p123', 'm456');
  */
 export const removeFromCart = async (productId: string, merchantId: string) => {
-  return await cartService.removeCartItem({ 
-    productId: productId,
-    merchantId: merchantId
-  });
+    return await cartService.removeCartItem({
+        productId: productId,
+        merchantId: merchantId
+    });
 };
 
 /**
@@ -90,17 +90,17 @@ export const removeFromCart = async (productId: string, merchantId: string) => {
  * await updateCartItemQuantity('p123', 3);
  */
 export const updateCartItemQuantity = async (productId: string, quantity: number) => {
-  // 从本地购物车中查找商品，获取merchantId
-  const localItem = cartStore.items.find(item => item.productId === productId);
-  if (!localItem) {
-    throw new Error('商品不存在于购物车中');
-  }
-  
-  return await cartService.upsertItem({
-    productId: productId,
-    merchantId: localItem.merchantId,
-    quantity: quantity
-  });
+    // 从本地购物车中查找商品，获取merchantId
+    const localItem = cartStore.items.find(item => item.productId === productId);
+    if (!localItem) {
+        throw new Error('商品不存在于购物车中');
+    }
+
+    return await cartService.upsertItem({
+        productId: productId,
+        merchantId: localItem.merchantId,
+        quantity: quantity
+    });
 };
 
 /**
@@ -115,5 +115,5 @@ export const updateCartItemQuantity = async (productId: string, quantity: number
  * await clearCart();
  */
 export const clearCart = async () => {
-  return await cartService.emptyCart();
+    return await cartService.emptyCart();
 };

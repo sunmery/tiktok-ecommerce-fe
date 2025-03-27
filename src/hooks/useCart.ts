@@ -1,5 +1,5 @@
-import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
-import {getCartItems, addToCart, removeFromCart, updateCartItemQuantity, clearCart} from '@/api/cart'
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import {addToCart, clearCart, getCartItems, removeFromCart, updateCartItemQuantity} from '@/api/cart'
 import {useSnapshot} from 'valtio'
 import {cartStore} from '@/store/cartStore'
 import {useEffect} from 'react'

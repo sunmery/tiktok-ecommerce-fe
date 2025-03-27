@@ -5,85 +5,86 @@
 
 // 时间戳类型（对应google.protobuf.Timestamp）
 export interface Timestamp {
-  seconds: number;
-  nanos: number;
+    seconds: number;
+    nanos: number;
 }
 
 // 空请求类型（对应google.protobuf.Empty）
-export interface Empty {}
+export interface Empty {
+}
 
 // 分类信息
 export interface Category {
-  id: string;
-  parentId: number;
-  level: number;
-  path: string;
-  name: string;
-  isLeaf: boolean;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+    id: string;
+    parentId: number;
+    level: number;
+    path: string;
+    name: string;
+    isLeaf: boolean;
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
 }
 
 // 分类列表
 export interface Categories {
-  categories: Category[];
+    categories: Category[];
 }
 
 // 创建分类请求
 export interface CreateCategoryRequest {
-  name: string;
-  description: string;
-  parentId: string;
+    name: string;
+    description: string;
+    parentId: string;
 }
 
 // 获取分类请求
 export interface GetCategoryRequest {
-  id: string;
+    id: string;
 }
 
 // 更新分类请求
 export interface UpdateCategoryRequest {
-  id: string;
-  name: string;
-  description: string;
+    id: string;
+    name: string;
+    description: string;
 }
 
 // 删除分类请求
 export interface DeleteCategoryRequest {
-  id: string;
+    id: string;
 }
 
 // 获取子树请求
 export interface GetSubTreeRequest {
-  rootId: string;
+    rootId: string;
 }
 
 // 获取分类路径请求
 export interface GetCategoryPathRequest {
-  categoryId: string;
+    categoryId: string;
 }
 
 // 闭包关系
 export interface ClosureRelation {
-  ancestorId: string;
-  descendantId: string;
-  depth: number;
+    ancestorId: string;
+    descendantId: string;
+    depth: number;
 }
 
 // 闭包关系列表
 export interface ClosureRelations {
-  relations: ClosureRelation[];
+    relations: ClosureRelation[];
 }
 
 // 获取闭包请求
 export interface GetClosureRequest {
-  categoryId: string;
+    categoryId: string;
 }
 
 // 更新闭包深度请求
 export interface UpdateClosureDepthRequest {
-  categoryId: string;
-  depth: number;
+    categoryId: string;
+    depth: number;
 }
 
 // API路径常量
@@ -100,5 +101,5 @@ export const GetDirectSubCategories = 'categories/children';
 
 // 获取直接子分类请求
 export interface GetDirectSubCategoriesRequest {
-  parentId: string;
+    parentId: string;
 }

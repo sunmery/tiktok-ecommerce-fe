@@ -5,52 +5,52 @@ import type {Account} from '@/types/account'
 import {Alert, Avatar, Box, Button, Card, CardContent, Divider, Grid, Option, Select, Stack, Typography} from '@mui/joy'
 import {setAccount, userStore} from '@/store/user'
 import {useSnapshot} from 'valtio/react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import {useQuery, useQueryClient} from '@tanstack/react-query'
 import Skeleton from '@/components/Skeleton'
-import { useTranslation } from 'react-i18next'
+import {useTranslation} from 'react-i18next'
 
 /**
  *@returns JSXElement
  */
 export default function Profile() {
-    const { t } = useTranslation()
+    const {t} = useTranslation()
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
     const queryClient = useQueryClient()
-    
-    // 使用useQuery获取用户信息
-    const { error: queryError, isLoading } = useQuery({
-      queryKey: ['userinfo'],
-      queryFn: async () => {
-        if (!isLoggedIn()) {
-          await navigate({to: '/login'})
-          return Promise.reject(t('error.notLoggedIn'))
-        }
-        
-        const res = await getUserinfo()
-        if (Object.keys(res).length === 0) {
-          throw new Error(t('error.failedToGetUserInfo'))
-        }
-        
-        // 将后端"user"角色映射为前端"consumer"角色
-        const frontendRole = res.role === 'user' ? 'consumer' : res.role;
 
-        setAccount({
-            createdTime: res.createdTime,
-            displayName: res.displayName,
-            isDeleted: res.isDeleted,
-            role: frontendRole, // 使用映射后的角色
-            updatedTime: res.updatedTime,
-            id: res.id,
-            avatar: res.avatar,
-            email: res.email,
-            name: res.name,
-            owner: res.owner,
-        })
-        return res
-      },
-      retry: 2,
-      staleTime: 5 * 60 * 1000
+    // 使用useQuery获取用户信息
+    const {error: queryError, isLoading} = useQuery({
+        queryKey: ['userinfo'],
+        queryFn: async () => {
+            if (!isLoggedIn()) {
+                await navigate({to: '/login'})
+                return Promise.reject(t('error.notLoggedIn'))
+            }
+
+            const res = await getUserinfo()
+            if (Object.keys(res).length === 0) {
+                throw new Error(t('error.failedToGetUserInfo'))
+            }
+
+            // 将后端"user"角色映射为前端"consumer"角色
+            const frontendRole = res.role === 'user' ? 'consumer' : res.role;
+
+            setAccount({
+                createdTime: res.createdTime,
+                displayName: res.displayName,
+                isDeleted: res.isDeleted,
+                role: frontendRole, // 使用映射后的角色
+                updatedTime: res.updatedTime,
+                id: res.id,
+                avatar: res.avatar,
+                email: res.email,
+                name: res.name,
+                owner: res.owner,
+            })
+            return res
+        },
+        retry: 2,
+        staleTime: 5 * 60 * 1000
     })
 
     // 辅助函数：判断 account 是否为空或默认状态
@@ -91,15 +91,15 @@ export default function Profile() {
             }
         }
     }
-    
+
     // 退出登录处理函数
     const handleLogout = () => {
         // 清除token和会话信息
         logout()
-        
+
         // 清空 React Query 缓存
         queryClient.clear()
-        
+
         // 重置账户状态
         setAccount({
             createdTime: '',
@@ -113,9 +113,9 @@ export default function Profile() {
             name: '',
             owner: '',
         })
-        
+
         // 导航到首页
-        navigate({ to: '/' }).then(() => {
+        navigate({to: '/'}).then(() => {
             console.log(t('log.loggedOut'))
         })
     }
@@ -130,7 +130,7 @@ export default function Profile() {
             )}
 
             {isLoading ? (
-                <Skeleton variant="card" height={300} />
+                <Skeleton variant="card" height={300}/>
             ) : isAccountEmpty(account) ? (
                 <Card variant="outlined" sx={{textAlign: 'center', p: 4}}>
                     <Typography level="h2" sx={{mb: 2}}>
@@ -248,7 +248,7 @@ export default function Profile() {
                                 >
                                     {t('profile.paymentMethods')}
                                 </Button>
-                                
+
                                 {/* 根据用户角色显示不同功能区 */}
                                 {account.role === 'consumer' && (
                                     <>
@@ -282,7 +282,7 @@ export default function Profile() {
                                         </Button>
                                     </>
                                 )}
-                                
+
                                 {account.role === 'merchant' && (
                                     <>
                                         <Divider>{t('profile.merchantFeatures')}</Divider>
@@ -297,7 +297,7 @@ export default function Profile() {
                                         </Button>
                                     </>
                                 )}
-                                
+
                                 {account.role === 'admin' && (
                                     <>
                                         <Divider>{t('profile.adminFeatures')}</Divider>
@@ -312,9 +312,9 @@ export default function Profile() {
                                         </Button>
                                     </>
                                 )}
-                                
-                                <Divider />
-                                
+
+                                <Divider/>
+
                                 {/* 退出登录按钮 */}
                                 <Button
                                     variant="solid"
@@ -332,6 +332,6 @@ export default function Profile() {
     );
 }
 
-export const Route = createLazyFileRoute('/profile/')({  
+export const Route = createLazyFileRoute('/profile/')({
     component: () => <Profile/>,
 })

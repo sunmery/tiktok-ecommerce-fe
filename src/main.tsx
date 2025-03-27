@@ -1,29 +1,28 @@
 // import {StrictMode} from 'react'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import {RouterProvider} from '@tanstack/react-router'
+import {createRouter, RouterProvider} from '@tanstack/react-router'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {ReactQueryDevtools} from '@tanstack/react-query-devtools'
 import {routeTree} from './routeTree.gen'
-import {createRouter} from '@tanstack/react-router'
 import {CssVarsProvider} from '@mui/joy/styles'
 import CssBaseline from '@mui/joy/CssBaseline'
 import theme from './theme/theme'
 import {AlertProvider} from './components/AlertProvider'
 import './app.css'
-import { LanguageProvider } from './contexts/LanguageContext'
+import {LanguageProvider} from './contexts/LanguageContext'
 import './utils/i18n' // 导入i18n配置
 
 // 创建路由
 const router = createRouter({
-  routeTree,
+    routeTree,
 })
 
 // 注册路由
 declare module '@tanstack/react-router' {
-  interface Register {
-    router: typeof router
-  }
+    interface Register {
+        router: typeof router
+    }
 }
 
 const queryClient = new QueryClient({

@@ -7,5 +7,5 @@
 import OrderList from './OrderList.lazy.tsx';
 import Pagination from '@/components/Pagination';
 
-export { OrderList };
-export { Pagination };
+export {OrderList};
+export {Pagination};

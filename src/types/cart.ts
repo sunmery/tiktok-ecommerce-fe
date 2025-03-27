@@ -1,39 +1,39 @@
 export interface CartItem {
-  merchantId: string
-  productId: string
-  quantity: number
-  name: string
-  picture: string
-  price: number
-  selected?: boolean
-  totalPrice?: number
+    merchantId: string
+    productId: string
+    quantity: number
+    name: string
+    picture: string
+    price: number
+    selected?: boolean
+    totalPrice?: number
 }
 
 export interface UpsertItemReq {
-  merchantId: string
-  productId: string
-  quantity: number
+    merchantId: string
+    productId: string
+    quantity: number
 }
 
 export interface GetCartResponse {
-  items: CartItem[]
+    items: CartItem[]
 }
 
 export type Cart = GetCartResponse;
 
 export interface RemoveCartItemReq {
-  merchantId: string
-  productId: string
+    merchantId: string
+    productId: string
 }
 
 export interface UpsertItemResp {
-  success: boolean
+    success: boolean
 }
 
 export interface EmptyCartResp {
-  success: boolean
+    success: boolean
 }
 
 export interface RemoveCartItemResp {
-  success: boolean
+    success: boolean
 }

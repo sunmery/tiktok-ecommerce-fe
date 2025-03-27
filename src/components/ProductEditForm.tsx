@@ -1,24 +1,23 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
+    Alert,
+    AspectRatio,
     Box,
     Button,
-    FormControl,
-    FormLabel,
-    Input,
-    Textarea,
-    Grid,
-    Typography,
     Card,
     CardContent,
-    AspectRatio,
-    IconButton,
+    FormControl,
+    FormLabel,
+    Grid,
+    Input,
+    styled,
     SvgIcon,
-    Alert
+    Textarea,
+    Typography
 } from '@mui/joy';
-import { Product, AttributeValue } from '@/types/products';
+import {AttributeValue, Product} from '@/types/products';
 import PhotoIcon from '@mui/icons-material/PhotoCamera';
-import { styled } from '@mui/joy';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 interface ProductEditFormProps {
     product?: Product;
@@ -30,7 +29,7 @@ const AttributeEditor: React.FC<{
     name: string;
     value: AttributeValue;
     onChange: (value: AttributeValue) => void;
-}> = ({ name, value, onChange }) => {
+}> = ({name, value, onChange}) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editValue, setEditValue] = useState('');
 
@@ -65,10 +64,10 @@ const AttributeEditor: React.FC<{
     };
 
     return (
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{mb: 2}}>
             <FormLabel>{name}</FormLabel>
             {isEditing ? (
-                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                <Box sx={{display: 'flex', gap: 1, mt: 1}}>
                     <Input
                         value={editValue}
                         onChange={(e) => setEditValue(e.target.value)}
@@ -78,14 +77,14 @@ const AttributeEditor: React.FC<{
                     <Button variant="outlined" onClick={handleCancel}>取消</Button>
                 </Box>
             ) : (
-                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                <Box sx={{display: 'flex', gap: 1, mt: 1}}>
                     <Input
                         value={
                             Array.isArray(value)
                                 ? value.join(', ')
                                 : typeof value === 'string'
-                                ? value
-                                : JSON.stringify(value)
+                                    ? value
+                                    : JSON.stringify(value)
                         }
                         readOnly
                         fullWidth
@@ -110,11 +109,11 @@ const VisuallyHiddenInput = styled('input')`
 `;
 
 export const ProductEditForm: React.FC<ProductEditFormProps> = ({
-    product,
-    onSubmit,
-    onCancel,
-}): JSX.Element => {
-    const { t } = useTranslation();
+                                                                    product,
+                                                                    onSubmit,
+                                                                    onCancel,
+                                                                }): JSX.Element => {
+    const {t} = useTranslation();
     const [formData, setFormData] = useState<Partial<Product>>(
         product || {
             name: '',
@@ -126,7 +125,7 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
             images: [],
             quantity: 0,
             attributes: {},
-            inventory: { productId: '', merchantId: '', stock: 0 },
+            inventory: {productId: '', merchantId: '', stock: 0},
         }
     );
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -200,7 +199,7 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
             }
 
             const data = await response.json();
-            
+
             if (data.downloadUrl) {
                 const uploadResponse = await fetch(data.downloadUrl, {
                     method: 'PUT',
@@ -225,10 +224,10 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setUploadStatus({ loading: true, error: null });
+        setUploadStatus({loading: true, error: null});
 
         try {
-            let updatedFormData = { ...formData };
+            let updatedFormData = {...formData};
 
             // 如果有选择新图片，先上传图片
             if (selectedFile) {
@@ -253,7 +252,7 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
 
             // 提交表单数据
             await onSubmit(updatedFormData);
-            setUploadStatus({ loading: false, error: null });
+            setUploadStatus({loading: false, error: null});
         } catch (error) {
             console.error('Form submission failed:', error);
             setUploadStatus({
@@ -279,11 +278,16 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                 <CardContent>
                     <Grid container spacing={2}>
                         <Grid xs={12}>
-                            <Typography level="h4" sx={{ mb: 2 }}>{t('products.productImage')}</Typography>
-                            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, alignItems: 'flex-start' }}>
-                                <Box sx={{ width: { xs: '100%', sm: 200 }, flexShrink: 0 }}>
-                                    <AspectRatio ratio="1" sx={{ 
-                                        width: '100%', 
+                            <Typography level="h4" sx={{mb: 2}}>{t('products.productImage')}</Typography>
+                            <Box sx={{
+                                display: 'flex',
+                                flexDirection: {xs: 'column', sm: 'row'},
+                                gap: 2,
+                                alignItems: 'flex-start'
+                            }}>
+                                <Box sx={{width: {xs: '100%', sm: 200}, flexShrink: 0}}>
+                                    <AspectRatio ratio="1" sx={{
+                                        width: '100%',
                                         bgcolor: 'neutral.100',
                                         borderRadius: 'md',
                                         mb: 1
@@ -292,27 +296,27 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                                             <img
                                                 src={imagePreview}
                                                 alt={t('products.preview')}
-                                                style={{ 
-                                                    objectFit: 'contain', 
-                                                    width: '100%', 
-                                                    height: '100%' 
+                                                style={{
+                                                    objectFit: 'contain',
+                                                    width: '100%',
+                                                    height: '100%'
                                                 }}
                                             />
                                         ) : (
-                                            <Box sx={{ 
-                                                display: 'flex', 
-                                                alignItems: 'center', 
+                                            <Box sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
                                                 justifyContent: 'center',
-                                                color: 'text.tertiary' 
+                                                color: 'text.tertiary'
                                             }}>
-                                                <PhotoIcon sx={{ fontSize: 40 }} />
+                                                <PhotoIcon sx={{fontSize: 40}}/>
                                             </Box>
                                         )}
                                     </AspectRatio>
                                 </Box>
-                                
-                                <Box sx={{ flexGrow: 1 }}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
+
+                                <Box sx={{flexGrow: 1}}>
+                                    <Box sx={{display: 'flex', flexDirection: 'column', gap: 1, mb: 2}}>
                                         <Button
                                             component="label"
                                             role={undefined}
@@ -338,16 +342,17 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                                             }
                                         >
                                             {t('products.selectImage')}
-                                            <VisuallyHiddenInput type="file" accept="image/*" onChange={handleImageChange} />
+                                            <VisuallyHiddenInput type="file" accept="image/*"
+                                                                 onChange={handleImageChange}/>
                                         </Button>
                                     </Box>
-                                    
+
                                     {uploadStatus.error && (
-                                        <Alert color="danger" sx={{ mb: 2 }}>
+                                        <Alert color="danger" sx={{mb: 2}}>
                                             {uploadStatus.error}
                                         </Alert>
                                     )}
-                                    
+
                                     <Typography level="body-sm">
                                         {t('products.imageRequirements')}
                                     </Typography>
@@ -356,12 +361,12 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                         </Grid>
 
                         <Grid xs={12}>
-                            <FormControl sx={{ width: '100%' }}>
+                            <FormControl sx={{width: '100%'}}>
                                 <FormLabel>{t('products.name')}</FormLabel>
                                 <Input
                                     value={formData.name}
                                     onChange={(e) =>
-                                        setFormData(prev => ({ ...prev, name: e.target.value }))
+                                        setFormData(prev => ({...prev, name: e.target.value}))
                                     }
                                     required
                                 />
@@ -369,12 +374,12 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                         </Grid>
 
                         <Grid xs={12}>
-                            <FormControl sx={{ width: '100%' }}>
+                            <FormControl sx={{width: '100%'}}>
                                 <FormLabel>{t('products.description')}</FormLabel>
                                 <Textarea
                                     value={formData.description}
                                     onChange={(e) =>
-                                        setFormData(prev => ({ ...prev, description: e.target.value }))
+                                        setFormData(prev => ({...prev, description: e.target.value}))
                                     }
                                     minRows={3}
                                 />
@@ -382,13 +387,13 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                         </Grid>
 
                         <Grid xs={12} sm={6}>
-                            <FormControl sx={{ width: '100%' }}>
+                            <FormControl sx={{width: '100%'}}>
                                 <FormLabel>{t('products.price')}</FormLabel>
                                 <Input
                                     type="number"
                                     value={formData.price}
                                     onChange={(e) =>
-                                        setFormData(prev => ({ ...prev, price: Number(e.target.value) }))
+                                        setFormData(prev => ({...prev, price: Number(e.target.value)}))
                                     }
                                     required
                                 />
@@ -396,7 +401,7 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                         </Grid>
 
                         <Grid xs={12} sm={6}>
-                            <FormControl sx={{ width: '100%' }}>
+                            <FormControl sx={{width: '100%'}}>
                                 <FormLabel>{t('products.stock')}</FormLabel>
                                 <Input
                                     type="number"
@@ -405,19 +410,19 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                                         const stockValue = Number(e.target.value);
                                         setFormData(prev => {
                                             // 确保inventory对象结构正确
-                                            const inventory = prev.inventory 
-                                                ? { 
-                                                    ...prev.inventory, 
+                                            const inventory = prev.inventory
+                                                ? {
+                                                    ...prev.inventory,
                                                     stock: stockValue,
                                                     productId: prev.inventory.productId || '',
                                                     merchantId: prev.inventory.merchantId || ''
-                                                } 
-                                                : { 
-                                                    stock: stockValue, 
-                                                    productId: '', 
-                                                    merchantId: '' 
+                                                }
+                                                : {
+                                                    stock: stockValue,
+                                                    productId: '',
+                                                    merchantId: ''
                                                 };
-                                            
+
                                             return {
                                                 ...prev,
                                                 inventory
@@ -430,7 +435,7 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                         </Grid>
 
                         <Grid xs={12}>
-                            <Typography level="h4" sx={{ mb: 2 }}>商品属性</Typography>
+                            <Typography level="h4" sx={{mb: 2}}>商品属性</Typography>
                             {Object.entries(formData.attributes || {}).map(([name, value]) => (
                                 <AttributeEditor
                                     key={name}
@@ -446,14 +451,14 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                                         handleAttributeChange(newName, '');
                                     }
                                 }}
-                                sx={{ mt: 2 }}
+                                sx={{mt: 2}}
                             >
                                 添加属性
                             </Button>
                         </Grid>
 
                         <Grid xs={12}>
-                            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                            <Box sx={{display: 'flex', gap: 1, justifyContent: 'flex-end'}}>
                                 <Button variant="outlined" onClick={onCancel}>
                                     {t('products.cancel')}
                                 </Button>
