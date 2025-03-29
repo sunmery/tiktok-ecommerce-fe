@@ -18,73 +18,79 @@ import {
 import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
 import * as echarts from 'echarts'
+import {useTranslation} from 'react-i18next'
 
 export const Route = createLazyFileRoute('/admin/analytics/')({
     component: AnalyticsDashboard,
 })
 
-// 模拟销售数据
-const mockSalesData = {
-    daily: [
-        {date: '2023-06-01', sales: 12500, orders: 125},
-        {date: '2023-06-02', sales: 14200, orders: 142},
-        {date: '2023-06-03', sales: 16800, orders: 168},
-        {date: '2023-06-04', sales: 15300, orders: 153},
-        {date: '2023-06-05', sales: 18900, orders: 189},
-        {date: '2023-06-06', sales: 21500, orders: 215},
-        {date: '2023-06-07', sales: 19800, orders: 198}
-    ],
-    weekly: [
-        {date: '第1周', sales: 85000, orders: 850},
-        {date: '第2周', sales: 92000, orders: 920},
-        {date: '第3周', sales: 103000, orders: 1030},
-        {date: '第4周', sales: 115000, orders: 1150}
-    ],
-    monthly: [
-        {date: '1月', sales: 320000, orders: 3200},
-        {date: '2月', sales: 290000, orders: 2900},
-        {date: '3月', sales: 350000, orders: 3500},
-        {date: '4月', sales: 380000, orders: 3800},
-        {date: '5月', sales: 420000, orders: 4200},
-        {date: '6月', sales: 450000, orders: 4500}
-    ]
+// 定义模拟数据的函数，在组件内部调用以获取翻译后的数据
+const getMockData = (t) => {
+    // 模拟销售数据
+    const mockSalesData = {
+        daily: [
+            {date: '2023-06-01', sales: 12500, orders: 125},
+            {date: '2023-06-02', sales: 14200, orders: 142},
+            {date: '2023-06-03', sales: 16800, orders: 168},
+            {date: '2023-06-04', sales: 15300, orders: 153},
+            {date: '2023-06-05', sales: 18900, orders: 189},
+            {date: '2023-06-06', sales: 21500, orders: 215},
+            {date: '2023-06-07', sales: 19800, orders: 198}
+        ],
+        weekly: [
+            {date: t('admin.analytics.week') + '1', sales: 85000, orders: 850},
+            {date: t('admin.analytics.week') + '2', sales: 92000, orders: 920},
+            {date: t('admin.analytics.week') + '3', sales: 103000, orders: 1030},
+            {date: t('admin.analytics.week') + '4', sales: 115000, orders: 1150}
+        ],
+        monthly: [
+            {date: t('admin.analytics.month') + '1', sales: 320000, orders: 3200},
+            {date: t('admin.analytics.month') + '2', sales: 290000, orders: 2900},
+            {date: t('admin.analytics.month') + '3', sales: 350000, orders: 3500},
+            {date: t('admin.analytics.month') + '4', sales: 380000, orders: 3800},
+            {date: t('admin.analytics.month') + '5', sales: 420000, orders: 4200},
+            {date: t('admin.analytics.month') + '6', sales: 450000, orders: 4500}
+        ]
+    }
+
+    // 模拟用户行为数据
+    const mockUserBehaviorData = {
+        pageViews: [
+            {date: t('admin.analytics.monday'), views: 5200},
+            {date: t('admin.analytics.tuesday'), views: 5800},
+            {date: t('admin.analytics.wednesday'), views: 6100},
+            {date: t('admin.analytics.thursday'), views: 5900},
+            {date: t('admin.analytics.friday'), views: 6500},
+            {date: t('admin.analytics.saturday'), views: 7200},
+            {date: t('admin.analytics.sunday'), views: 6800}
+        ],
+        conversionRate: [
+            {date: t('admin.analytics.monday'), rate: 2.5},
+            {date: t('admin.analytics.tuesday'), rate: 2.8},
+            {date: t('admin.analytics.wednesday'), rate: 3.2},
+            {date: t('admin.analytics.thursday'), rate: 3.0},
+            {date: t('admin.analytics.friday'), rate: 3.5},
+            {date: t('admin.analytics.saturday'), rate: 4.0},
+            {date: t('admin.analytics.sunday'), rate: 3.8}
+        ],
+        userSources: [
+            {name: t('admin.analytics.directAccess'), value: 335},
+            {name: t('admin.analytics.searchEngine'), value: 679},
+            {name: t('admin.analytics.socialMedia'), value: 548},
+            {name: t('admin.analytics.advertising'), value: 420},
+            {name: t('admin.analytics.others'), value: 288}
+        ],
+        deviceDistribution: [
+            {name: t('admin.analytics.mobile'), value: 65},
+            {name: t('admin.analytics.desktop'), value: 30},
+            {name: t('admin.analytics.tablet'), value: 5}
+        ]
+    }
+    
+    return { mockSalesData, mockUserBehaviorData };
 }
 
-// 模拟用户行为数据
-const mockUserBehaviorData = {
-    pageViews: [
-        {date: '周一', views: 5200},
-        {date: '周二', views: 5800},
-        {date: '周三', views: 6100},
-        {date: '周四', views: 5900},
-        {date: '周五', views: 6500},
-        {date: '周六', views: 7200},
-        {date: '周日', views: 6800}
-    ],
-    conversionRate: [
-        {date: '周一', rate: 2.5},
-        {date: '周二', rate: 2.8},
-        {date: '周三', rate: 3.2},
-        {date: '周四', rate: 3.0},
-        {date: '周五', rate: 3.5},
-        {date: '周六', rate: 4.0},
-        {date: '周日', rate: 3.8}
-    ],
-    userSources: [
-        {name: '直接访问', value: 335},
-        {name: '搜索引擎', value: 679},
-        {name: '社交媒体', value: 548},
-        {name: '广告', value: 420},
-        {name: '其他', value: 288}
-    ],
-    deviceDistribution: [
-        {name: '移动端', value: 65},
-        {name: '桌面端', value: 30},
-        {name: '平板', value: 5}
-    ]
-}
-
-// 模拟平台性能数据
+// 模拟平台性能数据 - 这部分不使用翻译，所以可以保留在组件外部
 const mockPerformanceData = {
     responseTime: [
         {date: '周一', time: 120},
@@ -117,10 +123,14 @@ const mockPerformanceData = {
 }
 
 function AnalyticsDashboard() {
+    const {t} = useTranslation()
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
     const [activeTab, setActiveTab] = useState(0)
     const [timeRange, setTimeRange] = useState('daily')
+    
+    // 获取翻译后的模拟数据
+    const { mockSalesData, mockUserBehaviorData } = getMockData(t)
 
     // 图表容器引用
     const salesChartRef = useRef<HTMLDivElement>(null)
@@ -172,7 +182,7 @@ function AnalyticsDashboard() {
             const salesChart = echarts.init(salesChartRef.current)
             const salesOption = {
                 title: {
-                    text: '销售额趋势',
+                    text: t('admin.analytics.salesTrend'),
                     left: 'center'
                 },
                 tooltip: {
@@ -190,7 +200,7 @@ function AnalyticsDashboard() {
                     }
                 },
                 series: [{
-                    name: '销售额',
+                    name: t('admin.analytics.sales'),
                     data: mockSalesData[timeRange].map(item => item.sales),
                     type: 'line',
                     smooth: true,
@@ -203,7 +213,7 @@ function AnalyticsDashboard() {
             const ordersChart = echarts.init(ordersChartRef.current)
             const ordersOption = {
                 title: {
-                    text: '订单量趋势',
+                    text: t('admin.analytics.orderTrend'),
                     left: 'center'
                 },
                 tooltip: {
@@ -217,7 +227,7 @@ function AnalyticsDashboard() {
                     type: 'value'
                 },
                 series: [{
-                    name: '订单量',
+                    name: t('admin.analytics.orders'),
                     data: mockSalesData[timeRange].map(item => item.orders),
                     type: 'bar'
                 }]
@@ -249,7 +259,7 @@ function AnalyticsDashboard() {
             const responseTimeChart = echarts.init(responseTimeChartRef.current)
             const responseTimeOption = {
                 title: {
-                    text: '平均响应时间 (ms)',
+                    text: t('admin.analytics.responseTime'),
                     left: 'center'
                 },
                 tooltip: {
@@ -263,12 +273,12 @@ function AnalyticsDashboard() {
                     type: 'value'
                 },
                 series: [{
-                    name: '响应时间',
+                    name: t('admin.analytics.responseTime'),
                     data: mockPerformanceData.responseTime.map(item => item.time),
                     type: 'line',
                     smooth: true,
                     markLine: {
-                        data: [{type: 'average', name: '平均值'}]
+                        data: [{type: 'average', name: t('admin.analytics.average')}]
                     }
                 }]
             }
@@ -278,7 +288,7 @@ function AnalyticsDashboard() {
             const errorRateChart = echarts.init(errorRateChartRef.current)
             const errorRateOption = {
                 title: {
-                    text: '系统错误率 (%)',
+                    text: t('admin.analytics.errorRate'),
                     left: 'center'
                 },
                 tooltip: {
@@ -296,7 +306,7 @@ function AnalyticsDashboard() {
                     }
                 },
                 series: [{
-                    name: '错误率',
+                    name: t('admin.analytics.errorRate'),
                     data: mockPerformanceData.errorRate.map(item => item.rate),
                     type: 'line',
                     smooth: true,
@@ -325,7 +335,7 @@ function AnalyticsDashboard() {
             const serverLoadChart = echarts.init(serverLoadChartRef.current)
             const serverLoadOption = {
                 title: {
-                    text: '服务器负载 (%)',
+                    text: t('admin.analytics.serverLoad'),
                     left: 'center'
                 },
                 tooltip: {
@@ -344,7 +354,7 @@ function AnalyticsDashboard() {
                     }
                 },
                 series: [{
-                    name: '负载',
+                    name: t('admin.analytics.serverLoad'),
                     data: mockPerformanceData.serverLoad.map(item => item.load),
                     type: 'bar',
                     itemStyle: {
@@ -396,28 +406,28 @@ function AnalyticsDashboard() {
 
     return (
         <Box sx={{p: 2}}>
-            <Typography level="h2" sx={{mb: 3}}>数据分析</Typography>
+            <Typography level="h2" sx={{mb: 3}}>{t('admin.analytics.title')}</Typography>
 
             <Tabs value={activeTab} onChange={(_, value) => setActiveTab(value)}>
                 <TabList>
-                    <Tab>销售数据</Tab>
-                    <Tab>用户行为</Tab>
-                    <Tab>平台性能</Tab>
+                    <Tab>{t('admin.analytics.sales')}</Tab>
+                    <Tab>{t('admin.analytics.userBehavior')}</Tab>
+                    <Tab>{t('admin.analytics.performance')}</Tab>
                 </TabList>
 
                 {/* 销售数据面板 */}
                 <TabPanel value={0}>
                     <Box sx={{mb: 3}}>
                         <FormControl size="sm">
-                            <FormLabel>时间范围</FormLabel>
+                            <FormLabel>{t('admin.analytics.timeRange')}</FormLabel>
                             <Select
                                 value={timeRange}
                                 onChange={(_, value) => setTimeRange(value)}
                                 sx={{minWidth: 150}}
                             >
-                                <Option value="daily">日视图</Option>
-                                <Option value="weekly">周视图</Option>
-                                <Option value="monthly">月视图</Option>
+                                <Option value="daily">{t('admin.analytics.daily')}</Option>
+                                <Option value="weekly">{t('admin.analytics.weekly')}</Option>
+                                <Option value="monthly">{t('admin.analytics.monthly')}</Option>
                             </Select>
                         </FormControl>
                     </Box>

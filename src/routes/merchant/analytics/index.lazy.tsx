@@ -16,7 +16,7 @@ interface SalesData {
     orders: number
 }
 
-// 模拟销售数据
+// Mock sales data
 const mockSalesData: SalesData[] = [
     {date: '2024-01-01', sales: 15800, orders: 158},
     {date: '2024-01-02', sales: 12500, orders: 125},
@@ -34,7 +34,7 @@ const mockSalesData: SalesData[] = [
     {date: '2024-01-14', sales: 28900, orders: 289}
 ]
 
-// 模拟商品销售数据
+// Mock product sales data
 interface ProductSales {
     name: string
     sales: number
@@ -42,32 +42,32 @@ interface ProductSales {
 }
 
 const mockProductSales: ProductSales[] = [
-    {name: '智能手机', sales: 189900, quantity: 189},
-    {name: '无线耳机', sales: 85600, quantity: 428},
-    {name: '智能手表', sales: 75800, quantity: 189},
-    {name: '平板电脑', sales: 158900, quantity: 159},
-    {name: '笔记本电脑', sales: 356000, quantity: 89},
-    {name: '智能音箱', sales: 43400, quantity: 217},
-    {name: '运动相机', sales: 95600, quantity: 239},
-    {name: '游戏手柄', sales: 32800, quantity: 328},
-    {name: '充电宝', sales: 28900, quantity: 578},
-    {name: '蓝牙音箱', sales: 35600, quantity: 254},
-    {name: '智能门锁', sales: 45800, quantity: 114},
-    {name: '智能台灯', sales: 25600, quantity: 256},
-    {name: '电动牙刷', sales: 18900, quantity: 189},
-    {name: '智能体重秤', sales: 15800, quantity: 158},
-    {name: '空气净化器', sales: 89600, quantity: 149}
+    {name: t('products.smartphone'), sales: 189900, quantity: 189},
+    {name: t('products.wireless_earphones'), sales: 85600, quantity: 428},
+    {name: t('products.smartwatch'), sales: 75800, quantity: 189},
+    {name: t('products.tablet'), sales: 158900, quantity: 159},
+    {name: t('products.laptop'), sales: 356000, quantity: 89},
+    {name: t('products.smart_speaker'), sales: 43400, quantity: 217},
+    {name: t('products.action_camera'), sales: 95600, quantity: 239},
+    {name: t('products.game_controller'), sales: 32800, quantity: 328},
+    {name: t('products.power_bank'), sales: 28900, quantity: 578},
+    {name: t('products.bluetooth_speaker'), sales: 35600, quantity: 254},
+    {name: t('products.smart_lock'), sales: 45800, quantity: 114},
+    {name: t('products.smart_lamp'), sales: 25600, quantity: 256},
+    {name: t('products.electric_toothbrush'), sales: 18900, quantity: 189},
+    {name: t('products.smart_scale'), sales: 15800, quantity: 158},
+    {name: t('products.air_purifier'), sales: 89600, quantity: 149}
 ]
 
 export default function Analytics() {
     const [salesData, setSalesData] = useState<SalesData[]>([])
 
-    // 添加图表DOM引用
+    // Add chart DOM references
     const salesTrendChartRef = useRef<HTMLDivElement>(null)
     const productSalesChartRef = useRef<HTMLDivElement>(null)
     const productRankChartRef = useRef<HTMLDivElement>(null)
 
-    // 添加图表实例状态
+    // Add chart instance states
     const [charts, setCharts] = useState<{
         trendChart: echarts.ECharts | null,
         pieChart: echarts.ECharts | null,
@@ -85,7 +85,7 @@ export default function Analytics() {
                 trendChart.resize()
             }
         }).catch(error => {
-            console.error('加载销售数据失败:', error)
+            console.error(t('analytics.load_sales_data_failed'), error)
         })
     }, [])
 
@@ -97,12 +97,12 @@ export default function Analytics() {
             })
             processOrdersData(response.orders || [])
         } catch (error) {
-            console.error('加载销售数据失败:', error)
+            console.error(t('analytics.load_sales_data_failed'), error)
         }
     }
 
     const processOrdersData = (orders: Order[]) => {
-        // 按日期分组的销售数据
+        // Group sales data by date
         const dailySales = orders.reduce((acc, order) => {
             const date = new Date(order.createdAt).toLocaleDateString()
             const sales = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
@@ -115,7 +115,7 @@ export default function Analytics() {
             return acc
         }, {} as Record<string, { sales: number, orders: number }>)
 
-        // 转换为数组格式
+        // Convert to array format
         const salesDataArray = Object.entries(dailySales).map(([date, data]) => ({
             date,
             sales: data.sales,
@@ -124,7 +124,7 @@ export default function Analytics() {
 
         setSalesData(salesDataArray)
 
-        // 按商品分组的销售数据
+        // Group sales data by product
         const productSalesMap = new Map<string, { sales: number, quantity: number }>()
         orders.forEach(order => {
             order.items.forEach(item => {
@@ -144,7 +144,7 @@ export default function Analytics() {
 
         setProductSales(productSalesArray)
 
-        // 初始化图表
+        // Initialize charts
         initCharts(salesDataArray, productSalesArray)
     }
 
@@ -157,9 +157,9 @@ export default function Analytics() {
         // 销售趋势图表
         const trendChart = echarts.init(salesTrendChartRef.current)
         trendChart.setOption({
-            title: {text: '销售趋势'},
+            title: {text: t('analytics.sales_trend')},
             tooltip: {trigger: 'axis'},
-            legend: {data: ['销售额', '订单数']},
+            legend: {data: [t('analytics.sales_amount'), t('analytics.order_count')]},
             xAxis: {
                 type: 'category',
                 data: salesData.map(item => item.date)
@@ -170,7 +170,7 @@ export default function Analytics() {
             ],
             series: [
                 {
-                    name: '销售额',
+                    name: t('analytics.sales_amount'),
                     type: 'line',
                     data: salesData.map(item => item.sales),
                     smooth: true,
@@ -180,7 +180,7 @@ export default function Analytics() {
                     }
                 },
                 {
-                    name: '订单数',
+                    name: t('analytics.order_count'),
                     type: 'bar',
                     yAxisIndex: 1,
                     data: salesData.map(item => item.orders),
@@ -194,7 +194,7 @@ export default function Analytics() {
         // 商品销售占比图表
         const pieChart = echarts.init(productSalesChartRef.current)
         pieChart.setOption({
-            title: {text: '商品销售占比'},
+            title: {text: t('analytics.product_sales_ratio')},
             tooltip: {
                 trigger: 'item',
                 formatter: '{b}: ¥{c} ({d}%)'

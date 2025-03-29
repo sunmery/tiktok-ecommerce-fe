@@ -23,18 +23,13 @@ const usedTranslationKeys = new Set<string>();
 
 // 记录翻译键使用的函数
 export function recordTranslationKeyUsage(key: string): void {
-    if (typeof key === 'string') {
-        usedTranslationKeys.add(key);
-
-        // 检查键是否存在于当前语言资源中
-        const lang = i18n.language || 'zh';
-        const exists = i18n.exists(key);
-
-        if (!exists) {
-            warn(`使用了不存在的翻译键: ${key} (语言: ${lang})`);
-        } else if (isDevelopment) {
-            log(`使用翻译键: ${key} => ${i18n.t(key)}`);
-        }
+    usedTranslationKeys.add(key);
+    const lang = i18n.language || 'zh';
+    const exists = i18n.exists(key);
+    if (!exists) {
+        warn(`使用了不存在的翻译键: ${key} (语言: ${lang})`);
+    } else if (isDevelopment) {
+        log(`使用翻译键: ${key} => ${i18n.t(key)}`);
     }
 }
 
@@ -42,6 +37,233 @@ export function recordTranslationKeyUsage(key: string): void {
 const resources = {
     en: {
         translation: {
+            'home.hotProducts': 'Hot Products',
+            'home.hotCategories': 'Hot Categories',
+            'home.moreHotProducts': 'More Hot Products',
+            'home.newProducts': 'New Products',
+            'home.moreNewProducts': 'More New Products',
+            'home.addToCart': 'Add to Cart',
+            'home.peopleHaveBought': ' people have bought',
+            'home.newTag': 'New',
+            'home.discount': '% OFF',
+            'home.originalPrice': 'Original Price',
+            'home.categories.phone': 'Phone',
+            'home.categories.appliance': 'Appliance',
+            'home.categories.computer': 'Computer',
+            'home.categories.clothing': 'Clothing',
+            'home.categories.beauty': 'Beauty',
+            'home.categories.sports': 'Sports',
+
+            // Products
+            'product.smartWatch': 'Smart Watch',
+            'product.smartWatch.description': 'Latest generation smart watch with health monitoring',
+            'product.wirelessEarphones': 'Wireless Earphones',
+            'product.wirelessEarphones.description': 'Premium wireless earphones with noise cancellation',
+            'product.mechanicalKeyboard': 'Mechanical Keyboard',
+            'product.mechanicalKeyboard.description': 'Professional gaming mechanical keyboard',
+            'product.gamingMouse': 'Gaming Mouse',
+            'product.gamingMouse.description': 'High-precision gaming mouse',
+            'product.smartSpeaker': 'Smart Speaker',
+            'product.smartSpeaker.description': 'AI-powered smart speaker',
+            'product.portablePowerBank': 'Portable Power Bank',
+            'product.portablePowerBank.description': 'High-capacity portable power bank',
+            'product.bluetoothSpeaker': 'Bluetooth Speaker',
+            'product.bluetoothSpeaker.description': 'Premium wireless bluetooth speaker',
+            'product.smartLamp': 'Smart Lamp',
+            'product.smartLamp.description': 'Smart LED lamp with app control',
+
+            // 管理员面板
+            'admin.dashboard': 'Admin Dashboard',
+            'admin.userManagement': 'User Management',
+            'admin.userManagement.addEditDelete': 'Add, edit, and delete users',
+            'admin.userManagement.manageRoles': 'Manage user roles',
+            'admin.userManagement.merchantApproval': 'Process merchant applications',
+            'admin.reports': 'Reports & Analytics',
+            'admin.reports.platformSales': 'Platform-wide sales data',
+            'admin.reports.userBehavior': 'User behavior analysis',
+            'admin.reports.performance': 'Platform performance reports',
+            'admin.analytics.title': 'Data Analytics',
+            'admin.analytics.sales': 'Sales Data',
+            'admin.analytics.userBehavior': 'User Behavior',
+            'admin.analytics.performance': 'Platform Performance',
+            'admin.analytics.timeRange': 'Time Range',
+            'admin.analytics.daily': 'Daily View',
+            'admin.analytics.weekly': 'Weekly View',
+            'admin.analytics.monthly': 'Monthly View',
+            'admin.analytics.salesTrend': 'Sales Trend',
+            'admin.analytics.orderTrend': 'Order Trend',
+            'admin.analytics.responseTime': 'Average Response Time (ms)',
+            'admin.analytics.errorRate': 'System Error Rate (%)',
+            'admin.analytics.serverLoad': 'Server Load (%)',
+            'admin.analytics.week': 'Week',
+            'admin.analytics.month': 'Month',
+            'admin.analytics.directAccess': 'Direct Access',
+            'admin.analytics.searchEngine': 'Search Engine',
+            'admin.analytics.socialMedia': 'Social Media',
+            'admin.analytics.advertising': 'Advertising',
+            'admin.analytics.others': 'Others',
+            'admin.analytics.mobile': 'Mobile',
+            'admin.analytics.desktop': 'Desktop',
+            'admin.analytics.tablet': 'Tablet',
+            'admin.analytics.monday': 'Monday',
+            'admin.analytics.tuesday': 'Tuesday',
+            'admin.analytics.wednesday': 'Wednesday',
+            'admin.analytics.thursday': 'Thursday',
+            'admin.analytics.friday': 'Friday',
+            'admin.analytics.saturday': 'Saturday',
+            'admin.analytics.sunday': 'Sunday',
+            'admin.analytics.average': 'Average',
+
+            'admin.productManagement': 'Product Management',
+            'admin.productManagement.viewAll': 'View all products',
+            'admin.productManagement.approvalPending': 'Products pending approval',
+            'admin.productManagement.delisted': 'Delisted products',
+            'admin.products.audit.title': 'Product Audit Management',
+            'admin.products.audit.batchApprove': 'Batch Approve',
+            'admin.products.audit.batchReject': 'Batch Reject',
+            'admin.products.audit.refreshList': 'Refresh List',
+            'admin.products.audit.table.productId': 'Product ID',
+            'admin.products.audit.table.productName': 'Product Name',
+            'admin.products.audit.table.price': 'Price',
+            'admin.products.audit.table.merchantId': 'Merchant ID',
+            'admin.products.audit.table.stock': 'Stock',
+            'admin.products.audit.table.status': 'Status',
+            'admin.products.audit.table.createdAt': 'Created At',
+            'admin.products.audit.table.actions': 'Actions',
+            'admin.products.audit.actions.viewDetails': 'View Details',
+            'admin.products.audit.actions.approve': 'Approve',
+            'admin.products.audit.actions.reject': 'Reject',
+            'admin.products.audit.modal.approveTitle': 'Approve Audit',
+            'admin.products.audit.modal.rejectTitle': 'Reject Audit',
+            'admin.products.audit.modal.selectedCount': 'Selected {{count}} products',
+            'admin.products.audit.modal.reasonLabel': 'Audit Opinion/Reject Reason',
+            'admin.products.audit.modal.approveReasonPlaceholder': 'Audit opinion (optional)',
+            'admin.products.audit.modal.rejectReasonPlaceholder': 'Please enter reject reason',
+            'admin.products.audit.modal.confirmApprove': 'Confirm Approve',
+            'admin.products.audit.modal.confirmReject': 'Confirm Reject',
+            'admin.products.audit.details.title': 'Product Details',
+            'admin.products.audit.details.productId': 'Product ID',
+            'admin.products.audit.details.productName': 'Product Name',
+            'admin.products.audit.details.description': 'Description',
+            'admin.products.audit.details.price': 'Price',
+            'admin.products.audit.details.merchantId': 'Merchant ID',
+            'admin.products.audit.details.status': 'Status',
+            'admin.products.audit.details.stock': 'Stock',
+            'admin.products.audit.details.createdAt': 'Created At',
+            'admin.products.audit.details.updatedAt': 'Updated At',
+            'admin.products.audit.details.images': 'Product Images',
+            'admin.products.audit.details.noImages': 'No Images',
+            'admin.products.audit.details.attributes': 'Product Attributes',
+            'admin.products.audit.details.noAttributes': 'No Attributes',
+            'admin.products.audit.messages.selectProducts': 'Please select products first',
+            'admin.products.audit.messages.approveSuccess': 'Approve audit successful',
+            'admin.products.audit.messages.rejectSuccess': 'Reject audit successful',
+            'admin.products.audit.messages.operationFailed': 'Audit operation failed',
+            'admin.products.audit.messages.loadFailed': 'Failed to load pending products',
+            'admin.databaseManagement': 'Database Management',
+            'admin.databaseManagement.schema': 'View database schema',
+            'admin.databaseManagement.tables': 'Browse table data',
+            'admin.databaseManagement.query': 'Execute SQL queries',
+            'admin.enterUserManagement': 'Enter User Management',
+            'admin.viewDataAnalytics': 'View Data Analytics',
+            'admin.enterProductManagement': 'Enter Product Management',
+            'admin.enterDatabaseManagement': 'Enter Database Management',
+
+            // 购物车
+            'cart.empty': 'Your cart is empty',
+            'cart.goShopping': 'Go shopping now!',
+            'cart.title': 'Shopping Cart',
+            'cart.loading': 'Loading...',
+            'cart.fetchingData': 'Fetching cart data...',
+            'cart.table.productInfo': 'Product Information',
+            'cart.table.unitPrice': 'Unit Price',
+            'cart.table.quantity': 'Quantity',
+            'cart.table.subtotal': 'Subtotal',
+            'cart.table.actions': 'Actions',
+            'cart.button.remove': 'Remove',
+            'cart.button.clearCart': 'Clear Cart',
+            'cart.button.checkout': 'Checkout',
+            'cart.total': 'Total',
+            'cart.selectedItems': '{{count}} items selected',
+            'cart.error.removeItemFailed': 'Failed to remove item',
+            'cart.error.updateQuantityFailed': 'Failed to update quantity',
+            'cart.error.clearCartFailed': 'Failed to clear cart',
+            'cart.error.emptyCartCheckout': 'Cannot checkout with empty cart',
+            'cart.error.noItemSelected': 'Please select items to checkout',
+            'cart.error.syncFailed': 'Failed to sync cart data',
+            'cart.error.checkoutFailed': 'Checkout failed',
+            'cart.error.navigationFailed': 'Failed to navigate to checkout page',
+
+            // 商家面板
+            'merchant.dashboard': 'Merchant Dashboard',
+            'merchant.productManagement': 'Product Management',
+            'merchant.orderManagement': 'Order Management',
+            'merchant.inventoryManagement': 'Inventory Management',
+            'merchant.salesReports': 'Sales Reports',
+            'merchant.productFeatures.addEditDelete': 'Add, edit, and delete products',
+            'merchant.productFeatures.uploadImages': 'Upload product images',
+            'merchant.productFeatures.setPriceStock': 'Set price and stock',
+            'merchant.orderFeatures.viewAll': 'View all orders',
+            'merchant.orderFeatures.processStatus': 'Process order status',
+            'merchant.orderFeatures.orderDetails': 'Order details',
+            'merchant.inventoryFeatures.monitor': 'Monitor inventory',
+            'merchant.inventoryFeatures.alerts': 'Set alerts',
+            'merchant.inventoryFeatures.adjustments': 'Make adjustments',
+            'merchant.reportFeatures.generateReports': 'Generate reports',
+            'merchant.reportFeatures.trends': 'View trends',
+            'merchant.reportFeatures.strategies': 'Get strategies',
+            'merchant.manageProducts': 'Manage Products',
+            'merchant.manageOrders': 'Manage Orders',
+            'merchant.adjustInventory': 'Adjust Inventory',
+            'merchant.realTimeMonitoring': 'Real-time Monitoring',
+            'merchant.alertSettings': 'Alert Settings',
+            'merchant.viewReports': 'View Reports',
+
+            // 库存管理
+            'inventory.set_alert_title': 'Set Stock Alert',
+            'inventory.adjust_stock_title': 'Adjust Stock',
+            'inventory.product': 'Product',
+            'inventory.threshold': 'Threshold',
+            'inventory.current_stock': 'Current Stock',
+            'inventory.adjust_quantity_hint': 'Adjustment Quantity (positive to increase, negative to decrease)',
+            'inventory.adjust_reason': 'Adjustment Reason',
+            'inventory.manual_adjustment': 'Manual Adjustment',
+            'inventory.history': 'Stock Adjustment History',
+            'inventory.date': 'Date',
+            'inventory.adjustment': 'Adjustment',
+            'inventory.no_adjustments': 'No adjustment records',
+            // 库存警报
+            'inventory.alerts.title': 'Inventory Alert Settings',
+            'inventory.alerts.refresh': 'Refresh Data',
+            'inventory.alerts.current_config': 'Current Alert Configuration',
+            'inventory.alerts.product_name': 'Product Name',
+            'inventory.alerts.current_stock': 'Current Stock',
+            'inventory.alerts.threshold': 'Alert Threshold',
+            'inventory.alerts.status': 'Status',
+            'inventory.alerts.actions': 'Actions',
+            'inventory.alerts.unknown_product': 'Unknown Product',
+            'inventory.alerts.stock_normal': 'Stock Normal',
+            'inventory.alerts.load_failed': 'Failed to load stock alerts',
+            'inventory.alerts.product_load_failed': 'Failed to load product list',
+            'inventory.alerts.set_success': 'Stock alert threshold set successfully',
+            'inventory.alerts.set_failed': 'Failed to set stock alert threshold',
+            'inventory.alerts.load_complete': 'Stock alerts and product list loaded successfully',
+            'inventory.title': 'Inventory Management',
+            'inventory.table.product_name': 'Product Name',
+            'inventory.table.current_stock': 'Current Stock',
+            'inventory.table.threshold': 'Alert Threshold',
+            'inventory.table.actions': 'Actions',
+            'inventory.buttons.set_alert': 'Set Alert',
+            'inventory.buttons.adjust_stock': 'Adjust Stock',
+            'inventory.alerts.low_stock': '{{product}} current stock ({{current}}) is below threshold ({{threshold}})',
+            'inventory.adjustments.success': 'Stock adjustment successful',
+            'inventory.adjustments.error': 'Failed to adjust stock',
+            'inventory.adjustments.load_error': 'Failed to load adjustment history',
+            'inventory.products.load_error': 'Failed to load products',
+
+            // 通用按钮和操作
+            'common.cancel': 'Cancel',
+            'common.confirm': 'Confirm',
             // 导航
             'home': 'Home',
             'products': 'Products',
@@ -67,6 +289,20 @@ const resources = {
             'nav.menu': 'Menu',
             'nav.language': 'Language',
             'nav.switchRole': 'Switch Role',
+
+            // 页脚
+            'home.projectInfo': 'Project Info',
+            'home.backend': 'Backend',
+            'home.frontend': 'Frontend',
+            'home.gateway': 'Gateway',
+            'home.devops': 'DevOps',
+            'home.paymentMethods': 'Payment Methods',
+            'home.alipayTest': 'Alipay Test',
+            'home.followMe': 'Follow Me',
+            'home.wechat': 'WeChat',
+            'home.juejin': 'JueJin',
+            'home.blog': 'Blog',
+            'home.projectDescription': 'TT-Commerce Project',
 
             // 角色
             'roles.consumer': 'Consumer',
@@ -181,6 +417,37 @@ const resources = {
             'results': ' results',
             'refresh': 'Refresh',
             'cartTotal': 'Cart Total',
+
+            // 首页
+            'home.loading': 'Loading...',
+            'home.banner.summerSale': 'Summer Sale',
+            'home.banner.summerSaleDesc': 'Up to 50% off on selected items',
+            'home.banner.summerSaleBtn': 'Shop Now',
+            'home.banner.newArrivals': 'New Arrivals',
+            'home.banner.newArrivalsDesc': 'Check out our latest collection',
+            'home.banner.newArrivalsBtn': 'Explore',
+            'home.banner.memberExclusive': 'Member Exclusive',
+            'home.banner.memberExclusiveDesc': 'Special offers for members only',
+            'home.banner.memberExclusiveBtn': 'Join Now',
+            'home.loadingFailed': 'Failed to load, please try again',
+
+            // 错误提示
+            'error.addToCart.emptyProductId': 'Failed to add product: Product ID cannot be empty',
+
+            // 商品相关
+            'product.purchased': ' people purchased',
+
+            'product.hotSelling': 'Hot Selling',
+
+            'product.moreHot': 'More Hot Items',
+
+            'product.newArrivals': 'New Arrivals',
+
+            'product.moreNew': 'More New Items',
+
+            // 热门商品
+            'product.new': 'New',
+
 
             // 个人资料页面
             'profile.welcome': 'Welcome',
@@ -300,7 +567,7 @@ const resources = {
             'orders.viewOrder': 'View Order',
 
             // 商家中心
-            'merchant.dashboard': 'Merchant Dashboard',
+
             'merchant.welcome': 'Welcome to Merchant Center',
             'merchant.summary': 'Summary',
             'merchant.totalSales': 'Total Sales',
@@ -348,12 +615,12 @@ const resources = {
             'products.merchantFeatures': 'Merchant Features',
 
             // 库存管理
-            'inventory.title': 'Inventory Management',
+
             'inventory.overview': 'Inventory Overview',
             'inventory.alerts': 'Inventory Alerts',
             'inventory.monitoring': 'Inventory Monitoring',
             'inventory.adjustments': 'Inventory Adjustments',
-            'inventory.history': 'Adjustment History',
+
             'inventory.lowStock': 'Low Stock Items',
             'inventory.outOfStock': 'Out of Stock Items',
             'inventory.inStock': 'In Stock Items',
@@ -361,18 +628,35 @@ const resources = {
             'inventory.increase': 'Increase',
             'inventory.decrease': 'Decrease',
             'inventory.reason': 'Reason',
-            'inventory.date': 'Date',
-            'inventory.product': 'Product',
+
             'inventory.currentStock': 'Current Stock',
-            'inventory.adjustment': 'Adjustment',
+
             'inventory.newStock': 'New Stock',
             'inventory.setAlert': 'Set Stock Alert',
-            'inventory.threshold': 'Threshold',
+
             'inventory.alertWhen': 'Alert when stock falls below',
             'inventory.saveAlert': 'Save Alert',
             'inventory.noAlerts': 'No alerts configured',
             'inventory.adjustSuccess': 'Stock adjusted successfully',
             'inventory.alertSuccess': 'Stock alert set successfully',
+
+            // inventory页面特定翻译键
+            'title': 'Inventory Management',
+            'alerts.title': 'Inventory Alerts',
+            'alerts.low_stock': 'Low stock alert: {{product}} has {{current}} items left (threshold: {{threshold}})',
+            'alerts.load_error': 'Failed to load stock alerts',
+            'alerts.set_success': 'Stock alert set successfully',
+            'alerts.set_error': 'Failed to set stock alert',
+            'adjustments.load_error': 'Failed to load stock adjustment history',
+            'adjustments.success': 'Stock adjusted successfully',
+            'adjustments.error': 'Failed to adjust stock',
+            'products.load_error': 'Failed to load products',
+            'table.product_name': 'Product Name',
+            'table.current_stock': 'Current Stock',
+            'table.threshold': 'Threshold',
+            'table.actions': 'Actions',
+            'buttons.set_alert': 'Set Alert',
+            'buttons.adjust_stock': 'Adjust Stock',
 
             // 销售分析
             'analytics.title': 'Sales Analytics',
@@ -399,7 +683,6 @@ const resources = {
             'analytics.export': 'Export Data',
 
             // 管理员中心
-            'admin.dashboard': 'Admin Dashboard',
             'admin.welcome': 'Welcome to Admin Panel',
             'admin.systemStatus': 'System Status',
             'admin.userStats': 'User Statistics',
@@ -410,6 +693,9 @@ const resources = {
 
             // 用户管理
             'users.title': 'User Management',
+            'users.title.item1': '管理所有消费者和商家账户',
+            'users.title.item2': '添加、编辑、删除用户',
+            'users.title.item3': '审批商家申请',
             'users.search': 'Search Users',
             'users.id': 'ID',
             'users.name': 'Name',
@@ -514,6 +800,69 @@ const resources = {
     },
     zh: {
         translation: {
+            // 页脚
+            'home.projectInfo': '项目信息',
+            'home.backend': '后端仓库',
+            'home.frontend': '前端仓库',
+            'home.gateway': '网关仓库',
+            'home.devops': '运维仓库',
+            'home.paymentMethods': '支付方式',
+            'home.alipayTest': '支付宝测试',
+            'home.followMe': '关注我',
+            'home.wechat': '微信',
+            'home.juejin': '掘金',
+            'home.blog': '博客',
+            'home.projectDescription': 'TT-Commerce 项目',
+            'home.banner.summerSale': '夏季特惠',
+            'home.banner.summerSaleDesc': '精选商品低至5折',
+            'home.banner.summerSaleBtn': '立即购买',
+            'home.banner.newArrivals': '新品上市',
+            'home.banner.newArrivalsDesc': '探索最新系列',
+            'home.banner.newArrivalsBtn': '立即探索',
+            'home.banner.memberExclusive': '会员专享',
+            'home.banner.memberExclusiveDesc': '会员专属特惠',
+            'home.banner.memberExclusiveBtn': '立即加入',
+            'product.smartWatch': '智能手表',
+            'product.smartWatch.description': '最新一代健康监测智能手表',
+            'product.wirelessEarphones': '无线耳机',
+            'product.wirelessEarphones.description': '高端降噪无线耳机',
+            'product.mechanicalKeyboard': '机械键盘',
+            'product.mechanicalKeyboard.description': '专业游戏机械键盘',
+            'product.gamingMouse': '游戏鼠标',
+            'product.gamingMouse.description': '高精度游戏鼠标',
+            'product.smartSpeaker': '智能音箱',
+            'product.smartSpeaker.description': 'AI智能音箱',
+            'product.portablePowerBank': '移动电源',
+            'product.portablePowerBank.description': '大容量移动电源',
+            'product.bluetoothSpeaker': '蓝牙音箱',
+            'product.bluetoothSpeaker.description': '高品质无线蓝牙音箱',
+            'product.smartLamp': '智能台灯',
+            'product.smartLamp.description': 'APP控制智能LED台灯',
+
+            // 购物车
+            'cart.empty': '购物车是空的',
+            'cart.goShopping': '立即去购物！',
+            'cart.title': '购物车',
+            'cart.loading': '加载中...',
+            'cart.fetchingData': '正在获取购物车数据...',
+            'cart.table.productInfo': '商品信息',
+            'cart.table.unitPrice': '单价',
+            'cart.table.quantity': '数量',
+            'cart.table.subtotal': '小计',
+            'cart.table.actions': '操作',
+            'cart.button.remove': '删除',
+            'cart.button.clearCart': '清空购物车',
+            'cart.button.checkout': '结算',
+            'cart.total': '总计',
+            'cart.selectedItems': '已选择 {{count}} 件商品',
+            'cart.error.removeItemFailed': '删除商品失败',
+            'cart.error.updateQuantityFailed': '更新数量失败',
+            'cart.error.clearCartFailed': '清空购物车失败',
+            'cart.error.emptyCartCheckout': '购物车为空，无法结算',
+            'cart.error.noItemSelected': '请选择要结算的商品',
+            'cart.error.syncFailed': '同步购物车数据失败',
+            'cart.error.checkoutFailed': '结算失败',
+            'cart.error.navigationFailed': '跳转到结算页面失败',
             // 导航
             'home': '首页',
             'products': '商品',
@@ -538,6 +887,56 @@ const resources = {
             'nav.search': '搜索商品',
             'nav.menu': '菜单',
             'nav.language': '语言',
+
+            // 管理员面板
+            'admin.dashboard': '管理员面板',
+            'admin.userManagement': '用户管理',
+            'admin.userManagement.addEditDelete': '添加、编辑和删除用户',
+            'admin.userManagement.manageRoles': '管理用户角色',
+            'admin.userManagement.merchantApproval': '处理商家申请',
+            'admin.reports': '报告与分析',
+            'admin.reports.platformSales': '平台销售数据',
+            'admin.reports.userBehavior': '用户行为分析',
+            'admin.reports.performance': '平台性能报告',
+            'admin.enterUserManagement': '进入用户管理',
+            'admin.viewDataAnalytics': '查看数据分析',
+            'admin.enterProductManagement': '进入商品管理',
+            'admin.enterDatabaseManagement': '进入数据库管理',
+            'admin.productManagement': '商品管理',
+            'admin.productManagement.viewAll': '查看所有商品',
+            'admin.productManagement.approvalPending': '待审核商品',
+            'admin.productManagement.delisted': '已下架商品',
+            'admin.databaseManagement': '数据库管理',
+            'admin.databaseManagement.schema': '查看数据库结构',
+            'admin.databaseManagement.tables': '浏览表数据',
+            'admin.databaseManagement.query': '执行SQL查询',
+
+            // 卡片管理
+            'cards.management': '卡片管理',
+
+            // 产品相关
+            'products.smartphone': '智能手机',
+            'products.wireless_earphones': '无线耳机',
+            'products.smartwatch': '智能手表',
+            'products.tablet': '平板电脑',
+            'products.laptop': '笔记本电脑',
+            'products.smart_speaker': '智能音箱',
+            'products.action_camera': '运动相机',
+            'products.game_controller': '游戏手柄',
+            'products.power_bank': '充电宝',
+            'products.bluetooth_speaker': '蓝牙音箱',
+            'products.smart_lock': '智能门锁',
+            'products.smart_lamp': '智能台灯',
+            'products.electric_toothbrush': '电动牙刷',
+            'products.smart_scale': '智能体重秤',
+            'products.air_purifier': '空气净化器',
+
+            // 分析页面
+            'analytics.sales_trend': '销售趋势',
+            'analytics.sales_amount': '销售额',
+            'analytics.order_count': '订单数',
+            'analytics.product_sales_ratio': '商品销售占比',
+            'analytics.load_sales_data_failed': '加载销售数据失败',
             'nav.switchRole': '切换角色',
 
             // 角色
@@ -871,7 +1270,6 @@ const resources = {
             'analytics.export': '导出数据',
 
             // 管理员中心
-            'admin.dashboard': '管理员控制台',
             'admin.welcome': '欢迎来到管理员面板',
             'admin.systemStatus': '系统状态',
             'admin.userStats': '用户统计',
@@ -882,6 +1280,9 @@ const resources = {
 
             // 用户管理
             'users.title': '用户管理',
+            'users.title.item1': '管理所有消费者和商家账户',
+            'users.title.item2': '添加、编辑、删除用户',
+            'users.title.item3': '审批商家申请',
             'users.search': '搜索用户',
             'users.id': 'ID',
             'users.name': '姓名',
@@ -981,7 +1382,26 @@ const resources = {
             'products.rejectReason': '驳回原因',
             'products.noProductsForAudit': '没有待审核的商品',
             'common.refresh': '刷新',
-            'products.noProducts': '暂无商品'
+            'products.noProducts': '暂无商品',
+
+            // 热门商品
+            'home.hotProducts': '热卖爆品',
+            'home.hotCategories': '热门分类',
+            'home.moreHotProducts': '更多热卖',
+            'home.newProducts': '新品上市',
+            'home.moreNewProducts': '更多新品',
+            'home.addToCart': '加入购物车',
+            'home.peopleHaveBought': '人已购买',
+            'home.newTag': '新品',
+            'home.discount': '% 折扣',
+            'home.originalPrice': '原价',
+            'home.categories.phone': '手机',
+            'home.categories.appliance': '电器',
+            'home.categories.computer': '电脑',
+            'home.categories.clothing': '服饰',
+            'home.categories.beauty': '美妆',
+            'home.categories.sports': '运动',
+
         }
     }
 };
@@ -1074,4 +1494,4 @@ export function showTranslationCoverage() {
     };
 }
 
-export default i18n; 
+export default i18n;

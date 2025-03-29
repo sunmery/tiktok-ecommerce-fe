@@ -55,10 +55,10 @@ export default function Cards() {
     })
     return (
         <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
-            {/* 面包屑导航 */}
-            <Breadcrumbs pathMap={{'cards': '卡片管理'}}/>
+            {/* Breadcrumb navigation */}
+            <Breadcrumbs pathMap={{'cards': t('cards.management')}}/>
 
-            <Typography level="h2" sx={{mb: 3}}>卡片管理</Typography>
+            <Typography level="h2" sx={{mb: 3}}>{t('cards.management')}</Typography>
 
             <List>
                 <ListItem>

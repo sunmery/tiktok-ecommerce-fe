@@ -55,10 +55,10 @@ export default function InventoryAlerts() {
             })
             setStockAlerts(response.alerts || [])
         } catch (err) {
-            console.error('加载库存警报配置失败:', err)
+            console.error(t('inventory.alerts.load_failed'), err)
             setSnackbar({
                 open: true,
-                message: '加载库存警报配置失败',
+                message: t('inventory.alerts.load_failed'),
                 severity: 'error'
             })
         } finally {
@@ -76,10 +76,10 @@ export default function InventoryAlerts() {
             })
             setProducts(response.items || [])
         } catch (err) {
-            console.error('加载产品列表失败:', err)
+            console.error(t('inventory.alerts.product_load_failed'), err)
             setSnackbar({
                 open: true,
-                message: '加载产品列表失败',
+                message: t('inventory.alerts.product_load_failed'),
                 severity: 'error'
             })
         }
@@ -104,14 +104,14 @@ export default function InventoryAlerts() {
             setModalOpen(false)
             setSnackbar({
                 open: true,
-                message: '库存警报阈值设置成功',
+                message: t('inventory.alerts.set_success'),
                 severity: 'success'
             })
         } catch (err) {
-            console.error('设置库存警报阈值失败:', err)
+            console.error(t('inventory.alerts.set_failed'), err)
             setSnackbar({
                 open: true,
-                message: '设置库存警报阈值失败',
+                message: t('inventory.alerts.set_failed'),
                 severity: 'error'
             })
         } finally {
@@ -132,7 +132,7 @@ export default function InventoryAlerts() {
     useEffect(() => {
         Promise.all([loadStockAlerts(), loadProducts()])
             .then(() => {
-                console.log('库存警报配置和产品列表加载完成')
+                console.log(t('inventory.alerts.load_complete'))
             }).catch(err => {
             console.error('加载数据失败:', err)
         })
@@ -141,7 +141,7 @@ export default function InventoryAlerts() {
     return (
         <Box sx={{p: 2}}>
             <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
-                <Typography level="h2">库存警报设置</Typography>
+                <Typography level="h2">{t('inventory.alerts.title')}</Typography>
                 <Button
                     variant="outlined"
                     color="primary"
@@ -149,7 +149,7 @@ export default function InventoryAlerts() {
                     startDecorator={<RefreshIcon/>}
                     loading={loading}
                 >
-                    刷新数据
+                    {t('inventory.alerts.refresh')}
                 </Button>
             </Box>
 
@@ -158,7 +158,7 @@ export default function InventoryAlerts() {
                 <CardContent>
                     <Box sx={{display: 'flex', alignItems: 'center', mb: 2}}>
                         <NotificationsActiveIcon color="primary" sx={{mr: 1}}/>
-                        <Typography level="h3">当前警报配置</Typography>
+                        <Typography level="h3">{t('inventory.alerts.current_config')}</Typography>
                     </Box>
                     <Divider sx={{mb: 2}}/>
                     {loading ? (
@@ -170,11 +170,11 @@ export default function InventoryAlerts() {
                             <Table>
                                 <thead>
                                 <tr>
-                                    <th>产品名称</th>
-                                    <th>当前库存</th>
-                                    <th>警戒值</th>
-                                    <th>状态</th>
-                                    <th>操作</th>
+                                    <th>{t('inventory.alerts.product_name')}</th>
+                                    <th>{t('inventory.alerts.current_stock')}</th>
+                                    <th>{t('inventory.alerts.threshold')}</th>
+                                    <th>{t('inventory.alerts.status')}</th>
+                                    <th>{t('inventory.alerts.actions')}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -183,7 +183,7 @@ export default function InventoryAlerts() {
                                     const isLowStock = alert.currentStock < alert.threshold
                                     return (
                                         <tr key={alert.productId}>
-                                            <td>{alert.productName || product?.name || '未知产品'}</td>
+                                            <td>{alert.productName || product?.name || t('inventory.alerts.unknown_product')}</td>
                                             <td>{alert.currentStock}</td>
                                             <td>{alert.threshold}</td>
                                             <td>
@@ -192,7 +192,7 @@ export default function InventoryAlerts() {
                                                     size="sm"
                                                     variant="soft"
                                                 >
-                                                    {isLowStock ? "库存不足" : "库存正常"}
+                                                    {isLowStock ? t('inventory.alerts.low_stock') : t('inventory.alerts.stock_normal')}
                                                 </Alert>
                                             </td>
                                             <td>

@@ -7,34 +7,17 @@ import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
 import {useEffect, useState} from 'react'
 import Skeleton from '@/components/Skeleton'
-import {useTranslation} from 'react-i18next'
+import { t } from 'i18next'
 
 export const Route = createLazyFileRoute('/merchant/')({
     component: MerchantDashboard,
 })
 
 function MerchantDashboard() {
-    const {t, i18n} = useTranslation('merchant')
+
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
     const [loading, setLoading] = useState(true)
-
-    useEffect(() => {
-        const loadTranslations = async () => {
-            try {
-                await i18n.loadNamespaces('merchant');
-                console.log('商家命名空间加载成功');
-            } catch (err) {
-                console.error('加载商家命名空间失败:', err);
-            }
-        };
-
-        if (!i18n.hasResourceBundle(i18n.language, 'merchant')) {
-            loadTranslations().then((r) => {
-                console.log('商家命名空间加载完成', r)
-            });
-        }
-    }, [i18n]);
 
     useEffect(() => {
         if (account.role !== 'merchant') {
@@ -46,7 +29,7 @@ function MerchantDashboard() {
             setLoading(false)
         }, 800)
         return () => clearTimeout(timer)
-    }, [account.role, navigate, t])
+    }, [account.role, navigate])
 
     return (
         <Box sx={{p: 2}}>

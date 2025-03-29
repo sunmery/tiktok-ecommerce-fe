@@ -3,6 +3,7 @@ import {Box, Button, Card, CardContent, Divider, Grid, List, ListItem, Typograph
 import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
 import {useEffect, useState} from 'react'
+import {useTranslation} from 'react-i18next'
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import StorageIcon from '@mui/icons-material/Storage'
@@ -17,6 +18,7 @@ function AdminDashboard() {
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
     const [loading, setLoading] = useState(true)
+    const {t} = useTranslation()
 
     // 检查用户是否为管理员，如果不是则重定向到首页
     useEffect(() => {
@@ -36,7 +38,7 @@ function AdminDashboard() {
         <Box sx={{p: 2}}>
             {/* 删除了面包屑导航 */}
 
-            <Typography level="h2" sx={{mb: 3}}>管理员控制台</Typography>
+            <Typography level="h2" sx={{mb: 3}}>{t('admin.dashboard')}</Typography>
 
             {loading ? (
                 <Grid container spacing={3}>
@@ -54,17 +56,17 @@ function AdminDashboard() {
                     <Grid xs={12} md={6}>
                         <Card variant="outlined" sx={{height: '100%'}}>
                             <CardContent>
-                                <Typography level="h3">用户管理</Typography>
+                                <Typography level="h3">{t('admin.userManagement')}</Typography>
                                 <Divider sx={{my: 2}}/>
                                 <List>
                                     <ListItem>
-                                        <ListItem>管理所有消费者和商家账户</ListItem>
+                                        <ListItem>{t('admin.userManagement.manageRoles')}</ListItem>
                                     </ListItem>
                                     <ListItem>
-                                        <ListItem>添加、编辑、删除用户</ListItem>
+                                        <ListItem>{t('admin.userManagement.addEditDelete')}</ListItem>
                                     </ListItem>
                                     <ListItem>
-                                        <ListItem>审批商家申请</ListItem>
+                                        <ListItem>{t('admin.userManagement.merchantApproval')}</ListItem>
                                     </ListItem>
                                 </List>
                                 <Button
@@ -72,12 +74,12 @@ function AdminDashboard() {
                                     color="primary"
                                     startDecorator={<PeopleAltIcon/>}
                                     onClick={() => navigate({to: '/admin/users'}).then(() => {
-                                        console.log('已进入用户管理页面')
+                                        console.log(`${t('admin.enterUserManagement')}`)
                                     })}
                                     fullWidth
                                     sx={{mt: 2}}
                                 >
-                                    进入用户管理
+                                     {t('admin.enterUserManagement')}
                                 </Button>
                             </CardContent>
                         </Card>
@@ -87,17 +89,17 @@ function AdminDashboard() {
                     <Grid xs={12} md={6}>
                         <Card variant="outlined" sx={{height: '100%'}}>
                             <CardContent>
-                                <Typography level="h3">报告与分析</Typography>
+                                <Typography level="h3">{t('admin.reports')}</Typography>
                                 <Divider sx={{my: 2}}/>
                                 <List>
                                     <ListItem>
-                                        <ListItem>平台整体销售数据</ListItem>
+                                        <ListItem>{t('admin.reports.platformSales')}</ListItem>
                                     </ListItem>
                                     <ListItem>
-                                        <ListItem>用户行为分析</ListItem>
+                                        <ListItem>{t('admin.reports.userBehavior')}</ListItem>
                                     </ListItem>
                                     <ListItem>
-                                        <ListItem>平台性能报告</ListItem>
+                                        <ListItem>{t('admin.reports.performance')}</ListItem>
                                     </ListItem>
                                 </List>
                                 <Button
@@ -105,12 +107,12 @@ function AdminDashboard() {
                                     color="primary"
                                     startDecorator={<BarChartIcon/>}
                                     onClick={() => navigate({to: '/admin/analytics'}).then(() => {
-                                        console.log('已进入数据分析页面')
+                                        console.log(t('admin.viewDataAnalytics'))
                                     })}
                                     fullWidth
                                     sx={{mt: 2}}
                                 >
-                                    查看数据分析
+                                     {t('admin.viewDataAnalytics')}
                                 </Button>
                             </CardContent>
                         </Card>
@@ -119,17 +121,17 @@ function AdminDashboard() {
                     <Grid xs={12} md={6}>
                         <Card variant="outlined" sx={{height: '100%'}}>
                             <CardContent>
-                                <Typography level="h3">商品管理</Typography>
+                                <Typography level="h3">{t('admin.productManagement')}</Typography>
                                 <Divider sx={{my: 2}}/>
                                 <List>
                                     <ListItem>
-                                        <ListItem>查看所有商品</ListItem>
+                                        <ListItem>{t('admin.productManagement.viewAll')}</ListItem>
                                     </ListItem>
                                     <ListItem>
-                                        <ListItem>审核商家待审核商品</ListItem>
+                                        <ListItem>{t('admin.productManagement.approvalPending')}</ListItem>
                                     </ListItem>
                                     <ListItem>
-                                        <ListItem>下架违规商品</ListItem>
+                                        <ListItem>{t('admin.productManagement.delisted')}</ListItem>
                                     </ListItem>
                                 </List>
                                 <Button
@@ -137,12 +139,12 @@ function AdminDashboard() {
                                     color="primary"
                                     startDecorator={<ShoppingCartIcon/>}
                                     onClick={() => navigate({to: '/admin/products'}).then(() => {
-                                        console.log('已进入商品管理页面')
+                                        console.log(`${t('admin.enterProductManagement')}`)
                                     })}
                                     fullWidth
                                     sx={{mt: 2}}
                                 >
-                                    进入商品管理
+                                     {t('admin.enterProductManagement')}
                                 </Button>
                             </CardContent>
                         </Card>
@@ -152,17 +154,17 @@ function AdminDashboard() {
                     <Grid xs={12} md={6}>
                         <Card variant="outlined" sx={{height: '100%'}}>
                             <CardContent>
-                                <Typography level="h3">数据库管理</Typography>
+                                <Typography level="h3">{t('admin.databaseManagement')}</Typography>
                                 <Divider sx={{my: 2}}/>
                                 <List>
                                     <ListItem>
-                                        <ListItem>查看数据库表结构</ListItem>
+                                        <ListItem>{t('admin.databaseManagement.schema')}</ListItem>
                                     </ListItem>
                                     <ListItem>
-                                        <ListItem>浏览表数据</ListItem>
+                                        <ListItem>{t('admin.databaseManagement.tables')}</ListItem>
                                     </ListItem>
                                     <ListItem>
-                                        <ListItem>执行SQL查询</ListItem>
+                                        <ListItem>{t('admin.databaseManagement.query')}</ListItem>
                                     </ListItem>
                                 </List>
                                 <Button
@@ -170,12 +172,12 @@ function AdminDashboard() {
                                     color="primary"
                                     startDecorator={<StorageIcon/>}
                                     onClick={() => navigate({to: '/admin/database'}).then(() => {
-                                        console.log('已进入数据库管理页面')
+                                        console.log(`${t('admin.enterDatabaseManagement')}`)
                                     })}
                                     fullWidth
                                     sx={{mt: 2}}
                                 >
-                                    进入数据库管理
+                                     {t('admin.enterDatabaseManagement')}
                                 </Button>
                             </CardContent>
                         </Card>

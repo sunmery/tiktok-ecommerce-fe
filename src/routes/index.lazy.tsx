@@ -33,7 +33,7 @@ function Home() {
         // 确保productId不为空
         const productId = product.productId;
         if (!productId || productId.trim() === '') {
-            console.error('添加商品失败: 商品ID不能为空');
+            console.error(t('error.addToCart.emptyProductId'));
             return;
         }
 
@@ -46,23 +46,23 @@ function Home() {
         {
             id: 1,
             image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8',
-            name: '夏季大促销',
-            description: '全场商品低至5折，限时抢购中！',
-            buttonText: '立即抢购'
+            name: t('home.banner.summerSale'),
+            description: t('home.banner.summerSaleDesc'),
+            buttonText: t('home.banner.summerSaleBtn')
         },
         {
             id: 2,
             image: 'https://images.unsplash.com/photo-1607082349566-187342175e2f',
-            name: '新品上市',
-            description: '2023最新款时尚单品，引领潮流',
-            buttonText: '查看详情'
+            name: t('home.banner.newArrivals'),
+            description: t('home.banner.newArrivalsDesc'),
+            buttonText: t('home.banner.newArrivalsBtn')
         },
         {
             id: 3,
             image: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db',
-            name: '会员专享',
-            description: '注册会员即送200元优惠券',
-            buttonText: '立即注册'
+            name: t('home.banner.memberExclusive'),
+            description: t('home.banner.memberExclusiveDesc'),
+            buttonText: t('home.banner.memberExclusiveBtn')
         }
     ]
 
@@ -119,39 +119,43 @@ function Home() {
     const hotProducts = [
         {
             id: 1,
-            name: '智能手表',
+            name: t('product.smartWatch'),
             price: 1299,
             discount: 999,
             image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12',
             rating: 4.8,
-            sales: 1200
+            sales: 1200,
+            description: t('product.smartWatch.description')
         },
         {
             id: 2,
-            name: '无线耳机',
+            name: t('product.wirelessEarphones'),
             price: 899,
             discount: 699,
             image: 'https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb',
             rating: 4.7,
-            sales: 980
+            sales: 980,
+            description: t('product.wirelessEarphones.description')
         },
         {
             id: 3,
-            name: '机械键盘',
+            name: t('product.mechanicalKeyboard'),
             price: 499,
             discount: 399,
             image: 'https://images.unsplash.com/photo-1595225476474-63038da0e238',
             rating: 4.5,
-            sales: 850
+            sales: 850,
+            description: t('product.mechanicalKeyboard.description')
         },
         {
             id: 4,
-            name: '游戏鼠标',
+            name: t('product.gamingMouse'),
             price: 299,
             discount: 249,
             image: 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7',
             rating: 4.6,
-            sales: 760
+            sales: 760,
+            description: t('product.gamingMouse.description')
         }
     ]
 
@@ -159,31 +163,35 @@ function Home() {
     const newProducts = [
         {
             id: 5,
-            name: '智能音箱',
+            name: t('product.smartSpeaker'),
             price: 599,
             image: 'https://images.unsplash.com/photo-1589003077984-894e133dabab',
-            isNew: true
+            isNew: true,
+            description: t('product.smartSpeaker.description')
         },
         {
             id: 6,
-            name: '便携充电宝',
+            name: t('product.portablePowerBank'),
             price: 199,
             image: 'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5',
-            isNew: true
+            isNew: true,
+            description: t('product.portablePowerBank.description')
         },
         {
             id: 7,
-            name: '蓝牙音响',
+            name: t('product.bluetoothSpeaker'),
             price: 399,
             image: 'https://images.unsplash.com/photo-1545454675-3531b543be5d',
-            isNew: true
+            isNew: true,
+            description: t('product.bluetoothSpeaker.description')
         },
         {
             id: 8,
-            name: '智能台灯',
+            name: t('product.smartLamp'),
             price: 159,
             image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c',
-            isNew: true
+            isNew: true,
+            description: t('product.smartLamp.description')
         }
     ]
 
@@ -199,7 +207,7 @@ function Home() {
                 minHeight: '200px'
             }}>
                 <Typography level="h2" sx={{textAlign: 'center'}}>
-                    加载中...
+                    {t('home.loading')}
                 </Typography>
             </Box>
         )
@@ -217,7 +225,7 @@ function Home() {
                 minHeight: '200px'
             }}>
                 <Typography level="h2" sx={{textAlign: 'center'}}>
-                    加载失败，请重试
+                    {t('home.loadingFailed')}
                 </Typography>
             </Box>
         )
@@ -357,7 +365,7 @@ function Home() {
                         </Box>
 
                         {/* 商品分类导航 */}
-                        <HotCategories title="热门分类" limit={10} maxLevel={1}/>
+                        <HotCategories title={t('home.hotCategories')} limit={10} maxLevel={1}/>
 
                         {/* 热门商品区 */}
                         {/*<Box sx={{mb: 6}}>*/}
@@ -554,38 +562,38 @@ function Home() {
                         <Box sx={{mt: 8, pt: 4, borderTop: '1px solid', borderColor: 'divider'}}>
                             <Grid container spacing={4}>
                                 <Grid xs={12} sm={6} md={3}>
-                                    <Typography level="title-lg" sx={{mb: 2}}>项目信息</Typography>
+                                    <Typography level="title-lg" sx={{mb: 2}}>{t('home.projectInfo')}</Typography>
                                     <Stack spacing={1}>
                                         <Typography level="body-md"><a
-                                            href="https://github.com/sunmery/tiktok-ecommerce">后端</a></Typography>
+                                            href="https://github.com/sunmery/tiktok-ecommerce">{t('home.backend')}</a></Typography>
                                         <Typography level="body-md"><a
-                                            href="https://github.com/sunmery/tiktok-ecommerce-fe">前端</a></Typography>
+                                            href="https://github.com/sunmery/tiktok-ecommerce-fe">{t('home.frontend')}</a></Typography>
                                         <Typography level="body-md"><a
-                                            href="https://github.com/sunmery/tiktok-ecommerce-gateway">网关</a></Typography>
+                                            href="https://github.com/sunmery/tiktok-ecommerce-gateway">{t('home.gateway')}</a></Typography>
                                         <Typography level="body-md"><a
-                                            href="https://github.com/sunmery/tiktok-ecommerce-gateway">运维</a></Typography>
+                                            href="https://github.com/sunmery/tiktok-ecommerce-gateway">{t('home.devops')}</a></Typography>
                                     </Stack>
                                 </Grid>
                                 <Grid xs={12} sm={6} md={3}>
-                                    <Typography level="title-lg" sx={{mb: 2}}>支付方式</Typography>
+                                    <Typography level="title-lg" sx={{mb: 2}}>{t('home.paymentMethods')}</Typography>
                                     <Stack spacing={1}>
-                                        <Typography level="body-md">支付宝沙箱</Typography>
+                                        <Typography level="body-md">{t('home.alipayTest')}</Typography>
                                     </Stack>
                                 </Grid>
                                 <Grid xs={12} sm={6} md={3}>
-                                    <Typography level="title-lg" sx={{mb: 2}}>关注我</Typography>
+                                    <Typography level="title-lg" sx={{mb: 2}}>{t('home.followMe')}</Typography>
                                     <Stack spacing={1}>
                                         <Typography level="body-md"><a
                                             href="https://github.com/sunmery">GitHub</a></Typography>
-                                        <Typography level="body-md">微信公众号</Typography>
-                                        <Typography level="body-md">掘金</Typography>
-                                        <Typography level="body-md">Blog</Typography>
+                                        <Typography level="body-md">{t('home.wechat')}</Typography>
+                                        <Typography level="body-md">{t('home.juejin')}</Typography>
+                                        <Typography level="body-md">{t('home.blog')}</Typography>
                                     </Stack>
                                 </Grid>
                             </Grid>
                             <Divider sx={{my: 4}}/>
                             <Typography level="body-md" textAlign="center" sx={{pb: 4}}>
-                                © {new Date().getFullYear()} 基于Golang技术栈和基于角色的访问控制的领域驱动设计电商微服务
+                                © {new Date().getFullYear()} {t('home.projectDescription')}
                             </Typography>
                         </Box>
                     </>
