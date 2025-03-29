@@ -23,6 +23,10 @@ function AdminDashboard() {
     // 检查用户是否为管理员，如果不是则重定向到首页
     useEffect(() => {
         if (account.role !== 'admin') {
+            // 导入showMessage函数显示权限错误
+            import('@/utils/casdoor').then(({showMessage}) => {
+                showMessage('权限不足：只有管理员可以访问管理中心', 'error')
+            })
             navigate({to: '/'}).then(() => {
                 // 跳转完成后的回调逻辑
             })

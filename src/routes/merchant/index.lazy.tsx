@@ -21,6 +21,10 @@ function MerchantDashboard() {
 
     useEffect(() => {
         if (account.role !== 'merchant') {
+            // 导入showMessage函数显示权限错误
+            import('@/utils/casdoor').then(({showMessage}) => {
+                showMessage('权限不足：只有商家可以访问商家中心', 'error')
+            })
             navigate({to: '/'}).then(() => {
                 console.log(t('log.redirectedNonMerchant'))
             })

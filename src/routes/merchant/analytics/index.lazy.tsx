@@ -86,6 +86,12 @@ export default function Analytics() {
             }
         }).catch(error => {
             console.error(t('analytics.load_sales_data_failed'), error)
+            // 处理权限错误
+            if (error.message && (error.message.includes('未授权') || error.message.includes('权限不足'))) {
+                import('@/utils/casdoor').then(({showMessage}) => {
+                    showMessage(error.message, 'error')
+                })
+            }
         })
     }, [])
 

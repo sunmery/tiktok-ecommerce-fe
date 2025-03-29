@@ -169,6 +169,10 @@ function AnalyticsDashboard() {
     // 检查用户是否为管理员，如果不是则重定向到首页
     useEffect(() => {
         if (account.role !== 'admin') {
+            // 导入showMessage函数显示权限错误
+            import('@/utils/casdoor').then(({showMessage}) => {
+                showMessage('权限不足：只有管理员可以访问分析页面', 'error')
+            })
             navigate({to: '/'}).then(() => {
                 console.log('非管理员用户，已重定向到首页')
             })

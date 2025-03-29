@@ -61,6 +61,19 @@ export async function fetchApi<T>(
         })
 
         if (!response.ok) {
+            // 处理特定的错误状态码
+            if (response.status === 401) {
+                showMessage('您的登录已过期，请重新登录', 'error')
+                // 可以在这里添加重定向到登录页面的逻辑
+                localStorage.removeItem('token')
+                window.location.href = '/login'
+                return Promise.reject(new Error('未授权：您的登录已过期'))
+            } else if (response.status === 403) {
+                const role = localStorage.getItem('role') || '用户'
+                showMessage(`权限不足：您的角色(${role})无权执行此操作`, 'error')
+                return Promise.reject(new Error('权限不足：您没有权限执行此操作'))
+            }
+            
             const error = await response.json().catch(() => {
                 // 如果无法解析JSON，检查响应的Content-Type
                 const contentType = response.headers.get('Content-Type')

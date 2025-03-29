@@ -121,11 +121,26 @@ async function request<T>(url: string, method: HttpMethod, options: RequestOptio
 
         // 检查响应状态
         if (!response.ok) {
-            throw new HttpError(
-                `Request failed with status ${response.status}`,
-                response.status,
-                data
-            );
+            // 处理特定的错误状态码
+            if (response.status === 401) {
+                throw new HttpError(
+                    '您的登录已过期，请重新登录',
+                    response.status,
+                    data
+                );
+            } else if (response.status === 403) {
+                throw new HttpError(
+                    '您没有权限执行此操作',
+                    response.status,
+                    data
+                );
+            } else {
+                throw new HttpError(
+                    `Request failed with status ${response.status}`,
+                    response.status,
+                    data
+                );
+            }
         }
 
         return data as T;
