@@ -55,25 +55,26 @@ function ProductManagement() {
     useEffect(() => {
         if (account.role !== 'admin') {
             navigate({to: '/'}).then(() => {
-                console.log('非管理员用户，重定向到首页')
+                console.log(t('admin.products.errors.notAdmin'))
             }).catch(err => {
-                console.error('重定向失败:', err)
+                console.error(t('admin.products.errors.redirectFailed'), err)
             })
             return
         }
 
         loadPendingProducts().then(r => {
-            console.log('加载待审核商品成功', r)
+            console.log(t('admin.products.audit.messages.loadSuccess'), r)
         }).catch(err => {
-            console.error('加载待审核商品失败:', err)
+            console.error(t('admin.products.audit.messages.loadFailed'), err)
         })
     }, [account.role, navigate])
 
     // 加载待审核商品
+    // {t('admin.products.audit.loadPendingProducts')}
     const loadPendingProducts = async () => {
         try {
             setLoading(true)
-            // 调用API获取待审核商品，状态为PENDING(1)
+            // {t('admin.products.audit.callApiForPendingProducts')}
             const response = await productService.listRandomProducts({
                 page: 1,
                 pageSize: 100,
@@ -82,7 +83,7 @@ function ProductManagement() {
 
             setProducts(response.items || [])
         } catch (error) {
-            console.error('加载待审核商品失败:', error)
+            console.error(t('admin.products.errors.loadFailed'), error)
             setSnackbar({
                 open: true,
                 message: t('admin.products.audit.messages.loadFailed'),
@@ -93,7 +94,7 @@ function ProductManagement() {
         }
     }
 
-    // 处理商品选择
+    // {t('admin.products.audit.handleSelection')}
     const handleProductSelect = (productId: string) => {
         setSelectedProducts(prev => {
             if (prev.includes(productId)) {
@@ -104,7 +105,7 @@ function ProductManagement() {
         })
     }
 
-    // 全选/取消全选
+    // {t('admin.products.audit.toggleSelectAll')}
     const handleSelectAll = () => {
         if (selectedProducts.length === products.length) {
             setSelectedProducts([])
@@ -175,7 +176,7 @@ function ProductManagement() {
         }
     }
 
-    // 翻译商品状态
+    // {t('admin.products.audit.translateStatus')}
     const translateProductStatus = (status: any): string => {
         if (typeof status === 'string') {
             switch (status) {
@@ -211,7 +212,7 @@ function ProductManagement() {
         return String(status);
     }
 
-    // 获取状态对应的颜色
+    // {t('admin.products.audit.getStatusColor')}
     const getStatusColor = (status: any) => {
         if (typeof status === 'string') {
             switch (status) {
@@ -247,7 +248,7 @@ function ProductManagement() {
         return 'neutral';
     }
 
-    // 格式化日期
+    // {t('admin.products.audit.formatDate')}
     const formatDate = (dateString: string) => {
         const date = new Date(dateString)
         return date.toLocaleString('zh-CN')
@@ -378,7 +379,7 @@ function ProductManagement() {
                 </Sheet>
             )}
 
-            {/* 审核模态框 */}
+            {/* {t('admin.products.audit.modal.audit')} */}
             <Modal open={openAuditModal} onClose={() => setOpenAuditModal(false)}>
                 <ModalDialog>
                     <ModalClose/>
@@ -417,7 +418,7 @@ function ProductManagement() {
                 </ModalDialog>
             </Modal>
 
-            {/* 查看商品详情模态框 */}
+            {/* {t('admin.products.audit.modal.viewDetails')} */}
             <Modal open={openViewModal} onClose={() => setOpenViewModal(false)}>
                 <ModalDialog size="lg">
                     <ModalClose/>
@@ -520,7 +521,7 @@ function ProductManagement() {
                 </ModalDialog>
             </Modal>
 
-            {/* 提示消息 */}
+            {/* {t('admin.products.audit.messages.notification')} */}
             <Snackbar
                 open={snackbar.open}
                 autoHideDuration={3000}

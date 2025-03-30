@@ -8,6 +8,7 @@ export interface Account {
     email: string
     id: string
     role: string
+    signupApplication: string
     displayName: string
     isDeleted: boolean
     createdTime: string

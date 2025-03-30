@@ -99,13 +99,13 @@ function ConsumerDashboard() {
                                     <Divider sx={{my: 2}}/>
                                     <List>
                                         <ListItem>
-                                            <Typography>查看收藏的商品</Typography>
+                                            <Typography sx={{ color: '#1890ff' }}>查看收藏的商品</Typography>
                                         </ListItem>
                                         <ListItem>
-                                            <Typography>管理收藏夹</Typography>
+                                            <Typography sx={{ color: '#52c41a' }}>管理收藏夹</Typography>
                                         </ListItem>
                                         <ListItem>
-                                            <Typography>收藏商品价格变动提醒</Typography>
+                                            <Typography sx={{ color: '#faad14' }}>收藏商品价格变动提醒</Typography>
                                         </ListItem>
                                     </List>
                                 </CardContent>

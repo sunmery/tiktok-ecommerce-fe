@@ -18,9 +18,13 @@ export interface MerchantApplication {
 
 // 编辑用户表单数据类型
 export interface EditUserForm {
+    id: string
     name: string
     email: string
-    role: string
+    avatar?: string
+    owner?: string
+    displayName?: string
+    signupApplication: string
 }
 
 // 新用户表单数据类型

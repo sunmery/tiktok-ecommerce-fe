@@ -62,4 +62,9 @@ export interface UserProfile {
     isDeleted: boolean;
     createdTime: Timestamp;
     updatedTime: Timestamp;
+    signupApplication?: string;
+}
+
+export interface Users {
+    users: UserProfile[]
 }

@@ -15,7 +15,7 @@ import {
     GetCreditCard,
     ListCreditCards,
     UpdateAddress,
-    UpdateCreditCard
+    UpdateCreditCard, UserProfile, Users
 } from '@/types/user';
 import {
     CardsReply,
@@ -26,11 +26,48 @@ import {
     ListCreditCardsReply
 } from '@/types/creditCards';
 import {Address, DeleteAddressRequest} from '@/types/addresses'
+import {EditUserForm} from "@/types/admin.ts";
 
 /**
  * 用户服务API
  */
 export const userService = {
+    /**
+     * 获取用户列表
+     * GET /v1/users
+     */
+    listUsers: () => {
+        return httpClient.get<Users>('/v1/users');
+    },
+
+    /**
+     * 更新用户信息
+     * POST /v1/users/{user_id}
+     */
+    updateUser: (userId: string, userData: EditUserForm) => {
+        return httpClient.post<{ status: string, code: number }>(`/v1/users/${userId}`, {
+            userId,
+            owner: userData.owner || '',
+            name: userData.name,
+            avatar: userData.avatar || '',
+            email: userData.email,
+            displayName: userData.displayName || userData.name,
+            signupApplication: userData.signupApplication || '',
+            role: userData.role
+        });
+    },
+
+    /**
+     * 删除用户
+     * POST /v1/users
+     */
+    deleteUser: (userId: string, owner: string, name: string) => {
+        return httpClient.post<{ status: string, code: number }>('/v1/users', {
+            userId,
+            owner,
+            name
+        });
+    },
 
     /**
      * 创建用户地址

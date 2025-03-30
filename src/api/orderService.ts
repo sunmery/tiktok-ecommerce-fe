@@ -47,6 +47,10 @@ export const orderService = {
                 params: {
                     page: request.page?.toString(),
                     pageSize: request.pageSize?.toString()
+                },
+                headers: {
+                   'Authorization': `Bearer ${localStorage.getItem('token')}`
+                   // 'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             }
         );

@@ -1,78 +1,35 @@
 import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
 import {useEffect, useState} from 'react'
 import {
-  Box,
-  Button,
-  Chip,
-  Divider,
-  FormControl,
-  FormLabel,
-  IconButton,
-  Input,
-  Modal,
-  ModalClose,
-  ModalDialog,
-  Option,
-  Select,
-  Sheet,
-  Table,
-  Tooltip,
-  Typography
+    Box,
+    Button,
+    Chip,
+    Divider,
+    FormControl,
+    FormLabel,
+    IconButton,
+    Input,
+    Modal,
+    ModalClose,
+    ModalDialog,
+    Sheet,
+    Table,
+    Tooltip,
+    Typography
 } from '@mui/joy'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
 import {EditUserForm, MerchantApplication, NewUserForm, RoleNames, User} from '@/types/admin'
+import {userService} from "@/api/userService.ts";
+import {t} from "i18next";
+import {UserProfile} from "@/types/user.ts";
 
 export const Route = createLazyFileRoute('/admin/users/')({
     component: UserManagement,
 })
 
-// 模拟用户数据
-const mockUsers = [
-    {
-        id: '1',
-        name: '张三',
-        email: 'zhangsan@example.com',
-        role: 'consumer',
-        createdTime: '2023-01-15T08:30:00Z',
-        isDeleted: false
-    },
-    {
-        id: '2',
-        name: '李四',
-        email: 'lisi@example.com',
-        role: 'merchant',
-        createdTime: '2023-02-20T10:15:00Z',
-        isDeleted: false
-    },
-    {
-        id: '3',
-        name: '王五',
-        email: 'wangwu@example.com',
-        role: 'merchant',
-        createdTime: '2023-03-10T14:45:00Z',
-        isDeleted: false,
-        pendingApproval: true
-    },
-    {
-        id: '4',
-        name: '赵六',
-        email: 'zhaoliu@example.com',
-        role: 'consumer',
-        createdTime: '2023-04-05T09:20:00Z',
-        isDeleted: false
-    },
-    {
-        id: '5',
-        name: '钱七',
-        email: 'qianqi@example.com',
-        role: 'admin',
-        createdTime: '2023-05-12T16:30:00Z',
-        isDeleted: false
-    }
-]
 
 // 模拟商家申请数据
 const mockMerchantApplications = [
@@ -90,7 +47,20 @@ const mockMerchantApplications = [
 function UserManagement() {
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
-    const [users, setUsers] = useState<User[]>(mockUsers)
+    const [users, setUsers] = useState<UserProfile[]>([])
+
+    // 从API加载用户数据
+    useEffect(() => {
+        const loadUsers = async () => {
+            try {
+                const response = await userService.listUsers()
+                setUsers(response.users)
+            } catch (err) {
+                console.error('加载用户数据失败:', err)
+            }
+        }
+        loadUsers()
+    }, [])
     const [applications, setApplications] = useState<MerchantApplication[]>(mockMerchantApplications)
 
     const [openEditModal, setOpenEditModal] = useState(false)
@@ -102,15 +72,20 @@ function UserManagement() {
     const [currentApplication, setCurrentApplication] = useState<MerchantApplication | null>(null)
 
     const [editForm, setEditForm] = useState<EditUserForm>({
+        id: '',
         name: '',
         email: '',
-        role: 'consumer'
+        signupApplication: ''
     })
 
     const [newUser, setNewUser] = useState<NewUserForm>({
+        id: '',
         name: '',
         email: '',
-        role: 'consumer',
+        avatar: "",
+        displayName: "",
+        owner: "",
+        signupApplication: "",
         password: ''
     })
 
@@ -118,7 +93,7 @@ function UserManagement() {
     useEffect(() => {
         if (account.role !== 'admin') {
             navigate({to: '/'}).then(() => {
-                console.log('非管理员用户，已重定向到首页')
+                console.log(`非{t('admin.users.roles.admin')}用户，已重定向到首页`)
             })
         }
     }, [account.role, navigate])
@@ -127,9 +102,13 @@ function UserManagement() {
     const handleEditUser = (user: User) => {
         setCurrentUser(user)
         setEditForm({
+            id: user.id,
             name: user.name,
             email: user.email,
-            role: user.role
+            avatar: user.avatar,
+            owner: user.owner,
+            displayName: user.displayName,
+            signupApplication: user.signupApplication
         })
         setOpenEditModal(true)
     }
@@ -150,21 +129,57 @@ function UserManagement() {
     }
 
     // 保存编辑的用户信息
-    const saveUserEdit = () => {
+    const saveUserEdit = async () => {
         if (!currentUser) return
-        setUsers(users.map(user =>
-            user.id === currentUser.id ? {...user, ...editForm} : user
-        ))
-        setOpenEditModal(false)
+        try {
+            // 调用后端UpdateUser接口
+            await userService.updateUser(
+                currentUser.id,
+                {
+                    ...editForm,
+                    owner: currentUser.owner,
+                    displayName: editForm.displayName
+                }
+            )
+
+            // 更新成功后刷新用户列表
+            const response = await userService.listUsers()
+            setUsers(response.users)
+
+            // 显示成功消息
+            alert('用户信息更新成功')
+
+            // 关闭模态框
+            setOpenEditModal(false)
+        } catch (error) {
+            console.error('更新用户信息失败:', error)
+            // 显示错误消息
+            alert('更新用户信息失败，请重试')
+        }
     }
 
     // 确认删除用户
-    const confirmDeleteUser = () => {
+    const confirmDeleteUser = async () => {
         if (!currentUser) return
-        setUsers(users.map(user =>
-            user.id === currentUser.id ? {...user, isDeleted: true} : user
-        ))
-        setOpenDeleteModal(false)
+        try {
+            // 调用后端DeleteUser接口
+            await userService.deleteUser(
+                currentUser.id,
+                currentUser.owner,
+                currentUser.name
+            )
+
+            // 删除成功后更新本地状态
+            setUsers(users.map(user =>
+                user.id === currentUser.id ? {...user, isDeleted: true} : user
+            ))
+
+            // 关闭模态框
+            setOpenDeleteModal(false)
+        } catch (error) {
+            console.error('删除用户失败:', error)
+            // 可以在这里添加错误提示
+        }
     }
 
     // 处理商家申请审批
@@ -208,9 +223,8 @@ function UserManagement() {
                 isDeleted: false,
                 owner: '',
                 avatar: '',
-                displayName: newUser.name,
+                displayName: newUser.displayName,
                 updatedTime: now,
-                phone: ''
             }
         ])
 
@@ -232,9 +246,11 @@ function UserManagement() {
 
     // 角色名称映射
     const roleNames: RoleNames = {
-        'admin': '管理员',
-        'merchant': '商家',
-        'consumer': '消费者'
+        'admin': t('admin.users.roles.admin'),
+        'merchant': t('admin.users.roles.merchant'),
+        'consumer': t('admin.users.roles.consumer'),
+        'guest': t('admin.users.roles.guest'),
+        '': t('admin.users.roles.guest') // 空字符串角色也显示为访客
     }
 
     return (
@@ -255,7 +271,7 @@ function UserManagement() {
                 <Table stickyHeader hoverRow>
                     <thead>
                     <tr>
-                        <th style={{width: '5%'}}>ID</th>
+                        <th style={{width: '15%'}}>应用</th>
                         <th style={{width: '15%'}}>用户名</th>
                         <th style={{width: '20%'}}>邮箱</th>
                         <th style={{width: '15%'}}>角色</th>
@@ -264,10 +280,10 @@ function UserManagement() {
                     </tr>
                     </thead>
                     <tbody>
-                    {users.filter(user => !user.isDeleted).map((user) => (
+                    {users.map((user) => (
                         <tr key={user.id}>
-                            <td>{user.id}</td>
-                            <td>{user.name}</td>
+                            <td>{user.signupApplication}</td>
+                            <td>{user.displayName}</td>
                             <td>{user.email}</td>
                             <td>
                                 {user.pendingApproval ? (
@@ -348,6 +364,13 @@ function UserManagement() {
                             />
                         </FormControl>
                         <FormControl sx={{mb: 2}}>
+                            <FormLabel>昵称</FormLabel>
+                            <Input
+                                value={editForm.displayName}
+                                onChange={(e) => setEditForm({...editForm, displayName: e.target.value})}
+                            />
+                        </FormControl>
+                        <FormControl sx={{mb: 2}}>
                             <FormLabel>邮箱</FormLabel>
                             <Input
                                 type="email"
@@ -355,17 +378,7 @@ function UserManagement() {
                                 onChange={(e) => setEditForm({...editForm, email: e.target.value})}
                             />
                         </FormControl>
-                        <FormControl sx={{mb: 2}}>
-                            <FormLabel>角色</FormLabel>
-                            <Select
-                                value={editForm.role}
-                                onChange={(_, value) => setEditForm({...editForm, role: value})}
-                            >
-                                <Option value="admin">管理员</Option>
-                                <Option value="merchant">商家</Option>
-                                <Option value="consumer">消费者</Option>
-                            </Select>
-                        </FormControl>
+
                         <Box sx={{display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2}}>
                             <Button type="submit" color="primary">保存</Button>
                         </Box>

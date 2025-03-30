@@ -1,32 +1,38 @@
 import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
 import {useEffect, useRef, useState} from 'react'
 import {
-  Box,
-  Card,
-  CardContent,
-  FormControl,
-  FormLabel,
-  Grid,
-  Option,
-  Select,
-  Tab,
-  TabList,
-  TabPanel,
-  Tabs,
-  Typography,
+    Box,
+    Card,
+    CardContent,
+    CircularProgress,
+    FormControl,
+    FormLabel,
+    Grid,
+    Option,
+    Select,
+    Tab,
+    TabList,
+    TabPanel,
+    Tabs,
+    Typography,
 } from '@mui/joy'
 import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
 import * as echarts from 'echarts'
 import {useTranslation} from 'react-i18next'
+import {t} from 'i18next'
+import {orderService} from '@/api/orderService'
+import {GroupedSalesData, groupOrdersByDate} from '@/utils/analyticsHelper'
 
 export const Route = createLazyFileRoute('/admin/analytics/')({
     component: AnalyticsDashboard,
 })
 
-// 定义模拟数据的函数，在组件内部调用以获取翻译后的数据
-const getMockData = (t) => {
-    // 模拟销售数据
+// Define mock data function to be called inside component to get translated data
+const getMockData = () => {
+
+
+    // Mock sales data
     const mockSalesData = {
         daily: [
             {date: '2023-06-01', sales: 12500, orders: 125},
@@ -53,7 +59,7 @@ const getMockData = (t) => {
         ]
     }
 
-    // 模拟用户行为数据
+    // Mock user behavior data
     const mockUserBehaviorData = {
         pageViews: [
             {date: t('admin.analytics.monday'), views: 5200},
@@ -86,40 +92,42 @@ const getMockData = (t) => {
             {name: t('admin.analytics.tablet'), value: 5}
         ]
     }
-    
-    return { mockSalesData, mockUserBehaviorData };
+
+    return {mockSalesData, mockUserBehaviorData};
 }
 
-// 模拟平台性能数据 - 这部分不使用翻译，所以可以保留在组件外部
-const mockPerformanceData = {
-    responseTime: [
-        {date: '周一', time: 120},
-        {date: '周二', time: 132},
-        {date: '周三', time: 101},
-        {date: '周四', time: 134},
-        {date: '周五', time: 90},
-        {date: '周六', time: 85},
-        {date: '周日', time: 95}
-    ],
-    errorRate: [
-        {date: '周一', rate: 0.8},
-        {date: '周二', rate: 0.6},
-        {date: '周三', rate: 0.9},
-        {date: '周四', rate: 0.7},
-        {date: '周五', rate: 0.5},
-        {date: '周六', rate: 0.3},
-        {date: '周日', rate: 0.4}
-    ],
-    serverLoad: [
-        {date: '00:00', load: 30},
-        {date: '03:00', load: 15},
-        {date: '06:00', load: 25},
-        {date: '09:00', load: 65},
-        {date: '12:00', load: 85},
-        {date: '15:00', load: 75},
-        {date: '18:00', load: 90},
-        {date: '21:00', load: 60}
-    ]
+// Define mock platform performance data function to be called inside component to get translated data
+const getMockPerformanceData = () => {
+    return {
+        responseTime: [
+            {date: t('admin.analytics.monday'), time: 120},
+            {date: t('admin.analytics.tuesday'), time: 132},
+            {date: t('admin.analytics.wednesday'), time: 101},
+            {date: t('admin.analytics.thursday'), time: 134},
+            {date: t('admin.analytics.friday'), time: 90},
+            {date: t('admin.analytics.saturday'), time: 85},
+            {date: t('admin.analytics.sunday'), time: 95}
+        ],
+        errorRate: [
+            {date: t('admin.analytics.monday'), rate: 0.8},
+            {date: t('admin.analytics.tuesday'), rate: 0.6},
+            {date: t('admin.analytics.wednesday'), rate: 0.9},
+            {date: t('admin.analytics.thursday'), rate: 0.7},
+            {date: t('admin.analytics.friday'), rate: 0.5},
+            {date: t('admin.analytics.saturday'), rate: 0.3},
+            {date: t('admin.analytics.sunday'), rate: 0.4}
+        ],
+        serverLoad: [
+            {date: '00:00', load: 30},
+            {date: '03:00', load: 15},
+            {date: '06:00', load: 25},
+            {date: '09:00', load: 65},
+            {date: '12:00', load: 85},
+            {date: '15:00', load: 75},
+            {date: '18:00', load: 90},
+            {date: '21:00', load: 60}
+        ]
+    };
 }
 
 function AnalyticsDashboard() {
@@ -128,11 +136,17 @@ function AnalyticsDashboard() {
     const navigate = useNavigate()
     const [activeTab, setActiveTab] = useState(0)
     const [timeRange, setTimeRange] = useState('daily')
-    
-    // 获取翻译后的模拟数据
-    const { mockSalesData, mockUserBehaviorData } = getMockData(t)
+    const [loading, setLoading] = useState(false)
+    const [realSalesData, setRealSalesData] = useState<GroupedSalesData | null>(null)
 
-    // 图表容器引用
+    // Get translated mock data for other tabs
+    const {mockSalesData: fallbackData} = getMockData()
+    const mockPerformanceData = getMockPerformanceData()
+
+    // 使用真实数据或回退到模拟数据
+    const salesData = realSalesData || fallbackData
+
+    // Chart container refs
     const salesChartRef = useRef<HTMLDivElement>(null)
     const ordersChartRef = useRef<HTMLDivElement>(null)
     const pageViewsChartRef = useRef<HTMLDivElement>(null)
@@ -143,7 +157,7 @@ function AnalyticsDashboard() {
     const errorRateChartRef = useRef<HTMLDivElement>(null)
     const serverLoadChartRef = useRef<HTMLDivElement>(null)
 
-    // 图表实例
+    // Chart instances
     const [charts, setCharts] = useState<{
         salesChart: echarts.ECharts | null,
         ordersChart: echarts.ECharts | null,
@@ -166,23 +180,49 @@ function AnalyticsDashboard() {
         serverLoadChart: null
     })
 
-    // 检查用户是否为管理员，如果不是则重定向到首页
+    // Check if user is admin, redirect to home page if not
     useEffect(() => {
         if (account.role !== 'admin') {
-            // 导入showMessage函数显示权限错误
+            // Import showMessage function to display permission error
             import('@/utils/casdoor').then(({showMessage}) => {
-                showMessage('权限不足：只有管理员可以访问分析页面', 'error')
+                showMessage(t('admin.analytics.permissionError'), 'error')
             })
             navigate({to: '/'}).then(() => {
-                console.log('非管理员用户，已重定向到首页')
+                console.log(t('admin.analytics.redirected'))
             })
         }
-    }, [account.role, navigate])
+    }, [account.role, navigate, t])
 
-    // 初始化销售数据图表
+    // 获取真实订单数据
+    useEffect(() => {
+        const fetchOrderData = async () => {
+            try {
+                setLoading(true);
+                const response = await orderService.listOrder({
+                    page: 0,
+                    pageSize: 1000,
+                })
+                if (response && response.orders) {
+                    // 处理订单数据，按日期分组
+                    const groupedData = groupOrdersByDate(response.orders);
+                    setRealSalesData(groupedData);
+                }
+            } catch (error) {
+                console.error('获取订单数据失败:', error);
+                // 获取失败时使用模拟数据
+                setRealSalesData(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchOrderData();
+    }, [])
+
+    // Initialize sales data charts
     useEffect(() => {
         if (activeTab === 0 && salesChartRef.current && ordersChartRef.current) {
-            // 销售额图表
+            // Sales chart
             const salesChart = echarts.init(salesChartRef.current)
             const salesOption = {
                 title: {
@@ -195,7 +235,7 @@ function AnalyticsDashboard() {
                 },
                 xAxis: {
                     type: 'category',
-                    data: mockSalesData[timeRange].map(item => item.date)
+                    data: salesData[timeRange].map(item => item.date)
                 },
                 yAxis: {
                     type: 'value',
@@ -205,7 +245,7 @@ function AnalyticsDashboard() {
                 },
                 series: [{
                     name: t('admin.analytics.sales'),
-                    data: mockSalesData[timeRange].map(item => item.sales),
+                    data: salesData[timeRange].map(item => item.sales),
                     type: 'line',
                     smooth: true,
                     areaStyle: {}
@@ -213,7 +253,7 @@ function AnalyticsDashboard() {
             }
             salesChart.setOption(salesOption)
 
-            // 订单量图表
+            // Orders chart
             const ordersChart = echarts.init(ordersChartRef.current)
             const ordersOption = {
                 title: {
@@ -225,14 +265,14 @@ function AnalyticsDashboard() {
                 },
                 xAxis: {
                     type: 'category',
-                    data: mockSalesData[timeRange].map(item => item.date)
+                    data: salesData[timeRange].map(item => item.date)
                 },
                 yAxis: {
                     type: 'value'
                 },
                 series: [{
                     name: t('admin.analytics.orders'),
-                    data: mockSalesData[timeRange].map(item => item.orders),
+                    data: salesData[timeRange].map(item => item.orders),
                     type: 'bar'
                 }]
             }
@@ -244,7 +284,7 @@ function AnalyticsDashboard() {
                 ordersChart
             }))
 
-            // 清理函数
+            // Cleanup function
             return () => {
                 salesChart.dispose()
                 ordersChart.dispose()
@@ -252,14 +292,14 @@ function AnalyticsDashboard() {
         }
     }, [activeTab, timeRange])
 
-    // 初始化平台性能图表
+    // Initialize platform performance charts
     useEffect(() => {
         if (activeTab === 2 &&
             responseTimeChartRef.current &&
             errorRateChartRef.current &&
             serverLoadChartRef.current) {
 
-            // 响应时间图表
+            // Response time chart
             const responseTimeChart = echarts.init(responseTimeChartRef.current)
             const responseTimeOption = {
                 title: {
@@ -288,7 +328,7 @@ function AnalyticsDashboard() {
             }
             responseTimeChart.setOption(responseTimeOption)
 
-            // 错误率图表
+            // Error rate chart
             const errorRateChart = echarts.init(errorRateChartRef.current)
             const errorRateOption = {
                 title: {
@@ -335,7 +375,7 @@ function AnalyticsDashboard() {
             }
             errorRateChart.setOption(errorRateOption)
 
-            // 服务器负载图表
+            // Server load chart
             const serverLoadChart = echarts.init(serverLoadChartRef.current)
             const serverLoadOption = {
                 title: {
@@ -363,7 +403,7 @@ function AnalyticsDashboard() {
                     type: 'bar',
                     itemStyle: {
                         color: function (params) {
-                            // 根据负载值设置不同颜色
+                            // Set different colors based on load value
                             if (params.value > 80) {
                                 return '#ff4d4f';
                             } else if (params.value > 60) {
@@ -384,7 +424,7 @@ function AnalyticsDashboard() {
                 serverLoadChart
             }))
 
-            // 清理函数
+            // Cleanup function
             return () => {
                 responseTimeChart.dispose()
                 errorRateChart.dispose()
@@ -393,7 +433,7 @@ function AnalyticsDashboard() {
         }
     }, [activeTab])
 
-    // 窗口大小变化时重新调整图表大小
+    // Resize charts when window size changes
     useEffect(() => {
         const handleResize = () => {
             Object.values(charts).forEach(chart => {
@@ -419,7 +459,7 @@ function AnalyticsDashboard() {
                     <Tab>{t('admin.analytics.performance')}</Tab>
                 </TabList>
 
-                {/* 销售数据面板 */}
+                {/* Sales data panel */}
                 <TabPanel value={0}>
                     <Box sx={{mb: 3}}>
                         <FormControl size="sm">
@@ -428,6 +468,7 @@ function AnalyticsDashboard() {
                                 value={timeRange}
                                 onChange={(_, value) => setTimeRange(value)}
                                 sx={{minWidth: 150}}
+                                disabled={loading}
                             >
                                 <Option value="daily">{t('admin.analytics.daily')}</Option>
                                 <Option value="weekly">{t('admin.analytics.weekly')}</Option>
@@ -436,25 +477,34 @@ function AnalyticsDashboard() {
                         </FormControl>
                     </Box>
 
-                    <Grid container spacing={3}>
-                        <Grid xs={12} md={6}>
-                            <Card variant="outlined">
-                                <CardContent>
-                                    <div ref={salesChartRef} style={{height: 400}}></div>
-                                </CardContent>
-                            </Card>
+                    {loading ? (
+                        <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px'}}>
+                            <CircularProgress/>
+                            <Typography level="body-md" sx={{ml: 2}}>
+                                {t('admin.analytics.loadingData')}
+                            </Typography>
+                        </Box>
+                    ) : (
+                        <Grid container spacing={3}>
+                            <Grid xs={12} md={6}>
+                                <Card variant="outlined">
+                                    <CardContent>
+                                        <div ref={salesChartRef} style={{height: 400}}></div>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                            <Grid xs={12} md={6}>
+                                <Card variant="outlined">
+                                    <CardContent>
+                                        <div ref={ordersChartRef} style={{height: 400}}></div>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
                         </Grid>
-                        <Grid xs={12} md={6}>
-                            <Card variant="outlined">
-                                <CardContent>
-                                    <div ref={ordersChartRef} style={{height: 400}}></div>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                    </Grid>
+                    )}
                 </TabPanel>
 
-                {/* 用户行为面板 */}
+                {/* User behavior panel */}
                 <TabPanel value={1}>
                     <Grid container spacing={3}>
                         <Grid xs={12} md={6}>
@@ -488,7 +538,7 @@ function AnalyticsDashboard() {
                     </Grid>
                 </TabPanel>
 
-                {/* 平台性能面板 */}
+                {/* Platform performance panel */}
                 <TabPanel value={2}>
                     <Grid container spacing={3}>
                         <Grid xs={12} md={6}>
