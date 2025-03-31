@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
     Alert,
     AspectRatio,
@@ -13,11 +13,15 @@ import {
     styled,
     SvgIcon,
     Textarea,
-    Typography
+    Typography,
+    Select,
+    Option
 } from '@mui/joy';
-import {AttributeValue, Product} from '@/types/products';
+import {AttributeValue, Product, CategoryInfo} from '@/types/products';
 import PhotoIcon from '@mui/icons-material/PhotoCamera';
 import {useTranslation} from 'react-i18next';
+import {categoryService} from '@/api/categoryService';
+import {Category} from '@/types/category';
 
 interface ProductEditFormProps {
     product?: Product;
@@ -126,6 +130,10 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
             quantity: 0,
             attributes: {},
             inventory: {productId: '', merchantId: '', stock: 0},
+            category: {
+                categoryId: 0,
+                categoryName: ''
+            }
         }
     );
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -137,6 +145,26 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
         loading: false,
         error: null
     });
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [categoriesLoading, setCategoriesLoading] = useState<boolean>(false);
+
+    // 获取分类列表
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                setCategoriesLoading(true);
+                // 获取叶子分类
+                const result = await categoryService.listLeafCategories();
+                setCategories(result.categories || []);
+            } catch (error) {
+                console.error('获取分类列表失败:', error);
+            } finally {
+                setCategoriesLoading(false);
+            }
+        };
+
+        fetchCategories();
+    }, []);
 
     const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -431,6 +459,40 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                                     }}
                                     required
                                 />
+                            </FormControl>
+                        </Grid>
+
+                        <Grid xs={12}>
+                            <FormControl sx={{width: '100%'}}>
+                                <FormLabel>{t('products.category')}</FormLabel>
+                                <Select
+                                    placeholder="请选择分类"
+                                    value={formData.category?.categoryId || null}
+                                    onChange={(_, value) => {
+                                        if (value === null) return;
+                                        // 找到选中的分类
+                                        const selectedCategory = categories.find(cat => cat.id === String(value));
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            category: {
+                                                categoryId: Number(value),
+                                                categoryName: selectedCategory?.name || ''
+                                            }
+                                        }));
+                                    }}
+                                >
+                                    {categoriesLoading ? (
+                                        <Option value={0} disabled>加载中...</Option>
+                                    ) : categories.length > 0 ? (
+                                        categories.map((category) => (
+                                            <Option key={category.id} value={Number(category.id)}>
+                                                {category.name}
+                                            </Option>
+                                        ))
+                                    ) : (
+                                        <Option value={0} disabled>暂无可用分类</Option>
+                                    )}
+                                </Select>
                             </FormControl>
                         </Grid>
 

@@ -2,6 +2,10 @@ import {Box, Button, Card, CardContent, Chip, Divider, Grid, Typography} from '@
 import {Order, Orders, PaymentStatus} from '@/types/orders.ts'
 import {formatCurrency} from '@/utils/format.ts'
 import {Link} from '@tanstack/react-router'
+import { useState } from 'react'
+import OrderDetailModal from './OrderDetailModal'
+import { orderService } from '@/api/orderService'
+import { useQuery } from '@tanstack/react-query'
 
 // 格式化时间戳
 const formatDate = (timestamp: any) => {
@@ -80,103 +84,137 @@ const calculateTotal = (order: Order) => {
 }
 
 export default function OrderList({orders}: Orders) {
+    const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // 获取订单详情
+    const { data: orderDetail, isLoading } = useQuery({
+        queryKey: ['orderDetail', selectedOrderId],
+        queryFn: () => orderService.getOrderDetail(selectedOrderId as string),
+        enabled: !!selectedOrderId, // 只有在有selectedOrderId时才执行查询
+        staleTime: 5 * 60 * 1000, // 5分钟内数据不会被标记为过时
+    });
+
+    // 处理点击订单
+    const handleOrderClick = (orderId: string) => {
+        setSelectedOrderId(orderId);
+        setIsModalOpen(true);
+    };
+
+    // 关闭模态框
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
+
     return (
-        <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
-            {orders.map((order) => {
-                return (
-                    <Card
-                        key={order.orderId}
-                        variant="outlined"
-                        sx={{
-                            transition: 'transform 0.2s, box-shadow 0.2s',
-                            '&:hover': {
-                                transform: 'translateY(-2px)',
-                                boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-                            }
-                        }}
-                    >
-                        <CardContent>
-                            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2}}>
-                                <Typography level="title-md">
-                                    订单号: {order.orderId}
-                                </Typography>
-                                <Chip
-                                    variant="soft"
-                                    size="sm"
-                                    color={getStatusColor(order.paymentStatus)}
-                                    sx={{fontWeight: 'bold'}}
-                                >
-                                    {getStatusText(order.paymentStatus)}
-                                </Chip>
-                            </Box>
-
-                            <Divider sx={{my: 1}}/>
-
-                            <Grid container spacing={2} sx={{mb: 2}}>
-                                <Grid xs={12} md={6}>
-                                    <Typography level="body-sm" color="neutral">
-                                        下单时间: {formatDate(order.createdAt)}
+        <>
+            <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
+                {orders.map((order) => {
+                    return (
+                        <Card
+                            key={order.orderId}
+                            variant="outlined"
+                            sx={{
+                                transition: 'transform 0.2s, box-shadow 0.2s',
+                                '&:hover': {
+                                    transform: 'translateY(-2px)',
+                                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                                    cursor: 'pointer'
+                                }
+                            }}
+                            onClick={() => handleOrderClick(order.orderId)}
+                        >
+                            <CardContent>
+                                <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2}}>
+                                    <Typography level="title-md">
+                                        订单号: {order.orderId}
                                     </Typography>
-                                    <Typography level="body-sm" color="neutral" sx={{mt: 0.5}}>
-                                        商品数量: {order.items.length} 件
-                                    </Typography>
-                                </Grid>
-                                <Grid xs={12} md={6} sx={{textAlign: {xs: 'left', md: 'right'}}}>
-                                    <Typography level="title-sm" sx={{fontWeight: 'bold', color: 'primary.500'}}>
-                                        总计: {formatCurrency(calculateTotal(order), order.currency)}
-                                    </Typography>
-                                </Grid>
-                            </Grid>
-
-                            {/* 显示部分商品信息 */}
-                            {order.items.length > 0 && (
-                                <Box sx={{mb: 2, p: 1, bgcolor: 'background.level1', borderRadius: 'sm'}}>
-                                    <Typography level="body-sm" sx={{mb: 1, color: 'neutral.600'}}>
-                                        商品概览:
-                                    </Typography>
-                                    <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 1}}>
-                                        {order.items.slice(0, 3).map((item: any, index: number) => (
-                                            <Chip
-                                                key={index}
-                                                size="sm"
-                                                variant="outlined"
-                                                color="neutral"
-                                            >
-                                                {item.item?.name || '商品'} x {item.item?.quantity || 1}
-                                            </Chip>
-                                        ))}
-                                        {order.items.length > 3 && (
-                                            <Chip size="sm" variant="soft"
-                                                  color="neutral">+{order.items.length - 3}件</Chip>
-                                        )}
-                                    </Box>
-                                </Box>
-                            )}
-
-                            <Box sx={{display: 'flex', justifyContent: 'flex-end', gap: 1}}>
-                                {order.paymentStatus === 'NOT_PAID' && (
-                                    <Button
+                                    <Chip
+                                        variant="soft"
                                         size="sm"
-                                        color="warning"
-                                        variant="solid"
+                                        color={getStatusColor(order.paymentStatus)}
+                                        sx={{fontWeight: 'bold'}}
                                     >
-                                        去支付
-                                    </Button>
+                                        {getStatusText(order.paymentStatus)}
+                                    </Chip>
+                                </Box>
+
+                                <Divider sx={{my: 1}}/>
+
+                                <Grid container spacing={2} sx={{mb: 2}}>
+                                    <Grid xs={12} md={6}>
+                                        <Typography level="body-sm" color="neutral">
+                                            下单时间: {formatDate(order.createdAt)}
+                                        </Typography>
+                                        <Typography level="body-sm" color="neutral" sx={{mt: 0.5}}>
+                                            商品数量: {order.items.length} 件
+                                        </Typography>
+                                    </Grid>
+                                    <Grid xs={12} md={6} sx={{textAlign: {xs: 'left', md: 'right'}}}>
+                                        <Typography level="title-sm" sx={{fontWeight: 'bold', color: 'primary.500'}}>
+                                            总计: {formatCurrency(calculateTotal(order), order.currency)}
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+
+                                {/* 显示部分商品信息 */}
+                                {order.items.length > 0 && (
+                                    <Box sx={{mb: 2, p: 1, bgcolor: 'background.level1', borderRadius: 'sm'}}>
+                                        <Typography level="body-sm" sx={{mb: 1, color: 'neutral.600'}}>
+                                            商品概览:
+                                        </Typography>
+                                        <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 1}}>
+                                            {order.items.slice(0, 3).map((item: any, index: number) => (
+                                                <Chip
+                                                    key={index}
+                                                    size="sm"
+                                                    variant="outlined"
+                                                    color="neutral"
+                                                >
+                                                    {item.item?.name || '商品'} x {item.item?.quantity || 1}
+                                                </Chip>
+                                            ))}
+                                            {order.items.length > 3 && (
+                                                <Chip size="sm" variant="soft"
+                                                    color="neutral">+{order.items.length - 3}件</Chip>
+                                            )}
+                                        </Box>
+                                    </Box>
                                 )}
-                                <Button
-                                    component={Link}
-                                    to={`/orders/${order.orderId}`}
-                                    size="sm"
-                                    variant="outlined"
-                                    sx={{minWidth: '80px'}}
-                                >
-                                    查看详情
-                                </Button>
-                            </Box>
-                        </CardContent>
-                    </Card>
-                );
-            })}
-        </Box>
+
+                                <Box sx={{display: 'flex', justifyContent: 'flex-end', gap: 1}} onClick={(e) => e.stopPropagation()}>
+                                    {order.paymentStatus === 'NOT_PAID' && (
+                                        <Button
+                                            size="sm"
+                                            color="warning"
+                                            variant="solid"
+                                        >
+                                            去支付
+                                        </Button>
+                                    )}
+                                    <Button
+                                        component={Link}
+                                        to={`/orders/${order.orderId}`}
+                                        size="sm"
+                                        variant="outlined"
+                                        sx={{minWidth: '80px'}}
+                                    >
+                                        查看详情
+                                    </Button>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    );
+                })}
+            </Box>
+            
+            {/* 订单详情模态框 */}
+            <OrderDetailModal
+                open={isModalOpen}
+                onClose={handleCloseModal}
+                order={orderDetail || null}
+                loading={isLoading}
+            />
+        </>
     )
 }

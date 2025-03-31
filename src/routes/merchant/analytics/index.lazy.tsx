@@ -1,10 +1,12 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
 import {useEffect, useRef, useState} from 'react'
-import {Box, Card, CardContent, Grid, Typography} from '@mui/joy'
+import {Box, Card, CardContent, CircularProgress, Grid, Typography} from '@mui/joy'
 import * as echarts from 'echarts'
-import {Order} from '@/types/orders'
+import {Order, PaymentStatus} from '@/types/orders'
 import {orderService} from '@/api/orderService'
 import Breadcrumbs from '@/components/Breadcrumbs'
+import {t} from "i18next";
+import {formatCurrency} from '@/utils/format'
 
 export const Route = createLazyFileRoute('/merchant/analytics/')({
     component: Analytics,
@@ -16,51 +18,30 @@ interface SalesData {
     orders: number
 }
 
-// Mock sales data
-const mockSalesData: SalesData[] = [
-    {date: '2024-01-01', sales: 15800, orders: 158},
-    {date: '2024-01-02', sales: 12500, orders: 125},
-    {date: '2024-01-03', sales: 18900, orders: 189},
-    {date: '2024-01-04', sales: 16700, orders: 167},
-    {date: '2024-01-05', sales: 21500, orders: 215},
-    {date: '2024-01-06', sales: 25800, orders: 258},
-    {date: '2024-01-07', sales: 23400, orders: 234},
-    {date: '2024-01-08', sales: 19800, orders: 198},
-    {date: '2024-01-09', sales: 22300, orders: 223},
-    {date: '2024-01-10', sales: 24600, orders: 246},
-    {date: '2024-01-11', sales: 20100, orders: 201},
-    {date: '2024-01-12', sales: 17800, orders: 178},
-    {date: '2024-01-13', sales: 26500, orders: 265},
-    {date: '2024-01-14', sales: 28900, orders: 289}
-]
-
-// Mock product sales data
 interface ProductSales {
     name: string
     sales: number
     quantity: number
 }
 
-const mockProductSales: ProductSales[] = [
-    {name: t('products.smartphone'), sales: 189900, quantity: 189},
-    {name: t('products.wireless_earphones'), sales: 85600, quantity: 428},
-    {name: t('products.smartwatch'), sales: 75800, quantity: 189},
-    {name: t('products.tablet'), sales: 158900, quantity: 159},
-    {name: t('products.laptop'), sales: 356000, quantity: 89},
-    {name: t('products.smart_speaker'), sales: 43400, quantity: 217},
-    {name: t('products.action_camera'), sales: 95600, quantity: 239},
-    {name: t('products.game_controller'), sales: 32800, quantity: 328},
-    {name: t('products.power_bank'), sales: 28900, quantity: 578},
-    {name: t('products.bluetooth_speaker'), sales: 35600, quantity: 254},
-    {name: t('products.smart_lock'), sales: 45800, quantity: 114},
-    {name: t('products.smart_lamp'), sales: 25600, quantity: 256},
-    {name: t('products.electric_toothbrush'), sales: 18900, quantity: 189},
-    {name: t('products.smart_scale'), sales: 15800, quantity: 158},
-    {name: t('products.air_purifier'), sales: 89600, quantity: 149}
-]
+interface AnalyticsSummary {
+    totalSales: number
+    totalOrders: number
+    averageOrderValue: number
+    currency: string
+}
 
 export default function Analytics() {
     const [salesData, setSalesData] = useState<SalesData[]>([])
+    const [productSales, setProductSales] = useState<ProductSales[]>([])
+    const [summary, setSummary] = useState<AnalyticsSummary>({
+        totalSales: 0,
+        totalOrders: 0,
+        averageOrderValue: 0,
+        currency: 'CNY'
+    })
+    const [loading, setLoading] = useState(true)
+    const [chartsInitialized, setChartsInitialized] = useState(false)
 
     // Add chart DOM references
     const salesTrendChartRef = useRef<HTMLDivElement>(null)
@@ -78,14 +59,12 @@ export default function Analytics() {
         rankChart: null
     })
 
+    // 加载数据
     useEffect(() => {
-        loadSalesData().then(() => {
-            const {trendChart} = charts
-            if (trendChart) {
-                trendChart.resize()
-            }
-        }).catch(error => {
+        loadSalesData().catch(error => {
             console.error(t('analytics.load_sales_data_failed'), error)
+            setLoading(false)
+            
             // 处理权限错误
             if (error.message && (error.message.includes('未授权') || error.message.includes('权限不足'))) {
                 import('@/utils/casdoor').then(({showMessage}) => {
@@ -95,273 +74,511 @@ export default function Analytics() {
         })
     }, [])
 
-    const loadSalesData = async () => {
-        try {
-            const response = await orderService.listOrder({
-                page: 1,
-                pageSize: 100
+    // 数据加载完成后初始化图表
+    useEffect(() => {
+        // 只要数据加载完成（不再加载中），就初始化图表，不再强制要求有数据
+        if (!loading && !chartsInitialized) {
+            console.log('尝试初始化图表，当前数据状态:', {
+                salesDataLength: salesData.length,
+                productSalesLength: productSales.length
             })
-            processOrdersData(response.orders || [])
+            
+            // 即使没有数据，也要初始化图表，避免白屏
+            initCharts(salesData, productSales)
+            setChartsInitialized(true)
+        }
+    }, [loading, salesData, productSales, chartsInitialized])
+
+    // 处理窗口大小变化
+    useEffect(() => {
+        const handleResize = () => {
+            const {trendChart, pieChart, rankChart} = charts
+            if (trendChart) trendChart.resize()
+            if (pieChart) pieChart.resize()
+            if (rankChart) rankChart.resize()
+        }
+        
+        window.addEventListener('resize', handleResize)
+        
+        return () => {
+            window.removeEventListener('resize', handleResize)
+            
+            // 销毁图表实例以防内存泄漏
+            if (charts.trendChart) charts.trendChart.dispose()
+            if (charts.pieChart) charts.pieChart.dispose() 
+            if (charts.rankChart) charts.rankChart.dispose()
+        }
+    }, [charts])
+
+    const loadSalesData = async () => {
+        setLoading(true)
+        try {
+            console.log('加载订单数据...')
+            // 获取订单数据
+            const response = await orderService.getOrder({
+                userId: '', // 留空，API会使用当前登录用户的ID
+                page: 1,
+                pageSize: 100 // 获取更多订单数据以提高分析准确性
+            })
+            
+            console.log('订单数据加载完成:', response)
+            
+            if (response && response.orders) {
+                processOrdersData(response.orders)
+            } else {
+                console.error(t('analytics.no_orders_data'))
+                setLoading(false)
+            }
         } catch (error) {
             console.error(t('analytics.load_sales_data_failed'), error)
+            setLoading(false)
         }
     }
 
     const processOrdersData = (orders: Order[]) => {
-        // Group sales data by date
-        const dailySales = orders.reduce((acc, order) => {
-            const date = new Date(order.createdAt).toLocaleDateString()
-            const sales = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-
-            if (!acc[date]) {
-                acc[date] = {sales: 0, orders: 0}
+        console.log('处理订单数据...', orders.length)
+        if (!orders || orders.length === 0) {
+            console.warn(t('analytics.no_orders_data'))
+            setSummary({
+                totalSales: 0,
+                totalOrders: 0,
+                averageOrderValue: 0,
+                currency: 'CNY'
+            })
+            setSalesData([])
+            setProductSales([])
+            setLoading(false)
+            return
+        }
+        
+        console.log('订单状态示例:', orders[0].paymentStatus)
+        
+        // 使用所有订单进行分析，不再过滤支付状态
+        // 前端分析页面需要显示所有订单数据，包括未支付订单
+        const allOrders = orders
+        
+        // 计算总销售额
+        let totalSales = 0
+        allOrders.forEach(order => {
+            order.items.forEach(item => {
+                totalSales += item.cost
+            })
+        })
+        
+        // 获取货币类型（假设所有订单使用同一种货币）
+        const currency = orders[0]?.currency || 'CNY'
+        
+        // 计算总订单数和平均客单价
+        const totalOrders = allOrders.length
+        const averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0
+        
+        // 更新汇总数据
+        setSummary({
+            totalSales,
+            totalOrders,
+            averageOrderValue,
+            currency
+        })
+        
+        // 按日期分组销售数据
+        const dailySales: Record<string, { sales: number, orders: number }> = {}
+        
+        allOrders.forEach(order => {
+            // 确保日期格式一致
+            const orderDate = new Date(order.createdAt)
+            const date = orderDate.toLocaleDateString()
+            console.log('订单日期:', order.createdAt, '格式化后:', date)
+            
+            let orderTotal = 0
+            
+            order.items.forEach(item => {
+                orderTotal += item.cost
+            })
+            
+            if (!dailySales[date]) {
+                dailySales[date] = { sales: 0, orders: 0 }
             }
-            acc[date].sales += sales
-            acc[date].orders += 1
-            return acc
-        }, {} as Record<string, { sales: number, orders: number }>)
-
-        // Convert to array format
+            
+            dailySales[date].sales += orderTotal
+            dailySales[date].orders += 1
+        })
+        
+        // 检查按日期分组后的结果
+        console.log('按日期分组后的销售数据:', dailySales)
+        
+        // 转换为数组格式并按日期排序
         const salesDataArray = Object.entries(dailySales).map(([date, data]) => ({
             date,
             sales: data.sales,
             orders: data.orders
         })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-
-        setSalesData(salesDataArray)
-
-        // Group sales data by product
+        
+        console.log('销售数据处理完成:', salesDataArray)
+        
+        // 按商品分组销售数据
         const productSalesMap = new Map<string, { sales: number, quantity: number }>()
-        orders.forEach(order => {
+        
+        allOrders.forEach(order => {
             order.items.forEach(item => {
-                const existing = productSalesMap.get(item.name) || {sales: 0, quantity: 0}
-                productSalesMap.set(item.name, {
-                    sales: existing.sales + item.price * item.quantity,
-                    quantity: existing.quantity + item.quantity
+                // 生成商品名称，如果没有名称则使用ID的一部分
+                const productId = item.item.productId
+                const productName = item.item.name || `商品#${productId.substring(0, 8)}`
+                
+                const existing = productSalesMap.get(productName) || { sales: 0, quantity: 0 }
+                productSalesMap.set(productName, {
+                    sales: existing.sales + item.cost,
+                    quantity: existing.quantity + item.item.quantity
                 })
             })
         })
-
+        
+        // 转换为数组并按销售额排序
         const productSalesArray = Array.from(productSalesMap.entries()).map(([name, data]) => ({
             name,
             sales: data.sales,
             quantity: data.quantity
         })).sort((a, b) => b.sales - a.sales)
-
+        
+        console.log('商品销售数据处理完成:', productSalesArray)
+        
+        // 确保至少有一条数据
+        if (salesDataArray.length === 0) {
+            salesDataArray.push({
+                date: new Date().toLocaleDateString(),
+                sales: 0,
+                orders: 0
+            })
+        }
+        
+        if (productSalesArray.length === 0) {
+            productSalesArray.push({
+                name: '暂无商品数据',
+                sales: 0,
+                quantity: 0
+            })
+        }
+        
+        // 更新状态
+        setSalesData(salesDataArray)
         setProductSales(productSalesArray)
-
-        // Initialize charts
-        initCharts(salesDataArray, productSalesArray)
+        setLoading(false)
     }
 
     const initCharts = (salesData: SalesData[], productSales: ProductSales[]) => {
+        console.log('初始化图表中...', salesData.length, productSales.length)
         // 确保DOM元素已经渲染
         if (!salesTrendChartRef.current || !productSalesChartRef.current || !productRankChartRef.current) {
+            console.error('图表DOM元素未准备好')
             return
         }
 
+        // 确保有数据可用
+        let chartSalesData = salesData
+        let chartProductData = productSales
+        
+        // 如果没有数据，提供默认值避免图表空白
+        if (chartSalesData.length === 0) {
+            const today = new Date().toLocaleDateString()
+            chartSalesData = [{ date: today, sales: 0, orders: 0 }]
+        }
+        
+        if (chartProductData.length === 0) {
+            chartProductData = [{ name: '暂无数据', sales: 0, quantity: 0 }]
+        }
+
         // 销售趋势图表
-        const trendChart = echarts.init(salesTrendChartRef.current)
-        trendChart.setOption({
-            title: {text: t('analytics.sales_trend')},
-            tooltip: {trigger: 'axis'},
-            legend: {data: [t('analytics.sales_amount'), t('analytics.order_count')]},
-            xAxis: {
-                type: 'category',
-                data: salesData.map(item => item.date)
-            },
-            yAxis: [
-                {type: 'value', name: '销售额'},
-                {type: 'value', name: '订单数'}
-            ],
-            series: [
-                {
-                    name: t('analytics.sales_amount'),
-                    type: 'line',
-                    data: salesData.map(item => item.sales),
-                    smooth: true,
-                    areaStyle: {}, // 添加区域填充样式
-                    itemStyle: {
-                        color: '#1976d2' // 设置线条颜色
+        try {
+            console.log('初始化销售趋势图表...')
+            
+            // 先销毁之前的实例
+            if (charts.trendChart) {
+                charts.trendChart.dispose()
+            }
+            
+            const trendChart = echarts.init(salesTrendChartRef.current)
+            trendChart.setOption({
+                title: {text: t('analytics.sales_trend')},
+                tooltip: {trigger: 'axis'},
+                legend: {data: [t('analytics.sales_amount'), t('analytics.order_count')]},
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: chartSalesData.map(item => item.date)
+                },
+                yAxis: [
+                    {type: 'value', name: '销售额'},
+                    {type: 'value', name: '订单数', alignTicks: true}
+                ],
+                series: [
+                    {
+                        name: t('analytics.sales_amount'),
+                        type: 'line',
+                        data: chartSalesData.map(item => item.sales),
+                        smooth: true,
+                        areaStyle: {
+                            opacity: 0.3
+                        },
+                        itemStyle: {
+                            color: '#1976d2'
+                        }
+                    },
+                    {
+                        name: t('analytics.order_count'),
+                        type: 'bar',
+                        yAxisIndex: 1,
+                        data: chartSalesData.map(item => item.orders),
+                        itemStyle: {
+                            color: '#4caf50'
+                        }
+                    }
+                ]
+            })
+
+            // 商品销售占比图表
+            console.log('初始化商品销售占比图表...')
+            
+            // 先销毁之前的实例
+            if (charts.pieChart) {
+                charts.pieChart.dispose()
+            }
+            
+            const pieChart = echarts.init(productSalesChartRef.current)
+            pieChart.setOption({
+                title: {text: t('analytics.product_sales_ratio')},
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: ¥{c} ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center',
+                    type: 'scroll'
+                },
+                series: [
+                    {
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: true,
+                        itemStyle: {
+                            borderRadius: 10,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        },
+                        label: {
+                            show: false
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: '14',
+                                fontWeight: 'bold'
+                            }
+                        },
+                        labelLine: {
+                            show: false
+                        },
+                        data: chartProductData.map(item => ({
+                            name: item.name,
+                            value: item.sales
+                        }))
+                    }
+                ]
+            })
+
+            // 商品销量排行图表
+            console.log('初始化商品销量排行图表...')
+            
+            // 先销毁之前的实例
+            if (charts.rankChart) {
+                charts.rankChart.dispose()
+            }
+            
+            const rankChart = echarts.init(productRankChartRef.current)
+            const topProducts = chartProductData.slice(0, 10)
+            
+            rankChart.setOption({
+                title: {text: '商品销量排行'},
+                tooltip: {trigger: 'axis'},
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {type: 'value'},
+                yAxis: {
+                    type: 'category',
+                    data: topProducts.map(item => item.name),
+                    axisLabel: {
+                        width: 100,
+                        overflow: 'truncate',
+                        interval: 0
                     }
                 },
-                {
-                    name: t('analytics.order_count'),
-                    type: 'bar',
-                    yAxisIndex: 1,
-                    data: salesData.map(item => item.orders),
-                    itemStyle: {
-                        color: '#4caf50' // 设置柱状图颜色
-                    }
-                }
-            ]
-        })
-
-        // 商品销售占比图表
-        const pieChart = echarts.init(productSalesChartRef.current)
-        pieChart.setOption({
-            title: {text: t('analytics.product_sales_ratio')},
-            tooltip: {
-                trigger: 'item',
-                formatter: '{b}: ¥{c} ({d}%)'
-            },
-            series: [
-                {
-                    type: 'pie',
-                    radius: ['40%', '70%'], // 改为环形图
-                    avoidLabelOverlap: true,
-                    itemStyle: {
-                        borderRadius: 10, // 圆角
-                        borderColor: '#fff',
-                        borderWidth: 2
-                    },
-                    label: {
-                        show: true,
-                        formatter: '{b}: {d}%'
-                    },
-                    emphasis: {
-                        label: {
-                            show: true,
-                            fontSize: '14',
-                            fontWeight: 'bold'
+                series: [
+                    {
+                        name: t('analytics.sales_quantity'),
+                        type: 'bar',
+                        data: topProducts.map(item => item.quantity),
+                        itemStyle: {
+                            color: function(params: any) {
+                                // 根据数值生成不同深浅的颜色
+                                const colorList = ['#83bff6', '#188df0', '#0065cf', '#004b9a', '#00337a'];
+                                const index = Math.floor(params.dataIndex / 2) % colorList.length;
+                                return colorList[index];
+                            }
                         }
-                    },
-                    data: productSales.map(item => ({
-                        name: item.name,
-                        value: item.sales
-                    }))
-                }
-            ]
-        })
-
-        // 商品销量排行图表
-        const rankChart = echarts.init(productRankChartRef.current)
-        rankChart.setOption({
-            title: {text: '商品销量排行'},
-            tooltip: {trigger: 'axis'},
-            xAxis: {type: 'value'},
-            yAxis: {
-                type: 'category',
-                data: productSales.slice(0, 10).map(item => item.name),
-                axisLabel: {
-                    width: 100,
-                    overflow: 'truncate',
-                    interval: 0
-                }
-            },
-            series: [
-                {
-                    type: 'bar',
-                    data: productSales.slice(0, 10).map(item => item.quantity),
-                    itemStyle: {
-                        color: function (params) {
-                            // 根据销量设置不同颜色
-                            const colorList = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5',
-                                '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50'];
-                            return colorList[params.dataIndex % colorList.length];
-                        }
-                    },
-                    label: {
-                        show: true,
-                        position: 'right',
-                        formatter: '{c}'
                     }
-                }
-            ]
-        })
+                ]
+            })
 
-        // 保存图表实例
-        setCharts({
-            trendChart,
-            pieChart,
-            rankChart
-        })
+            // 保存图表实例
+            setCharts({
+                trendChart,
+                pieChart,
+                rankChart
+            })
+            
+            console.log('图表初始化完成')
+            
+            // 触发一次resize以确保图表正确显示
+            setTimeout(() => {
+                trendChart.resize()
+                pieChart.resize()
+                rankChart.resize()
+            }, 200)
+        } catch (error) {
+            console.error('图表初始化失败:', error)
+        }
     }
-
-    // 添加图表清理和调整大小的副作用
-    useEffect(() => {
-        // 窗口大小变化时重新调整图表大小
-        const handleResize = () => {
-            Object.values(charts).forEach(chart => {
-                chart && chart.resize()
-            })
-        }
-
-        window.addEventListener('resize', handleResize)
-
-        // 清理函数
-        return () => {
-            window.removeEventListener('resize', handleResize)
-            Object.values(charts).forEach(chart => {
-                chart && chart.dispose()
-            })
-        }
-    }, [charts])
 
     return (
         <Box sx={{p: 2}}>
-            {/* 面包屑导航 */}
-            <Breadcrumbs pathMap={{'analytics': '销售报告'}}/>
+            <Breadcrumbs pathMap={{
+                'merchant': t('merchant.title'),
+                'analytics': t('merchant.analytics.title')
+            }}/>
 
-            <Typography level="h2" sx={{mb: 3}}>销售报告</Typography>
+            <Typography level="h2" sx={{mb: 3}}>{t('merchant.analytics.title')}</Typography>
 
+            {/* 销售统计卡片 */}
+            <Grid container spacing={2} sx={{mb: 3}}>
+                <Grid xs={12} md={4}>
+                    <Card variant="outlined">
+                        <CardContent>
+                            <Typography level="title-md" color="primary">{t('analytics.total_sales')}</Typography>
+                            <Typography level="h2" sx={{mt: 1, color: 'success.600'}}>
+                                {formatCurrency(summary.totalSales, summary.currency)}
+                            </Typography>
+                            <Typography level="body-sm" sx={{color: 'text.secondary'}}>
+                                {loading ? t('analytics.loading') : t('analytics.total_sales_desc')}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                <Grid xs={12} md={4}>
+                    <Card variant="outlined">
+                        <CardContent>
+                            <Typography level="title-md" color="primary">{t('analytics.total_orders')}</Typography>
+                            <Typography level="h2" sx={{mt: 1, color: 'primary.600'}}>
+                                {summary.totalOrders}
+                            </Typography>
+                            <Typography level="body-sm" sx={{color: 'text.secondary'}}>
+                                {loading ? t('analytics.loading') : t('analytics.total_orders_desc')}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                <Grid xs={12} md={4}>
+                    <Card variant="outlined">
+                        <CardContent>
+                            <Typography level="title-md" color="primary">{t('analytics.average_order_value')}</Typography>
+                            <Typography level="h2" sx={{mt: 1, color: 'warning.600'}}>
+                                {formatCurrency(summary.averageOrderValue, summary.currency)}
+                            </Typography>
+                            <Typography level="body-sm" sx={{color: 'text.secondary'}}>
+                                {loading ? t('analytics.loading') : t('analytics.average_order_value_desc')}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
+
+            {/* 图表卡片 */}
             <Grid container spacing={2}>
-                {/* 销售概览卡片 */}
-                <Grid xs={12} md={4}>
-                    <Card>
-                        <CardContent>
-                            <Typography level="h3">总销售额</Typography>
-                            <Typography level="h2" color="primary">
-                                ¥{salesData.reduce((sum, item) => sum + item.sales, 0).toFixed(2)}
-                            </Typography>
+                <Grid xs={12} lg={8}>
+                    <Card variant="outlined" sx={{mb: 2, height: {xs: '300px', md: '400px'}}}>
+                        <CardContent sx={{height: '100%', position: 'relative'}}>
+                            {loading && (
+                                <Box sx={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                                    zIndex: 1
+                                }}>
+                                    <CircularProgress />
+                                </Box>
+                            )}
+                            <div ref={salesTrendChartRef} style={{width: '100%', height: '100%'}}></div>
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid xs={12} md={4}>
-                    <Card>
-                        <CardContent>
-                            <Typography level="h3">总订单数</Typography>
-                            <Typography level="h2" color="success">
-                                {salesData.reduce((sum, item) => sum + item.orders, 0)}
-                            </Typography>
+                <Grid xs={12} lg={4}>
+                    <Card variant="outlined" sx={{mb: 2, height: {xs: '300px', md: '400px'}}}>
+                        <CardContent sx={{height: '100%', position: 'relative'}}>
+                            {loading && (
+                                <Box sx={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                                    zIndex: 1
+                                }}>
+                                    <CircularProgress />
+                                </Box>
+                            )}
+                            <div ref={productSalesChartRef} style={{width: '100%', height: '100%'}}></div>
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid xs={12} md={4}>
-                    <Card>
-                        <CardContent>
-                            <Typography level="h3">平均客单价</Typography>
-                            <Typography level="h2" color="warning">
-                                ¥{(salesData.reduce((sum, item) => sum + item.sales, 0) /
-                                Math.max(1, salesData.reduce((sum, item) => sum + item.orders, 0))).toFixed(2)}
-                            </Typography>
-                        </CardContent>
-                    </Card>
-                </Grid>
-
-                {/* 销售趋势图表 */}
                 <Grid xs={12}>
-                    <Card>
-                        <CardContent>
-                            <div ref={salesTrendChartRef} style={{height: '400px'}}/>
-                        </CardContent>
-                    </Card>
-                </Grid>
-
-                {/* 商品销售占比图表 */}
-                <Grid xs={12} md={6}>
-                    <Card>
-                        <CardContent>
-                            <div ref={productSalesChartRef} style={{height: '400px'}}/>
-                        </CardContent>
-                    </Card>
-                </Grid>
-
-                {/* 商品销量排行图表 */}
-                <Grid xs={12} md={6}>
-                    <Card>
-                        <CardContent>
-                            <div ref={productRankChartRef} style={{height: '400px'}}/>
+                    <Card variant="outlined" sx={{height: '400px'}}>
+                        <CardContent sx={{height: '100%', position: 'relative'}}>
+                            {loading && (
+                                <Box sx={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                                    zIndex: 1
+                                }}>
+                                    <CircularProgress />
+                                </Box>
+                            )}
+                            <div ref={productRankChartRef} style={{width: '100%', height: '100%'}}></div>
                         </CardContent>
                     </Card>
                 </Grid>

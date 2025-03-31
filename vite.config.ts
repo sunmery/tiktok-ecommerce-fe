@@ -34,7 +34,7 @@ export default defineConfig(({command}) => {
             },
         };
     } else {
-        // 生产配置：移除server相关配置
+        // 生产配置
         return {
             plugins: [react()],
             resolve: {
@@ -49,10 +49,17 @@ export default defineConfig(({command}) => {
             reportCompressedSize: false,
             sourcemap: false,
             target: 'esnext',
+            // 日志级别
+            logLevel: 'info',
+            // 是否清除屏幕
+            clearScreen: false,
+            // https://cn.vitejs.dev/config/build-options.html#build-terseroptions
             terserOptions: {
                 compress: {
-                    drop_console: true,
-                    drop_debugger: true,
+                    // 生产环境时移除console
+                    drop_console: false,
+                    // 生产环境时移除debugger
+                    drop_debugger: false,
                 },
             },
             rollupOptions: {

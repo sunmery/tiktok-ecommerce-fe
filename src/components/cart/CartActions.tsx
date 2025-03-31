@@ -1,32 +1,39 @@
-import React from 'react';
 import {useTranslation} from 'react-i18next';
-import {Button} from '@/components/ui/button';
+import {Button, ButtonProps} from '@mui/joy';
 
 interface CartActionsProps {
     onCheckout: () => void;
     onContinueShopping: () => void;
-    onClearCart: () => void;
+    isDisabled: boolean;
+    continueButtonProps?: ButtonProps;
+    checkoutButtonProps?: ButtonProps;
 }
 
-const CartActions: React.FC<CartActionsProps> = ({
-                                                     onCheckout,
-                                                     onContinueShopping,
-                                                     onClearCart,
-                                                 }) => {
-    const {t} = useTranslation(['cart']);
+/**
+ * 购物车操作按钮组件
+ * 包含继续购物和结算按钮
+ */
+const CartActions: React.FC<CartActionsProps> = ({onCheckout, onContinueShopping, isDisabled, continueButtonProps, checkoutButtonProps}) => {
+    const {t} = useTranslation();
 
     return (
-        <div className="flex justify-between items-center mt-4">
-            <div className="flex gap-2">
-                <Button onClick={onContinueShopping}>
-                    {t('cart:actions.continue')}
-                </Button>
-                <Button variant="destructive" onClick={onClearCart}>
-                    {t('cart:actions.clear')}
-                </Button>
-            </div>
-            <Button onClick={onCheckout}>
-                {t('cart:actions.checkout')}
+        <div className="flex justify-between mt-4">
+            <Button
+                variant="outlined"
+                color="neutral"
+                onClick={onContinueShopping}
+                {...continueButtonProps}
+            >
+                {t('continueShopping')}
+            </Button>
+            <Button
+                variant="solid"
+                color="primary"
+                disabled={isDisabled}
+                onClick={onCheckout}
+                {...checkoutButtonProps}
+            >
+                {t('checkout')}
             </Button>
         </div>
     );

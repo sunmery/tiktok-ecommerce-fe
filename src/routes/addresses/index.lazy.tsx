@@ -41,9 +41,10 @@ function AddressesRoute() {
 
     const [open, setOpen] = useState(false)
     const [editAddress, setEditAddress] = useState<Address | null>(null)
+    console.log("account",account)
     const [formData, setFormData] = useState<Address>({
         id: 0,
-        userId: account.id || '',
+        userId: account.id,
         streetAddress: '',
         city: '',
         state: '',
@@ -56,7 +57,7 @@ function AddressesRoute() {
     const resetForm = () => {
         setFormData({
             id: 0,
-            userId: account.id || '',
+            userId: account.id,
             streetAddress: '',
             city: '',
             state: '',
@@ -92,7 +93,7 @@ function AddressesRoute() {
         try {
             await deleteAddressMutation.mutateAsync({
                 addressesId: addressId,
-                userId: account.id || ''
+                userId: account.id
             })
 
             setSnackbar({

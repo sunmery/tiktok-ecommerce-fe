@@ -54,18 +54,18 @@ function RouteComponent() {
 
     // 表单数据
     const [formData, setFormData] = useState<CreditCard>({
-        createdTime: "",
         id: 0,
-        number: '',
-        cvv: '',
-        expYear: '',
-        expMonth: '',
-        owner: '',
-        name: '',
-        type: '',
-        brand: '',
-        country: '',
-        currency: ''
+        createdTime: "",
+        number: '0123-4567-8910-3456',
+        cvv: '1234',
+        expYear: '2025',
+        expMonth: '12',
+        owner: '测试用户',
+        name: '广发银行卡',
+        type: '信用卡',
+        brand: '广发银行',
+        country: '中国',
+        currency: 'CNY'
     })
 
     // 处理表单输入变化
@@ -91,17 +91,17 @@ function RouteComponent() {
     const handleOpenCreateModal = () => {
         setFormData({
             id: 0,
-            number: '',
-            cvv: '',
-            expYear: '',
-            expMonth: '',
-            owner: '',
-            name: '',
-            type: 'credit',
-            brand: 'visa',
-            country: 'CN',
-            currency: '',
-            createdTime: ''
+            createdTime: "",
+            number: '0123-4567-8910-3456',
+            cvv: '1234',
+            expYear: '2025',
+            expMonth: '12',
+            owner: '测试用户',
+            name: '广发银行卡',
+            type: '信用卡',
+            brand: '广发银行',
+            country: '中国',
+            currency: 'CNY'
         })
         setOpen(true)
     }
@@ -243,7 +243,7 @@ function RouteComponent() {
                                                         <Typography level="body-xs"
                                                                     sx={{color: 'white'}}>{t('payment.expiryDate')}</Typography>
                                                         <Typography level="body-md"
-                                                                    sx={{color: 'white'}}>{card.expMonth}/{card.expYear}</Typography>
+                                                                    sx={{color: 'white'}}>{card.expYear}/{card.expMonth}</Typography>
                                                     </Box>
                                                 </Box>
                                             </CardContent>
@@ -366,7 +366,25 @@ function RouteComponent() {
                                     name="number"
                                     value={formData.number}
                                     onChange={handleInputChange}
-                                    placeholder={t('payment.cardNumberPlaceholder')}
+                                    placeholder={t('payment.currencyPlaceholder')}
+                                />
+                            </FormControl>
+                            <FormControl required>
+                                <FormLabel>{t('payment.type')}</FormLabel>
+                                <Input
+                                    name="type"
+                                    value={formData.type}
+                                    onChange={handleInputChange}
+                                    placeholder={t('payment.type')}
+                                />
+                            </FormControl>
+                            <FormControl required>
+                                <FormLabel>{t('payment.currency')}</FormLabel>
+                                <Input
+                                    name="currency"
+                                    value={formData.currency}
+                                    onChange={handleInputChange}
+                                    placeholder={t('payment.currency')}
                                 />
                             </FormControl>
 
@@ -403,7 +421,7 @@ function RouteComponent() {
                                             {Array.from({length: 10}, (_, i) => {
                                                 const year = (new Date().getFullYear() + i).toString();
                                                 return (
-                                                    <Option key={year} value={year.slice(-2)}>
+                                                    <Option key={year} value={year}>
                                                         {year}
                                                     </Option>
                                                 );

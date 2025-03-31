@@ -8,6 +8,7 @@ import {formatCurrency} from '@/utils/format'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import Skeleton from '@/components/Skeleton'
+import {orderService} from '@/api/orderService'
 
 // 格式化时间戳
 const formatDate = (timestamp: any) => {
@@ -50,14 +51,29 @@ function ConsumerOrderDetail() {
     // 获取订单详情
     useEffect(() => {
         const fetchOrderDetail = async () => {
+            if (!orderId) return
+            
             setLoading(true)
             setError('')
             try {
-                // 这里应该调用获取订单详情的API
-                // 由于当前API中没有获取单个订单的方法，这里模拟从订单列表中获取
-                const response = await fetch(`/api/orders/${orderId}`)
-                const data = await response.json()
-                setOrder(data)
+                // 调用API获取订单列表
+                const response = await orderService.getOrder({
+                    userId: '', // 留空，API会使用当前登录用户的ID
+                    page: 1,
+                    pageSize: 50
+                })
+                
+                // 查找指定ID的订单
+                if (response && response.orders) {
+                    const foundOrder = response.orders.find(o => o.orderId === orderId)
+                    if (foundOrder) {
+                        setOrder(foundOrder)
+                    } else {
+                        setError('未找到订单信息')
+                    }
+                } else {
+                    setError('获取订单信息失败')
+                }
             } catch (err) {
                 console.error('获取订单详情失败:', err)
                 setError('获取订单详情失败，请稍后重试')
@@ -67,8 +83,8 @@ function ConsumerOrderDetail() {
         }
 
         if (orderId) {
-            fetchOrderDetail().then(r => {
-                console.log("获取订单详情", r)
+            fetchOrderDetail().then(() => {
+                console.log("订单详情获取完成")
             }).catch(e => {
                 console.error("获取订单详情失败", e)
             })
@@ -173,7 +189,11 @@ function ConsumerOrderDetail() {
                                     <Grid xs={12} md={6}>
                                         <Typography level="title-sm" sx={{mb: 1}}>收货地址:</Typography>
                                         <Typography level="body-md">
-                                            {order.address.streetAddress}, {order.address.city}, {order.address.state}, {order.address.country}, {order.address.zipCode}
+                                            {order.address.streetAddress || '未提供详细地址'}, 
+                                            {order.address.city || ''}, 
+                                            {order.address.state || ''}, 
+                                            {order.address.country || ''}, 
+                                            {order.address.zipCode || ''}
                                         </Typography>
                                     </Grid>
                                 </Grid>
@@ -196,13 +216,15 @@ function ConsumerOrderDetail() {
                                                     <Box
                                                         component="img"
                                                         src={item.item.picture}
-                                                        alt={item.item.name}
+                                                        alt={item.item.name || '商品图片'}
                                                         sx={{width: '100%', maxWidth: 60, borderRadius: 'sm'}}
                                                     />
                                                 )}
                                             </Grid>
                                             <Grid xs={6} sm={7}>
-                                                <Typography level="title-sm">{item.item.name}</Typography>
+                                                <Typography level="title-sm">
+                                                    {item.item.name || `商品${item.item.productId.substring(0, 8)}`}
+                                                </Typography>
                                                 <Typography level="body-sm" color="neutral">
                                                     单价: {formatCurrency(item.cost / item.item.quantity, order.currency)}
                                                 </Typography>
@@ -251,46 +273,32 @@ function ConsumerOrderDetail() {
                                             {formatDate(order.createdAt)}
                                         </Typography>
                                     </Box>
-
+                                    
                                     <Box sx={{display: 'flex', alignItems: 'center'}}>
                                         <Chip
                                             variant="soft"
-                                            color={order.paymentStatus >= PaymentStatus.Paid ? 'success' : order.paymentStatus === PaymentStatus.Processing ? 'primary' : 'neutral'}
+                                            color={order.paymentStatus !== PaymentStatus.NotPaid ? 'success' : 'neutral'}
                                             sx={{mr: 2}}
                                         >
-                                            {order.paymentStatus >= PaymentStatus.Paid ? '已完成' : order.paymentStatus === PaymentStatus.Processing ? '处理中' : '未开始'}
+                                            {order.paymentStatus !== PaymentStatus.NotPaid ? '已完成' : '等待中'}
                                         </Chip>
                                         <Typography level="body-md">支付处理</Typography>
                                         <Typography level="body-sm" color="neutral" sx={{ml: 'auto'}}>
-                                            {order.paymentStatus >= PaymentStatus.Paid ? formatDate(order.createdAt) : '-'}
+                                            {order.paymentStatus !== PaymentStatus.NotPaid ? formatDate(order.createdAt) : '待处理'}
                                         </Typography>
                                     </Box>
-
+                                    
                                     <Box sx={{display: 'flex', alignItems: 'center'}}>
                                         <Chip
                                             variant="soft"
-                                            color={order.paymentStatus === PaymentStatus.Paid ? 'primary' : 'neutral'}
+                                            color={order.paymentStatus === PaymentStatus.Paid ? 'success' : 'neutral'}
                                             sx={{mr: 2}}
                                         >
-                                            {order.paymentStatus === PaymentStatus.Paid ? '处理中' : '未开始'}
+                                            {order.paymentStatus === PaymentStatus.Paid ? '已完成' : '等待中'}
                                         </Chip>
-                                        <Typography level="body-md">商品配送</Typography>
+                                        <Typography level="body-md">订单确认</Typography>
                                         <Typography level="body-sm" color="neutral" sx={{ml: 'auto'}}>
-                                            -
-                                        </Typography>
-                                    </Box>
-
-                                    <Box sx={{display: 'flex', alignItems: 'center'}}>
-                                        <Chip
-                                            variant="soft"
-                                            color="neutral"
-                                            sx={{mr: 2}}
-                                        >
-                                            未开始
-                                        </Chip>
-                                        <Typography level="body-md">订单完成</Typography>
-                                        <Typography level="body-sm" color="neutral" sx={{ml: 'auto'}}>
-                                            -
+                                            {order.paymentStatus === PaymentStatus.Paid ? formatDate(order.createdAt) : '待处理'}
                                         </Typography>
                                     </Box>
                                 </Stack>

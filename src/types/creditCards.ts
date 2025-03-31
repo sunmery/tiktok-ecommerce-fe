@@ -18,6 +18,21 @@ export interface CreditCard {
     currency: string
 }
 
+// 信用卡信息接口
+export interface CreateCreditCard {
+    currency: string
+    number: string
+    cvv: string
+    expYear: string
+    expMonth: string
+    owner: string // 持卡人姓名
+    name: string // 卡名
+    type: string // 卡类型（如借记卡、信用卡）
+    brand: string // 卡品牌（如 Visa、MasterCard）
+    country: string
+    createdTime?: string
+}
+
 // 信用卡列表响应接口
 export interface ListCreditCardsReply {
     creditCards: CreditCard[]

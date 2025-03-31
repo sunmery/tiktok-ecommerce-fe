@@ -5,10 +5,12 @@
 
 import {httpClient} from '@/utils/http-client';
 import {
+    ListAllOrderReq,
     ListOrderReq,
     ListOrderResp,
     MarkOrderPaidReq,
     MarkOrderPaidResp,
+    Order,
     PlaceOrderReq,
     PlaceOrderResp,
 } from '@/types/orders';
@@ -37,20 +39,71 @@ export const orderService = {
     },
 
     /**
+     * 获取订单详情
+     * @param orderId 订单ID
+     */
+    getOrderDetail: (orderId: string) => {
+        const url = httpClient.replacePathParams('/v1/orders/:orderId', {
+            orderId
+        })
+        
+        return httpClient.get<Order>(url, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        })
+    },
+
+    getConsumerOrder: (request: ListOrderReq) => {
+        return httpClient.get<ListOrderResp>(
+            `${import.meta.env.VITE_ORDERS_URL}`,
+            {
+                params: {
+                    userId: request.userId,
+                    page: request.page?.toString(),
+                    pageSize: request.pageSize?.toString()
+                },
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            }
+        );
+    },
+
+    /**
      * 查询订单列表（带分页参数）
      * GET /v1/orders
      */
-    listOrder: (request: ListOrderReq) => {
+    getOrder: (request: ListOrderReq) => {
         return httpClient.get<ListOrderResp>(
-            `${import.meta.env.VITE_ORDERS_URL}`,
+            `${import.meta.env.VITE_MERCHANTS_URL}/orders`,
+            {
+                params: {
+                    // userId: request.userId,
+                    page: request.page?.toString(),
+                    pageSize: request.pageSize?.toString()
+                },
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            }
+        );
+    },
+
+    /**
+     * 查询订单列表（带分页参数）
+     * GET /v1/orders
+     */
+    listOrder: (request: ListAllOrderReq) => {
+        return httpClient.get<ListOrderResp>(
+            `${import.meta.env.VITE_ADMIN_URL}/orders`,
             {
                 params: {
                     page: request.page?.toString(),
                     pageSize: request.pageSize?.toString()
                 },
                 headers: {
-                   'Authorization': `Bearer ${localStorage.getItem('token')}`
-                   // 'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             }
         );

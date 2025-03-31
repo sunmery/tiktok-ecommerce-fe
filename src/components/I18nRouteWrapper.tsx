@@ -10,7 +10,7 @@ interface I18nRouteWrapperProps {
  * 并在语言更改时自动重新渲染
  */
 const I18nRouteWrapper: React.FC<I18nRouteWrapperProps> = ({children}) => {
-    const {i18n} = useTranslation(['common']);
+    const {i18n, t} = useTranslation();
 
     // 监听语言变化，触发组件重新渲染
     useEffect(() => {
@@ -19,9 +19,9 @@ const I18nRouteWrapper: React.FC<I18nRouteWrapperProps> = ({children}) => {
 
         // 这里可以添加任何需要在语言变化时执行的逻辑
         document.documentElement.lang = i18n.language;
-        document.title = i18n.t('common:app.title');
+        document.title = t('app.title');
 
-    }, [i18n, i18n.language]);
+    }, [i18n, i18n.language, t]);
 
     return children;
 };

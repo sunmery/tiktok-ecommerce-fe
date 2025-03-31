@@ -1,43 +1,57 @@
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
 import {api} from '@/api/config'
-import type {CreateProductRequest, SubmitAuditRequest,} from '@/types/products.ts'
+import type {
+    CreateProductRequest,
+    UpdateProductRequest,
+    SubmitAuditRequest,
+    Products
+} from '@/types/products.ts'
 import {AuditProductRequest, AuditRecordResponse, CreateProductResponse, ProductResponse} from "@/types/products.ts";
 import {productService} from '@/api/productService';
-import {
-    GetCategoryProductsRequest,
-    ListProductsByCategoryRequest,
-    ListRandomProductsRequest,
-    ProductStatus,
-    SearchProductRequest
-} from '@/types/products';
+import {GetCategoryProductsRequest, ListProductsByCategoryRequest, ListRandomProductsRequest, ProductStatus, SearchProductRequest} from '@/types/products';
 
 // 获取商品详情的hook
 export function useProduct(id: string, merchantId: string) {
     return useQuery<ProductResponse>({
         queryKey: ['product', id],
-        queryFn: async ({signal}) => {
+        queryFn: async ({ signal }) => {
             try {
                 const params = new URLSearchParams({merchantId: merchantId})
                 const controller = new AbortController()
                 signal?.addEventListener('abort', () => controller.abort())
-
+                
                 const response = await Promise.race([
-                    api.get<ProductResponse>(`/v1/products/${id}?${params.toString()}`, {signal: controller.signal}),
-                    new Promise<never>((_, reject) =>
+                    api.get<ProductResponse>(`/v1/products/${id}?${params.toString()}`, { signal: controller.signal }),
+                    new Promise<never>((_, reject) => 
                         setTimeout(() => reject(new Error('请求超时')), 10000)
                     )
                 ]);
-
+                
                 return response as ProductResponse;
             } catch (err: unknown) {
                 if (err instanceof DOMException && err.name === 'AbortError') {
                     throw new Error('请求已取消')
                 }
-
+                
                 if (err instanceof Error && err.message === '请求超时') {
                     throw new Error('获取商品详情超时，请稍后重试')
                 }
 
+                // 如果API请求失败，尝试使用mock数据
+                try {
+                    const { mockProducts } = await import('@/utils/mockData')
+                    const mockProduct = mockProducts.find((p: any) => p.id === id)
+                    if (mockProduct) {
+                        console.warn('使用mock数据显示商品详情:', mockProduct)
+                        return {
+                            state: "success",
+                            data: mockProduct
+                        } as ProductResponse
+                    }
+                } catch (mockErr) {
+                    console.error('加载mock数据失败:', mockErr)
+                }
+                
                 throw new Error(err instanceof Error ? err.message : '商品不存在或已下架')
             }
         },
@@ -66,11 +80,7 @@ export function useCreateProduct() {
         mutationFn: (data) => api.post<CreateProductResponse>('/v1/products', data),
         onSuccess: () => {
             // 创建成功后刷新商品列表
-            queryClient.invalidateQueries({queryKey: ['products']}).then(r => {
-                console.log("创建成功后刷新商品列表", r)
-            }).catch(err => {
-                console.error("创建成功后刷新商品列表失败", err)
-            })
+            queryClient.invalidateQueries({queryKey: ['products']})
         },
     })
 }
@@ -79,14 +89,14 @@ export function useCreateProduct() {
 export function useUpdateProduct() {
     const queryClient = useQueryClient()
 
-    return useMutation<ProductResponse, Error, { id: string, product: any }>({
+    return useMutation<ProductResponse, Error, {id: string, product: any}>({
         mutationFn: ({id, product}) =>
             api.put<ProductResponse>(`/v1/products/${id}`, {product}),
         onSuccess: (data, variables) => {
             // 更新成功后刷新商品详情和列表
             queryClient.setQueryData(['product', variables.id], data)
             queryClient.invalidateQueries({queryKey: ['products']}).then(r => {
-                console.log("更新成功后刷新商品详情和列表", r)
+                console.log("更新成功后刷新商品详情和列表",r)
             })
         },
     })
@@ -104,11 +114,7 @@ export function useDeleteProduct() {
         onSuccess: (_, variables) => {
             // 删除成功后从缓存中移除商品详情并刷新列表
             queryClient.removeQueries({queryKey: ['product', variables.id]})
-            queryClient.invalidateQueries({queryKey: ['products']}).then(r => {
-                console.log("删除成功后刷新商品列表", r)
-            }).catch(err => {
-                console.error("删除成功后刷新商品列表失败", err)
-            })
+            queryClient.invalidateQueries({queryKey: ['products']})
         },
     })
 }
@@ -122,11 +128,7 @@ export function useSubmitProductAudit() {
             api.post<AuditRecordResponse>(`/v1/products/${productId}/submit-audit`, {merchantId: merchantId}),
         onSuccess: (_, variables) => {
             // 提交审核成功后刷新商品详情
-            queryClient.invalidateQueries({queryKey: ['product', variables.productId]}).then(r => {
-                console.log("提交审核成功后刷新商品详情", r)
-            }).catch(err => {
-                console.error("提交审核成功后刷新商品详情失败", err)
-            })
+            queryClient.invalidateQueries({queryKey: ['product', variables.productId]})
         },
     })
 }
@@ -136,19 +138,16 @@ export function useAuditProduct() {
     const queryClient = useQueryClient()
 
     return useMutation<AuditRecordResponse, Error, AuditProductRequest>({
-        mutationFn: ({productId, merchantId, action, reason}) =>
+        mutationFn: ({productId, merchantId, action, reason, operatorId}) =>
             api.post<AuditRecordResponse>(`/v1/products/${productId}/audit`, {
                 merchantId: merchantId,
                 action,
                 reason,
+                operatorId: Number(operatorId) // 确保operatorId是数字类型
             }),
         onSuccess: (_, variables) => {
             // 审核完成后刷新商品详情
-            queryClient.invalidateQueries({queryKey: ['product', variables.productId]}).then(r => {
-                console.log("审核完成后刷新商品详情", r)
-            }).catch(err => {
-                console.error("审核完成后刷新商品详情失败", err)
-            })
+            queryClient.invalidateQueries({queryKey: ['product', variables.productId]})
         },
     })
 }
@@ -157,11 +156,7 @@ export function useAuditProduct() {
  * 获取随机商品
  * @param options 随机商品选项
  */
-export function useRandomProducts(options: ListRandomProductsRequest = {
-    page: 1,
-    pageSize: 100,
-    status: ProductStatus.PRODUCT_STATUS_APPROVED
-}) {
+export function useRandomProducts(options: ListRandomProductsRequest = {page: 1, pageSize: 10, status: ProductStatus.APPROVED}) {
     return useQuery({
         queryKey: ['products', 'random', options],
         queryFn: () => productService.listRandomProducts(options),
@@ -171,7 +166,7 @@ export function useRandomProducts(options: ListRandomProductsRequest = {
 
 /**
  * 按分类名称获取商品
- * @param categoryName
+ * @param category 分类名称
  * @param options 分页和其他选项
  */
 export function useProductsByCategory(
@@ -210,7 +205,7 @@ export function useCategoryProducts(
  */
 export function useCategoryWithChildrenProducts(
     categoryId: number,
-    options: Omit<GetCategoryProductsRequest, 'categoryId'> = {page: 1, pageSize: 10, status: 2}
+    options: Omit<GetCategoryProductsRequest, 'categoryId'> = {page: 1, pageSize: 100, status: 2}
 ) {
     return useQuery({
         queryKey: ['products', 'categoryWithChildren', categoryId, options],

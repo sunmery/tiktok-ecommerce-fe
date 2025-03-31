@@ -13,6 +13,7 @@ import {
     DeleteProductRequest,
     GetCategoryProductsRequest,
     GetProductRequest,
+    GetProductStatusPending,
     ListProductsByCategoryRequest,
     ListRandomProductsRequest,
     Product,
@@ -54,7 +55,7 @@ export const productService = {
             productId: request.productId,
             merchantId: request.merchantId
         };
-        const url = httpClient.replacePathParams(`${import.meta.env.VITE_PRODUCERS_URL}`, {
+        const url = httpClient.replacePathParams(`${import.meta.env.VITE_PRODUCERS_URL}/{productId}/submit-audit`, {
             productId: request.productId
         });
         return httpClient.post<AuditRecord>(url, snakeCaseRequest);
@@ -77,6 +78,15 @@ export const productService = {
         });
         return httpClient.post<AuditRecord>(url, snakeCaseRequest);
     },
+    /**
+     * 获取待审核的商品列表
+     * GET /v1/products
+     */
+    getProductStatusPending: (request: GetProductStatusPending) => {
+        return httpClient.get<Products>(`${import.meta.env.VITE_PRODUCERS_URL}`, {
+            params: request
+        });
+    },
 
     /**
      * 获取商品详情
@@ -94,8 +104,10 @@ export const productService = {
      * 获取商家商品列表
      * GET /v1/merchants/products
      */
-    getMerchantProducts: () => {
-        return httpClient.get<Products>(`${import.meta.env.VITE_MERCHANTS_URL}/products`, {});
+    getMerchantProducts: (params?: { page?: number; pageSize?: number}) => {
+        return httpClient.get<Products>(`${import.meta.env.VITE_MERCHANTS_URL}/products`, {
+            params
+        });
     },
 
     /**

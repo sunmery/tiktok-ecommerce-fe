@@ -7,9 +7,10 @@ import { Order } from '@/types/orders';
 
 // 分组后的销售数据类型
 export interface GroupedSalesData {
-  daily: Array<{ date: string; sales: number; orders: number }>;
-  weekly: Array<{ date: string; sales: number; orders: number }>;
-  monthly: Array<{ date: string; sales: number; orders: number }>;
+
+  daily: { date: string, sales: number, orders: number }[];
+  weekly: { date: string, sales: number, orders: number }[];
+  monthly: { date: string, sales: number, orders: number }[];
 }
 
 /**
@@ -40,7 +41,7 @@ export function groupOrdersByDate(orders: Order[]): GroupedSalesData {
     // 解析订单创建时间
     const orderDate = new Date(order.createdAt);
     
-    // 计算订单总金额
+    // 计算订单总金额 - 使用cost而不是price
     const orderTotal = order.items.reduce((sum, item) => sum + item.cost, 0);
     
     // 格式化日期字符串

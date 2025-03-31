@@ -9,10 +9,18 @@ export enum ProductStatus {
     PRODUCT_STATUS_SOLDOUT = 4   // 下架
 }
 
+export enum AuditProductStatus {
+    PRODUCT_STATUS_DRAFT = 'PRODUCT_STATUS_DRAFT',     // 草稿状态
+    PRODUCT_STATUS_PENDING = 'PRODUCT_STATUS_PENDING',  // 待审核
+    PRODUCT_STATUS_APPROVED = 'PRODUCT_STATUS_APPROVED', // 审核通过
+    PRODUCT_STATUS_REJECTED = 'PRODUCT_STATUS_REJECTED',  // 审核驳回
+    PRODUCT_STATUS_SOLDOUT = 'PRODUCT_STATUS_SOLDOUT'   // 下架
+}
+
 // 审核动作枚举
 export enum AuditAction {
-    AUDIT_ACTION_APPROVED = 0, // 通过审核
-    AUDIT_ACTION_REJECT = 1   // 驳回审核
+    AUDIT_ACTION_APPROVED = 1, // 通过审核 - 修改为1，与后端一致
+    AUDIT_ACTION_REJECT = 2   // 驳回审核 - 修改为2，与后端一致
 }
 
 // 商品分类信息
@@ -51,8 +59,8 @@ export interface Product {
     picture: string;
     quantity: number;
     attributes: Record<string, AttributeValue>;
-    createdAt: string;
-    updatedAt: string;
+    createdAt?: string;
+    updatedAt?: string;
     auditInfo?: AuditInfo;
     category?: CategoryInfo;
     inventory: {
@@ -118,7 +126,13 @@ export interface AuditRecordResponse {
 
 // 创建商品请求参数
 export interface CreateProductRequest {
-    product: Omit<Product, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'auditInfo'>
+    name: string;
+    description: string;
+    price: number;
+    stock: number; 
+    images?: ProductImage[];
+    attributes?: Record<string, AttributeValue>;
+    category?: CategoryInfo;
 }
 
 // 更新商品请求参数
@@ -178,6 +192,12 @@ export interface ListRandomProductsRequest {
     status: ProductStatus;
 }
 
+export interface GetProductStatusPending {
+    page: number;
+    pageSize: number;
+    status: 1;
+}
+
 // 按分类ID获取商品请求
 export interface GetCategoryProductsRequest {
     categoryId: number;
@@ -189,6 +209,7 @@ export interface GetCategoryProductsRequest {
 // 商品列表
 export interface Products {
     items: Product[];
+    total?: number; // 总记录数，用于支持分页
 }
 
 // 搜索商品请求

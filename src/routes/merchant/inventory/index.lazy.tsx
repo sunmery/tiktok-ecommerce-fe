@@ -1,5 +1,6 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
 import {useEffect, useState} from 'react'
+import {useTranslation} from 'react-i18next'
 import {
     Alert,
     Box,
@@ -18,7 +19,6 @@ import {
 import {Product} from '@/types/products'
 import {productService} from '@/api/productService'
 import {inventoryService} from '@/api/inventoryService'
-import { t } from 'i18next'
 
 export const Route = createLazyFileRoute('/merchant/inventory/')({
     component: Inventory,
@@ -39,6 +39,7 @@ interface StockAdjustment {
 }
 
 export default function Inventory() {
+    const {t} = useTranslation()
     const [products, setProducts] = useState<Product[]>([])
     const [alerts, setAlerts] = useState<InventoryAlert[]>([])
     const [adjustments, setAdjustments] = useState<StockAdjustment[]>([])
@@ -93,7 +94,7 @@ export default function Inventory() {
                 setAlerts(newAlerts)
             }
         } catch (error) {
-            console.error(t('inventory.alerts.load_failed'), error)
+            console.error(t('inventory:alerts.load_error'), error)
         }
     }
 
@@ -117,7 +118,7 @@ export default function Inventory() {
                 setAdjustments(newAdjustments)
             }
         } catch (error) {
-            console.error(t('inventory.adjustments.load_error'), error)
+            console.error(t('inventory:adjustments.load_error'), error)
         }
     }
 
@@ -134,10 +135,10 @@ export default function Inventory() {
             // 检查库存警报
             checkLowStock(response.items || [])
         } catch (error) {
-            console.error(t('inventory.products.load_error'), error)
+            console.error(t('inventory:products.load_error'), error)
             setSnackbar({
                 open: true,
-                message: t('inventory.products.load_error'),
+                message: t('inventory:products.load_error'),
                 severity: 'error'
             })
         } finally {
@@ -182,17 +183,17 @@ export default function Inventory() {
                 setAlertOpen(false)
                 setSnackbar({
                     open: true,
-                    message: t('inventory.alerts.set_success'),
+                    message: t('inventory:alerts.set_success'),
                     severity: 'success'
                 })
 
                 // 重新检查库存警报
                 checkLowStock(products)
             } catch (error) {
-                console.error(t('inventory.alerts.set_failed'), error)
+                console.error(t('inventory:alerts.set_error'), error)
                 setSnackbar({
                     open: true,
-                    message: t('inventory.alerts.set_failed'),
+                    message: t('inventory:alerts.set_error'),
                     severity: 'error'
                 })
             } finally {
@@ -218,7 +219,7 @@ export default function Inventory() {
 
             setSnackbar({
                 open: true,
-                message: t('inventory.adjustments.success'),
+                message: t('inventory:adjustments.success'),
                 severity: 'success'
             })
 
@@ -227,10 +228,10 @@ export default function Inventory() {
             // 使用最新的产品数据重新检查库存警报
             checkLowStock(products)
         } catch (error) {
-            console.error(t('inventory.adjustments.error'), error)
+            console.error(t('inventory:adjustments.error'), error)
             setSnackbar({
                 open: true,
-                message: t('inventory.adjustments.error'),
+                message: t('inventory:adjustments.error'),
                 severity: 'error'
             })
         } finally {
@@ -249,12 +250,12 @@ export default function Inventory() {
 
     return (
         <Box sx={{p: 2}}>
-            <Typography level="h2" sx={{mb: 3}}>{t('inventory.title')}</Typography>
+            <Typography level="h2" sx={{mb: 3}}>{t('inventory:title')}</Typography>
 
             {/* 库存警报 */}
             {alerts.length > 0 && (
                 <Box sx={{mb: 3}}>
-                    <Typography level="h3" sx={{mb: 2}}>{t('alerts.title')}</Typography>
+                    <Typography level="h3" sx={{mb: 2}}>{t('inventory:alerts.title')}</Typography>
                     {alerts
                         .filter(alert => alert.currentStock < alert.threshold)
                         .map((alert) => {
@@ -265,7 +266,7 @@ export default function Inventory() {
                                     color="warning"
                                     sx={{mb: 1}}
                                 >
-                                    {t('alerts.low_stock', {
+                                    {t('inventory:alerts.low_stock', {
                                         product: product?.name,
                                         current: alert.currentStock,
                                         threshold: alert.threshold
@@ -281,10 +282,10 @@ export default function Inventory() {
                 <Table>
                     <thead>
                     <tr>
-                        <th>{t('inventory.table.product_name')}</th>
-                        <th>{t('inventory.table.current_stock')}</th>
-                        <th>{t('inventory.table.threshold')}</th>
-                        <th>{t('inventory.table.actions')}</th>
+                        <th>{t('inventory:table.product_name')}</th>
+                        <th>{t('inventory:table.current_stock')}</th>
+                        <th>{t('inventory:table.threshold')}</th>
+                        <th>{t('inventory:table.actions')}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -304,7 +305,7 @@ export default function Inventory() {
                                             setAlertOpen(true)
                                         }}
                                     >
-                                        {t('inventory.buttons.set_alert')}
+                                        {t('inventory:buttons.set_alert')}
                                     </Button>
                                     <Button
                                         size="sm"
@@ -312,7 +313,7 @@ export default function Inventory() {
                                         color="primary"
                                         onClick={() => openAdjustmentModal(product)}
                                     >
-                                        {t('inventory.buttons.adjust_stock')}
+                                        {t('inventory:buttons.adjust_stock')}
                                     </Button>
                                 </Box>
                             </td>
@@ -324,15 +325,15 @@ export default function Inventory() {
 
             {/* 库存调整记录 */}
             <Box>
-                <Typography level="h3" sx={{mb: 2}}>{t('inventory.history')}</Typography>
+                <Typography level="h3" sx={{mb: 2}}>库存调整记录</Typography>
                 <Sheet>
                     <Table>
                         <thead>
                         <tr>
-                            <th>{t('inventory.date')}</th>
-                            <th>{t('inventory.product')}</th>
-                            <th>{t('inventory.adjustment')}</th>
-                            <th>{t('inventory.reason')}</th>
+                            <th>时间</th>
+                            <th>产品</th>
+                            <th>调整数量</th>
+                            <th>原因</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -349,7 +350,7 @@ export default function Inventory() {
                         })}
                         {adjustments.length === 0 && (
                             <tr>
-                                <td colSpan={4} style={{textAlign: 'center'}}>{t('inventory.no_adjustments')}</td>
+                                <td colSpan={4} style={{textAlign: 'center'}}>暂无调整记录</td>
                             </tr>
                         )}
                         </tbody>
@@ -365,12 +366,12 @@ export default function Inventory() {
             >
                 <Card sx={{maxWidth: 400, mx: 2}}>
                     <CardContent>
-                        <Typography level="h3" sx={{mb: 2}}>{t('inventory.set_alert_title')}</Typography>
+                        <Typography level="h3" sx={{mb: 2}}>设置库存警戒值</Typography>
                         <Typography level="body-md" sx={{mb: 2}}>
-                            {t('inventory.product')}: {selectedProduct?.name}
+                            产品: {selectedProduct?.name}
                         </Typography>
                         <FormControl>
-                            <FormLabel>{t('inventory.threshold')}</FormLabel>
+                            <FormLabel>警戒值</FormLabel>
                             <Input
                                 type="number"
                                 value={threshold}
@@ -379,9 +380,9 @@ export default function Inventory() {
                         </FormControl>
                         <Box sx={{mt: 2, display: 'flex', gap: 1, justifyContent: 'flex-end'}}>
                             <Button variant="outlined" color="neutral" onClick={() => setAlertOpen(false)}>
-                                {t('common.cancel')}
+                                取消
                             </Button>
-                            <Button onClick={handleSetAlert} loading={loading}>{t('common.confirm')}</Button>
+                            <Button onClick={handleSetAlert} loading={loading}>确定</Button>
                         </Box>
                     </CardContent>
                 </Card>
@@ -395,15 +396,15 @@ export default function Inventory() {
             >
                 <Card sx={{maxWidth: 400, mx: 2}}>
                     <CardContent>
-                        <Typography level="h3" sx={{mb: 2}}>{t('inventory.adjust_stock_title')}</Typography>
+                        <Typography level="h3" sx={{mb: 2}}>调整库存</Typography>
                         <Typography level="body-md" sx={{mb: 2}}>
-                            {t('inventory.product')}: {selectedProduct?.name}
+                            产品: {selectedProduct?.name}
                         </Typography>
                         <Typography level="body-md" sx={{mb: 2}}>
-                            {t('inventory.current_stock')}: {selectedProduct?.inventory.stock || 0}
+                            当前库存: {selectedProduct?.inventory.stock || 0}
                         </Typography>
                         <FormControl sx={{mb: 2}}>
-                            <FormLabel>{t('inventory.adjust_quantity_hint')}</FormLabel>
+                            <FormLabel>调整数量 (正数增加，负数减少)</FormLabel>
                             <Input
                                 type="number"
                                 value={adjustmentData.quantity}
@@ -414,7 +415,7 @@ export default function Inventory() {
                             />
                         </FormControl>
                         <FormControl>
-                            <FormLabel>{t('inventory.adjust_reason')}</FormLabel>
+                            <FormLabel>调整原因</FormLabel>
                             <Input
                                 value={adjustmentData.reason}
                                 onChange={(e) => setAdjustmentData(prev => ({...prev, reason: e.target.value}))}
@@ -422,18 +423,18 @@ export default function Inventory() {
                         </FormControl>
                         <Box sx={{mt: 2, display: 'flex', gap: 1, justifyContent: 'flex-end'}}>
                             <Button variant="outlined" color="neutral" onClick={() => setAdjustmentOpen(false)}>
-                                {t('common.cancel')}
+                                取消
                             </Button>
                             <Button
                                 onClick={() => selectedProduct && handleStockAdjustment(
                                     selectedProduct.id,
                                     adjustmentData.quantity,
-                                    adjustmentData.reason || t('inventory.manual_adjustment')
+                                    adjustmentData.reason || '手动调整'
                                 )}
                                 loading={loading}
                                 disabled={!adjustmentData.quantity || !selectedProduct}
                             >
-                                {t('common.confirm')}
+                                确定
                             </Button>
                         </Box>
                     </CardContent>

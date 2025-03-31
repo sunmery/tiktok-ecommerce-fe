@@ -21,11 +21,18 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import UnpublishedIcon from '@mui/icons-material/Unpublished'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 import PublishIcon from '@mui/icons-material/Publish'
-import {Product, ProductStatus} from '@/types/products.ts'
+import {
+    Product,
+    ProductStatus,
+    CreateProductRequest,
+    ProductImage
+} from '@/types/products.ts'
 import {productService} from '@/api/productService'
 import {ProductAttributes} from '@/components/ui/ProductAttributes'
 import {ProductEditForm} from '@/components/ProductEditForm'
 import {useTranslation} from 'react-i18next'
+import {usePagination} from '@/hooks/usePagination'
+import PaginationBar from '@/components/PaginationBar'
 
 export const Route = createLazyFileRoute('/merchant/products/')({
     component: Products,
@@ -49,61 +56,35 @@ export default function Products() {
         severity: 'success'
     })
 
+    // 使用分页钩子
+    const pagination = usePagination({
+        initialPageSize: 10,
+    });
+
     // 翻译商品状态
-    const translateProductStatus = (status: any): string => {
-        if (typeof status === 'string') {
+    const translateProductStatus = (status: ProductStatus | number | string): string => {
+        if (typeof status === 'number') {
             switch (status) {
-                case 'PRODUCT_STATUS_DRAFT':
+                case ProductStatus.PRODUCT_STATUS_DRAFT:
                     return t('products.status.draft');
-                case 'PRODUCT_STATUS_PENDING':
+                case ProductStatus.PRODUCT_STATUS_PENDING:
                     return t('products.status.pending');
-                case 'PRODUCT_STATUS_APPROVED':
+                case ProductStatus.PRODUCT_STATUS_APPROVED:
                     return t('products.status.approved');
-                case 'PRODUCT_STATUS_REJECTED':
+                case ProductStatus.PRODUCT_STATUS_REJECTED:
                     return t('products.status.rejected');
-                case 'PRODUCT_STATUS_SOLDOUT':
+                case ProductStatus.PRODUCT_STATUS_SOLDOUT:
                     return t('products.status.soldout');
                 default:
                     return t('products.status.unknown', {status}); // 若无法匹配则返回原状态
             }
-        } else if (typeof status === 'number') {
-            // 兼容数字状态码
-            switch (status) {
-                case ProductStatus.PRODUCT_STATUS_DRAFT:
-                    return t('products.status.draft');
-                case ProductStatus.PRODUCT_STATUS_PENDING:
-                    return t('products.status.pending');
-                case ProductStatus.PRODUCT_STATUS_APPROVED:
-                    return t('products.status.approved');
-                case ProductStatus.PRODUCT_STATUS_REJECTED:
-                    return t('products.status.rejected');
-                case ProductStatus.PRODUCT_STATUS_SOLDOUT:
-                    return t('products.status.soldout');
-                default:
-                    return t('products.status.unknown', {status});
-            }
-        }
-        return String(status); // 其他类型转为字符串
+        } 
+        return t('products.status.unknown', {status}); // 若无法匹配则返回原状态
     }
 
     // 获取状态对应的颜色
-    const getStatusColor = (status: any) => {
-        if (typeof status === 'string') {
-            switch (status) {
-                case 'PRODUCT_STATUS_DRAFT':
-                    return 'neutral';
-                case 'PRODUCT_STATUS_PENDING':
-                    return 'warning';
-                case 'PRODUCT_STATUS_APPROVED':
-                    return 'success';
-                case 'PRODUCT_STATUS_REJECTED':
-                    return 'danger';
-                case 'PRODUCT_STATUS_SOLDOUT':
-                    return 'neutral';
-                default:
-                    return 'neutral';
-            }
-        } else if (typeof status === 'number') {
+    const getStatusColor = (status: ProductStatus | number | string) => {
+        if (typeof status === 'number') {
             switch (status) {
                 case ProductStatus.PRODUCT_STATUS_DRAFT:
                     return 'neutral';
@@ -118,22 +99,62 @@ export default function Products() {
                 default:
                     return 'neutral';
             }
-        }
+        } 
         return 'neutral';
     }
+
+    // 获取商品状态的枚举值
+    const getProductStatusEnum = (status: ProductStatus | number | string): ProductStatus => {
+        if (typeof status === 'number') {
+            return status as ProductStatus;
+        }
+        if (typeof status === 'string') {
+            switch (status) {
+                case 'PRODUCT_STATUS_DRAFT':
+                    return ProductStatus.PRODUCT_STATUS_DRAFT;
+                case 'PRODUCT_STATUS_PENDING':
+                    return ProductStatus.PRODUCT_STATUS_PENDING;
+                case 'PRODUCT_STATUS_APPROVED':
+                    return ProductStatus.PRODUCT_STATUS_APPROVED;
+                case 'PRODUCT_STATUS_REJECTED':
+                    return ProductStatus.PRODUCT_STATUS_REJECTED;
+                case 'PRODUCT_STATUS_SOLDOUT':
+                    return ProductStatus.PRODUCT_STATUS_SOLDOUT;
+                default:
+                    return ProductStatus.PRODUCT_STATUS_DRAFT;
+            }
+        }
+        return status;
+    };
 
     useEffect(() => {
         // 获取商家的产品列表
         loadProducts().then(r => r).catch(e => {
             console.error(e)
         })
-    }, [])
+    }, [pagination.page, pagination.pageSize])
 
     const loadProducts = async () => {
         try {
             setLoading(true)
-            const response = await productService.getMerchantProducts()
+            const response = await productService.getMerchantProducts({
+                page: pagination.page,
+                pageSize: pagination.pageSize,
+                // status: 1
+            })
             setProducts(response.items || [])
+
+            // 更新总条目数（如果API返回了总数）
+            if (response.total !== undefined) {
+                pagination.setTotalItems(response.total);
+            } else {
+                // 没有总数时，用当前页数据估算
+                const isLastPage = response.items.length < pagination.pageSize;
+                const estimatedTotal = isLastPage
+                    ? (pagination.page - 1) * pagination.pageSize + response.items.length
+                    : pagination.page * pagination.pageSize + 1;
+                pagination.setTotalItems(estimatedTotal);
+            }
         } catch (error) {
             console.error(t('products.loadFailed'), error)
             setSnackbar({
@@ -226,6 +247,63 @@ export default function Products() {
         }
     }
 
+    const handleFormSubmit = async (productData: Partial<Product>) => {
+        try {
+            setLoading(true)
+            
+            // 如果是新建商品
+            if (!editProduct) {
+                // 确保按照正确的格式提交数据
+                const createProductRequest: CreateProductRequest = {
+                    name: productData.name || '',
+                    description: productData.description || '',
+                    price: productData.price || 0,
+                    stock: productData.inventory?.stock || 0,
+                    images: productData.images || [],
+                    attributes: productData.attributes || {},
+                    category: productData.category || {
+                        categoryId: 0,
+                        categoryName: ''
+                    }
+                }
+                
+                // 创建商品
+                await productService.createProduct(createProductRequest)
+                setSnackbar({
+                    open: true,
+                    message: t('products.createSuccess'),
+                    severity: 'success'
+                })
+            } else {
+                // 更新商品 - 保持原样
+                await productService.updateProduct({
+                    id: productData.id || '',
+                    merchantId: productData.merchantId || '',
+                    name: productData.name || '',
+                    description: productData.description || '',
+                    price: productData.price || 0
+                })
+                setSnackbar({
+                    open: true,
+                    message: t('products.updateSuccess'),
+                    severity: 'success'
+                })
+            }
+            
+            setOpen(false)
+            await loadProducts() // 重新加载商品列表
+        } catch (error) {
+            console.error(editProduct ? t('products.updateFailed') : t('products.createFailed'), error)
+            setSnackbar({
+                open: true,
+                message: editProduct ? t('products.updateFailed') : t('products.createFailed'),
+                severity: 'danger'
+            })
+        } finally {
+            setLoading(false)
+        }
+    }
+
     return (
         <Box sx={{p: 2}}>
             <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2}}>
@@ -235,6 +313,7 @@ export default function Products() {
                         startDecorator={<AddIcon/>}
                         onClick={() => {
                             setEditProduct(null)
+                            // 根据模板设置默认值
                             setFormData({
                                 id: '',
                                 name: '',
@@ -243,12 +322,33 @@ export default function Products() {
                                 status: ProductStatus.PRODUCT_STATUS_DRAFT,
                                 merchantId: '',
                                 picture: '',
-                                images: [],
+                                images: [
+                                    {
+                                        url: '',
+                                        isPrimary: true,
+                                        sortOrder: 0
+                                    }
+                                ],
                                 quantity: 0,
-                                attributes: {},
-                                createdAt: new Date().toISOString(),
-                                updatedAt: new Date().toISOString(),
-                                inventory: {productId: '', merchantId: '', stock: 0}
+                                attributes: {
+                                    phoneInfo: {
+                                        CPU: '',
+                                        内存: '',
+                                        batteryCapacity: ''
+                                    },
+                                    color: [],
+                                    dpi: '',
+                                    sim: '0'  // 修改为字符串类型适配AttributeValue
+                                },
+                                inventory: {
+                                    productId: '',
+                                    merchantId: '',
+                                    stock: 0
+                                },
+                                category: {
+                                    categoryId: 0,
+                                    categoryName: ''
+                                }
                             })
                             setOpen(true)
                         }}
@@ -273,182 +373,165 @@ export default function Products() {
             ) : products.length === 0 ? (
                 <Alert sx={{my: 2}}>{t('products.noProducts')}</Alert>
             ) : (
-                <Sheet variant="outlined" sx={{borderRadius: 'md', overflow: 'auto'}}>
-                    <Table>
-                        <thead>
-                        <tr>
-                            <th>{t('products.name')}</th>
-                            <th>{t('products.description')}</th>
-                            <th>{t('products.price')}</th>
-                            <th>{t('products.stock')}</th>
-                            <th>{t('products.status')}</th>
-                            <th>{t('products.attributes')}</th>
-                            <th>{t('products.actions')}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {products.map((product: Product) => (
-                            <tr key={product.id}>
-                                <td>{product.name}</td>
-                                <td>
-                                    <Typography level="body-sm" sx={{
-                                        maxWidth: '200px',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis'
-                                    }}>
-                                        {product.description}
-                                    </Typography>
-                                </td>
-                                <td>{product.price}</td>
-                                <td>{product.inventory?.stock || 0}</td>
-                                <td>
-                                    <Chip
-                                        color={getStatusColor(product.status)}
-                                        variant={(product.status === ProductStatus.PRODUCT_STATUS_PENDING || false)
-                                            ? 'soft' : 'outlined'}
-                                    >
-                                        {translateProductStatus(product.status)}
-                                    </Chip>
-                                    {((typeof product.status === 'number' && product.status === ProductStatus.PRODUCT_STATUS_REJECTED) || false) && product.auditInfo && product.auditInfo.reason && (
-                                        <Typography level="body-xs" color="danger" sx={{mt: 1}}>
-                                            {t('products.rejectReason')}: {product.auditInfo.reason}
+                <>
+                    <Sheet variant="outlined" sx={{borderRadius: 'md', overflow: 'auto'}}>
+                        <Table>
+                            <thead>
+                            <tr>
+                                <th>{t('products.name')}</th>
+                                <th>{t('products.description')}</th>
+                                <th>{t('products.price')}</th>
+                                <th>{t('products.stock')}</th>
+                                <th>{t('products.status')}</th>
+                                <th>{t('products.attributes')}</th>
+                                <th>{t('products.actions')}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {products.map((product: Product) => (
+                                <tr key={product.id}>
+                                    <td>{product.name}</td>
+                                    <td>
+                                        <Typography level="body-sm" sx={{
+                                            maxWidth: '200px',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis'
+                                        }}>
+                                            {product.description}
                                         </Typography>
-                                    )}
-                                </td>
-                                <td>
-                                    <ProductAttributes attributes={product.attributes || {}}/>
-                                </td>
-                                <td>
-                                    <Box sx={{display: 'flex', gap: 1, flexWrap: 'wrap'}}>
-                                        <Button
-                                            size="sm"
-                                            variant="outlined"
-                                            color="neutral"
-                                            startDecorator={<EditIcon/>}
-                                            onClick={() => {
-                                                setEditProduct(product)
-                                                setFormData(product)
-                                                setOpen(true)
-                                            }}
-                                            disabled={submittingId === product.id}
+                                    </td>
+                                    <td>{product.price}</td>
+                                    <td>{product.inventory?.stock || 0}</td>
+                                    <td>
+                                        <Chip
+                                            color={getStatusColor(product.status)}
+                                            variant={
+                                                getProductStatusEnum(product.status) === ProductStatus.PRODUCT_STATUS_PENDING
+                                                    ? 'soft' : 'outlined'
+                                            }
                                         >
-                                            {t('products.edit')}
-                                        </Button>
-
-                                        {/* 上架按钮 - 仅在草稿或驳回状态显示 */}
-                                        {(((product.status === ProductStatus.PRODUCT_STATUS_DRAFT || product.status === ProductStatus.PRODUCT_STATUS_REJECTED))) && (
-                                            <Button
-                                                size="sm"
-                                                color="primary"
-                                                variant="soft"
-                                                startDecorator={submittingId === product.id ?
-                                                    <CircularProgress size="sm"/> : <PublishIcon/>}
-                                                onClick={() => handleSubmitAudit(product.id)}
-                                                disabled={submittingId === product.id}
-                                            >
-                                                {t('products.publish')}
-                                            </Button>
+                                            {translateProductStatus(product.status)}
+                                        </Chip>
+                                        {getProductStatusEnum(product.status) === ProductStatus.PRODUCT_STATUS_REJECTED && product.auditInfo && product.auditInfo.reason && (
+                                            <Typography level="body-xs" color="danger" sx={{mt: 1}}>
+                                                {t('products.rejectReason')}: {product.auditInfo.reason}
+                                            </Typography>
                                         )}
-
-                                        {/* 下架按钮 - 仅在审核通过或待审核状态显示 */}
-                                        {((typeof product.status === 'number' && (product.status === ProductStatus.PRODUCT_STATUS_APPROVED || product.status === ProductStatus.PRODUCT_STATUS_PENDING)) || false) && (
+                                    </td>
+                                    <td>
+                                        <ProductAttributes attributes={product.attributes || {}}/>
+                                    </td>
+                                    <td>
+                                        <Box sx={{display: 'flex', gap: 1, flexWrap: 'wrap'}}>
                                             <Button
                                                 size="sm"
                                                 variant="outlined"
-                                                color="warning"
-                                                startDecorator={<UnpublishedIcon/>}
-                                                onClick={() => handleUnpublish(product)}
+                                                color="neutral"
+                                                startDecorator={<EditIcon/>}
+                                                onClick={() => {
+                                                    setEditProduct(product)
+                                                    setFormData(product)
+                                                    setOpen(true)
+                                                }}
                                                 disabled={submittingId === product.id}
                                             >
-                                                {t('products.unpublish')}
+                                                {t('products.edit')}
                                             </Button>
-                                        )}
 
-                                        <Button
-                                            size="sm"
-                                            variant="outlined"
-                                            color="danger"
-                                            startDecorator={<DeleteIcon/>}
-                                            onClick={() => handleDelete(product.id)}
-                                            disabled={submittingId === product.id}
-                                        >
-                                            {t('products.delete')}
-                                        </Button>
-                                    </Box>
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </Table>
-                </Sheet>
+                                            {/* 上架按钮 - 仅在草稿或驳回状态显示 */}
+                                            {(
+                                                getProductStatusEnum(product.status) === ProductStatus.PRODUCT_STATUS_DRAFT ||
+                                                getProductStatusEnum(product.status) === ProductStatus.PRODUCT_STATUS_REJECTED
+                                            ) && (
+                                                <Button
+                                                    size="sm"
+                                                    color="primary"
+                                                    variant="soft"
+                                                    startDecorator={submittingId === product.id ?
+                                                        <CircularProgress size="sm"/> : <PublishIcon/>}
+                                                    onClick={() => handleSubmitAudit(product.id)}
+                                                    disabled={submittingId === product.id}
+                                                >
+                                                    {t('products.publish')}
+                                                </Button>
+                                            )}
+
+                                            {/* 下架按钮 - 仅在审核通过或待审核状态显示 */}
+                                            {(getProductStatusEnum(product.status) === ProductStatus.PRODUCT_STATUS_APPROVED || 
+                                              getProductStatusEnum(product.status) === ProductStatus.PRODUCT_STATUS_PENDING) && (
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outlined"
+                                                        color="warning"
+                                                        startDecorator={<UnpublishedIcon/>}
+                                                        onClick={() => handleUnpublish(product)}
+                                                        disabled={submittingId === product.id}
+                                                    >
+                                                        {t('products.unpublish')}
+                                                    </Button>
+                                                )}
+
+                                            <Button
+                                                size="sm"
+                                                variant="outlined"
+                                                color="danger"
+                                                startDecorator={<DeleteIcon/>}
+                                                onClick={() => handleDelete(product.id)}
+                                                disabled={submittingId === product.id}
+                                            >
+                                                {t('products.delete')}
+                                            </Button>
+                                        </Box>
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </Table>
+                    </Sheet>
+
+                    {/* 分页控制 */}
+                    <PaginationBar
+                        page={pagination.page}
+                        pageSize={pagination.pageSize}
+                        totalItems={pagination.totalPages * pagination.pageSize} // 估算总条目数
+                        totalPages={pagination.totalPages}
+                        onPageChange={pagination.handlePageChange}
+                        onPageSizeChange={pagination.handlePageSizeChange}
+                    />
+                </>
             )}
 
             {/* 添加商品编辑表单的 Modal */}
             <Modal
+                aria-labelledby="product-edit-modal-title"
                 open={open}
                 onClose={() => setOpen(false)}
                 sx={{
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
+                    p: 2
                 }}
             >
-                <Card
+                <Sheet
                     variant="outlined"
                     sx={{
-                        width: '90%',
+                        width: '100%',
                         maxWidth: 800,
                         maxHeight: '90vh',
-                        overflow: 'auto',
+                        overflowY: 'auto',
+                        borderRadius: 'md',
+                        p: 3,
+                        boxShadow: 'lg',
                     }}
                 >
-                    <CardContent>
-                        <ProductEditForm
-                            product={formData || undefined}
-                            onSubmit={async (product) => {
-                                try {
-                                    setLoading(true)
-                                    if (editProduct) {
-                                        await productService.updateProduct({
-                                            id: editProduct.id,
-                                            merchantId: editProduct.merchantId as string,
-                                            name: product.name as string,
-                                            description: product.description as string,
-                                            price: product.price as number
-                                        })
-                                        setSnackbar({
-                                            open: true,
-                                            message: t('products.updateSuccess'),
-                                            severity: 'success',
-                                        })
-                                    } else {
-                                        await productService.createProduct({
-                                            product: product as Omit<Product, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'auditInfo'>,
-                                        })
-                                        setSnackbar({
-                                            open: true,
-                                            message: t('products.saveSuccess'),
-                                            severity: 'success',
-                                        })
-                                    }
-                                    setOpen(false)
-                                    await loadProducts()
-                                } catch (error) {
-                                    console.error(t('products.saveFailed'), error)
-                                    setSnackbar({
-                                        open: true,
-                                        message: t('products.saveFailed'),
-                                        severity: 'danger',
-                                    })
-                                } finally {
-                                    setLoading(false)
-                                }
-                            }}
-                            onCancel={() => setOpen(false)}
-                        />
-                    </CardContent>
-                </Card>
+                    <ProductEditForm
+                        product={formData as Product}
+                        onSubmit={handleFormSubmit}
+                        onCancel={() => setOpen(false)}
+                    />
+                </Sheet>
             </Modal>
 
             {/* 提示消息 */}

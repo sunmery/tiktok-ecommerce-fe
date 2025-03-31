@@ -19,7 +19,7 @@ import type {CartItem} from '@/types/cart';
  * const items = await getCartItems();
  * console.log(items);
  */
-export const getCartItems = async () => {
+export const getCartItems = async (): Promise<CartItem[]> => {
     const response = await cartService.getCart();
     return response.items || [];
 };

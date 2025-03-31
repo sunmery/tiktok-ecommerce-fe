@@ -25,6 +25,7 @@ import {Product} from '@/types/products'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import AddIcon from '@mui/icons-material/Add'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import { t } from 'i18next'
 
 export const Route = createLazyFileRoute('/merchant/inventory/alerts/')({
     component: InventoryAlerts,

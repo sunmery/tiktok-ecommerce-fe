@@ -253,24 +253,24 @@ export default function Profile() {
                                 {account.role === 'consumer' && (
                                     <>
                                         <Divider>{t('profile.consumerFeatures')}</Divider>
-                                        <Button
-                                            variant="outlined"
-                                            color="primary"
-                                            onClick={() => navigate({to: '/consumer/orders'}).then(() => {
-                                                console.log(t('log.navigatedToOrderHistory'))
-                                            })}
-                                        >
-                                            {t('profile.orderHistory')}
-                                        </Button>
-                                        <Button
-                                            variant="outlined"
-                                            color="primary"
-                                            onClick={() => navigate({to: '/consumer/orders'}).then(() => {
-                                                console.log(t('log.navigatedToMyOrders'))
-                                            })}
-                                        >
-                                            {t('profile.myOrders')}
-                                        </Button>
+                                        {/*<Button*/}
+                                        {/*    variant="outlined"*/}
+                                        {/*    color="primary"*/}
+                                        {/*    onClick={() => navigate({to: '/consumer/orders'}).then(() => {*/}
+                                        {/*        console.log(t('log.navigatedToOrderHistory'))*/}
+                                        {/*    })}*/}
+                                        {/*>*/}
+                                        {/*    {t('profile.orderHistory')}*/}
+                                        {/*</Button>*/}
+                                        {/*<Button*/}
+                                        {/*    variant="outlined"*/}
+                                        {/*    color="primary"*/}
+                                        {/*    onClick={() => navigate({to: '/consumer/orders'}).then(() => {*/}
+                                        {/*        console.log(t('log.navigatedToMyOrders'))*/}
+                                        {/*    })}*/}
+                                        {/*>*/}
+                                        {/*    {t('profile.myOrders')}*/}
+                                        {/*</Button>*/}
                                         <Button
                                             variant="outlined"
                                             color="primary"

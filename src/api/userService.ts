@@ -15,7 +15,8 @@ import {
     GetCreditCard,
     ListCreditCards,
     UpdateAddress,
-    UpdateCreditCard, UserProfile, Users
+    UpdateCreditCard,
+    Users
 } from '@/types/user';
 import {
     CardsReply,
@@ -53,7 +54,6 @@ export const userService = {
             email: userData.email,
             displayName: userData.displayName || userData.name,
             signupApplication: userData.signupApplication || '',
-            role: userData.role
         });
     },
 

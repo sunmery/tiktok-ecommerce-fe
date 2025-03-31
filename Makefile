@@ -12,7 +12,7 @@ build:
 build-nocache:
 	docker build . \
 	--progress=plain \
-	--nocache \
+	--no-cache \
 	-t ccr.ccs.tencentyun.com/sumery/ecommerce-fe:$(VERSION) \
 	--platform linux/amd64 \
 	--push

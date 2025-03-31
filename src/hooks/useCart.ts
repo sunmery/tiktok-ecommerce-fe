@@ -14,8 +14,7 @@ export const useCart = () => {
     const {isLoading, error, refetch} = useQuery({
         queryKey: ['cart'],
         queryFn: getCartItems,
-        // 不自动获取数据，等待手动触发
-        enabled: false,
+        enabled: true,
     })
 
     // 当组件挂载时，先显示本地购物车，然后同步后端数据

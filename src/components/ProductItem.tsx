@@ -21,7 +21,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
                                                      attributes,
                                                      onAddToCart,
                                                  }) => {
-    const {t} = useTranslation(['common', 'cart']);
+    const {t} = useTranslation();
 
     return (
         <div className="border rounded-lg p-4 flex flex-col">
@@ -35,7 +35,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
             {attributes && Object.keys(attributes).length > 0 && (
                 <div className="mb-4">
                     <h4 className="text-sm font-medium text-gray-900 mb-2">
-                        {t('common:product.attributes')}
+                        {t('product.attributes')}
                     </h4>
                     <ProductAttributes attributes={attributes}/>
                 </div>
@@ -44,7 +44,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
                 onClick={() => onAddToCart(id)}
                 className="mt-auto"
             >
-                {t('cart:actions.add')}
+                {t('actions.add')}
             </Button>
         </div>
     );
