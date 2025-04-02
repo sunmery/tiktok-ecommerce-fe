@@ -60,8 +60,8 @@ export interface UserProfile {
     role: string;
     displayName: string;
     isDeleted: boolean;
-    createdTime: Timestamp;
-    updatedTime: Timestamp;
+    createdTime?: Timestamp;
+    updatedTime?: Timestamp;
     signupApplication?: string;
 }
 

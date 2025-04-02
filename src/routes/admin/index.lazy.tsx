@@ -6,7 +6,6 @@ import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import BarChartIcon from '@mui/icons-material/BarChart'
-import StorageIcon from '@mui/icons-material/Storage'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import Skeleton from '@/components/Skeleton'
 import { useTranslation } from 'react-i18next';
@@ -37,8 +36,6 @@ function AdminDashboard() {
 
   return (
     <Box sx={{ p: 2 }}>
-      {/* 删除了面包屑导航 */}
-      
       <Typography level="h2" sx={{ mb: 3 }}>{t('admin.dashboard')}</Typography>
       
       {loading ? (
@@ -146,39 +143,6 @@ function AdminDashboard() {
                 sx={{ mt: 2 }}
               >
                 {t('admin.enterProductManagement')}
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-        
-        {/* 数据库管理卡片 */}
-        <Grid xs={12} md={6}>
-          <Card variant="outlined" sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography level="h3">{t('admin.databaseManagement')}</Typography>
-              <Divider sx={{ my: 2 }} />
-              <List>
-                <ListItem>
-                  <ListItem>{t('admin.databaseManagement.schema')}</ListItem>
-                </ListItem>
-                <ListItem>
-                  <ListItem>{t('admin.databaseManagement.tables')}</ListItem>
-                </ListItem>
-                <ListItem>
-                  <ListItem>{t('admin.databaseManagement.query')}</ListItem>
-                </ListItem>
-              </List>
-              <Button 
-                variant="solid" 
-                color="primary" 
-                startDecorator={<StorageIcon />}
-                onClick={() => navigate({ to: '/admin/database' }).then(() => {
-                  console.log('已进入数据库管理页面')
-                })}
-                fullWidth
-                sx={{ mt: 2 }}
-              >
-                {t('admin.enterDatabaseManagement')}
               </Button>
             </CardContent>
           </Card>

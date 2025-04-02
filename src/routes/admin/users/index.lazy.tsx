@@ -218,20 +218,22 @@ function UserManagement() {
                 id: newId,
                 name: newUser.name,
                 email: newUser.email,
-                role: newUser.role,
-                createdTime: now,
                 isDeleted: false,
                 owner: '',
                 avatar: '',
-                displayName: newUser.displayName,
-                updatedTime: now,
+                role: '',
+                displayName: '',
             }
         ])
 
         setNewUser({
+            avatar: "",
+            displayName: "",
+            id: "",
+            owner: "",
+            signupApplication: "",
             name: '',
             email: '',
-            role: 'consumer',
             password: ''
         })
 
@@ -255,15 +257,15 @@ function UserManagement() {
 
     return (
         <Box sx={{p: 2}}>
-            {/* 删除了面包屑导航 */}
+
 
             <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
-                <Typography level="h2">用户管理</Typography>
+                <Typography level="h2">{t('admin.users.title')}</Typography>
                 <Button
                     color="primary"
                     onClick={() => setOpenAddModal(true)}
                 >
-                    添加用户
+                    {t('admin.users.add_user')}
                 </Button>
             </Box>
 
@@ -271,12 +273,12 @@ function UserManagement() {
                 <Table stickyHeader hoverRow>
                     <thead>
                     <tr>
-                        <th style={{width: '15%'}}>应用</th>
-                        <th style={{width: '15%'}}>用户名</th>
-                        <th style={{width: '20%'}}>邮箱</th>
-                        <th style={{width: '15%'}}>角色</th>
-                        <th style={{width: '20%'}}>创建时间</th>
-                        <th style={{width: '25%'}}>操作</th>
+                        <th style={{width: '15%'}}>{t('admin.users.table.application')}</th>
+                        <th style={{width: '15%'}}>{t('admin.users.table.username')}</th>
+                        <th style={{width: '20%'}}>{t('admin.users.table.email')}</th>
+                        <th style={{width: '15%'}}>{t('admin.users.table.role')}</th>
+                        <th style={{width: '20%'}}>{t('admin.users.table.created_time')}</th>
+                        <th style={{width: '25%'}}>{t('admin.users.table.actions')}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -295,13 +297,15 @@ function UserManagement() {
                                             onClick={() => handleViewApplication(user.id)}
                                             sx={{cursor: 'pointer'}}
                                         >
-                                            待审批
+                                            {t('admin.users.pending_approval')}
                                         </Chip>
                                     </Box>
                                 ) : (
                                     <Chip
                                         color={user.role === 'admin' ? 'success' :
-                                            user.role === 'merchant' ? 'primary' : 'neutral'}
+                                            user.role === 'merchant' ? 'primary' :
+                                            user.role === 'consumer' ? 'warning' : 'neutral'}
+                                        variant="solid"
                                         size="sm"
                                     >
                                         {roleNames[user.role]}
@@ -333,7 +337,7 @@ function UserManagement() {
                                             color="warning"
                                             onClick={() => handleViewApplication(user.id)}
                                         >
-                                            审批申请
+                                            {t('admin.users.approve_application')}
                                         </Button>
                                     )}
                                 </Box>
@@ -348,7 +352,7 @@ function UserManagement() {
             <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
                 <ModalDialog>
                     <ModalClose/>
-                    <Typography level="h4">编辑用户</Typography>
+                    <Typography level="h4">{t('admin.users.edit.title')}</Typography>
                     <Divider sx={{my: 2}}/>
                     <form
                         onSubmit={(event) => {
@@ -357,21 +361,21 @@ function UserManagement() {
                         }}
                     >
                         <FormControl sx={{mb: 2}}>
-                            <FormLabel>用户名</FormLabel>
+                            <FormLabel>{t('admin.users.edit.username')}</FormLabel>
                             <Input
                                 value={editForm.name}
                                 onChange={(e) => setEditForm({...editForm, name: e.target.value})}
                             />
                         </FormControl>
                         <FormControl sx={{mb: 2}}>
-                            <FormLabel>昵称</FormLabel>
+                            <FormLabel>{t('admin.users.edit.display_name')}</FormLabel>
                             <Input
                                 value={editForm.displayName}
                                 onChange={(e) => setEditForm({...editForm, displayName: e.target.value})}
                             />
                         </FormControl>
                         <FormControl sx={{mb: 2}}>
-                            <FormLabel>邮箱</FormLabel>
+                            <FormLabel>{t('admin.users.edit.email')}</FormLabel>
                             <Input
                                 type="email"
                                 value={editForm.email}
@@ -380,7 +384,7 @@ function UserManagement() {
                         </FormControl>
 
                         <Box sx={{display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2}}>
-                            <Button type="submit" color="primary">保存</Button>
+                            <Button type="submit" color="primary">{t('admin.users.edit.save')}</Button>
                         </Box>
                     </form>
                 </ModalDialog>
@@ -390,13 +394,13 @@ function UserManagement() {
             <Modal open={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
                 <ModalDialog>
                     <ModalClose/>
-                    <Typography level="h4">确认删除</Typography>
+                    <Typography level="h4">{t('admin.users.delete.title')}</Typography>
                     <Divider sx={{my: 2}}/>
-                    <Typography>您确定要删除用户 "{currentUser?.name}" 吗？此操作不可撤销。</Typography>
+                    <Typography>{t('admin.users.delete.confirm', { username: currentUser?.name })}</Typography>
                     <Box sx={{display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2}}>
                         <Button variant="outlined" color="neutral"
-                                onClick={() => setOpenDeleteModal(false)}>取消</Button>
-                        <Button color="danger" onClick={confirmDeleteUser}>删除</Button>
+                                onClick={() => setOpenDeleteModal(false)}>{t('admin.users.delete.cancel')}</Button>
+                        <Button color="danger" onClick={confirmDeleteUser}>{t('admin.users.delete.confirm_button')}</Button>
                     </Box>
                 </ModalDialog>
             </Modal>
@@ -405,27 +409,27 @@ function UserManagement() {
             <Modal open={openApprovalModal} onClose={() => setOpenApprovalModal(false)}>
                 <ModalDialog>
                     <ModalClose/>
-                    <Typography level="h4">商家申请审批</Typography>
+                    <Typography level="h4">{t('admin.users.merchant_approval.title')}</Typography>
                     <Divider sx={{my: 2}}/>
                     {currentApplication && (
                         <Box>
                             <Typography level="body-md" sx={{mb: 1}}>
-                                <strong>申请ID:</strong> {currentApplication.id}
+                                <strong>{t('admin.users.merchant_approval.application_id')}:</strong> {currentApplication.id}
                             </Typography>
                             <Typography level="body-md" sx={{mb: 1}}>
-                                <strong>商家名称:</strong> {currentApplication.businessName}
+                                <strong>{t('admin.users.merchant_approval.business_name')}:</strong> {currentApplication.businessName}
                             </Typography>
                             <Typography level="body-md" sx={{mb: 1}}>
-                                <strong>营业执照:</strong> {currentApplication.businessLicense}
+                                <strong>{t('admin.users.merchant_approval.business_license')}:</strong> {currentApplication.businessLicense}
                             </Typography>
                             <Typography level="body-md" sx={{mb: 1}}>
-                                <strong>联系电话:</strong> {currentApplication.contactPhone}
+                                <strong>{t('admin.users.merchant_approval.contact_phone')}:</strong> {currentApplication.contactPhone}
                             </Typography>
                             <Typography level="body-md" sx={{mb: 1}}>
-                                <strong>申请日期:</strong> {currentApplication.applicationDate}
+                                <strong>{t('admin.users.merchant_approval.application_date')}:</strong> {currentApplication.applicationDate}
                             </Typography>
                             <Typography level="body-md" sx={{mb: 2}}>
-                                <strong>当前状态:</strong> {currentApplication.status}
+                                <strong>{t('admin.users.merchant_approval.current_status')}:</strong> {currentApplication.status}
                             </Typography>
                         </Box>
                     )}

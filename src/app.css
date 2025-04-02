@@ -27,13 +27,6 @@
  * ========================================================================== */
 
 /**
- * Remove the margin on nested lists in Chrome, Edge, and Safari.
- */
-:where(dl, ol, ul) :where(dl, ol, ul) {
-    margin-block: 0;
-}
-
-/**
  * 1. Add the correct box sizing in Firefox.
  * 2. Correct the inheritance of border color in Firefox.
  */
@@ -58,15 +51,6 @@
  */
 :where(b, strong) {
     font-weight: bolder;
-}
-
-/**
- * 1. Correct the inheritance and scaling of font size in all browsers.
- * 2. Correct the odd `em` font sizing in all browsers.
- */
-:where(code, kbd, pre, samp) {
-    font-family: monospace, monospace; /* 1 */
-    font-size: 1em; /* 2 */
 }
 
 /**
@@ -151,14 +135,6 @@
 }
 
 /**
- * Correct the text style of placeholders in Chrome, Edge, and Safari.
- */
-::input-placeholder {
-    color: inherit;
-    opacity: 0.54;
-}
-
-/**
  * Remove the inner padding in Chrome, Edge, and Safari on macOS.
  */
 ::-webkit-search-decoration {
@@ -180,13 +156,6 @@
 :where(button, input:is([type="button" i], [type="color" i], [type="reset" i], [type="submit" i]))::-moz-focus-inner {
     padding: 0;
     border-style: none;
-}
-
-/**
- * Restore the focus outline styles unset by the previous rule in Firefox.
- */
-:where(button, input:is([type="button" i], [type="color" i], [type="reset" i], [type="submit" i]))::-moz-focusring {
-    outline: 1px dotted ButtonText;
 }
 
 /**
