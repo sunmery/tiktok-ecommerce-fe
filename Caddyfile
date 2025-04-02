@@ -1,0 +1,8 @@
+{
+  protocols h1 h2 h3
+}
+
+apikv.com {
+  root * /usr/share/caddy
+  file_server browse
+}

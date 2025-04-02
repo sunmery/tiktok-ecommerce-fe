@@ -8,7 +8,7 @@ services:
     restart: unless-stopped  # 自动重启策略
     environment:
       - TZ=Asia/Shanghai  # 设置时区
-      - DOMAIN=apikv.com  # 替换为您的域名
+      - DOMAIN=99.suyiiyii.top
       - HTTP_PORT=80
       - HTTPS_PORT=443
     ports:
@@ -16,8 +16,5 @@ services:
       - "443:443"      # HTTPS 端口映射
       - "443:443/udp"  # UDP 端口映射
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./dist:/usr/share/caddy:ro
-      - caddy_data:/data
-volumes:
-  caddy_data:
+      - ./nginx-templates:/etc/nginx/templates  # 挂载整个模板目录
+      - ./ssl:/etc/nginx/ssl  # SSL 证书目录映射

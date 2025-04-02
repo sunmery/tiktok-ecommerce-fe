@@ -1,9 +1,8 @@
 import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
-import basicSsl from '@vitejs/plugin-basic-ssl';
 import {TanStackRouterVite} from '@tanstack/router-plugin/vite';
 import {resolve} from 'path';
-
+import basicSsl from '@vitejs/plugin-basic-ssl'
 export default defineConfig(({command}) => {
     if (command === 'serve') {
         // 开发配置
@@ -21,13 +20,12 @@ export default defineConfig(({command}) => {
                 port: 3000,
                 strictPort: true,
                 cors: true,
-                http2: true,
-                // certfile: './ssl/gateway.crt',
-                // keyfile: './ssl/gateway.key',
-                https: { // 正确配置为ServerOptions
-                    maxVersion: 'TLSv1.3',
-                    ciphers: 'TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256'
-                },
+                // https: {
+                //     key: path.resolve(__dirname, 'ssl/cert.crt'),
+                //     cert: path.resolve(__dirname, 'ssl/key.key'),
+                //     // maxVersion: 'TLSv1.3',
+                //     // ciphers: 'TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256'
+                // },
             },
             resolve: {
                 alias: {'@': resolve(__dirname, 'src/')},

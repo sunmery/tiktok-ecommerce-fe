@@ -17,33 +17,12 @@ COPY . .
 RUN pnpm build
 
 # 生产镜像阶段
-FROM nginx:alpine3.21 AS final
+FROM caddy:latest AS final
+WORKDIR /usr/share/caddy
+
+COPY --from=builder /src/dist /usr/share/caddy
 
 ARG HTTP_PORT=80
 ARG HTTPS_PORT=443
 
-# 动态挂载配置（运行时通过-v注入）
-VOLUME /etc/nginx/conf.d /etc/nginx/ssl
-
-# 将默认模板放在非标准目录, 为了防止直接被 nginx 读取,
-COPY nginx-templates/ /default-nginx-templates/
-
-COPY --from=builder /src/dist /usr/share/nginx/html
-
-ENV DOMAIN=example.com \
-    HTTP_PORT=$HTTP_PORT \
-    HTTPS_PORT=$HTTPS_PORT
-
-EXPOSE $HTTP_PORT $HTTPS_PORT
-
-CMD ["nginx", "-g", "daemon off;"]
-
-# build
-# docker build --progress=plain -t ccr.ccs.tencentyun.com/sumery/ecommerce-fe:v1.0.5 . --platform linux/amd64 --push
-
-# run
-# docker run --rm \
-#   -v ./nginx.conf:/etc/nginx/conf.d/default.conf \
-#   -v ./ssl:/etc/nginx/ssl \
-#   -p 80:8080 -p 443:8443 \
-#   ccr.ccs.tencentyun.com/sumery/ecommerce-fe:v1.0.5
+EXPOSE $HTTP_PORT $HTTPS_PORT/tcp $HTTPS_PORT/udp
