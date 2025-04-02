@@ -13,6 +13,8 @@ import {
     MenuItem,
     Option,
     Select,
+    Sheet,
+    Tooltip,
     Typography
 } from '@mui/joy'
 import {useTheme} from '@mui/joy/styles'
@@ -33,6 +35,7 @@ import ChatAssistant from '@/components/ChatAssistant'
 import TranslationDebugger from '@/components/TranslationDebugger'
 import {log} from '@/utils/env'
 import {TOptions} from 'i18next'
+import {Person as PersonIcon} from "@mui/icons-material";
 
 /**
  * 页面模板组件
@@ -129,7 +132,7 @@ export default function Template() {
     }
 
     // 处理回车键搜索
-    const handleKeyPress = (e: React.KeyboardEvent) => {
+    const handleKeyPress = (e: KeyboardEvent) => {
         if (e.key === 'Enter') {
             handleSearch()
         }
@@ -181,10 +184,22 @@ export default function Template() {
         logout: '/logout' as any,
     }
 
+    const handleSearchKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Enter' && searchQuery.trim()) {
+            navigate({to: '/products', search: {query: searchQuery.trim()}}).then(() => {
+                console.log('navigate', {to: '/products', search: {query: searchQuery.trim()}})
+            });
+        }
+    };
+
     return (
-        <Box sx={{display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative'}}>
-            <Box
-                component="nav"
+        <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '100vh',
+            position: 'relative'
+        }}>
+            <Sheet
                 sx={{
                     borderBottom: '1px solid',
                     borderColor: 'divider',
@@ -196,60 +211,41 @@ export default function Template() {
                     zIndex: 1000,
                 }}
             >
-                <Box sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: {xs: 1, md: 3},
-                    maxWidth: 1200,
-                    margin: '0 auto',
-                    width: '100%',
-                    justifyContent: 'space-between'
-                }}>
-                    <Link to="/" style={{textDecoration: 'none', color: 'inherit'}} onClick={handleNavLinkClick}>
-                        <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
-                            <Typography level="h4"
-                                        sx={{
-                                            fontWeight: 'bold',
-                                            color: 'primary.main',
-                                            fontSize: {xs: '1.2rem', md: '1.5rem'}
-                                        }}>
-                                {tWithTracking('nav.project', 'TT电商')}
-                            </Typography>
-                        </Box>
-                    </Link>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: {xs: 1, md: 3},
+                        maxWidth: 1200,
+                        margin: '0 auto',
+                        width: '100%',
+                        justifyContent: 'space-between'
+                    }}
+                >
+                    {/* Logo部分 */}
+                    <Box component={Link} to="/" sx={{display: 'flex', alignItems: 'center', textDecoration: 'none'}}>
+                        <Typography level="title-lg" sx={{mr: 2, color: 'primary.500'}}>
+                            {t('nav.project')}
+                        </Typography>
+                    </Box>
 
                     {/* 桌面端搜索框 */}
                     {!isMobile && (
                         <Box sx={{flex: 1, maxWidth: 600}}>
                             <Input
-                                size="lg"
-                                variant="soft"
+                                size="md"
+                                placeholder={t('searchPlaceholder')}
                                 startDecorator={<SearchIcon/>}
-                                placeholder={tWithTracking('nav.search', '搜索商品')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                                endDecorator={
-                                    <Box
-                                        onClick={handleSearch}
-                                        sx={{
-                                            cursor: 'pointer',
-                                            bgcolor: 'primary.main',
-                                            color: 'white',
-                                            px: 2,
-                                            py: 1,
-                                            borderRadius: '0 16px 16px 0',
-                                            '&:hover': {
-                                                bgcolor: 'primary.dark',
-                                            }
-                                        }}
-                                    >
-                                        {tWithTracking('actions.search', '搜索')}
-                                    </Box>
-                                }
+                                onKeyDown={handleSearchKeyDown}
                                 sx={{
-                                    width: '100%',
-                                    '--Input-radius': '20px',
+                                    flexBasis: '500px',
+                                    display: {
+                                        xs: 'none',
+                                        sm: 'flex',
+                                    },
+                                    boxShadow: 'sm',
                                 }}
                             />
                         </Box>
@@ -289,10 +285,17 @@ export default function Template() {
                                 </Link>
                             </ListItem>
                             <ListItem>
-                                <Link to="/profile" style={{textDecoration: 'none', color: 'inherit'}}
-                                      onClick={handleNavLinkClick}>
-                                    <Typography level="title-lg">{tWithTracking('nav.profile', '个人中心')}</Typography>
-                                </Link>
+                                {/* 个人中心按钮 */}
+                                <Tooltip title={t('profile')} placement="bottom">
+                                    <IconButton
+                                        variant="plain"
+                                        component={Link}
+                                        to="/profile"
+                                        color="neutral"
+                                    >
+                                        <PersonIcon/>
+                                    </IconButton>
+                                </Tooltip>
                             </ListItem>
                             <ListItem>
                                 <Box>
@@ -410,7 +413,7 @@ export default function Template() {
                         </Box>
                     )}
                 </Box>
-            </Box>
+            </Sheet>
 
             {/* 移动端抽屉菜单 */}
             <Drawer
@@ -474,7 +477,7 @@ export default function Template() {
                             style={{textDecoration: 'none', color: 'inherit', width: '100%'}}
                             onClick={handleNavLinkClick}
                         >
-                            <Typography level="title-md">{tWithTracking('nav.products', '商品')}</Typography>
+                            <Typography level="title-md">{t('nav.products', '商品')}</Typography>
                         </Link>
                     </ListItem>
                     <ListItem>

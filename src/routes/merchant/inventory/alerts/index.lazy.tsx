@@ -25,7 +25,7 @@ import {Product} from '@/types/products'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import AddIcon from '@mui/icons-material/Add'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import { t } from 'i18next'
+import {useTranslation} from "react-i18next";
 
 export const Route = createLazyFileRoute('/merchant/inventory/alerts/')({
     component: InventoryAlerts,
@@ -44,6 +44,7 @@ export default function InventoryAlerts() {
         message: '',
         severity: 'success' as 'success' | 'error'
     })
+    const {t} = useTranslation()
 
     // 加载库存警报配置
     const loadStockAlerts = async () => {
@@ -224,7 +225,7 @@ export default function InventoryAlerts() {
                 <CardContent>
                     <Box sx={{display: 'flex', alignItems: 'center', mb: 2}}>
                         <AddIcon color="primary" sx={{mr: 1}}/>
-                        <Typography level="h3">添加新警报</Typography>
+                        <Typography level="h3">{t('inventory.alerts.add_new_title')}</Typography>
                     </Box>
                     <Divider sx={{mb: 2}}/>
                     {loading ? (
@@ -236,9 +237,9 @@ export default function InventoryAlerts() {
                             <Table>
                                 <thead>
                                 <tr>
-                                    <th>产品名称</th>
-                                    <th>当前库存</th>
-                                    <th>操作</th>
+                                    <th>{t('inventory.alerts.product_name')}</th>
+                                    <th>{t('inventory.alerts.current_stock')}</th>
+                                    <th>{t('inventory.alerts.actions')}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -255,14 +256,14 @@ export default function InventoryAlerts() {
                                                     color="primary"
                                                     onClick={() => openAlertModal(product)}
                                                 >
-                                                    设置警戒值
+                                                    {t('inventory.alerts.set_threshold')}
                                                 </Button>
                                             </td>
                                         </tr>
                                     ))}
                                 {products.filter(product => !stockAlerts.some(alert => alert.productId === product.id)).length === 0 && (
                                     <tr>
-                                        <td colSpan={3} style={{textAlign: 'center'}}>所有产品已设置警报</td>
+                                        <td colSpan={3} style={{textAlign: 'center'}}>{t('inventory.alerts.all_products_alerted')}</td>
                                     </tr>
                                 )}
                                 </tbody>
@@ -270,7 +271,7 @@ export default function InventoryAlerts() {
                         </Sheet>
                     ) : (
                         <Box sx={{p: 2, textAlign: 'center'}}>
-                            <Typography>暂无产品数据</Typography>
+                            <Typography>{t('inventory.alerts.no_products')}</Typography>
                         </Box>
                     )}
                 </CardContent>
@@ -284,15 +285,15 @@ export default function InventoryAlerts() {
             >
                 <Card sx={{maxWidth: 400, mx: 2}}>
                     <CardContent>
-                        <Typography level="h3" sx={{mb: 2}}>设置库存警戒值</Typography>
+                        <Typography level="h3" sx={{mb: 2}}>{t('inventory.alerts.set_alert_modal_title')}</Typography>
                         <Typography level="body-md" sx={{mb: 2}}>
-                            产品: {selectedProduct?.name}
+                            {t('inventory.alerts.product_label')}: {selectedProduct?.name}
                         </Typography>
                         <Typography level="body-md" sx={{mb: 2}}>
-                            当前库存: {selectedProduct?.inventory.stock || 0}
+                            {t('inventory.alerts.current_stock_label')}: {selectedProduct?.inventory.stock || 0}
                         </Typography>
                         <FormControl>
-                            <FormLabel>警戒值</FormLabel>
+                            <FormLabel>{t('inventory.alerts.threshold_label')}</FormLabel>
                             <Input
                                 type="number"
                                 value={threshold}
@@ -301,9 +302,9 @@ export default function InventoryAlerts() {
                         </FormControl>
                         <Box sx={{mt: 2, display: 'flex', gap: 1, justifyContent: 'flex-end'}}>
                             <Button variant="outlined" color="neutral" onClick={() => setModalOpen(false)}>
-                                取消
+                                {t('inventory.alerts.cancel')}
                             </Button>
-                            <Button onClick={handleSetAlert} loading={loading}>确定</Button>
+                            <Button onClick={handleSetAlert} loading={loading}>{t('inventory.alerts.confirm')}</Button>
                         </Box>
                     </CardContent>
                 </Card>

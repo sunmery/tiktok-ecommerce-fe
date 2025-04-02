@@ -1,5 +1,6 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
 import {useEffect, useState} from 'react'
+import {useTranslation} from 'react-i18next'
 import {
     Alert,
     Box,
@@ -32,6 +33,7 @@ export const Route = createLazyFileRoute('/merchant/inventory/monitoring/')({
 })
 
 export default function InventoryMonitoring() {
+    const {t} = useTranslation()
     const {account} = useSnapshot(userStore)
     const [loading, setLoading] = useState(true)
     const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([])
@@ -54,8 +56,8 @@ export default function InventoryMonitoring() {
             setLowStockProducts(response.products || [])
             setError(null)
         } catch (err) {
-            console.error('加载低库存产品失败:', err)
-            setError('加载低库存产品失败')
+            console.error(t('inventory.monitoring.load_low_stock_failed'), err)
+            setError(t('inventory.monitoring.load_low_stock_failed'))
         }
     }
 
@@ -70,8 +72,8 @@ export default function InventoryMonitoring() {
             setStockAlerts(response.alerts || [])
             setError(null)
         } catch (err) {
-            console.error('加载库存警报配置失败:', err)
-            setError('加载库存警报配置失败')
+            console.error(t('inventory.monitoring.load_alerts_failed'), err)
+            setError(t('inventory.monitoring.load_alerts_failed'))
         }
     }
 
@@ -88,8 +90,8 @@ export default function InventoryMonitoring() {
             setRecentAdjustments(response.adjustments || [])
             setError(null)
         } catch (err) {
-            console.error('加载库存调整记录失败:', err)
-            setError('加载库存调整记录失败')
+            console.error(t('inventory.monitoring.load_adjustments_failed'), err)
+            setError(t('inventory.monitoring.load_adjustments_failed'))
         }
     }
 
@@ -104,7 +106,7 @@ export default function InventoryMonitoring() {
             ])
             setLastUpdated(new Date())
         } catch (err) {
-            console.error('刷新数据失败:', err)
+            console.error(t('inventory.monitoring.refresh_failed'), err)
         } finally {
             setLoading(false)
         }
@@ -120,7 +122,7 @@ export default function InventoryMonitoring() {
                 refreshData().then(() => {
                     setLastUpdated(new Date())
                 }).catch((err) => {
-                    console.error('自动刷新数据失败:', err)
+                    console.error(t('inventory.monitoring.auto_refresh_failed'), err)
                 })
             }, 30000) // 每30秒刷新一次
             setRefreshInterval(interval)
@@ -132,7 +134,7 @@ export default function InventoryMonitoring() {
         refreshData().then(() => {
             setLastUpdated(new Date())
         }).catch((err) => {
-            console.error('初始加载数据失败:', err)
+            console.error(t('inventory.monitoring.initial_load_failed'), err)
         })
         return () => {
             if (refreshInterval) {
@@ -144,11 +146,11 @@ export default function InventoryMonitoring() {
     return (
         <Box sx={{p: 2}}>
             <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
-                <Typography level="h2">库存监控中心</Typography>
+                <Typography level="h2">{t('inventory.monitoring.title')}</Typography>
                 <Box sx={{display: 'flex', gap: 2, alignItems: 'center'}}>
                     {lastUpdated && (
                         <Typography level="body-sm" color="neutral">
-                            最后更新: {lastUpdated.toLocaleTimeString()}
+                            {t('inventory.monitoring.last_updated')}: {lastUpdated.toLocaleTimeString()}
                         </Typography>
                     )}
                     <Button
@@ -158,14 +160,14 @@ export default function InventoryMonitoring() {
                         startDecorator={<TimelineIcon/>}
                         loading={loading}
                     >
-                        刷新数据
+                        {t('inventory.monitoring.refresh_data')}
                     </Button>
                     <Button
                         variant={refreshInterval ? "solid" : "outlined"}
                         color={refreshInterval ? "success" : "neutral"}
                         onClick={toggleAutoRefresh}
                     >
-                        {refreshInterval ? "自动刷新: 开" : "自动刷新: 关"}
+                        {refreshInterval ? t('inventory.monitoring.auto_refresh_on') : t('inventory.monitoring.auto_refresh_off')}
                     </Button>
                 </Box>
             </Box>
@@ -182,9 +184,9 @@ export default function InventoryMonitoring() {
                 sx={{mb: 2}}
             >
                 <TabList>
-                    <Tab value={0} variant={activeTab === 0 ? "solid" : "plain"}>低库存产品</Tab>
-                    <Tab value={1} variant={activeTab === 1 ? "solid" : "plain"}>库存警报配置</Tab>
-                    <Tab value={2} variant={activeTab === 2 ? "solid" : "plain"}>最近调整记录</Tab>
+                    <Tab value={0} variant={activeTab === 0 ? "solid" : "plain"}>{t('inventory.monitoring.low_stock_products')}</Tab>
+                    <Tab value={1} variant={activeTab === 1 ? "solid" : "plain"}>{t('inventory.monitoring.alert_settings')}</Tab>
+                    <Tab value={2} variant={activeTab === 2 ? "solid" : "plain"}>{t('inventory.monitoring.recent_adjustments')}</Tab>
                 </TabList>
 
                 {/* 低库存产品 */}
@@ -193,7 +195,7 @@ export default function InventoryMonitoring() {
                         <CardContent>
                             <Box sx={{display: 'flex', alignItems: 'center', mb: 2}}>
                                 <WarningIcon color="warning" sx={{mr: 1}}/>
-                                <Typography level="h3">低库存产品</Typography>
+                                <Typography level="h3">{t('inventory.monitoring.low_stock_products')}</Typography>
                             </Box>
                             <Divider sx={{mb: 2}}/>
                             {loading ? (
@@ -205,10 +207,10 @@ export default function InventoryMonitoring() {
                                     <Table>
                                         <thead>
                                         <tr>
-                                            <th>产品名称</th>
-                                            <th>当前库存</th>
-                                            <th>警戒值</th>
-                                            <th>状态</th>
+                                            <th>{t('inventory.monitoring.product_name')}</th>
+                                            <th>{t('inventory.monitoring.current_stock')}</th>
+                                            <th>{t('inventory.monitoring.threshold')}</th>
+                                            <th>{t('inventory.monitoring.status')}</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -241,7 +243,7 @@ export default function InventoryMonitoring() {
                                                         size="sm"
                                                         variant="soft"
                                                     >
-                                                        {product.currentStock === 0 ? "缺货" : "库存不足"}
+                                                        {product.currentStock === 0 ? t('inventory.monitoring.out_of_stock') : t('inventory.monitoring.low_stock')}
                                                     </Alert>
                                                 </td>
                                             </tr>
@@ -251,7 +253,7 @@ export default function InventoryMonitoring() {
                                 </Sheet>
                             ) : (
                                 <Box sx={{p: 2, textAlign: 'center'}}>
-                                    <Typography>没有低库存产品</Typography>
+                                    <Typography>{t('inventory.monitoring.no_low_stock')}</Typography>
                                 </Box>
                             )}
                         </CardContent>
@@ -264,7 +266,7 @@ export default function InventoryMonitoring() {
                         <CardContent>
                             <Box sx={{display: 'flex', alignItems: 'center', mb: 2}}>
                                 <NotificationsActiveIcon color="primary" sx={{mr: 1}}/>
-                                <Typography level="h3">库存警报配置</Typography>
+                                <Typography level="h3">{t('inventory.monitoring.alert_settings')}</Typography>
                             </Box>
                             <Divider sx={{mb: 2}}/>
                             {loading ? (
@@ -276,10 +278,10 @@ export default function InventoryMonitoring() {
                                     <Table>
                                         <thead>
                                         <tr>
-                                            <th>产品名称</th>
-                                            <th>当前库存</th>
-                                            <th>警戒值</th>
-                                            <th>更新时间</th>
+                                            <th>{t('inventory.monitoring.product_name')}</th>
+                                            <th>{t('inventory.monitoring.current_stock')}</th>
+                                            <th>{t('inventory.monitoring.threshold')}</th>
+                                            <th>{t('inventory.monitoring.update_time')}</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -296,7 +298,7 @@ export default function InventoryMonitoring() {
                                 </Sheet>
                             ) : (
                                 <Box sx={{p: 2, textAlign: 'center'}}>
-                                    <Typography>没有设置库存警报</Typography>
+                                    <Typography>{t('inventory.monitoring.no_alerts')}</Typography>
                                 </Box>
                             )}
                         </CardContent>
@@ -309,7 +311,7 @@ export default function InventoryMonitoring() {
                         <CardContent>
                             <Box sx={{display: 'flex', alignItems: 'center', mb: 2}}>
                                 <InventoryIcon color="success" sx={{mr: 1}}/>
-                                <Typography level="h3">最近库存调整记录</Typography>
+                                <Typography level="h3">{t('inventory.monitoring.recent_adjustments')}</Typography>
                             </Box>
                             <Divider sx={{mb: 2}}/>
                             {loading ? (
@@ -326,9 +328,9 @@ export default function InventoryMonitoring() {
                                                     {adjustment.productName}
                                                 </Typography>
                                                 <Typography level="body-sm">
-                                                    调整数量: {adjustment.quantity > 0 ? `+${adjustment.quantity}` : adjustment.quantity} |
-                                                    原因: {adjustment.reason} |
-                                                    时间: {new Date(adjustment.createdAt).toLocaleString()}
+                                                    {t('inventory.monitoring.adjustment_quantity')}: {adjustment.quantity > 0 ? `+${adjustment.quantity}` : adjustment.quantity} |
+                                                    {t('inventory.monitoring.adjustment_reason')}: {adjustment.reason} |
+                                                    {t('inventory.monitoring.adjustment_time')}: {new Date(adjustment.createdAt).toLocaleString()}
                                                 </Typography>
                                             </ListItemContent>
                                         </ListItem>
@@ -337,7 +339,7 @@ export default function InventoryMonitoring() {
                                 </List>
                             ) : (
                                 <Box sx={{p: 2, textAlign: 'center'}}>
-                                    <Typography>没有库存调整记录</Typography>
+                                    <Typography>{t('inventory.monitoring.no_adjustments')}</Typography>
                                 </Box>
                             )}
                         </CardContent>

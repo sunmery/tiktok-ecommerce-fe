@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from 'react';
+import {KeyboardEvent, useEffect, useRef, useState} from 'react';
 import {Avatar, Badge, Box, Card, FormControl, IconButton, Input, Typography} from '@mui/joy';
 import {useTheme} from '@mui/joy/styles';
 import CloseIcon from '@mui/icons-material/Close';
@@ -88,7 +88,7 @@ export default function ChatAssistant() {
     };
 
     // 处理按Enter键发送消息
-    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             sendMessage().then(data => {

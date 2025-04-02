@@ -3,7 +3,6 @@ import {Add, CheckBox, CheckBoxOutlineBlank, FavoriteBorder, Remove, ShoppingCar
 import {Box, Button, Card, IconButton, Input, Table, Typography} from '@mui/joy'
 import {useState} from 'react'
 import {useTranslation} from 'react-i18next'
-
 import {useCart} from "@/hooks/useCart.ts";
 
 export const Route = createLazyFileRoute('/carts/')({component: () => <Cart/>})

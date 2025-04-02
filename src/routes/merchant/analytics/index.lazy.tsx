@@ -2,11 +2,11 @@ import {createLazyFileRoute} from '@tanstack/react-router'
 import {useEffect, useRef, useState} from 'react'
 import {Box, Card, CardContent, CircularProgress, Grid, Typography} from '@mui/joy'
 import * as echarts from 'echarts'
-import {Order, PaymentStatus} from '@/types/orders'
+import {Order} from '@/types/orders'
 import {orderService} from '@/api/orderService'
 import Breadcrumbs from '@/components/Breadcrumbs'
-import {t} from "i18next";
 import {formatCurrency} from '@/utils/format'
+import {useTranslation} from "react-i18next";
 
 export const Route = createLazyFileRoute('/merchant/analytics/')({
     component: Analytics,
@@ -58,13 +58,14 @@ export default function Analytics() {
         pieChart: null,
         rankChart: null
     })
+    const {t} = useTranslation()
 
     // 加载数据
     useEffect(() => {
         loadSalesData().catch(error => {
             console.error(t('analytics.load_sales_data_failed'), error)
             setLoading(false)
-            
+
             // 处理权限错误
             if (error.message && (error.message.includes('未授权') || error.message.includes('权限不足'))) {
                 import('@/utils/casdoor').then(({showMessage}) => {
@@ -82,7 +83,7 @@ export default function Analytics() {
                 salesDataLength: salesData.length,
                 productSalesLength: productSales.length
             })
-            
+
             // 即使没有数据，也要初始化图表，避免白屏
             initCharts(salesData, productSales)
             setChartsInitialized(true)
@@ -97,15 +98,15 @@ export default function Analytics() {
             if (pieChart) pieChart.resize()
             if (rankChart) rankChart.resize()
         }
-        
+
         window.addEventListener('resize', handleResize)
-        
+
         return () => {
             window.removeEventListener('resize', handleResize)
-            
+
             // 销毁图表实例以防内存泄漏
             if (charts.trendChart) charts.trendChart.dispose()
-            if (charts.pieChart) charts.pieChart.dispose() 
+            if (charts.pieChart) charts.pieChart.dispose()
             if (charts.rankChart) charts.rankChart.dispose()
         }
     }, [charts])
@@ -113,16 +114,16 @@ export default function Analytics() {
     const loadSalesData = async () => {
         setLoading(true)
         try {
-            console.log('加载订单数据...')
+            console.log(t('analytics.loading_orders'))
             // 获取订单数据
             const response = await orderService.getOrder({
                 userId: '', // 留空，API会使用当前登录用户的ID
                 page: 1,
                 pageSize: 100 // 获取更多订单数据以提高分析准确性
             })
-            
-            console.log('订单数据加载完成:', response)
-            
+
+            console.log(t('analytics.orders_load_complete'), response)
+
             if (response && response.orders) {
                 processOrdersData(response.orders)
             } else {
@@ -136,7 +137,7 @@ export default function Analytics() {
     }
 
     const processOrdersData = (orders: Order[]) => {
-        console.log('处理订单数据...', orders.length)
+        console.log(t('analytics.processing_orders'), orders.length)
         if (!orders || orders.length === 0) {
             console.warn(t('analytics.no_orders_data'))
             setSummary({
@@ -150,13 +151,13 @@ export default function Analytics() {
             setLoading(false)
             return
         }
-        
-        console.log('订单状态示例:', orders[0].paymentStatus)
-        
+
+        console.log(t('analytics.order_status_example'), orders[0].paymentStatus)
+
         // 使用所有订单进行分析，不再过滤支付状态
         // 前端分析页面需要显示所有订单数据，包括未支付订单
         const allOrders = orders
-        
+
         // 计算总销售额
         let totalSales = 0
         allOrders.forEach(order => {
@@ -164,14 +165,14 @@ export default function Analytics() {
                 totalSales += item.cost
             })
         })
-        
+
         // 获取货币类型（假设所有订单使用同一种货币）
         const currency = orders[0]?.currency || 'CNY'
-        
+
         // 计算总订单数和平均客单价
         const totalOrders = allOrders.length
         const averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0
-        
+
         // 更新汇总数据
         setSummary({
             totalSales,
@@ -179,68 +180,68 @@ export default function Analytics() {
             averageOrderValue,
             currency
         })
-        
+
         // 按日期分组销售数据
         const dailySales: Record<string, { sales: number, orders: number }> = {}
-        
+
         allOrders.forEach(order => {
             // 确保日期格式一致
             const orderDate = new Date(order.createdAt)
             const date = orderDate.toLocaleDateString()
-            console.log('订单日期:', order.createdAt, '格式化后:', date)
-            
+            console.log(t('analytics.order_date_format'), order.createdAt, t('analytics.formatted_date'), date)
+
             let orderTotal = 0
-            
+
             order.items.forEach(item => {
                 orderTotal += item.cost
             })
-            
+
             if (!dailySales[date]) {
-                dailySales[date] = { sales: 0, orders: 0 }
+                dailySales[date] = {sales: 0, orders: 0}
             }
-            
+
             dailySales[date].sales += orderTotal
             dailySales[date].orders += 1
         })
-        
+
         // 检查按日期分组后的结果
-        console.log('按日期分组后的销售数据:', dailySales)
-        
+        console.log(t('analytics.sales_data_by_date'), dailySales)
+
         // 转换为数组格式并按日期排序
         const salesDataArray = Object.entries(dailySales).map(([date, data]) => ({
             date,
             sales: data.sales,
             orders: data.orders
         })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-        
-        console.log('销售数据处理完成:', salesDataArray)
-        
+
+        console.log(t('analytics.sales_data_processing_complete'), salesDataArray)
+
         // 按商品分组销售数据
         const productSalesMap = new Map<string, { sales: number, quantity: number }>()
-        
+
         allOrders.forEach(order => {
             order.items.forEach(item => {
                 // 生成商品名称，如果没有名称则使用ID的一部分
                 const productId = item.item.productId
-                const productName = item.item.name || `商品#${productId.substring(0, 8)}`
-                
-                const existing = productSalesMap.get(productName) || { sales: 0, quantity: 0 }
+                const productName = item.item.name || `${t('analytics.product_prefix')}#${productId.substring(0, 8)}`
+
+                const existing = productSalesMap.get(productName) || {sales: 0, quantity: 0}
                 productSalesMap.set(productName, {
                     sales: existing.sales + item.cost,
                     quantity: existing.quantity + item.item.quantity
                 })
             })
         })
-        
+
         // 转换为数组并按销售额排序
         const productSalesArray = Array.from(productSalesMap.entries()).map(([name, data]) => ({
             name,
             sales: data.sales,
             quantity: data.quantity
         })).sort((a, b) => b.sales - a.sales)
-        
-        console.log('商品销售数据处理完成:', productSalesArray)
-        
+
+        console.log(t('analytics.product_sales_data_complete'), productSalesArray)
+
         // 确保至少有一条数据
         if (salesDataArray.length === 0) {
             salesDataArray.push({
@@ -249,15 +250,15 @@ export default function Analytics() {
                 orders: 0
             })
         }
-        
+
         if (productSalesArray.length === 0) {
             productSalesArray.push({
-                name: '暂无商品数据',
+                name: t('analytics.no_product_data'),
                 sales: 0,
                 quantity: 0
             })
         }
-        
+
         // 更新状态
         setSalesData(salesDataArray)
         setProductSales(productSalesArray)
@@ -265,36 +266,36 @@ export default function Analytics() {
     }
 
     const initCharts = (salesData: SalesData[], productSales: ProductSales[]) => {
-        console.log('初始化图表中...', salesData.length, productSales.length)
+        console.log(t('analytics.initializing_charts'), salesData.length, productSales.length)
         // 确保DOM元素已经渲染
         if (!salesTrendChartRef.current || !productSalesChartRef.current || !productRankChartRef.current) {
-            console.error('图表DOM元素未准备好')
+            console.error(t('analytics.chart_dom_not_ready'))
             return
         }
 
         // 确保有数据可用
         let chartSalesData = salesData
         let chartProductData = productSales
-        
+
         // 如果没有数据，提供默认值避免图表空白
         if (chartSalesData.length === 0) {
             const today = new Date().toLocaleDateString()
-            chartSalesData = [{ date: today, sales: 0, orders: 0 }]
+            chartSalesData = [{date: today, sales: 0, orders: 0}]
         }
-        
+
         if (chartProductData.length === 0) {
-            chartProductData = [{ name: '暂无数据', sales: 0, quantity: 0 }]
+            chartProductData = [{name: t('analytics.no_data'), sales: 0, quantity: 0}]
         }
 
         // 销售趋势图表
         try {
-            console.log('初始化销售趋势图表...')
-            
+            console.log(t('analytics.initializing_sales_trend'))
+
             // 先销毁之前的实例
             if (charts.trendChart) {
                 charts.trendChart.dispose()
             }
-            
+
             const trendChart = echarts.init(salesTrendChartRef.current)
             trendChart.setOption({
                 title: {text: t('analytics.sales_trend')},
@@ -312,8 +313,8 @@ export default function Analytics() {
                     data: chartSalesData.map(item => item.date)
                 },
                 yAxis: [
-                    {type: 'value', name: '销售额'},
-                    {type: 'value', name: '订单数', alignTicks: true}
+                    {type: 'value', name: t('analytics.sales_amount')},
+                    {type: 'value', name: t('analytics.order_count'), alignTicks: true}
                 ],
                 series: [
                     {
@@ -341,13 +342,13 @@ export default function Analytics() {
             })
 
             // 商品销售占比图表
-            console.log('初始化商品销售占比图表...')
-            
+            console.log(t('analytics.initializing_sales_ratio'))
+
             // 先销毁之前的实例
             if (charts.pieChart) {
                 charts.pieChart.dispose()
             }
-            
+
             const pieChart = echarts.init(productSalesChartRef.current)
             pieChart.setOption({
                 title: {text: t('analytics.product_sales_ratio')},
@@ -393,18 +394,18 @@ export default function Analytics() {
             })
 
             // 商品销量排行图表
-            console.log('初始化商品销量排行图表...')
-            
+            console.log(t('analytics.initializing_sales_rank'))
+
             // 先销毁之前的实例
             if (charts.rankChart) {
                 charts.rankChart.dispose()
             }
-            
+
             const rankChart = echarts.init(productRankChartRef.current)
             const topProducts = chartProductData.slice(0, 10)
-            
+
             rankChart.setOption({
-                title: {text: '商品销量排行'},
+                title: {text: t('analytics.product_sales_rank')},
                 tooltip: {trigger: 'axis'},
                 grid: {
                     left: '3%',
@@ -428,7 +429,7 @@ export default function Analytics() {
                         type: 'bar',
                         data: topProducts.map(item => item.quantity),
                         itemStyle: {
-                            color: function(params: any) {
+                            color: function (params: any) {
                                 // 根据数值生成不同深浅的颜色
                                 const colorList = ['#83bff6', '#188df0', '#0065cf', '#004b9a', '#00337a'];
                                 const index = Math.floor(params.dataIndex / 2) % colorList.length;
@@ -445,9 +446,9 @@ export default function Analytics() {
                 pieChart,
                 rankChart
             })
-            
-            console.log('图表初始化完成')
-            
+
+            console.log(t('analytics.charts_initialization_complete'))
+
             // 触发一次resize以确保图表正确显示
             setTimeout(() => {
                 trendChart.resize()
@@ -455,7 +456,7 @@ export default function Analytics() {
                 rankChart.resize()
             }, 200)
         } catch (error) {
-            console.error('图表初始化失败:', error)
+            console.error(t('analytics.charts_initialization_failed'), error)
         }
     }
 
@@ -499,7 +500,8 @@ export default function Analytics() {
                 <Grid xs={12} md={4}>
                     <Card variant="outlined">
                         <CardContent>
-                            <Typography level="title-md" color="primary">{t('analytics.average_order_value')}</Typography>
+                            <Typography level="title-md"
+                                        color="primary">{t('analytics.average_order_value')}</Typography>
                             <Typography level="h2" sx={{mt: 1, color: 'warning.600'}}>
                                 {formatCurrency(summary.averageOrderValue, summary.currency)}
                             </Typography>
@@ -529,7 +531,7 @@ export default function Analytics() {
                                     backgroundColor: 'rgba(255, 255, 255, 0.8)',
                                     zIndex: 1
                                 }}>
-                                    <CircularProgress />
+                                    <CircularProgress/>
                                 </Box>
                             )}
                             <div ref={salesTrendChartRef} style={{width: '100%', height: '100%'}}></div>
@@ -552,7 +554,7 @@ export default function Analytics() {
                                     backgroundColor: 'rgba(255, 255, 255, 0.8)',
                                     zIndex: 1
                                 }}>
-                                    <CircularProgress />
+                                    <CircularProgress/>
                                 </Box>
                             )}
                             <div ref={productSalesChartRef} style={{width: '100%', height: '100%'}}></div>
@@ -575,7 +577,7 @@ export default function Analytics() {
                                     backgroundColor: 'rgba(255, 255, 255, 0.8)',
                                     zIndex: 1
                                 }}>
-                                    <CircularProgress />
+                                    <CircularProgress/>
                                 </Box>
                             )}
                             <div ref={productRankChartRef} style={{width: '100%', height: '100%'}}></div>

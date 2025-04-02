@@ -322,7 +322,9 @@ function AnalyticsDashboard() {
             }
         };
 
-        fetchOrderData();
+        fetchOrderData().then(() => {
+            console.log('获取订单数据完成');
+        });
     }, []);
 
     // 数据加载完成后初始化图表

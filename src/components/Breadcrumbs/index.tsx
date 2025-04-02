@@ -3,6 +3,7 @@ import {Breadcrumbs as JoyBreadcrumbs, Typography} from '@mui/joy'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import HomeIcon from '@mui/icons-material/Home'
 import {useMemo} from 'react'
+import {useTranslation} from 'react-i18next'
 
 interface BreadcrumbsProps {
     // 自定义路径映射，用于显示中文名称
@@ -20,23 +21,24 @@ interface BreadcrumbsProps {
 export default function Breadcrumbs({pathMap = {}, showHomeIcon = true, sx = {}}: BreadcrumbsProps) {
     // 获取当前匹配的路由
     const matches = useMatches()
+    const {t} = useTranslation()
 
     // 默认路径映射
-    const defaultPathMap: Record<string, string> = {
-        '': '首页',
-        'products': '全部商品',
-        'category': '分类',
-        'consumer': '消费者中心',
-        'merchant': '商家中心',
-        'admin': '管理中心',
-        'orders': '订单',
-        'profile': '个人中心',
-        'carts': '购物车',
-        'checkout': '结算',
-        'addresses': '地址管理',
-        'credit_cards': '支付方式',
+    const defaultPathMap = useMemo(() => ({
+        '': t('nav.home'),
+        'products': t('allProducts'),
+        'category': t('category'),
+        'consumer': t('profile.consumerCenter'),
+        'merchant': t('profile.merchantCenter'),
+        'admin': t('profile.adminPanel'),
+        'orders': t('orders.title'),
+        'profile': t('profile'),
+        'carts': t('nav.cart'),
+        'checkout': t('checkout'),
+        'addresses': t('addresses.title'),
+        'credit_cards': t('payment.title'),
         ...pathMap
-    }
+    } as Record<string, string>), [t, pathMap])
 
     // 处理路径显示名称
     const getPathName = (path: string): string => {

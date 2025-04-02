@@ -6,14 +6,14 @@ import {useEffect, useState} from 'react'
 import Skeleton from '@/components/Skeleton'
 import {Order, PaymentStatus} from '@/types/orders'
 import {orderService} from '@/api/orderService'
-import {formatCurrency} from '@/utils/format'
-import { t } from 'i18next'
+import {useTranslation} from "react-i18next";
 
 export const Route = createLazyFileRoute('/consumer/')({
     component: ConsumerDashboard,
 })
 
 function ConsumerDashboard() {
+    const {t} = useTranslation()
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
     const [loading, setLoading] = useState(true)

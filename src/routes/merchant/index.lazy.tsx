@@ -7,33 +7,41 @@ import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
 import {useEffect, useState} from 'react'
 import Skeleton from '@/components/Skeleton'
-import { t } from 'i18next'
+import {useTranslation} from "react-i18next";
+import {showMessage} from '@/utils/casdoor'
+
 
 export const Route = createLazyFileRoute('/merchant/')({
     component: MerchantDashboard,
 })
 
 function MerchantDashboard() {
-
+    const {t} = useTranslation()
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
     const [loading, setLoading] = useState(true)
 
+    console.log("account", account)
+    console.log("account.role", account.role)
+
     useEffect(() => {
-        if (account.role !== 'merchant') {
-            // 导入showMessage函数显示权限错误
-            import('@/utils/casdoor').then(({showMessage}) => {
+        // 检查account是否存在且已加载完成
+        if (account && Object.keys(account).length > 0) {
+            // 只有当account已加载完成时才进行角色检查
+            if (account.role !== 'merchant') {
+                // 导入showMessage函数显示权限错误
                 showMessage('权限不足：只有商家可以访问商家中心', 'error')
-            })
-            navigate({to: '/'}).then(() => {
-                console.log(t('log.redirectedNonMerchant'))
-            })
+                navigate({to: '/'}).then(() => {
+                    console.log(t('log.redirectedNonMerchant'))
+                })
+            }
         }
+        
         const timer = setTimeout(() => {
             setLoading(false)
         }, 800)
         return () => clearTimeout(timer)
-    }, [account.role, navigate])
+    }, [account, navigate, t])
 
     return (
         <Box sx={{p: 2}}>

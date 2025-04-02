@@ -1,4 +1,3 @@
-// import {StrictMode} from 'react'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import {createRouter, RouterProvider} from '@tanstack/react-router'
@@ -7,11 +6,12 @@ import {ReactQueryDevtools} from '@tanstack/react-query-devtools'
 import {routeTree} from './routeTree.gen'
 import {CssVarsProvider} from '@mui/joy/styles'
 import CssBaseline from '@mui/joy/CssBaseline'
-import theme from './theme/theme'
-import {AlertProvider} from './components/AlertProvider'
+import theme from '@/core/conf/theme'
+import {AlertProvider} from '@/components/AlertProvider'
 import './app.css'
 import {LanguageProvider} from './contexts/LanguageContext'
 import {I18nProvider} from './contexts/I18nProvider'
+import {scan} from "react-scan";
 
 // 创建路由
 const router = createRouter({
@@ -34,11 +34,15 @@ const queryClient = new QueryClient({
     },
 })
 
+scan({
+    enabled: true,
+});
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
         <QueryClientProvider client={queryClient}>
             <CssVarsProvider theme={theme} defaultMode="light">
-                <CssBaseline/>
+                {/*<CssBaseline/>*/}
                 <AlertProvider>
                     <I18nProvider>
                         <LanguageProvider>

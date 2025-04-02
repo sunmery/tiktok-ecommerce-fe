@@ -20,7 +20,7 @@ import {Order, PaymentStatus} from '@/types/orders'
 import {orderService} from '@/api/orderService'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
-import { t } from 'i18next'
+import {useTranslation} from "react-i18next";
 
 export const Route = createLazyFileRoute('/merchant/orders/')({
     component: Orders,
@@ -40,6 +40,7 @@ export default function Orders() {
         message: '',
         severity: 'success'
     })
+    const {t} = useTranslation()
 
     useEffect(() => {
         loadOrders().then((data) => {
@@ -52,19 +53,19 @@ export default function Orders() {
     const loadOrders = async () => {
         try {
             setLoading(true)
-            
+
             // 调用API获取订单列表
             const response = await orderService.getOrder({
                 userId: '', // 留空，API会使用当前登录用户的ID
                 page: 1,
                 pageSize: 50
             })
-            
+
             if (response && response.orders) {
                 setOrders(response.orders)
                 return response.orders
             }
-            
+
             return []
         } catch (error) {
             console.error('获取订单列表失败:', error)
@@ -123,8 +124,8 @@ export default function Orders() {
     return (
         <Box sx={{p: 2}}>
             <Breadcrumbs pathMap={{
-                'merchant': '商家中心',
-                'orders': '订单管理',
+                'merchant': `${t('profile.merchantCenter')}`,
+                'orders': `${t('merchant.orders.title')}`,
             }}/>
 
             <Typography level="h2" sx={{mb: 3}}>{t('merchant.orders.title')}</Typography>
@@ -146,6 +147,7 @@ export default function Orders() {
                                 <th style={{width: '15%'}}>{t('merchant.orders.amount')}</th>
                                 <th style={{width: '15%'}}>{t('merchant.orders.paymentStatus')}</th>
                                 <th style={{width: '15%'}}>{t('merchant.orders.userId')}</th>
+                                <th style={{width: '25%'}}>{t('merchant.orders.viewDetails')}</th>
                                 <th style={{width: '25%'}}>{t('merchant.orders.actions')}</th>
                             </tr>
                             </thead>
@@ -153,7 +155,7 @@ export default function Orders() {
                             {orders.map((order) => {
                                 // 计算订单总金额
                                 const total = order.items.reduce((sum, item) => sum + item.cost, 0)
-                                
+
                                 return (
                                     <tr key={order.orderId}>
                                         <td>{order.orderId}</td>
@@ -169,25 +171,30 @@ export default function Orders() {
                                                 }}
                                             >
                                                 {order.paymentStatus === PaymentStatus.Paid && (
-                                                    <Typography color="success">{t('merchant.orders.status.paid')}</Typography>
+                                                    <Typography
+                                                        color="success">{t('merchant.orders.status.paid')}</Typography>
                                                 )}
                                                 {order.paymentStatus === PaymentStatus.Processing && (
-                                                    <Typography color="primary">{t('merchant.orders.status.processing')}</Typography>
+                                                    <Typography
+                                                        color="primary">{t('merchant.orders.status.processing')}</Typography>
                                                 )}
                                                 {order.paymentStatus === PaymentStatus.NotPaid && (
-                                                    <Typography color="neutral">{t('merchant.orders.status.notPaid')}</Typography>
+                                                    <Typography
+                                                        color="neutral">{t('merchant.orders.status.notPaid')}</Typography>
                                                 )}
                                                 {order.paymentStatus === PaymentStatus.Failed && (
-                                                    <Typography color="danger">{t('merchant.orders.status.failed')}</Typography>
+                                                    <Typography
+                                                        color="danger">{t('merchant.orders.status.failed')}</Typography>
                                                 )}
                                                 {order.paymentStatus === PaymentStatus.Cancelled && (
-                                                    <Typography color="danger">{t('merchant.orders.status.cancelled')}</Typography>
+                                                    <Typography
+                                                        color="danger">{t('merchant.orders.status.cancelled')}</Typography>
                                                 )}
                                             </Box>
                                         </td>
                                         <td>{order.userId}</td>
                                         <td>
-                                            <Box sx={{display: 'flex', gap: 1}}>
+                                            <Box>
                                                 <Button
                                                     size="sm"
                                                     variant="plain"
@@ -196,25 +203,33 @@ export default function Orders() {
                                                 >
                                                     {t('merchant.orders.viewDetails')}
                                                 </Button>
-                                                <FormControl size="sm">
-                                                    <Select
-                                                        size="sm"
-                                                        value={order.paymentStatus}
-                                                        onChange={(_, value) => {
-                                                            if (value) {
-                                                                handleStatusChange(order.orderId, value as PaymentStatus)
-                                                            }
-                                                        }}
-                                                        sx={{minWidth: '120px'}}
-                                                    >
-                                                        <Option value={PaymentStatus.NotPaid}>未支付</Option>
-                                                        <Option value={PaymentStatus.Processing}>处理中</Option>
-                                                        <Option value={PaymentStatus.Paid}>已支付</Option>
-                                                        <Option value={PaymentStatus.Failed}>失败</Option>
-                                                        <Option value={PaymentStatus.Cancelled}>已取消</Option>
-                                                    </Select>
-                                                </FormControl>
+
                                             </Box>
+                                        </td>
+                                        <td>
+                                            <FormControl size="sm">
+                                                <Select
+                                                    size="sm"
+                                                    value={order.paymentStatus}
+                                                    onChange={(_, value) => {
+                                                        if (value) {
+                                                            handleStatusChange(order.orderId, value as PaymentStatus)
+                                                        }
+                                                    }}
+                                                    sx={{minWidth: '120px'}}
+                                                >
+                                                    <Option
+                                                        value={PaymentStatus.NotPaid}>{t('merchant.orders.status.notPaid')}</Option>
+                                                    <Option
+                                                        value={PaymentStatus.Processing}>{t('merchant.orders.status.processing')}</Option>
+                                                    <Option
+                                                        value={PaymentStatus.Paid}>{t('merchant.orders.status.paid')}</Option>
+                                                    <Option
+                                                        value={PaymentStatus.Failed}>{t('merchant.orders.status.failed')}</Option>
+                                                    <Option
+                                                        value={PaymentStatus.Cancelled}>{t('merchant.orders.status.cancelled')}</Option>
+                                                </Select>
+                                            </FormControl>
                                         </td>
                                     </tr>
                                 )

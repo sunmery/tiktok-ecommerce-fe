@@ -1,37 +1,52 @@
 import {extendTheme} from '@mui/joy/styles';
 import {
-  black,
-  gray100,
-  gray200,
-  gray300,
-  gray400,
-  gray500,
-  gray600,
-  gray700,
-  gray800,
-  gray900,
-  kleinBlue,
-  kleinBlueDark,
-  kleinBlueDarker,
-  kleinBlueLight,
-  kleinBlueLighter,
-  marsGreen,
-  marsGreenDark,
-  marsGreenDarker,
-  marsGreenLight,
-  marsGreenLighter,
-  schoenbrunnYellow,
-  schoenbrunnYellowDark,
-  schoenbrunnYellowDarker,
-  schoenbrunnYellowLight,
-  schoenbrunnYellowLighter,
-  tiffanyBlue,
-  tiffanyBlueDark,
-  tiffanyBlueDarker,
-  tiffanyBlueLight,
-  tiffanyBlueLighter,
-  white
+    black,
+    gray100,
+    gray200,
+    gray300,
+    gray400,
+    gray500,
+    gray600,
+    gray700,
+    gray800,
+    gray900,
+    kleinBlue,
+    kleinBlueDark,
+    kleinBlueDarker,
+    kleinBlueLight,
+    kleinBlueLighter,
+    marsGreen,
+    marsGreenDark,
+    marsGreenDarker,
+    marsGreenLight,
+    marsGreenLighter,
+    schoenbrunnYellow,
+    schoenbrunnYellowDark,
+    schoenbrunnYellowDarker,
+    schoenbrunnYellowLight,
+    schoenbrunnYellowLighter,
+    tiffanyBlue,
+    tiffanyBlueDark,
+    tiffanyBlueDarker,
+    tiffanyBlueLight,
+    tiffanyBlueLighter,
+    white
 } from './colors';
+import type {PaletteRange} from "@mui/joy";
+
+// 扩充主题的界面以包含新的调色板
+declare module '@mui/joy/styles' {
+    interface ColorPalettePropOverrides {
+        // apply to all Joy UI components that support `color` prop
+        secondary: true;
+    }
+
+    interface Palette {
+        // this will make the node `secondary` configurable in `extendTheme`
+        // and add `secondary` to the theme's palette.
+        secondary: PaletteRange;
+    }
+}
 
 // 扩展MUI Joy主题，应用四种经典色调
 const theme = extendTheme({
@@ -52,6 +67,8 @@ const theme = extendTheme({
                     900: kleinBlueDarker,
                 },
                 // 次要色 - 使用蒂芙尼蓝
+                // Credit:
+                // https://github.com/tailwindlabs/tailwindcss/blob/master/src/public/colors.js
                 secondary: {
                     50: tiffanyBlueLighter,
                     100: tiffanyBlueLight,
