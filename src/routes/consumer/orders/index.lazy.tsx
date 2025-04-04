@@ -13,7 +13,6 @@ import {
     Option,
     Select,
     Stack,
-    Table,
     Typography
 } from '@mui/joy'
 import Pagination from '@/components/Pagination'
@@ -24,7 +23,7 @@ import {userStore} from '@/store/user.ts'
 import {orderService} from '@/api/orderService'
 import OrderList from '@/shared/components/OrderList.lazy'
 import Breadcrumbs from '@/components/Breadcrumbs'
-import {Order, Orders} from "@/types/orders.ts"
+import {Order} from "@/types/orders.ts"
 import {Search, FilterList, Clear} from '@mui/icons-material'
 import {useTranslation} from 'react-i18next'
 
@@ -62,7 +61,7 @@ interface OrderQueryParams {
 }
 
 function ConsumerOrders() {
-    // const {t} = useTranslation()
+    const {t} = useTranslation()
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
     const [currentPage, setCurrentPage] = useState(1)
@@ -198,7 +197,7 @@ function ConsumerOrders() {
                     <Stack spacing={2}>
                         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                             <FormControl sx={{ minWidth: 150 }}>
-                                <FormLabel>开始日期</FormLabel>
+                                <FormLabel>{t('consumer.orders.filter.startDate')}</FormLabel>
                                 <Input
                                     type="date"
                                     value={startDate}
@@ -207,7 +206,7 @@ function ConsumerOrders() {
                             </FormControl>
                             
                             <FormControl sx={{ minWidth: 150 }}>
-                                <FormLabel>结束日期</FormLabel>
+                                <FormLabel>{t('consumer.orders.filter.endDate')}</FormLabel>
                                 <Input
                                     type="date"
                                     value={endDate}
@@ -216,18 +215,18 @@ function ConsumerOrders() {
                             </FormControl>
                             
                             <FormControl sx={{ minWidth: 150 }}>
-                                <FormLabel>支付状态</FormLabel>
+                                <FormLabel>{t('consumer.orders.filter.paymentStatus')}</FormLabel>
                                 <Select
                                     value={status}
                                     onChange={(_, value) => setStatus(value as string)}
-                                    placeholder="选择状态"
+                                    placeholder={t('consumer.orders.filter.selectStatus')}
                                 >
-                                    <Option value="">全部</Option>
-                                    <Option value={String(PAYMENT_STATUS.NOT_PAID)}>未支付</Option>
-                                    <Option value={String(PAYMENT_STATUS.PROCESSING)}>处理中</Option>
-                                    <Option value={String(PAYMENT_STATUS.PAID)}>已支付</Option>
-                                    <Option value={String(PAYMENT_STATUS.FAILED)}>支付失败</Option>
-                                    <Option value={String(PAYMENT_STATUS.CANCELLED)}>已取消</Option>
+                                    <Option value="">{t('consumer.orders.filter.all')}</Option>
+                                    <Option value={String(PAYMENT_STATUS.NOT_PAID)}>{t('consumer.orders.status.notPaid')}</Option>
+                                    <Option value={String(PAYMENT_STATUS.PROCESSING)}>{t('consumer.orders.status.processing')}</Option>
+                                    <Option value={String(PAYMENT_STATUS.PAID)}>{t('consumer.orders.status.paid')}</Option>
+                                    <Option value={String(PAYMENT_STATUS.FAILED)}>{t('consumer.orders.status.failed')}</Option>
+                                    <Option value={String(PAYMENT_STATUS.CANCELLED)}>{t('consumer.orders.status.cancelled')}</Option>
                                 </Select>
                             </FormControl>
                         </Box>
@@ -237,7 +236,7 @@ function ConsumerOrders() {
                                 startDecorator={<Search />}
                                 onClick={handleSearch}
                             >
-                                查询
+                                {t('consumer.orders.filter.search')}
                             </Button>
                             <Button 
                                 variant="soft" 
@@ -245,7 +244,7 @@ function ConsumerOrders() {
                                 startDecorator={<Clear />}
                                 onClick={handleClearFilters}
                             >
-                                清除筛选
+                                {t('consumer.orders.filter.clear')}
                             </Button>
                         </Box>
                     </Stack>
@@ -273,7 +272,7 @@ function ConsumerOrders() {
                 <Card variant="outlined">
                     <CardContent>
                         <Typography level="body-lg" textAlign="center">
-                            暂无订单记录
+                            {t('consumer.orders.noOrders')}
                         </Typography>
                     </CardContent>
                 </Card>
@@ -302,14 +301,14 @@ function ConsumerOrders() {
             {/* 面包屑导航 */}
             <Breadcrumbs
                 pathMap={{
-                    'consumer': '消费者中心',
-                    'orders': '我的订单'
+                    'consumer': t('consumer.dashboard.title'),
+                    'orders': t('consumer.orders.title')
                 }}
             />
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography level="h2">我的订单</Typography>
-                <Typography level="body-sm">共 {totalOrders} 个订单</Typography>
+                <Typography level="h2">{t('consumer.orders.title')}</Typography>
+                <Typography level="body-sm">{t('consumer.orders.totalCount', { count: totalOrders })}</Typography>
             </Box>
             
             {/* 过滤器 */}

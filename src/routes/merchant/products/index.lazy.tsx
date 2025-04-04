@@ -4,8 +4,6 @@ import {
     Alert,
     Box,
     Button,
-    Card,
-    CardContent,
     Chip,
     CircularProgress,
     IconButton,
@@ -21,18 +19,14 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import UnpublishedIcon from '@mui/icons-material/Unpublished'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 import PublishIcon from '@mui/icons-material/Publish'
-import {
-    Product,
-    ProductStatus,
-    CreateProductRequest,
-    ProductImage
-} from '@/types/products.ts'
+import {CreateProductRequest, Product, ProductStatus} from '@/types/products.ts'
 import {productService} from '@/api/productService'
 import {ProductAttributes} from '@/components/ui/ProductAttributes'
 import {ProductEditForm} from '@/components/ProductEditForm'
 import {useTranslation} from 'react-i18next'
 import {usePagination} from '@/hooks/usePagination'
 import PaginationBar from '@/components/PaginationBar'
+import {translateProductStatus} from '@/utils/translateProductStatus'
 
 export const Route = createLazyFileRoute('/merchant/products/')({
     component: Products,
@@ -61,27 +55,6 @@ export default function Products() {
         initialPageSize: 10,
     });
 
-    // 翻译商品状态
-    const translateProductStatus = (status: ProductStatus | number | string): string => {
-        if (typeof status === 'number') {
-            switch (status) {
-                case ProductStatus.PRODUCT_STATUS_DRAFT:
-                    return t('products.status.draft');
-                case ProductStatus.PRODUCT_STATUS_PENDING:
-                    return t('products.status.pending');
-                case ProductStatus.PRODUCT_STATUS_APPROVED:
-                    return t('products.status.approved');
-                case ProductStatus.PRODUCT_STATUS_REJECTED:
-                    return t('products.status.rejected');
-                case ProductStatus.PRODUCT_STATUS_SOLDOUT:
-                    return t('products.status.soldout');
-                default:
-                    return t('products.status.unknown', {status}); // 若无法匹配则返回原状态
-            }
-        } 
-        return t('products.status.unknown', {status}); // 若无法匹配则返回原状态
-    }
-
     // 获取状态对应的颜色
     const getStatusColor = (status: ProductStatus | number | string) => {
         if (typeof status === 'number') {
@@ -94,38 +67,14 @@ export default function Products() {
                     return 'success';
                 case ProductStatus.PRODUCT_STATUS_REJECTED:
                     return 'danger';
-                case ProductStatus.PRODUCT_STATUS_SOLDOUT:
+                case ProductStatus.PRODUCT_STATUS_SOLD_OUT:
                     return 'neutral';
                 default:
                     return 'neutral';
             }
-        } 
+        }
         return 'neutral';
     }
-
-    // 获取商品状态的枚举值
-    const getProductStatusEnum = (status: ProductStatus | number | string): ProductStatus => {
-        if (typeof status === 'number') {
-            return status as ProductStatus;
-        }
-        if (typeof status === 'string') {
-            switch (status) {
-                case 'PRODUCT_STATUS_DRAFT':
-                    return ProductStatus.PRODUCT_STATUS_DRAFT;
-                case 'PRODUCT_STATUS_PENDING':
-                    return ProductStatus.PRODUCT_STATUS_PENDING;
-                case 'PRODUCT_STATUS_APPROVED':
-                    return ProductStatus.PRODUCT_STATUS_APPROVED;
-                case 'PRODUCT_STATUS_REJECTED':
-                    return ProductStatus.PRODUCT_STATUS_REJECTED;
-                case 'PRODUCT_STATUS_SOLDOUT':
-                    return ProductStatus.PRODUCT_STATUS_SOLDOUT;
-                default:
-                    return ProductStatus.PRODUCT_STATUS_DRAFT;
-            }
-        }
-        return status;
-    };
 
     useEffect(() => {
         // 获取商家的产品列表
@@ -250,7 +199,7 @@ export default function Products() {
     const handleFormSubmit = async (productData: Partial<Product>) => {
         try {
             setLoading(true)
-            
+
             // 如果是新建商品
             if (!editProduct) {
                 // 确保按照正确的格式提交数据
@@ -266,7 +215,7 @@ export default function Products() {
                         categoryName: ''
                     }
                 }
-                
+
                 // 创建商品
                 await productService.createProduct(createProductRequest)
                 setSnackbar({
@@ -289,7 +238,7 @@ export default function Products() {
                     severity: 'success'
                 })
             }
-            
+
             setOpen(false)
             await loadProducts() // 重新加载商品列表
         } catch (error) {
@@ -314,42 +263,7 @@ export default function Products() {
                         onClick={() => {
                             setEditProduct(null)
                             // 根据模板设置默认值
-                            setFormData({
-                                id: '',
-                                name: '',
-                                description: '',
-                                price: 0,
-                                status: ProductStatus.PRODUCT_STATUS_DRAFT,
-                                merchantId: '',
-                                picture: '',
-                                images: [
-                                    {
-                                        url: '',
-                                        isPrimary: true,
-                                        sortOrder: 0
-                                    }
-                                ],
-                                quantity: 0,
-                                attributes: {
-                                    phoneInfo: {
-                                        CPU: '',
-                                        内存: '',
-                                        batteryCapacity: ''
-                                    },
-                                    color: [],
-                                    dpi: '',
-                                    sim: '0'  // 修改为字符串类型适配AttributeValue
-                                },
-                                inventory: {
-                                    productId: '',
-                                    merchantId: '',
-                                    stock: 0
-                                },
-                                category: {
-                                    categoryId: 0,
-                                    categoryName: ''
-                                }
-                            })
+                            setFormData(null)
                             setOpen(true)
                         }}
                     >
@@ -407,13 +321,13 @@ export default function Products() {
                                         <Chip
                                             color={getStatusColor(product.status)}
                                             variant={
-                                                getProductStatusEnum(product.status) === ProductStatus.PRODUCT_STATUS_PENDING
+                                                product.status === ProductStatus.PRODUCT_STATUS_PENDING
                                                     ? 'soft' : 'outlined'
                                             }
                                         >
                                             {translateProductStatus(product.status)}
                                         </Chip>
-                                        {getProductStatusEnum(product.status) === ProductStatus.PRODUCT_STATUS_REJECTED && product.auditInfo && product.auditInfo.reason && (
+                                        {product.status === ProductStatus.PRODUCT_STATUS_REJECTED && product.auditInfo && product.auditInfo.reason && (
                                             <Typography level="body-xs" color="danger" sx={{mt: 1}}>
                                                 {t('products.rejectReason')}: {product.auditInfo.reason}
                                             </Typography>
@@ -441,8 +355,8 @@ export default function Products() {
 
                                             {/* 上架按钮 - 仅在草稿或驳回状态显示 */}
                                             {(
-                                                getProductStatusEnum(product.status) === ProductStatus.PRODUCT_STATUS_DRAFT ||
-                                                getProductStatusEnum(product.status) === ProductStatus.PRODUCT_STATUS_REJECTED
+                                                product.status === ProductStatus.PRODUCT_STATUS_DRAFT ||
+                                                product.status === ProductStatus.PRODUCT_STATUS_REJECTED
                                             ) && (
                                                 <Button
                                                     size="sm"
@@ -458,19 +372,19 @@ export default function Products() {
                                             )}
 
                                             {/* 下架按钮 - 仅在审核通过或待审核状态显示 */}
-                                            {(getProductStatusEnum(product.status) === ProductStatus.PRODUCT_STATUS_APPROVED || 
-                                              getProductStatusEnum(product.status) === ProductStatus.PRODUCT_STATUS_PENDING) && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outlined"
-                                                        color="warning"
-                                                        startDecorator={<UnpublishedIcon/>}
-                                                        onClick={() => handleUnpublish(product)}
-                                                        disabled={submittingId === product.id}
-                                                    >
-                                                        {t('products.unpublish')}
-                                                    </Button>
-                                                )}
+                                            {product.status === ProductStatus.PRODUCT_STATUS_APPROVED ||
+                                                product.status === ProductStatus.PRODUCT_STATUS_PENDING && (
+                                                <Button
+                                                    size="sm"
+                                                    variant="outlined"
+                                                    color="warning"
+                                                    startDecorator={<UnpublishedIcon/>}
+                                                    onClick={() => handleUnpublish(product)}
+                                                    disabled={submittingId === product.id}
+                                                >
+                                                    {t('products.unpublish')}
+                                                </Button>
+                                            )}
 
                                             <Button
                                                 size="sm"

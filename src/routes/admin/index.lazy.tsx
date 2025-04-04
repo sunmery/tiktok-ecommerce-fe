@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
-import { Box, Typography, Grid, Card, CardContent, List, ListItem, Divider, Button } from '@mui/joy'
+import { Box, Typography, Grid } from '@mui/joy'
 import { useSnapshot } from 'valtio/react'
 import { userStore } from '@/store/user.ts'
 import { useNavigate } from '@tanstack/react-router'
@@ -8,7 +8,8 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import Skeleton from '@/components/Skeleton'
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'
+import DashboardCard from '@/components/DashboardCard'
 
 export const Route = createLazyFileRoute('/admin/')({ 
   component: AdminDashboard,
@@ -39,7 +40,7 @@ function AdminDashboard() {
       <Typography level="h2" sx={{ mb: 3 }}>{t('admin.dashboard')}</Typography>
       
       {loading ? (
-        <Grid container spacing={3}>
+        <Grid container spacing={4}>
           <Grid xs={12} md={6}>
             <Skeleton variant="card" height={300} />
           </Grid>
@@ -49,103 +50,59 @@ function AdminDashboard() {
         </Grid>
       ) : (
       
-      <Grid container spacing={3}>
+      <Grid container spacing={4}>
         {/* 用户管理卡片 */}
         <Grid xs={12} md={6}>
-          <Card variant="outlined" sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography level="h3">{t('admin.userManagement')}</Typography>
-              <Divider sx={{ my: 2 }} />
-              <List>
-                <ListItem>
-                  <ListItem>{t('admin.userManagement.addEditDelete')}</ListItem>
-                </ListItem>
-                <ListItem>
-                  <ListItem>{t('admin.userManagement.manageRoles')}</ListItem>
-                </ListItem>
-                <ListItem>
-                  <ListItem>{t('admin.userManagement.merchantApproval')}</ListItem>
-                </ListItem>
-              </List>
-              <Button 
-                variant="solid" 
-                color="primary" 
-                startDecorator={<PeopleAltIcon />}
-                onClick={() => navigate({ to: '/admin/users' }).then(() => {
-                  console.log('已进入用户管理页面')
-                })}
-                fullWidth
-                sx={{ mt: 2 }}
-              >
-                {t('admin.enterUserManagement')}
-              </Button>
-            </CardContent>
-          </Card>
+          <DashboardCard
+            title={t('admin.userManagement')}
+            items={[
+              t('admin.userManagement.addEditDelete'),
+              t('admin.userManagement.manageRoles'),
+              t('admin.userManagement.merchantApproval')
+            ]}
+            buttonText={t('admin.enterUserManagement')}
+            icon={<PeopleAltIcon />}
+            onClick={() => navigate({ to: '/admin/users' }).then(() => {
+              console.log('已进入用户管理页面')
+            })}
+          />
         </Grid>
 
         {/* 报告与分析卡片 */}
         <Grid xs={12} md={6}>
-          <Card variant="outlined" sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography level="h3">{t('admin.reports')}</Typography>
-              <Divider sx={{ my: 2 }} />
-              <List>
-                <ListItem>
-                  <ListItem>{t('admin.reports.platformSales')}</ListItem>
-                </ListItem>
-                <ListItem>
-                  <ListItem>{t('admin.reports.userBehavior')}</ListItem>
-                </ListItem>
-                <ListItem>
-                  <ListItem>{t('admin.reports.performance')}</ListItem>
-                </ListItem>
-              </List>
-              <Button 
-                variant="solid" 
-                color="primary" 
-                startDecorator={<BarChartIcon />}
-                onClick={() => navigate({ to: '/admin/analytics' }).then(() => {
-                  console.log('已进入数据分析页面')
-                })}
-                fullWidth
-                sx={{ mt: 2 }}
-              >
-                {t('admin.viewDataAnalytics')}
-              </Button>
-            </CardContent>
-          </Card>
+          <DashboardCard
+            title={t('admin.reports')}
+            items={[
+              t('admin.reports.platformSales'),
+              t('admin.reports.userBehavior'),
+              t('admin.reports.performance')
+            ]}
+            buttonText={t('admin.viewDataAnalytics')}
+            icon={<BarChartIcon />}
+            onClick={() => navigate({ to: '/admin/analytics' }).then(() => {
+              console.log('已进入数据分析页面')
+            })}
+            cardSx={{ mb: 2 }}
+            contentSx={{ p: 3 }}
+          />
         </Grid>
+        
         {/* 商品管理卡片 */}
         <Grid xs={12} md={6}>
-          <Card variant="outlined" sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography level="h3">{t('admin.productManagement')}</Typography>
-              <Divider sx={{ my: 2 }} />
-              <List>
-                <ListItem>
-                  <ListItem>{t('admin.productManagement.viewAll')}</ListItem>
-                </ListItem>
-                <ListItem>
-                  <ListItem>{t('admin.productManagement.approvalPending')}</ListItem>
-                </ListItem>
-                <ListItem>
-                  <ListItem>{t('admin.productManagement.delisted')}</ListItem>
-                </ListItem>
-              </List>
-              <Button 
-                variant="solid" 
-                color="primary" 
-                startDecorator={<ShoppingCartIcon />}
-                onClick={() => navigate({ to: '/admin/products' }).then(() => {
-                  console.log('已进入商品管理页面')
-                })}
-                fullWidth
-                sx={{ mt: 2 }}
-              >
-                {t('admin.enterProductManagement')}
-              </Button>
-            </CardContent>
-          </Card>
+          <DashboardCard
+            title={t('admin.productManagement')}
+            items={[
+              t('admin.productManagement.viewAll'),
+              t('admin.productManagement.approvalPending'),
+              t('admin.productManagement.delisted')
+            ]}
+            buttonText={t('admin.enterProductManagement')}
+            icon={<ShoppingCartIcon />}
+            onClick={() => navigate({ to: '/admin/products' }).then(() => {
+              console.log('已进入商品管理页面')
+            })}
+            cardSx={{ mt: 3 }}
+          />
         </Grid>
       </Grid>
       )}

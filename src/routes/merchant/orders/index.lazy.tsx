@@ -264,7 +264,7 @@ export default function Orders() {
                 >
                     <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2}}>
                         <Typography id="order-detail-modal-title" level="title-lg">
-                            订单详情
+                            {t('orders.details')}
                         </Typography>
                         <IconButton
                             aria-label="close"
@@ -278,51 +278,51 @@ export default function Orders() {
                         <Box>
                             <Grid container spacing={2} sx={{mb: 2}}>
                                 <Grid xs={12} sm={6}>
-                                    <Typography level="title-sm">订单号</Typography>
+                                    <Typography level="title-sm">{t('orders.orderId')}</Typography>
                                     <Typography>{selectedOrder.orderId}</Typography>
                                 </Grid>
                                 <Grid xs={12} sm={6}>
-                                    <Typography level="title-sm">创建时间</Typography>
+                                    <Typography level="title-sm">{t('merchant.orders.createdTime')}</Typography>
                                     <Typography>{formatDate(selectedOrder.createdAt)}</Typography>
                                 </Grid>
                                 <Grid xs={12} sm={6}>
-                                    <Typography level="title-sm">用户ID</Typography>
+                                    <Typography level="title-sm">{t('merchant.orders.userId')}</Typography>
                                     <Typography>{selectedOrder.userId}</Typography>
                                 </Grid>
                                 <Grid xs={12} sm={6}>
-                                    <Typography level="title-sm">联系邮箱</Typography>
+                                    <Typography level="title-sm">{t('orders.customerInfo')}</Typography>
                                     <Typography>{selectedOrder.email}</Typography>
                                 </Grid>
                             </Grid>
 
                             <Box sx={{mb: 2}}>
-                                <Typography level="title-sm">收货地址</Typography>
+                                <Typography level="title-sm">{t('orders.shippingAddress')}</Typography>
                                 <Typography>
                                     {selectedOrder.address.streetAddress}, {selectedOrder.address.city}, {selectedOrder.address.state}, {selectedOrder.address.country}, {selectedOrder.address.zipCode}
                                 </Typography>
                             </Box>
 
-                            <Typography level="title-sm" sx={{mb: 1}}>订单商品</Typography>
+                            <Typography level="title-sm" sx={{mb: 1}}>{t('orders.products')}</Typography>
                             <Table sx={{mb: 2}}>
                                 <thead>
                                 <tr>
-                                    <th>商品名称</th>
-                                    <th>单价</th>
-                                    <th>数量</th>
-                                    <th>小计</th>
+                                    <th>{t('orders.product')}</th>
+                                    <th>{t('orders.unitPrice')}</th>
+                                    <th>{t('orders.quantity')}</th>
+                                    <th>{t('orders.subtotal')}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {selectedOrder.items.map((item, index) => (
                                     <tr key={index}>
-                                        <td>{item.item.name || `商品${item.item.productId.substring(0, 8)}`}</td>
+                                        <td>{item.item.name || `${t('orders.product')}${item.item.productId.substring(0, 8)}`}</td>
                                         <td>{selectedOrder.currency} {(item.cost / item.item.quantity).toFixed(2)}</td>
                                         <td>{item.item.quantity}</td>
                                         <td>{selectedOrder.currency} {item.cost.toFixed(2)}</td>
                                     </tr>
                                 ))}
                                 <tr>
-                                    <td colSpan={3} style={{textAlign: 'right', fontWeight: 'bold'}}>总计</td>
+                                    <td colSpan={3} style={{textAlign: 'right', fontWeight: 'bold'}}>{t('orders.total')}</td>
                                     <td style={{fontWeight: 'bold'}}>
                                         {selectedOrder.currency} {selectedOrder.items.reduce((total, item) => total + item.cost, 0).toFixed(2)}
                                     </td>

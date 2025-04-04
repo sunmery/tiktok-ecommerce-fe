@@ -17,7 +17,7 @@ import {
     Select,
     Option
 } from '@mui/joy';
-import {AttributeValue, Product, CategoryInfo} from '@/types/products';
+import {AttributeValue, Product,} from '@/types/products';
 import PhotoIcon from '@mui/icons-material/PhotoCamera';
 import {useTranslation} from 'react-i18next';
 import {categoryService} from '@/api/categoryService';
@@ -67,6 +67,8 @@ const AttributeEditor: React.FC<{
         setIsEditing(false);
     };
 
+    const {t} = useTranslation();
+
     return (
         <Box sx={{mb: 2}}>
             <FormLabel>{name}</FormLabel>
@@ -77,8 +79,8 @@ const AttributeEditor: React.FC<{
                         onChange={(e) => setEditValue(e.target.value)}
                         fullWidth
                     />
-                    <Button onClick={handleSave}>保存</Button>
-                    <Button variant="outlined" onClick={handleCancel}>取消</Button>
+                    <Button onClick={handleSave}>{t('common.save')}</Button>
+                    <Button variant="outlined" onClick={handleCancel}>{t('common.cancel')}</Button>
                 </Box>
             ) : (
                 <Box sx={{display: 'flex', gap: 1, mt: 1}}>
@@ -466,7 +468,7 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                             <FormControl sx={{width: '100%'}}>
                                 <FormLabel>{t('products.category')}</FormLabel>
                                 <Select
-                                    placeholder="请选择分类"
+                                    placeholder={t('products.selectCategory')}
                                     value={formData.category?.categoryId || null}
                                     onChange={(_, value) => {
                                         if (value === null) return;
@@ -482,7 +484,7 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                                     }}
                                 >
                                     {categoriesLoading ? (
-                                        <Option value={0} disabled>加载中...</Option>
+                                        <Option value={0} disabled>{t('common.loading')}</Option>
                                     ) : categories.length > 0 ? (
                                         categories.map((category) => (
                                             <Option key={category.id} value={Number(category.id)}>
@@ -490,14 +492,14 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                                             </Option>
                                         ))
                                     ) : (
-                                        <Option value={0} disabled>暂无可用分类</Option>
+                                        <Option value={0} disabled>{t('products.noCategories')}</Option>
                                     )}
                                 </Select>
                             </FormControl>
                         </Grid>
 
                         <Grid xs={12}>
-                            <Typography level="h4" sx={{mb: 2}}>商品属性</Typography>
+                            <Typography level="h4" sx={{mb: 2}}>{t('products.attributes')}</Typography>
                             {Object.entries(formData.attributes || {}).map(([name, value]) => (
                                 <AttributeEditor
                                     key={name}
@@ -508,14 +510,14 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
                             ))}
                             <Button
                                 onClick={() => {
-                                    const newName = prompt('请输入属性名称');
+                                    const newName = prompt(t('products.enterAttributeName'));
                                     if (newName) {
                                         handleAttributeChange(newName, '');
                                     }
                                 }}
                                 sx={{mt: 2}}
                             >
-                                添加属性
+                                {t('products.addAttribute')}
                             </Button>
                         </Grid>
 
@@ -534,4 +536,4 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
             </Card>
         </form>
     );
-}; 
+};

@@ -6,6 +6,7 @@ import { useState } from 'react'
 import OrderDetailModal from './OrderDetailModal'
 import { orderService } from '@/api/orderService'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 
 // 格式化时间戳
 const formatDate = (timestamp: any) => {
@@ -44,25 +45,25 @@ const getStatusColor = (status: PaymentStatus) => {
 }
 
 // 获取状态文本
-const getStatusText = (status: string | PaymentStatus) => {
+const getStatusText = (status: string | PaymentStatus, t: any) => {
     // 如果是前端的OrderStatus（字符串枚举）
     switch (status) {
         case 'NOT_PAID':
-            return '待支付'
+            return t('orders.status.notPaid')
         case 'PROCESSING':
-            return '处理中'
+            return t('orders.status.processing')
         case 'PAID':
-            return '已支付'
+            return t('orders.status.paid')
         case 'FAILED':
-            return '支付失败'
+            return t('orders.status.failed')
         case 'CANCELLED':
-            return '已取消'
+            return t('orders.status.cancelled')
         case 'SHIPPED':
-            return '已发货'
+            return t('orders.status.shipped')
         case 'OUT_OF_STOCK':
-            return '无库存'
+            return t('orders.status.outOfStock')
         default:
-            return '未知状态'
+            return t('orders.status.unknown')
     }
 }
 
@@ -84,6 +85,7 @@ const calculateTotal = (order: Order) => {
 }
 
 export default function OrderList({orders}: Orders) {
+    const { t } = useTranslation()
     const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -127,7 +129,7 @@ export default function OrderList({orders}: Orders) {
                             <CardContent>
                                 <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2}}>
                                     <Typography level="title-md">
-                                        订单号: {order.orderId}
+                                        {t('orders.orderId')}: {order.orderId}
                                     </Typography>
                                     <Chip
                                         variant="soft"
@@ -135,7 +137,7 @@ export default function OrderList({orders}: Orders) {
                                         color={getStatusColor(order.paymentStatus)}
                                         sx={{fontWeight: 'bold'}}
                                     >
-                                        {getStatusText(order.paymentStatus)}
+                                        {getStatusText(order.paymentStatus, t)}
                                     </Chip>
                                 </Box>
 
@@ -144,15 +146,15 @@ export default function OrderList({orders}: Orders) {
                                 <Grid container spacing={2} sx={{mb: 2}}>
                                     <Grid xs={12} md={6}>
                                         <Typography level="body-sm" color="neutral">
-                                            下单时间: {formatDate(order.createdAt)}
+                                            {t('orders.createdTime')}: {formatDate(order.createdAt)}
                                         </Typography>
                                         <Typography level="body-sm" color="neutral" sx={{mt: 0.5}}>
-                                            商品数量: {order.items.length} 件
+                                            {t('orders.itemCount')}: {order.items.length} {t('orders.unit')}
                                         </Typography>
                                     </Grid>
                                     <Grid xs={12} md={6} sx={{textAlign: {xs: 'left', md: 'right'}}}>
                                         <Typography level="title-sm" sx={{fontWeight: 'bold', color: 'primary.500'}}>
-                                            总计: {formatCurrency(calculateTotal(order), order.currency)}
+                                            {t('orders.total')}: {formatCurrency(calculateTotal(order), order.currency)}
                                         </Typography>
                                     </Grid>
                                 </Grid>
@@ -161,7 +163,7 @@ export default function OrderList({orders}: Orders) {
                                 {order.items.length > 0 && (
                                     <Box sx={{mb: 2, p: 1, bgcolor: 'background.level1', borderRadius: 'sm'}}>
                                         <Typography level="body-sm" sx={{mb: 1, color: 'neutral.600'}}>
-                                            商品概览:
+                                            {t('orders.productOverview')}:
                                         </Typography>
                                         <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 1}}>
                                             {order.items.slice(0, 3).map((item: any, index: number) => (
@@ -171,12 +173,12 @@ export default function OrderList({orders}: Orders) {
                                                     variant="outlined"
                                                     color="neutral"
                                                 >
-                                                    {item.item?.name || '商品'} x {item.item?.quantity || 1}
+                                                    {item.item?.name || t('orders.product')} x {item.item?.quantity || 1}
                                                 </Chip>
                                             ))}
                                             {order.items.length > 3 && (
                                                 <Chip size="sm" variant="soft"
-                                                    color="neutral">+{order.items.length - 3}件</Chip>
+                                                    color="neutral">+{order.items.length - 3} {t('orders.unit')}</Chip>
                                             )}
                                         </Box>
                                     </Box>
@@ -189,7 +191,7 @@ export default function OrderList({orders}: Orders) {
                                             color="warning"
                                             variant="solid"
                                         >
-                                            去支付
+                                            {t('orders.pay')}
                                         </Button>
                                     )}
                                     <Button

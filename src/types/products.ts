@@ -6,7 +6,7 @@ export enum ProductStatus {
     PRODUCT_STATUS_PENDING = 1,  // 待审核
     PRODUCT_STATUS_APPROVED = 2, // 审核通过
     PRODUCT_STATUS_REJECTED = 3,  // 审核驳回
-    PRODUCT_STATUS_SOLDOUT = 4   // 下架
+    PRODUCT_STATUS_SOLD_OUT = 4   // 下架
 }
 
 export enum AuditProductStatus {
@@ -14,7 +14,7 @@ export enum AuditProductStatus {
     PRODUCT_STATUS_PENDING = 'PRODUCT_STATUS_PENDING',  // 待审核
     PRODUCT_STATUS_APPROVED = 'PRODUCT_STATUS_APPROVED', // 审核通过
     PRODUCT_STATUS_REJECTED = 'PRODUCT_STATUS_REJECTED',  // 审核驳回
-    PRODUCT_STATUS_SOLDOUT = 'PRODUCT_STATUS_SOLDOUT'   // 下架
+    PRODUCT_STATUS_SOLD_OUT = 'PRODUCT_STATUS_SOLD_OUT'   // 下架
 }
 
 // 审核动作枚举
@@ -59,8 +59,8 @@ export interface Product {
     picture: string;
     quantity: number;
     attributes: Record<string, AttributeValue>;
-    createdAt?: string;
-    updatedAt?: string;
+    createdAt: string;
+    updatedAt: string;
     auditInfo?: AuditInfo;
     category?: CategoryInfo;
     inventory: {

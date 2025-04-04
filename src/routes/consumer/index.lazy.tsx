@@ -64,15 +64,15 @@ function ConsumerDashboard() {
     const getStatusText = (status: PaymentStatus) => {
         switch (status) {
             case PaymentStatus.Paid:
-                return '已支付'
+                return t('consumer.order.status.paid')
             case PaymentStatus.Processing:
-                return '处理中'
+                return t('consumer.order.status.processing')
             case PaymentStatus.Failed:
-                return '支付失败'
+                return t('consumer.order.status.failed')
             case PaymentStatus.NotPaid:
-                return '待支付'
+                return t('consumer.order.status.notPaid')
             default:
-                return '未知状态'
+                return t('consumer.order.status.unknown')
         }
     }
 
@@ -199,14 +199,14 @@ function ConsumerDashboard() {
                         {/*                                            <Typography>{formatCurrency(total, order.currency)}</Typography>*/}
                         {/*                                        </Grid>*/}
                         {/*                                        <Grid xs={12} sm={6}>*/}
-                        {/*                                            <Typography level="title-sm">支付状态</Typography>*/}
+                        {/*                                            <Typography level="title-sm">{t('consumer.order.paymentStatus')}</Typography>*/}
                         {/*                                            <Typography>{getStatusText(order.paymentStatus)}</Typography>*/}
                         {/*                                        </Grid>*/}
                         {/*                                    </Grid>*/}
                         {/*                                    */}
                         {/*                                    <Box sx={{mt: 2}}>*/}
                         {/*                                        <Typography level="body-sm">*/}
-                        {/*                                            点击查看详情*/}
+                        {/*                                            {t('consumer.order.viewDetails')}*/}
                         {/*                                        </Typography>*/}
                         {/*                                    </Box>*/}
                         {/*                                </CardContent>*/}

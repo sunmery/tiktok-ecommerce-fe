@@ -25,11 +25,12 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
 import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
-import {AuditAction, Product} from '@/types/products.ts'
+import {AuditAction, Product, ProductStatus} from '@/types/products.ts'
 import {productService} from '@/api/productService'
 import {useTranslation} from 'react-i18next'
 import {usePagination} from '@/hooks/usePagination'
 import PaginationBar from '@/components/PaginationBar'
+import {translateProductStatus} from "@/utils/translateProductStatus.ts";
 
 export const Route = createLazyFileRoute('/admin/products/')({
     component: ProductManagement,
@@ -88,7 +89,7 @@ function ProductManagement() {
             })
 
             setProducts(response.items || [])
-            
+
             // 更新总条目数
             if (response.total !== undefined) {
                 pagination.setTotalItems(response.total);
@@ -104,7 +105,7 @@ function ProductManagement() {
             console.error('加载待审核商品失败:', error)
             setSnackbar({
                 open: true,
-                message: t('admin:common.error'),
+                message: t('common.error'),
                 severity: 'danger'
             })
         } finally {
@@ -137,7 +138,7 @@ function ProductManagement() {
         if (selectedProducts.length === 0) {
             setSnackbar({
                 open: true,
-                message: t('admin:common.error'),
+                message: t('common.error'),
                 severity: 'danger'
             })
             return
@@ -175,7 +176,7 @@ function ProductManagement() {
 
             setSnackbar({
                 open: true,
-                message: t('admin:common.success'),
+                message: t('common.success'),
                 severity: 'success'
             })
 
@@ -186,7 +187,7 @@ function ProductManagement() {
             console.error('审核操作失败:', error)
             setSnackbar({
                 open: true,
-                message: t('admin:common.error'),
+                message: t('common.error'),
                 severity: 'danger'
             })
         } finally {
@@ -194,42 +195,25 @@ function ProductManagement() {
         }
     }
 
-    // 翻译商品状态
-    const translateProductStatus = (status: any): string => {
-        const statusStr = String(status);
-        switch (statusStr) {
-            case 'PRODUCT_STATUS_DRAFT':
-                return t('products.status.draft');
-            case 'PRODUCT_STATUS_PENDING':
-                return t('products.status.pending');
-            case 'PRODUCT_STATUS_APPROVED':
-                return t('products.status.approved');
-            case 'PRODUCT_STATUS_REJECTED':
-                return t('products.status.rejected');
-            case 'PRODUCT_STATUS_SOLDOUT':
-                return t('products.status.soldout');
-            default:
-                return t('products.status.unknown', {status: statusStr});
-        }
-    }
-
     // 获取状态对应的颜色
-    const getStatusColor = (status: any) => {
-        const statusStr = String(status);
-        switch (statusStr) {
-            case 'PRODUCT_STATUS_DRAFT':
-                return 'neutral';
-            case 'PRODUCT_STATUS_PENDING':
-                return 'warning';
-            case 'PRODUCT_STATUS_APPROVED':
-                return 'success';
-            case 'PRODUCT_STATUS_REJECTED':
-                return 'danger';
-            case 'PRODUCT_STATUS_SOLDOUT':
-                return 'neutral';
-            default:
-                return 'neutral';
+    const getStatusColor = (status: ProductStatus | number | string) => {
+        if (typeof status === 'number') {
+            switch (status) {
+                case ProductStatus.PRODUCT_STATUS_DRAFT:
+                    return 'neutral';
+                case ProductStatus.PRODUCT_STATUS_PENDING:
+                    return 'warning';
+                case ProductStatus.PRODUCT_STATUS_APPROVED:
+                    return 'success';
+                case ProductStatus.PRODUCT_STATUS_REJECTED:
+                    return 'danger';
+                case ProductStatus.PRODUCT_STATUS_SOLD_OUT:
+                    return 'neutral';
+                default:
+                    return 'neutral';
+            }
         }
+        return 'neutral';
     }
 
     // 格式化日期
@@ -241,7 +225,7 @@ function ProductManagement() {
     return (
         <Box sx={{p: 2}}>
             <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
-                <Typography level="h2">{t('admin:products.title')}</Typography>
+                <Typography level="h2">{t('products.title')}</Typography>
                 <Box sx={{display: 'flex', gap: 2}}>
                     <Button
                         color="success"
@@ -249,7 +233,7 @@ function ProductManagement() {
                         onClick={() => handleOpenAuditModal(AuditAction.AUDIT_ACTION_APPROVED)}
                         disabled={selectedProducts.length === 0}
                     >
-                        {t('admin:products.actions.batchApprove')}
+                        {t('products.actions.batchApprove')}
                     </Button>
                     <Button
                         color="danger"
@@ -257,13 +241,13 @@ function ProductManagement() {
                         onClick={() => handleOpenAuditModal(AuditAction.AUDIT_ACTION_REJECT)}
                         disabled={selectedProducts.length === 0}
                     >
-                        {t('admin:products.actions.batchReject')}
+                        {t('products.actions.batchReject')}
                     </Button>
                     <Button
                         color="primary"
                         onClick={loadPendingProducts}
                     >
-                        {t('admin:common.refresh')}
+                        {t('common.refresh')}
                     </Button>
                 </Box>
             </Box>
@@ -287,14 +271,14 @@ function ProductManagement() {
                                         onChange={handleSelectAll}
                                     />
                                 </th>
-                                <th style={{width: '10%'}}>{t('admin:products.table.id')}</th>
-                                <th style={{width: '15%'}}>{t('admin:products.table.name')}</th>
-                                <th style={{width: '10%'}}>{t('admin:products.table.price')}</th>
-                                <th style={{width: '10%'}}>{t('admin:products.table.merchant')}</th>
-                                <th style={{width: '10%'}}>{t('admin:products.table.stock')}</th>
-                                <th style={{width: '10%'}}>{t('admin:products.table.status')}</th>
-                                <th style={{width: '15%'}}>{t('admin:products.table.createdTime')}</th>
-                                <th style={{width: '15%'}}>{t('admin:products.table.actions')}</th>
+                                <th style={{width: '10%'}}>{t('products.table.id')}</th>
+                                <th style={{width: '15%'}}>{t('products.table.name')}</th>
+                                <th style={{width: '10%'}}>{t('products.table.price')}</th>
+                                <th style={{width: '10%'}}>{t('products.table.merchant')}</th>
+                                <th style={{width: '10%'}}>{t('products.table.stock')}</th>
+                                <th style={{width: '10%'}}>{t('products.table.status')}</th>
+                                <th style={{width: '15%'}}>{t('products.table.createdTime')}</th>
+                                <th style={{width: '15%'}}>{t('products.table.actions')}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -327,7 +311,7 @@ function ProductManagement() {
                                                 color="neutral"
                                                 onClick={() => handleViewProduct(product)}
                                             >
-                                                查看详情
+                                                {t('products.actions.viewDetails')}
                                             </Button>
                                             <Button
                                                 size="sm"
@@ -340,7 +324,7 @@ function ProductManagement() {
                                                     setOpenAuditModal(true)
                                                 }}
                                             >
-                                                通过
+                                                {t('products.actions.approve')}
                                             </Button>
                                             <Button
                                                 size="sm"
@@ -353,7 +337,7 @@ function ProductManagement() {
                                                     setOpenAuditModal(true)
                                                 }}
                                             >
-                                                驳回
+                                                {t('products.actions.reject')}
                                             </Button>
                                         </Box>
                                     </td>
@@ -380,27 +364,27 @@ function ProductManagement() {
                 <ModalDialog>
                     <ModalClose/>
                     <Typography level="h4">
-                        {auditAction === AuditAction.AUDIT_ACTION_APPROVED ? t('admin:products.modal.approve') : t('admin:products.modal.reject')}
+                        {auditAction === AuditAction.AUDIT_ACTION_APPROVED ? t('products.modal.approve') : t('products.modal.reject')}
                     </Typography>
                     <Divider sx={{my: 2}}/>
                     <Typography>
-                        {t('admin:products.modal.selected', { count: selectedProducts.length })}
+                        {t('products.modal.selected', {count: selectedProducts.length})}
                     </Typography>
 
                     <FormControl sx={{mt: 2}}>
-                        <FormLabel>{t('admin:products.modal.reason')}</FormLabel>
+                        <FormLabel>{t('products.modal.reason')}</FormLabel>
                         <Textarea
                             minRows={3}
                             value={auditReason}
                             onChange={(e) => setAuditReason(e.target.value)}
-                            placeholder={auditAction === AuditAction.AUDIT_ACTION_APPROVED ? t('admin:products.modal.approveReason') : t('admin:products.modal.rejectReason')}
+                            placeholder={auditAction === AuditAction.AUDIT_ACTION_APPROVED ? t('products.modal.approveReason') : t('products.modal.rejectReason')}
                             required={auditAction === AuditAction.AUDIT_ACTION_REJECT}
                         />
                     </FormControl>
 
                     <Box sx={{display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 3}}>
                         <Button variant="plain" color="neutral" onClick={() => setOpenAuditModal(false)}>
-                            取消
+                            {t('common.cancel')}
                         </Button>
                         <Button
                             color={auditAction === AuditAction.AUDIT_ACTION_APPROVED ? 'success' : 'danger'}
@@ -408,7 +392,7 @@ function ProductManagement() {
                             loading={loading}
                             disabled={auditAction === AuditAction.AUDIT_ACTION_REJECT && !auditReason.trim()}
                         >
-                            {auditAction === AuditAction.AUDIT_ACTION_APPROVED ? '确认通过' : '确认驳回'}
+                            {auditAction === AuditAction.AUDIT_ACTION_APPROVED ? t('products.modal.confirmApprove') : t('products.modal.confirmReject')}
                         </Button>
                     </Box>
                 </ModalDialog>
@@ -418,58 +402,58 @@ function ProductManagement() {
             <Modal open={openViewModal} onClose={() => setOpenViewModal(false)}>
                 <ModalDialog size="lg">
                     <ModalClose/>
-                    <Typography level="h4">商品详情</Typography>
+                    <Typography level="h4">{t('products.modal.details')}</Typography>
                     <Divider sx={{my: 2}}/>
 
                     {currentProduct && (
                         <Stack spacing={2}>
                             <Box>
-                                <Typography level="body-sm">商品ID</Typography>
+                                <Typography level="body-sm">{t('products.details.id')}</Typography>
                                 <Typography level="body-lg">{currentProduct.id}</Typography>
                             </Box>
 
                             <Box>
-                                <Typography level="body-sm">商品名称</Typography>
+                                <Typography level="body-sm">{t('products.details.name')}</Typography>
                                 <Typography level="body-lg">{currentProduct.name}</Typography>
                             </Box>
 
                             <Box>
-                                <Typography level="body-sm">商品描述</Typography>
+                                <Typography level="body-sm">{t('products.details.description')}</Typography>
                                 <Typography level="body-lg">{currentProduct.description}</Typography>
                             </Box>
 
                             <Box>
-                                <Typography level="body-sm">价格</Typography>
+                                <Typography level="body-sm">{t('products.details.price')}</Typography>
                                 <Typography level="body-lg">¥{currentProduct.price.toFixed(2)}</Typography>
                             </Box>
 
                             <Box>
-                                <Typography level="body-sm">商家ID</Typography>
+                                <Typography level="body-sm">{t('products.details.merchantId')}</Typography>
                                 <Typography level="body-lg">{currentProduct.merchantId}</Typography>
                             </Box>
 
                             <Box>
-                                <Typography level="body-sm">状态</Typography>
+                                <Typography level="body-sm">{t('products.details.status')}</Typography>
                                 <Typography level="body-lg">{translateProductStatus(currentProduct.status)}</Typography>
                             </Box>
 
                             <Box>
-                                <Typography level="body-sm">库存数量</Typography>
+                                <Typography level="body-sm">{t('products.details.stock')}</Typography>
                                 <Typography level="body-lg">{currentProduct.inventory?.stock || 0}</Typography>
                             </Box>
 
                             <Box>
-                                <Typography level="body-sm">创建时间</Typography>
+                                <Typography level="body-sm">{t('products.details.createdTime')}</Typography>
                                 <Typography level="body-lg">{formatDate(currentProduct.createdAt)}</Typography>
                             </Box>
 
                             <Box>
-                                <Typography level="body-sm">更新时间</Typography>
+                                <Typography level="body-sm">{t('products.details.updatedTime')}</Typography>
                                 <Typography level="body-lg">{formatDate(currentProduct.updatedAt)}</Typography>
                             </Box>
 
                             <Box>
-                                <Typography level="body-sm">商品图片</Typography>
+                                <Typography level="body-sm">{t('products.details.images')}</Typography>
                                 <Box sx={{display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1}}>
                                     {currentProduct.images && currentProduct.images.length > 0 ? (
                                         currentProduct.images.map((image, index) => (
@@ -489,13 +473,13 @@ function ProductManagement() {
                                             />
                                         ))
                                     ) : (
-                                        <Typography level="body-sm">无图片</Typography>
+                                        <Typography level="body-sm">{t('products.details.noImages')}</Typography>
                                     )}
                                 </Box>
                             </Box>
 
                             <Box>
-                                <Typography level="body-sm">商品属性</Typography>
+                                <Typography level="body-sm">{t('products.details.attributes')}</Typography>
                                 {currentProduct.attributes && Object.keys(currentProduct.attributes).length > 0 ? (
                                     <Sheet variant="outlined" sx={{p: 1, borderRadius: 'md', mt: 1}}>
                     <pre style={{margin: 0, whiteSpace: 'pre-wrap'}}>
@@ -503,7 +487,7 @@ function ProductManagement() {
                     </pre>
                                     </Sheet>
                                 ) : (
-                                    <Typography level="body-sm">无属性</Typography>
+                                    <Typography level="body-sm">{t('products.details.noAttributes')}</Typography>
                                 )}
                             </Box>
                         </Stack>
@@ -511,7 +495,7 @@ function ProductManagement() {
 
                     <Box sx={{display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 3}}>
                         <Button variant="plain" color="neutral" onClick={() => setOpenViewModal(false)}>
-                            关闭
+                            {t('common.close')}
                         </Button>
                     </Box>
                 </ModalDialog>

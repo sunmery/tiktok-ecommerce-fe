@@ -2,6 +2,7 @@ import {Box, Chip, Divider, Grid, Modal, ModalClose, ModalDialog, Typography} fr
 import type {CreditCard} from '@/types/creditCards.ts'
 import CardBackground from './CardBackground'
 import CardDecoration from './CardDecoration'
+import {useTranslation} from 'react-i18next'
 
 interface CreditCardDetailModalProps {
     open: boolean
@@ -21,6 +22,7 @@ const formatDate = (dateString: string) => {
 }
 
 const CreditCardDetailModal = ({open, onClose, card}: CreditCardDetailModalProps) => {
+    const {t} = useTranslation();
     if (!card) return null
 
     return (
@@ -58,7 +60,7 @@ const CreditCardDetailModal = ({open, onClose, card}: CreditCardDetailModalProps
                                 color: 'white',
                                 fontWeight: 'bold',
                                 textShadow: '0px 1px 2px rgba(0,0,0,0.3)'
-                            }}>{card.name || '我的卡'}</Typography>
+                            }}>{card.name || t('creditCard.myCard')}</Typography>
                             <Chip size="sm" variant="soft" sx={{bgcolor: 'rgba(255,255,255,0.2)', color: 'white'}}>
                                 {card.brand.toUpperCase()}
                             </Chip>
@@ -77,7 +79,7 @@ const CreditCardDetailModal = ({open, onClose, card}: CreditCardDetailModalProps
                         <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
                             <Box>
                                 <Typography level="body-xs"
-                                            sx={{color: 'rgba(255,255,255,0.8)', mb: 0.5}}>持卡人</Typography>
+                                            sx={{color: 'rgba(255,255,255,0.8)', mb: 0.5}}>{t('creditCard.cardHolder')}</Typography>
                                 <Typography level="body-md" sx={{
                                     color: 'white',
                                     fontWeight: 'medium',
@@ -86,7 +88,7 @@ const CreditCardDetailModal = ({open, onClose, card}: CreditCardDetailModalProps
                             </Box>
                             <Box>
                                 <Typography level="body-xs"
-                                            sx={{color: 'rgba(255,255,255,0.8)', mb: 0.5}}>有效期</Typography>
+                                            sx={{color: 'rgba(255,255,255,0.8)', mb: 0.5}}>{t('creditCard.validThru')}</Typography>
                                 <Typography level="body-md" sx={{
                                     color: 'white',
                                     fontWeight: 'medium',
@@ -100,64 +102,63 @@ const CreditCardDetailModal = ({open, onClose, card}: CreditCardDetailModalProps
                 {/* 详细信息 */}
                 <Box sx={{p: 3, pt: 2.5}}>
                     <Typography level="title-lg"
-                                sx={{mb: 2, color: 'text.primary', fontWeight: 'bold'}}>卡片详细信息</Typography>
+                                sx={{mb: 2, color: 'text.primary', fontWeight: 'bold'}}>{t('creditCard.details.title')}</Typography>
                     <Divider sx={{mb: 2.5}}/>
 
                     <Grid container spacing={2.5}>
                         <Grid xs={6}>
-                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>卡号</Typography>
+                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>{t('creditCard.details.cardNumber')}</Typography>
                             <Typography level="body-md" sx={{
                                 color: 'text.primary',
                                 fontWeight: 'medium'
                             }}>{formatCardNumber(card.number)}</Typography>
                         </Grid>
                         <Grid xs={6}>
-                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>安全码
-                                (CVV)</Typography>
+                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>{t('creditCard.details.cvv')}</Typography>
                             <Typography level="body-md"
                                         sx={{color: 'text.primary', fontWeight: 'medium'}}>{card.cvv}</Typography>
                         </Grid>
                         <Grid xs={6}>
-                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>持卡人</Typography>
+                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>{t('creditCard.details.cardHolder')}</Typography>
                             <Typography level="body-md"
                                         sx={{color: 'text.primary', fontWeight: 'medium'}}>{card.owner}</Typography>
                         </Grid>
                         <Grid xs={6}>
-                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>有效期</Typography>
+                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>{t('creditCard.details.validThru')}</Typography>
                             <Typography level="body-md" sx={{
                                 color: 'text.primary',
                                 fontWeight: 'medium'
                             }}>{card.expMonth}/{card.expYear}</Typography>
                         </Grid>
                         <Grid xs={6}>
-                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>卡片名称</Typography>
+                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>{t('creditCard.details.cardName')}</Typography>
                             <Typography level="body-md" sx={{
                                 color: 'text.primary',
                                 fontWeight: 'medium'
                             }}>{card.name || '-'}</Typography>
                         </Grid>
                         <Grid xs={6}>
-                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>卡片类型</Typography>
+                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>{t('creditCard.details.cardType')}</Typography>
                             <Typography level="body-md"
                                         sx={{color: 'text.primary', fontWeight: 'medium'}}>{card.type}</Typography>
                         </Grid>
                         <Grid xs={6}>
-                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>发卡机构</Typography>
+                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>{t('creditCard.details.issuer')}</Typography>
                             <Typography level="body-md"
                                         sx={{color: 'text.primary', fontWeight: 'medium'}}>{card.brand}</Typography>
                         </Grid>
                         <Grid xs={6}>
-                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>发行国家</Typography>
+                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>{t('creditCard.details.country')}</Typography>
                             <Typography level="body-md"
                                         sx={{color: 'text.primary', fontWeight: 'medium'}}>{card.country}</Typography>
                         </Grid>
                         <Grid xs={6}>
-                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>币种</Typography>
+                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>{t('creditCard.details.currency')}</Typography>
                             <Typography level="body-md"
                                         sx={{color: 'text.primary', fontWeight: 'medium'}}>{card.currency}</Typography>
                         </Grid>
                         <Grid xs={6}>
-                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>创建时间</Typography>
+                            <Typography level="body-sm" sx={{color: 'text.secondary', mb: 0.5}}>{t('creditCard.details.createdTime')}</Typography>
                             <Typography level="body-md" sx={{
                                 color: 'text.primary',
                                 fontWeight: 'medium'

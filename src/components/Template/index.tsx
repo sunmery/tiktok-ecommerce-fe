@@ -196,6 +196,8 @@ export default function Template() {
         <Box sx={{
             display: 'flex',
             flexDirection: 'column',
+            justifyContent: 'space-between',
+            width: '100vw',
             minHeight: '100vh',
             position: 'relative'
         }}>
@@ -209,6 +211,8 @@ export default function Template() {
                     position: 'sticky',
                     top: 0,
                     zIndex: 1000,
+                    '& > *:first-of-type': { marginRight: 'auto' },
+                    '& > *:last-child': { marginLeft: 'auto' },
                 }}
             >
                 <Box
@@ -217,13 +221,14 @@ export default function Template() {
                         alignItems: 'center',
                         gap: {xs: 1, md: 3},
                         maxWidth: 1200,
+                        width: 1200,
                         margin: '0 auto',
-                        width: '100%',
-                        justifyContent: 'space-between'
+                        position: 'relative',
+                        justifyContent: 'center'
                     }}
                 >
                     {/* Logo部分 */}
-                    <Box component={Link} to="/" sx={{display: 'flex', alignItems: 'center', textDecoration: 'none'}}>
+                    <Box component={Link} to="/" sx={{display: 'flex', alignItems: 'center', textDecoration: 'none', position: 'absolute', left: 0}}>
                         <Typography level="title-lg" sx={{mr: 2, color: 'primary.500'}}>
                             {t('nav.project')}
                         </Typography>
@@ -231,7 +236,7 @@ export default function Template() {
 
                     {/* 桌面端搜索框 */}
                     {!isMobile && (
-                        <Box sx={{flex: 1, maxWidth: 600}}>
+                        <Box sx={{flex: 0, maxWidth: 800, mr: 15}}>
                             <Input
                                 size="md"
                                 placeholder={t('searchPlaceholder')}
@@ -253,7 +258,7 @@ export default function Template() {
 
                     {/* 桌面端导航菜单 */}
                     {!isMobile ? (
-                        <List orientation="horizontal" sx={{gap: 3}}>
+                        <List orientation="horizontal" sx={{position: 'absolute', right: 0}}>
                             <ListItem>
                                 <LanguageSwitcher/>
                             </ListItem>
