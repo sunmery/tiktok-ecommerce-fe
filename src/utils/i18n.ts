@@ -198,6 +198,20 @@ const resources = {
 
             // 消费者面板
             'consumer.dashboard.title': 'Consumer Dashboard',
+            'consumer.order.status.paid': 'Paid',
+            'consumer.order.status.processing': 'Processing',
+            'consumer.order.status.failed': 'Payment Failed',
+            'consumer.order.status.notPaid': 'Not Paid',
+            'consumer.order.status.unknown': 'Unknown Status',
+            'consumer.order.backToList': 'Back to Order List',
+            'consumer.order.details': 'Order Details',
+            'consumer.order.notFound': 'Order not found',
+            'consumer.order.orderId': 'Order ID',
+            'consumer.order.createdTime': 'Created Time',
+            'consumer.order.userId': 'User ID',
+            'consumer.order.contactEmail': 'Contact Email',
+            'consumer.order.shippingAddress': 'Shipping Address',
+            'consumer.order.noAddress': 'No detailed address provided',
             'consumer.orders.title': 'My Orders',
             'consumer.orders.viewAll': 'View All Orders',
             'consumer.orders.trackStatus': 'Track Order Status',
@@ -210,6 +224,7 @@ const resources = {
             'consumer.orders.filter.search': 'Search',
             'consumer.orders.filter.clear': 'Clear Filters',
             'consumer.orders.noOrders': 'No Orders Found',
+            'consumer.orders.filter': 'Filter',
             'consumer.orders.totalCount': 'Total {{count}} Orders',
             'consumer.orders.status.notPaid': 'Not Paid',
             'consumer.orders.status.processing': 'Processing',
@@ -237,16 +252,7 @@ const resources = {
             'creditCard.details.currency': 'Currency',
             'creditCard.details.createdTime': 'Created Time',
 
-            // Order Status
-            'consumer.order.status.paid': 'Paid',
-            'consumer.order.status.processing': 'Processing',
-            'consumer.order.status.failed': 'Payment Failed',
-            'consumer.order.status.notPaid': 'Not Paid',
-            'consumer.order.status.unknown': 'Unknown Status',
-            'consumer.recentOrders.title': 'Recent Orders',
-            'consumer.recentOrders.noData': 'No recent orders',
-            'consumer.order.orderId': 'Order ID',
-            'consumer.order.createdTime': 'Created Time',
+
             'consumer.order.amount': 'Amount',
             'consumer.order.paymentStatus': 'Payment Status',
             'consumer.order.viewDetails': 'Click to view details',
@@ -1802,6 +1808,20 @@ const resources = {
 
             // 消费者面板
             'consumer.dashboard.title': '消费者面板',
+            'consumer.order.status.paid': '已支付',
+            'consumer.order.status.processing': '处理中',
+            'consumer.order.status.failed': '支付失败',
+            'consumer.order.status.notPaid': '待支付',
+            'consumer.order.status.unknown': '未知状态',
+            'consumer.order.backToList': '返回订单列表',
+            'consumer.order.details': '订单详情',
+            'consumer.order.notFound': '未找到订单信息',
+            'consumer.order.orderId': '订单号',
+            'consumer.order.createdTime': '创建时间',
+            'consumer.order.userId': '用户ID',
+            'consumer.order.contactEmail': '联系邮箱',
+            'consumer.order.shippingAddress': '收货地址',
+            'consumer.order.noAddress': '未提供详细地址',
             'consumer.orders.title': '我的订单',
             'consumer.orders.viewAll': '查看所有订单',
             'consumer.orders.trackStatus': '跟踪订单状态',
@@ -1811,6 +1831,8 @@ const resources = {
             'consumer.favorites.viewProducts': '查看收藏商品',
             'consumer.favorites.manage': '管理收藏',
             'consumer.favorites.priceAlert': '价格提醒',
+            'consumer.orders.noOrders': '暂无订单',
+            'consumer.orders.filter': '订单筛选',
 
             // 信用卡
             'creditCard.myCard': '我的银行卡',
@@ -1829,15 +1851,7 @@ const resources = {
             'creditCard.details.createdTime': '创建时间',
 
             // 订单状态
-            'consumer.order.status.paid': '已支付',
-            'consumer.order.status.processing': '处理中',
-            'consumer.order.status.failed': '支付失败',
-            'consumer.order.status.notPaid': '待支付',
-            'consumer.order.status.unknown': '未知状态',
-            'consumer.recentOrders.title': '最近订单',
-            'consumer.recentOrders.noData': '暂无最近订单',
-            'consumer.order.orderId': '订单号',
-            'consumer.order.createdTime': '创建时间',
+
             'consumer.order.amount': '订单金额',
 
         }

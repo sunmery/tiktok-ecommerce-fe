@@ -187,7 +187,7 @@ function ConsumerOrders() {
         return (
             <Card variant="outlined" sx={{ mb: 3, p: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                    <Typography level="title-lg">订单筛选</Typography>
+                    <Typography level="title-lg">{t('consumer.orders.filter')}</Typography>
                     <IconButton onClick={() => setIsFiltering(!isFiltering)}>
                         <FilterList />
                     </IconButton>

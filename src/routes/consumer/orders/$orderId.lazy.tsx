@@ -9,6 +9,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import Skeleton from '@/components/Skeleton'
 import {orderService} from '@/api/orderService'
+import { useTranslation } from 'react-i18next'
 
 // 格式化时间戳
 const formatDate = (timestamp: any) => {
@@ -109,15 +110,15 @@ function ConsumerOrderDetail() {
     const getStatusText = (status: PaymentStatus) => {
         switch (status) {
             case PaymentStatus.Paid:
-                return '已支付'
+                return t('consumer.order.status.paid')
             case PaymentStatus.Processing:
-                return '处理中'
+                return t('consumer.order.status.processing')
             case PaymentStatus.Failed:
-                return '支付失败'
+                return t('consumer.order.status.failed')
             case PaymentStatus.NotPaid:
-                return '待支付'
+                return t('consumer.order.status.notPaid')
             default:
-                return '未知状态'
+                return t('consumer.order.status.unknown')
         }
     }
 
@@ -127,6 +128,8 @@ function ConsumerOrderDetail() {
             return total + (item.cost || 0)
         }, 0)
     }
+
+    const { t } = useTranslation();
 
     return (
         <Box sx={{p: 2, maxWidth: 1200, margin: '0 auto'}}>
@@ -138,7 +141,7 @@ function ConsumerOrderDetail() {
                 })}
                 sx={{mb: 2}}
             >
-                返回订单列表
+                {t('consumer.order.backToList')}
             </Button>
 
             {/* 面包屑导航 */}
@@ -150,14 +153,14 @@ function ConsumerOrderDetail() {
                 }}
             />
 
-            <Typography level="h2" sx={{mb: 3}}>订单详情</Typography>
+            <Typography level="h2" sx={{mb: 3}}>{t('consumer.order.details')}</Typography>
 
             {loading ? (
                 <Skeleton variant="order"/>
             ) : error ? (
                 <Alert color="danger" sx={{mb: 2}}>{error}</Alert>
             ) : !order ? (
-                <Alert color="warning" sx={{mb: 2}}>未找到订单信息</Alert>
+                <Alert color="warning" sx={{mb: 2}}>{t('consumer.order.notFound')}</Alert>
             ) : (
                 <Grid container spacing={3}>
                     {/* 订单基本信息 */}
@@ -170,7 +173,7 @@ function ConsumerOrderDetail() {
                                     alignItems: 'center',
                                     mb: 2
                                 }}>
-                                    <Typography level="title-lg">订单号: {order.orderId}</Typography>
+                                    <Typography level="title-lg">{t('consumer.order.orderId')}: {order.orderId}</Typography>
                                     <Chip
                                         variant="soft"
                                         size="md"
@@ -182,14 +185,14 @@ function ConsumerOrderDetail() {
                                 <Divider sx={{my: 2}}/>
                                 <Grid container spacing={2}>
                                     <Grid xs={12} md={6}>
-                                        <Typography level="body-md">创建时间: {formatDate(order.createdAt)}</Typography>
-                                        <Typography level="body-md">用户ID: {order.userId}</Typography>
-                                        <Typography level="body-md">联系邮箱: {order.email}</Typography>
+                                        <Typography level="body-md">{t('consumer.order.createdTime')}: {formatDate(order.createdAt)}</Typography>
+                                        <Typography level="body-md">{t('consumer.order.userId')}: {order.userId}</Typography>
+                                        <Typography level="body-md">{t('consumer.order.contactEmail')}: {order.email}</Typography>
                                     </Grid>
                                     <Grid xs={12} md={6}>
-                                        <Typography level="title-sm" sx={{mb: 1}}>收货地址:</Typography>
+                                        <Typography level="title-sm" sx={{mb: 1}}>{t('consumer.order.shippingAddress')}:</Typography>
                                         <Typography level="body-md">
-                                            {order.address.streetAddress || '未提供详细地址'}, 
+                                            {order.address.streetAddress || t('consumer.order.noAddress')}, 
                                             {order.address.city || ''}, 
                                             {order.address.state || ''}, 
                                             {order.address.country || ''}, 
