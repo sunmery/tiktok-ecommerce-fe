@@ -140,4 +140,38 @@ export const orderService = {
             }
         });
     },
+
+    /**
+     * 商家发货
+     * PUT /v1/orders/{orderId}/ship
+     */
+    shipOrder: (orderId: string) => {
+        const url = httpClient.replacePathParams(
+            `${import.meta.env.VITE_ORDERS_URL}/{orderId}/ship`,
+            {orderId: orderId}
+        );
+        return httpClient.put(url, {}, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+    },
+
+    /**
+     * 用户确认收货
+     * PUT /v1/orders/{orderId}/receive
+     */
+    confirmReceived: (orderId: string) => {
+        const url = httpClient.replacePathParams(
+            `${import.meta.env.VITE_ORDERS_URL}/{orderId}/receive`,
+            {orderId: orderId}
+        );
+        return httpClient.put(url, {}, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+    },
 };

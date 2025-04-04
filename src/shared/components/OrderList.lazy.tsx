@@ -194,6 +194,25 @@ export default function OrderList({orders}: Orders) {
                                             {t('orders.pay')}
                                         </Button>
                                     )}
+                                    {order.paymentStatus === PaymentStatus.Shipped && (
+                                        <Button
+                                            size="sm"
+                                            color="success"
+                                            variant="solid"
+                                            onClick={async () => {
+                                                try {
+                                                    await orderService.confirmReceived(order.orderId);
+                                                    // 刷新页面或更新订单状态
+                                                    window.location.reload();
+                                                } catch (error) {
+                                                    console.error('确认收货失败:', error);
+                                                    alert(t('orders.confirmReceiveFailed'));
+                                                }
+                                            }}
+                                        >
+                                            {t('orders.confirmReceive')}
+                                        </Button>
+                                    )}
                                     <Button
                                         component={Link}
                                         to={`/orders/${order.orderId}`}

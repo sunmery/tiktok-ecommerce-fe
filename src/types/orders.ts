@@ -76,5 +76,9 @@ export enum PaymentStatus {
     Processing = 'PROCESSING',
     Paid = 'PAID',
     Failed = 'FAILED',
-    Cancelled = 'CANCELLED'
+    Cancelled = 'CANCELLED',
+    // 新增货运相关状态
+    ToBeShipped = 'TO_BE_SHIPPED', // 待发货
+    Shipped = 'SHIPPED',           // 已发货
+    Received = 'RECEIVED'          // 已收货
 }
