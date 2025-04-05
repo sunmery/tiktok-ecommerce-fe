@@ -67,8 +67,8 @@ export default function AlertVariousStates(
     return <Alert
         key={title}
         sx={{
-            width: '80vw',
-            height: '50px',
+            width: '60vw',
+            height: '40px',
         }}
         startDecorator={icon}
         variant="soft"

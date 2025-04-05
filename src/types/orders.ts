@@ -40,9 +40,6 @@ export interface OrderItem {
     item: CartItem
     cost: number
     id: string
-    name: string
-    price: number
-    quantity: number
 }
 
 // 订单详情

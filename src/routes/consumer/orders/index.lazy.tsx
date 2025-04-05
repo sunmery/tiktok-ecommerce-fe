@@ -151,7 +151,11 @@ function ConsumerOrders() {
         // 更新查询参数并触发查询
         setCurrentPage(1)
         setQueryParams(newParams)
-        refetch()
+        refetch().then(() => {
+            console.log('查询条件更新成功')
+        }).catch(e => {
+            console.error('查询条件更新失败', e)
+        })
     }
 
     // 清除查询条件
@@ -165,7 +169,11 @@ function ConsumerOrders() {
             pageSize: pageSize
         })
         setIsFiltering(false)
-        refetch()
+        refetch().then(() => {
+            console.log('查询条件已清除')
+        }).catch(e => {
+            console.error('清除查询条件失败', e)
+        })
     }
 
     // 渲染过滤器部分

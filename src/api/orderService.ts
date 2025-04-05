@@ -43,7 +43,7 @@ export const orderService = {
      * @param orderId 订单ID
      */
     getOrderDetail: (orderId: string) => {
-        const url = httpClient.replacePathParams('/v1/orders/:orderId', {
+        const url = httpClient.replacePathParams('/v1/orders/{orderId}', {
             orderId
         })
 
@@ -79,9 +79,8 @@ export const orderService = {
             `${import.meta.env.VITE_MERCHANTS_URL}/orders`,
             {
                 params: {
-                    // userId: request.userId,
-                    page: request.page?.toString(),
-                    pageSize: request.pageSize?.toString()
+                    page: request.page,
+                    pageSize: request.pageSize
                 },
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`

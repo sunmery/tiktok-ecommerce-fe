@@ -67,7 +67,7 @@ export const AlertProvider = ({children}: AlertProviderProps) => {
                 onClose={hideAlert}
                 anchorOrigin={{vertical: 'top', horizontal: 'center'}}
                 sx={{
-                    zIndex: 9999, // 增加z-index确保消息显示在最上层
+                    zIndex: 99, // 增加z-index确保消息显示在最上层
                     mt: '69px', // 增加顶部边距
                     flexDirection: 'column',
                     gap: 1,

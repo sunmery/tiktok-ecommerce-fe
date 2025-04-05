@@ -14,7 +14,6 @@ import type {Address} from '@/types/addresses'
 import type {CreditCard} from '@/types/creditCards'
 import {useTranslation} from 'react-i18next'
 import {showMessage} from "@/utils/showMessage.ts";
-import { t } from 'i18next'
 
 export const Route = createLazyFileRoute('/checkout/')({
     component: RouteComponent,

@@ -64,6 +64,10 @@ const resources = {
             'common.confirmDownload': 'Confirm to download?',
             'common.confirmExit': 'Confirm to exit?',
 
+            'logistics.orderDetails.title': 'Logistics Order Details',
+            'logistics.orderDetails.status': 'Status',
+            'logistics.orderDetails.createdAt': 'Created At',
+
             'app.title': 'T-Commerce Platform',
             "orders.productOverview": "Product Overview",
             "orders.unit": "items",
@@ -77,6 +81,21 @@ const resources = {
             "orders.status.unknown": "Unknown Status",
             "orders.confirmReceive": "Confirm Receipt",
             "orders.confirmReceiveFailed": "Failed to confirm receipt",
+            'orders.status.notPaid': 'Not Paid',
+            'orders.status.processing': 'Processing',
+            'orders.status.paid': 'Paid',
+            'orders.status.failed': 'Failed',
+            'orders.status.cancelled': 'Cancelled',
+            'orders.status.tracking': 'Order Status Tracking',
+            'orders.status.completed': 'Completed',
+            'orders.status.waiting': 'Waiting',
+            'orders.status.created': 'Order Created',
+            'orders.status.paymentProcessing': 'Payment Processing',
+            'orders.status.orderConfirmed': 'Order Confirmed',
+            'orders.status.pending': 'Pending',
+            'orders.unitPrice': 'Unit Price',
+            'orders.total': 'Total',
+
             // Inventory Monitoring
             'inventory.monitoring.title': 'Inventory Monitoring Center',
             'inventory.monitoring.last_updated': 'Last Updated',
@@ -262,11 +281,7 @@ const resources = {
             'consumer.orders.noOrders': 'No Orders Found',
             'consumer.orders.filter': 'Filter',
             'consumer.orders.totalCount': 'Total {{count}} Orders',
-            'consumer.orders.status.notPaid': 'Not Paid',
-            'consumer.orders.status.processing': 'Processing',
-            'consumer.orders.status.paid': 'Paid',
-            'consumer.orders.status.failed': 'Failed',
-            'consumer.orders.status.cancelled': 'Cancelled',
+
             'consumer.orders.viewFavorites': 'View favorites',
             'consumer.favorites.title': 'My Favorites',
             'consumer.favorites.viewProducts': 'View Favorite Products',
@@ -693,13 +708,7 @@ const resources = {
             'merchant.orders.noData': 'No order data',
             'merchant.orders.status.paid': 'Paid',
             'merchant.orders.status.processing': 'Processing',
-            'merchant.orders.status.notPaid': 'Not Paid',
-            'merchant.orders.status.failed': 'Failed',
-            'merchant.orders.status.cancelled': 'Cancelled',
-            'merchant.orders.status.toBeShipped': 'To Be Shipped',
-            'merchant.orders.status.shipped': 'Shipped',
-            'merchant.orders.status.received': 'Received',
-            'merchant.orders.ship': 'Ship',
+            'orders.ship': 'Ship',
             'merchant.orders.shipFailed': 'Shipping Failed',
             'merchant.orders.markToBeShipped': 'Mark as To Be Shipped',
             'merchant.orders.updateSuccess': 'Order status updated successfully',
@@ -709,7 +718,6 @@ const resources = {
             'orders.orderId': 'Order ID',
             'orders.date': 'Date',
             'orders.status': 'Status',
-            'orders.total': 'Total Amount',
             'orders.paymentStatus': 'Payment Status',
             'orders.details': 'Details',
             'orders.noOrders': 'No Orders',
@@ -718,7 +726,6 @@ const resources = {
             'orders.billingAddress': 'Billing Address',
             'orders.products': 'Products',
             'orders.quantity': 'Quantity',
-            'orders.unitPrice': 'Unit Price',
             'orders.subtotal': 'Subtotal',
             'orders.shipping': 'Shipping Fee',
             'orders.tax': 'Tax',
@@ -769,6 +776,7 @@ const resources = {
             'addresses.countryPlaceholder': 'Country',
             'addresses.zipCodePlaceholder': 'ZIP Code',
             'addresses.country': 'Country',
+            'addresses.manage':'Manage addresses',
 
             // 支付方式
             'payment.title': 'My Credit Cards',
@@ -791,9 +799,7 @@ const resources = {
             'payment.monthPlaceholder': 'Month',
             'payment.yearPlaceholder': 'Year',
             'payment.cvvPlaceholder': 'Enter CVV',
-
-            // 订单管理
-
+            'payment.manage': 'Payment manage',
 
             // 商家中心
             'merchant.welcome': 'Welcome to Merchant Center',
@@ -1077,6 +1083,12 @@ const resources = {
             'common.confirmExit': 'Confirm to exit?',
 
             'app.title': 'TT电商平台',
+
+            // 物流
+            'logistics.orderDetails.title': '物流订单详情',
+            'logistics.orderDetails.status': '状态',
+            'logistics.orderDetails.createdAt': '创建时间',
+
             // 库存监控
             'inventory.monitoring.title': '库存监控中心',
             'inventory.monitoring.last_updated': '最后更新',
@@ -1288,13 +1300,7 @@ const resources = {
             'merchant.orders.loading': '加载中...',
             'merchant.orders.noData': '没有订单数据',
             'merchant.orders.status.paid': '已支付',
-            'merchant.orders.status.processing': '支付中',
-            'merchant.orders.status.notPaid': '未支付',
-            'merchant.orders.status.failed': '错误',
-            'merchant.orders.status.cancelled': '已取消',
-            'merchant.orders.status.toBeShipped': '待发货',
-            'merchant.orders.status.shipped': '已发货',
-            'merchant.orders.status.received': '已收货',
+
             'merchant.orders.ship': '发货',
             'merchant.orders.shipFailed': '发货失败',
             'merchant.orders.markToBeShipped': '标记待发货',
@@ -1448,7 +1454,7 @@ const resources = {
             'log.navigatedToAdminEcommerceMap': '已跳转到电商地图页面',
             'log.uploadUrl': '上传URL:',
             'log.fileUploadSuccess': '文件上传成功',
-            'log.permanentUrl': '永久访问URL:',
+            'log.permanentUrl': 'URL:',
 
             // 地址管理
             'addresses.title': '收货地址',
@@ -1480,6 +1486,7 @@ const resources = {
             'addresses.countryPlaceholder': '国家',
             'addresses.zipCodePlaceholder': '邮政编码',
             'addresses.country': '国家',
+            'addresses.manage':'管理地址',
 
             // 支付方式
             'payment.title': '我的银行卡',
@@ -1502,6 +1509,7 @@ const resources = {
             'payment.monthPlaceholder': '月份',
             'payment.yearPlaceholder': '年份',
             'payment.cvvPlaceholder': '请输入安全码',
+            'payment.manage':'管理支付方式',
 
             // 订单管理
             'orders.title': '订单',
@@ -1540,6 +1548,17 @@ const resources = {
             "orders.status.unknown": "未知状态",
             "orders.confirmReceive": "确认收货",
             "orders.confirmReceiveFailed": "确认收货失败",
+            'orders.status.processing': '支付中',
+            'orders.status.notPaid': '未支付',
+            'orders.status.failed': '错误',
+            'orders.status.cancelled': '已取消',
+            'orders.status.tracking': '订单状态跟踪',
+            'orders.status.completed': '已完成',
+            'orders.status.waiting': '等待中',
+            'orders.status.created': '订单创建',
+            'orders.status.paymentProcessing': '支付处理',
+            'orders.status.orderConfirmed': '订单确认',
+            'orders.status.pending': '待处理',
 
             'inventory.title': '库存管理',
             'inventory.product': '产品',

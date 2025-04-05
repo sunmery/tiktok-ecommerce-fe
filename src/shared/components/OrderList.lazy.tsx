@@ -33,12 +33,12 @@ const calculateTotal = (order: Order) => {
     if (order.items && order.items.some(item => 'item' in item)) {
         // 处理API订单格式（包含嵌套item对象）
         return order.items.reduce((total, item) => {
-            return total + (item.cost * (item.item?.quantity || 0))
+            return total + (item.cost * item.item.quantity)
         }, 0)
     } else if (order.items) {
         // 处理前端订单格式（平铺结构）
         return order.items.reduce((total, item) => {
-            return total + (item.price * item.quantity)
+            return total + (item.item.price * item.item.quantity)
         }, 0)
     }
     return 0
@@ -71,7 +71,7 @@ export default function OrderList({orders}: Orders) {
     return (
         <>
             <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
-                {orders.map((order) => {
+                {orders.map((order:Order) => {
                     return (
                         <Card
                             key={order.orderId}
@@ -138,7 +138,7 @@ export default function OrderList({orders}: Orders) {
                                                     variant="outlined"
                                                     color="neutral"
                                                 >
-                                                    {item.item?.name || t('orders.product')} x {item.item?.quantity || 1}
+                                                    {item.name} x {item.item.quantity}
                                                 </Chip>
                                             ))}
                                             {order.items.length > 3 && (
@@ -181,12 +181,12 @@ export default function OrderList({orders}: Orders) {
                                     )}
                                     <Button
                                         component={Link}
-                                        to={`/orders/${order.orderId}`}
+                                        to={`/consumer/orders/${order.orderId}`}
                                         size="sm"
                                         variant="outlined"
                                         sx={{minWidth: '80px'}}
                                     >
-                                        查看详情
+                                        {t('products.actions.viewDetails')}
                                     </Button>
                                 </Box>
                             </CardContent>

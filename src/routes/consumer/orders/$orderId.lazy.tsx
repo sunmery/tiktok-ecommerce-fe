@@ -10,7 +10,8 @@ import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import Skeleton from '@/components/Skeleton'
 import {orderService} from '@/api/orderService'
 import {useTranslation} from 'react-i18next'
-import {getStatusText} from "@/utils/status.ts";
+import {getStatusColor, getStatusText} from "@/utils/status.ts";
+import {showMessage} from "@/utils/showMessage.ts";
 
 // 格式化时间戳
 const formatDate = (timestamp: any) => {
@@ -59,7 +60,7 @@ function ConsumerOrderDetail() {
             setError('')
             try {
                 // 调用API获取订单列表
-                const response = await orderService.getOrder({
+                const response = await orderService.getConsumerOrder({
                     userId: '', // 留空，API会使用当前登录用户的ID
                     page: 1,
                     pageSize: 50
@@ -89,23 +90,11 @@ function ConsumerOrderDetail() {
                 console.log("订单详情获取完成")
             }).catch(e => {
                 console.error("获取订单详情失败", e)
+                showMessage("获取订单详情失败", 'error')
             })
         }
     }, [orderId])
 
-    // 获取状态颜色
-    const getStatusColor = (status: PaymentStatus) => {
-        switch (status) {
-            case PaymentStatus.Paid:
-                return 'success'
-            case PaymentStatus.Processing:
-                return 'primary'
-            case PaymentStatus.Failed:
-                return 'danger'
-            default:
-                return 'neutral'
-        }
-    }
 
     // 计算订单总金额
     const calculateTotal = (order: Order) => {
@@ -132,9 +121,9 @@ function ConsumerOrderDetail() {
             {/* 面包屑导航 */}
             <Breadcrumbs
                 pathMap={{
-                    'consumer': '消费者中心',
-                    'orders': '我的订单',
-                    [orderId || '']: '订单详情'
+                    'consumer': t('consumer.dashboard.title'),
+                    'orders': t('consumer.orders.title'),
+                    [orderId || '']: t('consumer.order.details')
                 }}
             />
 
@@ -198,7 +187,7 @@ function ConsumerOrderDetail() {
                     <Grid xs={12}>
                         <Card variant="outlined">
                             <CardContent>
-                                <Typography level="title-lg" sx={{mb: 2}}>商品列表</Typography>
+                                <Typography level="title-lg" sx={{mb: 2}}>{t('orders.productOverview')}</Typography>
                                 <Divider sx={{my: 2}}/>
 
                                 {order.items.map((item, index) => (
@@ -209,17 +198,17 @@ function ConsumerOrderDetail() {
                                                     <Box
                                                         component="img"
                                                         src={item.item.picture}
-                                                        alt={item.item.name || '商品图片'}
+                                                        alt={item.item.name || t('orders.product')}
                                                         sx={{width: '100%', maxWidth: 60, borderRadius: 'sm'}}
                                                     />
                                                 )}
                                             </Grid>
                                             <Grid xs={6} sm={7}>
                                                 <Typography level="title-sm">
-                                                    {item.item.name || `商品${item.item.productId.substring(0, 8)}`}
+                                                    {item.item.name || `${item.item.productId.substring(0, 8)}`}
                                                 </Typography>
                                                 <Typography level="body-sm" color="neutral">
-                                                    单价: {formatCurrency(item.cost / item.item.quantity, order.currency)}
+                                                    {t('orders.unitPrice')}: {formatCurrency(item.cost / item.item.quantity, order.currency)}
                                                 </Typography>
                                             </Grid>
                                             <Grid xs={2} sm={2} sx={{textAlign: 'center'}}>
@@ -238,7 +227,7 @@ function ConsumerOrderDetail() {
                                 <Divider sx={{my: 2}}/>
                                 <Box sx={{display: 'flex', justifyContent: 'flex-end'}}>
                                     <Typography level="title-lg">
-                                        总计: {formatCurrency(calculateTotal(order), order.currency)}
+                                        {t('orders.total')}: {formatCurrency(calculateTotal(order), order.currency)}
                                     </Typography>
                                 </Box>
                             </CardContent>
@@ -249,7 +238,7 @@ function ConsumerOrderDetail() {
                     <Grid xs={12}>
                         <Card variant="outlined">
                             <CardContent>
-                                <Typography level="title-lg" sx={{mb: 2}}>订单状态跟踪</Typography>
+                                <Typography level="title-lg" sx={{mb: 2}}>{t('orders.status.tracking')}</Typography>
                                 <Divider sx={{my: 2}}/>
 
                                 <Stack spacing={2}>
@@ -259,9 +248,9 @@ function ConsumerOrderDetail() {
                                             color="success"
                                             sx={{mr: 2}}
                                         >
-                                            已完成
+                                            {t('orders.status.completed')}
                                         </Chip>
-                                        <Typography level="body-md">订单创建</Typography>
+                                        <Typography level="body-md">{t('orders.status.created')}</Typography>
                                         <Typography level="body-sm" color="neutral" sx={{ml: 'auto'}}>
                                             {formatDate(order.createdAt)}
                                         </Typography>
@@ -273,11 +262,11 @@ function ConsumerOrderDetail() {
                                             color={order.paymentStatus !== PaymentStatus.NotPaid ? 'success' : 'neutral'}
                                             sx={{mr: 2}}
                                         >
-                                            {order.paymentStatus !== PaymentStatus.NotPaid ? '已完成' : '等待中'}
+                                            {order.paymentStatus !== PaymentStatus.NotPaid ? t('orders.status.completed') : t('orders.status.waiting')}
                                         </Chip>
-                                        <Typography level="body-md">支付处理</Typography>
+                                        <Typography level="body-md">{t('orders.status.paymentProcessing')}</Typography>
                                         <Typography level="body-sm" color="neutral" sx={{ml: 'auto'}}>
-                                            {order.paymentStatus !== PaymentStatus.NotPaid ? formatDate(order.createdAt) : '待处理'}
+                                            {order.paymentStatus !== PaymentStatus.NotPaid ? formatDate(order.createdAt) : t('orders.status.pending')}
                                         </Typography>
                                     </Box>
 
@@ -287,11 +276,11 @@ function ConsumerOrderDetail() {
                                             color={order.paymentStatus === PaymentStatus.Paid ? 'success' : 'neutral'}
                                             sx={{mr: 2}}
                                         >
-                                            {order.paymentStatus === PaymentStatus.Paid ? '已完成' : '等待中'}
+                                            {order.paymentStatus === PaymentStatus.Paid ? t('orders.status.completed') : t('orders.status.waiting')}
                                         </Chip>
-                                        <Typography level="body-md">订单确认</Typography>
+                                        <Typography level="body-md">{t('orders.status.orderConfirmed')}</Typography>
                                         <Typography level="body-sm" color="neutral" sx={{ml: 'auto'}}>
-                                            {order.paymentStatus === PaymentStatus.Paid ? formatDate(order.createdAt) : '待处理'}
+                                            {order.paymentStatus === PaymentStatus.Paid ? formatDate(order.createdAt) : t('orders.status.pending')}
                                         </Typography>
                                     </Box>
                                 </Stack>

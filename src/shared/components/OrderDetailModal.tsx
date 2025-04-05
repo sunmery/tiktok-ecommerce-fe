@@ -42,7 +42,7 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({open, onClose, order
     const calculateTotal = () => {
         if (!order || !order.items) return 0;
         return order.items.reduce((total, item) => {
-            return total + (item.cost * (item.item?.quantity || item.quantity || 0));
+            return total + (item.cost * item.item.quantity);
         }, 0);
     };
 
@@ -134,9 +134,9 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({open, onClose, order
                                 <tbody>
                                 {order.items.map((item, index) => {
                                     // 兼容不同的数据结构
-                                    const productName = item.item?.name || item.name || '商品';
-                                    const price = item.cost || item.price || 0;
-                                    const quantity = item.item?.quantity || item.quantity || 0;
+                                    const productName = item.item.name;
+                                    const price = item.cost;
+                                    const quantity = item.item.quantity;
 
                                     return (
                                         <tr key={index}>
