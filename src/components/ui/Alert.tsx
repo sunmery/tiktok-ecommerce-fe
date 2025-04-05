@@ -74,8 +74,8 @@ export default function AlertVariousStates(
         variant="soft"
         color={color}
         endDecorator={
-            <IconButton 
-                variant="soft" 
+            <IconButton
+                variant="soft"
                 color={color}
                 onClick={() => {
                     setVisible(false);

@@ -1,18 +1,16 @@
-import {createLazyFileRoute} from '@tanstack/react-router'
+import {createLazyFileRoute, useParams} from '@tanstack/react-router'
+import {useQuery} from '@tanstack/react-query';
+import {orderService} from '@/api/orderService';
+import {Order} from '@/types/orders';
+import {t} from 'i18next';
 
 export const Route = createLazyFileRoute('/logistics/$orderId')({
     component: RouteComponent,
 })
 
-import {useQuery} from '@tanstack/react-query';
-import {orderService} from '@/api/orderService';
-import {Order} from '@/types/orders';
-import {useParams} from '@tanstack/react-router';
-import {t} from 'i18next';
-
 function RouteComponent() {
     const {orderId} = useParams({strict: false});
-    
+
     const {data: orderDetail, isLoading} = useQuery<Order>({
         queryKey: ['orderDetail', orderId],
         queryFn: () => orderService.getOrderDetail(orderId as string),

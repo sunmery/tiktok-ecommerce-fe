@@ -1,5 +1,5 @@
 import {Box, Button, Card, CardContent, Chip, Divider, Grid, Typography} from '@mui/joy'
-import {Order, Orders, PaymentStatus} from '@/types/orders.ts'
+import {Order, OrderItem, Orders, PaymentStatus} from '@/types/orders.ts'
 import {formatCurrency} from '@/utils/format.ts'
 import {Link} from '@tanstack/react-router'
 import {useState} from 'react'
@@ -71,7 +71,7 @@ export default function OrderList({orders}: Orders) {
     return (
         <>
             <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
-                {orders.map((order:Order) => {
+                {orders.map((order: Order) => {
                     return (
                         <Card
                             key={order.orderId}
@@ -131,14 +131,14 @@ export default function OrderList({orders}: Orders) {
                                             {t('orders.productOverview')}:
                                         </Typography>
                                         <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 1}}>
-                                            {order.items.slice(0, 3).map((item: any, index: number) => (
+                                            {order.items.slice(0, 3).map((item: OrderItem, index: number) => (
                                                 <Chip
                                                     key={index}
                                                     size="sm"
                                                     variant="outlined"
                                                     color="neutral"
                                                 >
-                                                    {item.name} x {item.item.quantity}
+                                                    {item.item.name} x {item.item.quantity}
                                                 </Chip>
                                             ))}
                                             {order.items.length > 3 && (

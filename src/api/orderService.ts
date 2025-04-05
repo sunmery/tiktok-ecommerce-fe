@@ -126,7 +126,7 @@ export const orderService = {
      * 更新订单状态
      * PUT /v1/orders/{orderId}/status
      */
-    updateOrderStatus: (orderId: string, status: any) => {
+    updateOrderStatus: (orderId: string, status: string) => {
         const url = httpClient.replacePathParams(
             `${import.meta.env.VITE_ORDERS_URL}/{orderId}/status`,
             {orderId: orderId}

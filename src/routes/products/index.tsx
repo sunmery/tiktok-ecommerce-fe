@@ -13,6 +13,7 @@ import CardContent from "@mui/joy/CardContent";
 import Button from "@mui/joy/Button";
 import Breadcrumbs from '@/shared/components/Breadcrumbs';
 import {useTranslation} from "react-i18next";
+import {useEffect} from "react";
 
 export const Route = createFileRoute('/products/')({
     component: RouteComponent,
@@ -109,6 +110,13 @@ function Products() {
         )
     }
 
+    const  favoriteProduct = (id:string) => {
+        console.log(id)
+        useEffect(() => {
+
+        }, [id]);
+    }
+    
     // const UpdateImage = (event: ChangeEvent<HTMLInputElement>) => {
     //     const file = event.target.files?.[0];
     //     if (!file) return;
@@ -274,10 +282,11 @@ function Products() {
                                     {product.name}
                                 </Typography>
                                 <IconButton
-                                    aria-label="收藏商品"
+                                    aria-label={t('consumer.favorites')}
                                     variant="outlined"
                                     color="neutral"
                                     size="sm"
+                                    onClick={() => favoriteProduct(product.id)}
                                 >
                                     <BookmarkAdd/>
                                 </IconButton>

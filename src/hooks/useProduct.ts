@@ -1,6 +1,6 @@
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {api} from '@/api/config'
-import type {CreateProductRequest, SubmitAuditRequest,} from '@/types/products.ts'
+import type {CreateProductRequest, Product, SubmitAuditRequest,} from '@/types/products.ts'
 import {AuditProductRequest, AuditRecordResponse, CreateProductResponse, ProductResponse} from "@/types/products.ts";
 import {productService} from '@/api/productService';
 import {
@@ -41,7 +41,7 @@ export function useProduct(id: string, merchantId: string) {
                 // 如果API请求失败，尝试使用mock数据
                 try {
                     const {mockProducts} = await import('@/utils/mockData')
-                    const mockProduct = mockProducts.find((p: any) => p.id === id)
+                    const mockProduct = mockProducts.find((p: Product) => p.id === id)
                     if (mockProduct) {
                         console.warn('使用mock数据显示商品详情:', mockProduct)
                         return {

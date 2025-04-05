@@ -318,10 +318,7 @@ const ChinaEcommerceMap: FC<ChinaEcommerceMapProps> = ({
             console.error('初始化图表失败:', error)
             newChart.hideLoading()
         }
-
-
     }
-
 
     // 转换城市数据为地图坐标点
     const convertData = (data: CityData[]) => {
@@ -334,8 +331,6 @@ const ChinaEcommerceMap: FC<ChinaEcommerceMapProps> = ({
                     value: [...geoCoord, item.value]
                 })
             }
-
-
         })
         return result
     }
@@ -358,8 +353,6 @@ const ChinaEcommerceMap: FC<ChinaEcommerceMapProps> = ({
                 {
                     data: mockEcommerceData[currentYearIndex].cities
                 }
-
-
             ]
         })
     }
@@ -378,8 +371,6 @@ const ChinaEcommerceMap: FC<ChinaEcommerceMapProps> = ({
                 clearInterval(playInterval)
                 setPlayIntervalState(null)
             }
-
-
         } else {
             // 播放
             const interval = window.setInterval(() => {

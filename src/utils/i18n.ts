@@ -283,6 +283,7 @@ const resources = {
             'consumer.orders.totalCount': 'Total {{count}} Orders',
 
             'consumer.orders.viewFavorites': 'View favorites',
+            'consumer.favorites': 'Favorites product',
             'consumer.favorites.title': 'My Favorites',
             'consumer.favorites.viewProducts': 'View Favorite Products',
             'consumer.favorites.manage': 'Manage Favorites',
@@ -776,7 +777,7 @@ const resources = {
             'addresses.countryPlaceholder': 'Country',
             'addresses.zipCodePlaceholder': 'ZIP Code',
             'addresses.country': 'Country',
-            'addresses.manage':'Manage addresses',
+            'addresses.manage': 'Manage addresses',
 
             // 支付方式
             'payment.title': 'My Credit Cards',
@@ -1486,7 +1487,7 @@ const resources = {
             'addresses.countryPlaceholder': '国家',
             'addresses.zipCodePlaceholder': '邮政编码',
             'addresses.country': '国家',
-            'addresses.manage':'管理地址',
+            'addresses.manage': '管理地址',
 
             // 支付方式
             'payment.title': '我的银行卡',
@@ -1509,7 +1510,7 @@ const resources = {
             'payment.monthPlaceholder': '月份',
             'payment.yearPlaceholder': '年份',
             'payment.cvvPlaceholder': '请输入安全码',
-            'payment.manage':'管理支付方式',
+            'payment.manage': '管理支付方式',
 
             // 订单管理
             'orders.title': '订单',
@@ -1960,6 +1961,7 @@ const resources = {
             'consumer.orders.trackStatus': '跟踪订单状态',
             'consumer.orders.queryDetails': '查询订单详情',
             'consumer.orders.totalCount': '总计 {{count}} 份订单',
+            'consumer.favorites': '收藏商品',
             'consumer.favorites.title': '我的收藏',
             'consumer.favorites.viewProducts': '查看收藏商品',
             'consumer.favorites.manage': '管理收藏',

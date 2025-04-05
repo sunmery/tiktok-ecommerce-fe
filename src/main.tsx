@@ -1,4 +1,3 @@
-import React from 'react'
 import ReactDOM from 'react-dom/client'
 import {createRouter, RouterProvider} from '@tanstack/react-router'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
@@ -38,18 +37,16 @@ scan({
 });
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-    <React.StrictMode>
-        <QueryClientProvider client={queryClient}>
-            <CssVarsProvider theme={theme} defaultMode="light">
-                <AlertProvider>
-                    <I18nProvider>
-                        <LanguageProvider>
-                            <RouterProvider router={router}/>
-                        </LanguageProvider>
-                    </I18nProvider>
-                </AlertProvider>
-            </CssVarsProvider>
-            <ReactQueryDevtools initialIsOpen={false}/>
-        </QueryClientProvider>
-    </React.StrictMode>,
+    <QueryClientProvider client={queryClient}>
+        <CssVarsProvider theme={theme} defaultMode="light">
+            <AlertProvider>
+                <I18nProvider>
+                    <LanguageProvider>
+                        <RouterProvider router={router}/>
+                    </LanguageProvider>
+                </I18nProvider>
+            </AlertProvider>
+        </CssVarsProvider>
+        <ReactQueryDevtools initialIsOpen={false}/>
+    </QueryClientProvider>
 )
