@@ -59,7 +59,7 @@ function CategoryProducts() {
         id: string,
         merchantId: string,
         name: string,
-        price: number,
+        _price: number,
         quantity: number = 1,
         _description?: string,
         images?: string[],

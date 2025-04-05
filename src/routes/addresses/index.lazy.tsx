@@ -1,7 +1,6 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
 import {FormEvent, useState} from 'react'
 import {
-    Alert,
     Box,
     Button,
     Card,
@@ -13,7 +12,6 @@ import {
     IconButton,
     Input,
     Modal,
-    Snackbar,
     Typography
 } from '@mui/joy'
 import AddIcon from '@mui/icons-material/Add'
@@ -26,6 +24,7 @@ import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
 import type {Address} from '@/types/addresses'
 import {useTranslation} from 'react-i18next'
+import {showMessage} from '@/utils/showMessage'
 
 export const Route = createLazyFileRoute('/addresses/')({
     component: AddressesRoute,
@@ -66,12 +65,6 @@ function AddressesRoute() {
         })
     }
 
-    const [snackbar, setSnackbar] = useState({
-        open: false,
-        message: '',
-        severity: 'success' as 'success' | 'error'
-    })
-
     // 打开新增地址模态框
     const handleAddAddress = () => {
         setEditAddress(null)
@@ -96,21 +89,24 @@ function AddressesRoute() {
                 userId: account.id
             })
 
-            setSnackbar({
-                open: true,
-                message: t('addresses.deleteSuccess'),
-                severity: 'success'
-            })
+            // setSnackbar({
+            //     open: true,
+            //     message: t('addresses.deleteSuccess'),
+            //     severity: 'success'
+            // })
+
+            showMessage(t('addresses.deleteSuccess'), 'success')
 
             // 刷新地址列表
             await refetch()
         } catch (error) {
             console.error(t('addresses.deleteFailed'), error)
-            setSnackbar({
-                open: true,
-                message: t('addresses.deleteFailed'),
-                severity: 'error'
-            })
+            // setSnackbar({
+            //     open: true,
+            //     message: t('addresses.deleteFailed'),
+            //     severity: 'error'
+            // })
+            showMessage(t('addresses.deleteFailed'), 'error')
         }
     }
 
@@ -122,19 +118,21 @@ function AddressesRoute() {
             if (editAddress) {
                 // 更新地址
                 await updateAddressMutation.mutateAsync(formData)
-                setSnackbar({
-                    open: true,
-                    message: t('addresses.saveSuccess'),
-                    severity: 'success'
-                })
+                // setSnackbar({
+                //     open: true,
+                //     message: t('addresses.saveSuccess'),
+                //     severity: 'success'
+                // })
+                showMessage(t('addresses.saveSuccess'), 'success')
             } else {
                 // 创建新地址
                 await createAddressMutation.mutateAsync(formData)
-                setSnackbar({
-                    open: true,
-                    message: t('addresses.saveSuccess'),
-                    severity: 'success'
-                })
+                // setSnackbar({
+                //     open: true,
+                //     message: t('addresses.saveSuccess'),
+                //     severity: 'success'
+                // })
+                showMessage(t('addresses.saveSuccess'), 'success')
             }
 
             setOpen(false)
@@ -142,11 +140,12 @@ function AddressesRoute() {
             await refetch()
         } catch (error) {
             console.error(t('addresses.saveFailed'), error)
-            setSnackbar({
-                open: true,
-                message: t('addresses.saveFailed'),
-                severity: 'error'
-            })
+            // setSnackbar({
+            //     open: true,
+            //     message: t('addresses.saveFailed'),
+            //     severity: 'error'
+            // })
+            showMessage(t('addresses.saveFailed'), 'error')
         }
     }
 
@@ -309,20 +308,6 @@ function AddressesRoute() {
                     </form>
                 </Card>
             </Modal>
-
-            {/* 提示消息 */}
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={3000}
-                onClose={() => setSnackbar(prev => ({...prev, open: false}))}
-            >
-                <Alert
-                    variant="soft"
-                    color={snackbar.severity === 'success' ? 'success' : 'danger'}
-                >
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
         </Box>
     )
 }

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {FC,useState} from 'react';
 import {
     Box,
     Button,
@@ -26,7 +26,7 @@ interface CardSelectorProps {
     onCardSelect: (cardId: number) => void;
 }
 
-const CardSelector: React.FC<CardSelectorProps> = ({selectedCardId, onCardSelect}) => {
+const CardSelector: FC<CardSelectorProps> = ({selectedCardId, onCardSelect}) => {
     const {data: cardsData, isLoading, error, refetch} = useCreditCards();
     const updateCardMutation = useUpdateCreditCard();
     const createCardMutation = useCreateCreditCard();

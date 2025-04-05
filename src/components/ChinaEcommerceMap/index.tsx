@@ -178,7 +178,7 @@ const ChinaEcommerceMap: FC<ChinaEcommerceMapProps> = ({
             }
 
             // 清除播放定时器
-            if (playInterval) {
+            if (typeof playInterval === 'number') {
                 clearInterval(playInterval)
             }
         }

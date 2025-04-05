@@ -35,7 +35,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
                 <List>
                     {items.map((item, index) => (
                         <ListItem key={index}>
-                            <ListItem>{item}</ListItem>
+                            {item}
                         </ListItem>
                     ))}
                 </List>

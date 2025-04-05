@@ -14,13 +14,14 @@ import type {Address} from '@/types/addresses'
 import type {CreditCard} from '@/types/creditCards'
 import {useTranslation} from 'react-i18next'
 import {showMessage} from "@/utils/showMessage.ts";
+import { t } from 'i18next'
 
 export const Route = createLazyFileRoute('/checkout/')({
     component: RouteComponent,
 })
 
 /**
- * 结算页面组件
+ * Checkout page component
  * @returns Element
  */
 function RouteComponent() {
@@ -49,13 +50,13 @@ function RouteComponent() {
                     const savedItems = JSON.parse(savedItemsJson) as CartItem[]
                     setSelectedItems(savedItems)
                 } catch (e) {
-                    console.error('解析选中的商品数据失败:', e)
+                    console.error(t('checkout.parseSelectedItemsFailed'), e)
                     setSelectedItems([])
                 }
             } else {
                 // 如果没有选中的商品数据，回到购物车页面
                 navigate({to: '/carts'}).then(() => {
-                    console.log('没有选中的商品数据，回到购物车页面')
+                    console.log(t('checkout.noSelectedItemsRedirect'))
                 })
             }
         }
@@ -116,7 +117,7 @@ function RouteComponent() {
         }
 
         setLoading(true)
-        console.log('正在请求结算接口:', `${import.meta.env.VITE_URL}${import.meta.env.VITE_CHECKOUT_URL}`)
+        console.log(t('checkout.requestingCheckoutAPI'), `${import.meta.env.VITE_URL}${import.meta.env.VITE_CHECKOUT_URL}`)
 
         fetch(`${import.meta.env.VITE_URL}${import.meta.env.VITE_CHECKOUT_URL}`, {
             method: 'POST',
@@ -135,10 +136,10 @@ function RouteComponent() {
             }),
         })
             .then(async (res) => {
-                console.log('收到响应状态码:', res.status)
+                console.log(t('checkout.receivedResponseCode'), res.status)
                 if (!res.ok) {
                     const text = await res.text()
-                    console.error('响应内容:', text)
+                    console.error(t('checkout.responseContent'), text)
                     throw new Error(text || `${t('checkout.failed')}: ${res.status}`)
                 }
                 return res.json()
@@ -151,18 +152,18 @@ function RouteComponent() {
                 // 如果结算成功，从购物车中移除已购买的商品
                 selectedItems.forEach(item => {
                     cartStore.removeItem(item.productId).then(() => {
-                        console.log(`结算成功, 已从购物车中移除商品ID: ${item.productId}`)
+                        console.log(t('checkout.successRemovedItem', {productId: item.productId}))
                     })
                 })
 
-                // 导入showMessage函数
+                // 显示成功消息
 
                 showMessage(t('checkout.success'), 'success')
                 // 跳转到支付页面
                 window.open(data.paymentUrl, '_blank')
                 // 成功后跳转到订单页面
                 navigate({to: '/consumer/orders'}).then(() => {
-                    console.log('跳转到订单页面')
+                    console.log(t('checkout.redirectToOrders'))
                 })
 
             })

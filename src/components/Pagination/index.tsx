@@ -95,9 +95,9 @@ export default function Pagination({
     }
 
     const buttonSizeProps = {
-        sm: {size: 'sm', sx: {minWidth: 32, height: 32}},
-        md: {size: 'md', sx: {minWidth: 40, height: 40}},
-        lg: {size: 'lg', sx: {minWidth: 48, height: 48}}
+        sm: {size: 'sm' as const, sx: {minWidth: 32, height: 32}},
+        md: {size: 'md' as const, sx: {minWidth: 40, height: 40}},
+        lg: {size: 'lg' as const, sx: {minWidth: 48, height: 48}}
     }[size]
 
     return (

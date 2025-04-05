@@ -2,7 +2,7 @@ import {FC, MouseEvent, useState} from 'react';
 import {IconButton, Menu, MenuItem, Tooltip, Typography} from '@mui/joy';
 import LanguageIcon from '@mui/icons-material/Language';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import {useLanguage} from '@/contexts/LanguageContext';
+import {useLanguage} from '@/core/providers/I18nProvider/LanguageContext';
 
 const LanguageSwitcher: FC = () => {
     const {language, setLanguage} = useLanguage();

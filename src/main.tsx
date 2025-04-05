@@ -7,8 +7,8 @@ import {routeTree} from './routeTree.gen'
 import {CssVarsProvider} from '@mui/joy/styles'
 import theme from '@/core/conf/theme'
 import './app.css'
-import {LanguageProvider} from './contexts/LanguageContext'
-import {I18nProvider} from './contexts/I18nProvider'
+import {LanguageProvider} from '@/core/providers/I18nProvider/LanguageContext'
+import {I18nProvider} from '@/core/providers/I18nProvider'
 import {scan} from "react-scan";
 import AlertProvider from "@/core/providers/AlertProvider";
 

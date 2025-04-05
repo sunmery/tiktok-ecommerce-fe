@@ -1,8 +1,10 @@
 import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
-import {Alert, Snackbar} from '@mui/joy';
+import {Snackbar} from '@mui/joy';
+import {ColorPaletteProp} from '@mui/joy/styles';
+import AlertVariousStates from "@/components/ui/Alert.tsx";
 
 // 修改AlertType定义，确保与MUI Joy的Alert组件color属性类型兼容
-type AlertType = 'success' | 'warning' | 'error' | 'info';
+type AlertType = ColorPaletteProp;
 
 interface AlertContextType {
     showAlert: (message: string, type?: AlertType) => void;
@@ -29,9 +31,9 @@ interface AlertProviderProps {
 export const AlertProvider = ({children}: AlertProviderProps) => {
     const [open, setOpen] = useState(false);
     const [message, setMessage] = useState('');
-    const [alertType, setAlertType] = useState<AlertType>('info');
+    const [alertType, setAlertType] = useState<AlertType>('secondary');
 
-    const showAlert = (message: string, type: AlertType = 'info') => {
+    const showAlert = (message: string, type: AlertType = 'secondary') => {
         setMessage(message);
         setAlertType(type);
         setOpen(true);
@@ -66,34 +68,17 @@ export const AlertProvider = ({children}: AlertProviderProps) => {
                 anchorOrigin={{vertical: 'top', horizontal: 'center'}}
                 sx={{
                     zIndex: 9999, // 增加z-index确保消息显示在最上层
-                    mt: 2, // 增加顶部边距
-                    '& .MuiSnackbar-content': {
-                        p: 0, // 移除Snackbar内容的内边距
-                        borderRadius: 0, // 移除圆角
-                        overflow: 'visible' // 确保内容可见
-                    }
+                    mt: '69px', // 增加顶部边距
+                    flexDirection: 'column',
+                    gap: 1,
+                    '--Button-gap': 0
                 }}
             >
-                <Alert
-                    variant="solid" // 改为solid变体以增强可见性
+                <AlertVariousStates
+                    message={message}
                     color={alertType}
                     onClose={hideAlert}
-                    sx={{
-                        width: '100%',
-                        boxShadow: 'md', // 添加阴影增强视觉效果
-                        border: 'none', // 移除边框
-                        borderRadius: 0, // 移除圆角
-                        margin: 0, // 移除外边距
-                        // padding: '12px 16px', // 调整内边距
-                        fontWeight: 'medium', // 增加字体粗细以提高可读性
-                        '& .MuiAlert-action': { // 调整关闭按钮位置
-                            padding: '0 0 0 8px',
-                            marginRight: 0
-                        }
-                    }}
-                >
-                    {message}
-                </Alert>
+                />
             </Snackbar>
         </AlertContext.Provider>
     );
