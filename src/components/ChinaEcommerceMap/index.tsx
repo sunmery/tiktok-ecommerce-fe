@@ -177,16 +177,11 @@ const ChinaEcommerceMap: FC<ChinaEcommerceMapProps> = ({
                 chart.dispose()
             }
 
-
             // 清除播放定时器
             if (playInterval) {
                 clearInterval(playInterval)
             }
-
-
         }
-
-
     }, [])
 
     // 初始化图表

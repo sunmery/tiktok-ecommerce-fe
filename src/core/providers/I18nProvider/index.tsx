@@ -9,7 +9,7 @@ interface I18nRouteWrapperProps {
  * 这个组件包装所有路由页面，确保所有页面可以访问 i18n
  * 并在语言更改时自动重新渲染
  */
-const I18nRouteWrapper: React.FC<I18nRouteWrapperProps> = ({children}) => {
+const Index: React.FC<I18nRouteWrapperProps> = ({children}) => {
     const {i18n, t} = useTranslation();
 
     // 监听语言变化，触发组件重新渲染
@@ -26,4 +26,4 @@ const I18nRouteWrapper: React.FC<I18nRouteWrapperProps> = ({children}) => {
     return children;
 };
 
-export default I18nRouteWrapper;
+export default Index;

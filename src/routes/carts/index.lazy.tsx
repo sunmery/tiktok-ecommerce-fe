@@ -87,7 +87,7 @@ function Cart() {
 
             // 获取选中的商品
             const selectedItems = cartItems.filter(item => item.selected)
-            
+
             // 先同步购物车数据到后端，确保前后端数据一致
             console.log('结算前同步购物车数据...')
             syncWithBackend(
@@ -96,7 +96,7 @@ function Cart() {
                     console.log('购物车同步成功，准备跳转到结算页面')
                     // 只将选中的商品保存到本地存储，用于结算页面使用
                     localStorage.setItem('selectedCartItems', JSON.stringify(selectedItems))
-                    
+
                     // 同步成功后跳转到结算页面
                     navigate({to: '/checkout'}).then(() => {
                         console.log('已跳转到结算页面')
@@ -228,7 +228,7 @@ function Cart() {
                                                     const value = Math.max(1, parseInt(e.target.value) || 1);
                                                     apiUpdateQuantity({itemId: item.productId, quantity: value});
                                                 }}
-                                                onKeyPress={(e) => {
+                                                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                                                     if (e.key === 'Enter') {
                                                         const value = Math.max(1, parseInt((e.target as HTMLInputElement).value) || 1);
                                                         apiUpdateQuantity({itemId: item.productId, quantity: value});
@@ -255,7 +255,7 @@ function Cart() {
                                             variant="soft"
                                             color="danger"
                                             onClick={() => {
-                                                console.log("item.productId, item.merchantId",item.productId, item.merchantId)
+                                                console.log("item.productId, item.merchantId", item.productId, item.merchantId)
                                                 removeItem(item.productId, item.merchantId)
                                             }}
                                         >

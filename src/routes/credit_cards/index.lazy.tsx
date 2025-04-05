@@ -24,7 +24,7 @@ import {
 import {Add, Delete} from '@mui/icons-material'
 import {useCreateCreditCard, useCreditCards, useDeleteCreditCard} from '@/hooks/useCreditCard'
 import type {CreditCard} from '@/types/creditCards'
-import Breadcrumbs from '@/components/Breadcrumbs'
+import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import CreditCardDetailModal from '@/components/CreditCard/DetailModal.tsx'
 import CardBackground from '@/components/CreditCard/CardBackground.tsx'
 import CardDecoration from '@/components/CreditCard/CardDecoration.tsx'

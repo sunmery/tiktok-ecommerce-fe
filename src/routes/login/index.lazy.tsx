@@ -1,7 +1,7 @@
 import {Box, Button, Typography} from '@mui/joy'
 import {createLazyFileRoute} from '@tanstack/react-router'
-import {getSigninUrl, goToLink} from '@/utils/casdoor'
-import Breadcrumbs from '@/components/Breadcrumbs'
+import {userService} from '@/api/userService'
+import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {useTranslation} from "react-i18next";
 
 export const Route = createLazyFileRoute('/login/')({
@@ -13,9 +13,9 @@ export const Route = createLazyFileRoute('/login/')({
  */
 export default function Login() {
     const casdoorLogin = () => {
-        goToLink(getSigninUrl())
+        userService.goToLink(userService.getSigninUrl())
     }
-    const {t} =useTranslation()
+    const {t} = useTranslation()
     return (
         <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
             {/* 面包屑导航 */}

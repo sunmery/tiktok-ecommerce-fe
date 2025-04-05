@@ -71,7 +71,7 @@ export const productService = {
             merchantId: request.merchantId,
             action: request.action,
             reason: request.reason,
-            // operatorId: request.operatorId
+            operatorId: request.operatorId
         };
         const url = httpClient.replacePathParams(`${import.meta.env.VITE_PRODUCERS_URL}/{product_id}/audit`, {
             product_id: request.productId
@@ -104,7 +104,7 @@ export const productService = {
      * 获取商家商品列表
      * GET /v1/merchants/products
      */
-    getMerchantProducts: (params?: { page?: number; pageSize?: number}) => {
+    getMerchantProducts: (params?: { page?: number; pageSize?: number }) => {
         return httpClient.get<Products>(`${import.meta.env.VITE_MERCHANTS_URL}/products`, {
             params
         });

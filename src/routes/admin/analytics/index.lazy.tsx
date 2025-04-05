@@ -17,12 +17,13 @@ import {
     Typography,
 } from '@mui/joy'
 import {useSnapshot} from 'valtio/react'
-import {userStore} from '@/store/user.ts'
+import {userStore} from '@/store/user'
 import * as echarts from 'echarts'
 import {useTranslation} from 'react-i18next'
 import {t} from 'i18next'
 import {orderService} from '@/api/orderService'
 import {GroupedSalesData, groupOrdersByDate} from '@/utils/analyticsHelper'
+import {showMessage} from "@/utils/showMessage";
 
 // 定义时间范围类型
 type TimeRange = 'daily' | 'weekly' | 'monthly';
@@ -178,21 +179,21 @@ function AnalyticsDashboard() {
     const initSalesCharts = () => {
         if (activeTab === 0 && salesChartRef.current && ordersChartRef.current) {
             console.log('初始化销售图表，使用数据时间范围:', timeRange);
-            
+
             // 确保有数据可用
             let chartData = salesData[timeRange];
             if (!chartData || chartData.length === 0) {
                 console.log('该时间范围没有数据，使用默认空数据');
                 chartData = [{date: new Date().toLocaleDateString(), sales: 0, orders: 0}];
             }
-            
+
             console.log('图表数据:', chartData);
-            
+
             // 销毁之前的图表实例
             if (charts.salesChart) {
                 charts.salesChart.dispose();
             }
-            
+
             // Sales chart
             const salesChart = echarts.init(salesChartRef.current);
             salesChart.setOption({
@@ -206,7 +207,7 @@ function AnalyticsDashboard() {
                 },
                 xAxis: {
                     type: 'category',
-                    data: chartData.map((item: {date: string}) => item.date)
+                    data: chartData.map((item: { date: string }) => item.date)
                 },
                 yAxis: {
                     type: 'value',
@@ -216,7 +217,7 @@ function AnalyticsDashboard() {
                 },
                 series: [{
                     name: t('admin.analytics.sales'),
-                    data: chartData.map((item: {sales: number}) => item.sales),
+                    data: chartData.map((item: { sales: number }) => item.sales),
                     type: 'line',
                     smooth: true,
                     areaStyle: {
@@ -227,7 +228,7 @@ function AnalyticsDashboard() {
                     }
                 }]
             });
-            
+
             // 销毁之前的图表实例
             if (charts.ordersChart) {
                 charts.ordersChart.dispose();
@@ -245,14 +246,14 @@ function AnalyticsDashboard() {
                 },
                 xAxis: {
                     type: 'category',
-                    data: chartData.map((item: {date: string}) => item.date)
+                    data: chartData.map((item: { date: string }) => item.date)
                 },
                 yAxis: {
                     type: 'value'
                 },
                 series: [{
                     name: t('admin.analytics.orders'),
-                    data: chartData.map((item: {orders: number}) => item.orders),
+                    data: chartData.map((item: { orders: number }) => item.orders),
                     type: 'bar',
                     itemStyle: {
                         color: '#4caf50'
@@ -266,7 +267,7 @@ function AnalyticsDashboard() {
                 salesChart,
                 ordersChart
             }));
-            
+
             // 触发一次resize以确保图表正确显示
             setTimeout(() => {
                 salesChart.resize();
@@ -278,10 +279,7 @@ function AnalyticsDashboard() {
     // Check if user is admin, redirect to home page if not
     useEffect(() => {
         if (account.role !== 'admin') {
-            // Import showMessage function to display permission error
-            import('@/utils/casdoor').then(({showMessage}) => {
-                showMessage(t('admin.analytics.permissionError'), 'error')
-            })
+            showMessage(t('admin.analytics.permissionError'), 'error')
             navigate({to: '/'}).then(() => {
                 console.log(t('admin.analytics.redirected'))
             })
@@ -299,12 +297,12 @@ function AnalyticsDashboard() {
                     page: 1,
                     pageSize: 1000, // 获取足够多的订单数据以供分析
                 });
-                
+
                 console.log('获取到订单数据:', response);
-                
+
                 if (response && response.orders) {
                     console.log('订单数量:', response.orders.length);
-                    
+
                     // 处理订单数据，按日期分组
                     const groupedData = groupOrdersByDate(response.orders);
                     console.log('处理后的订单数据:', groupedData);
@@ -335,7 +333,7 @@ function AnalyticsDashboard() {
                 salesDataAvailable: !!salesData,
                 timeRange: timeRange
             });
-            
+
             // 初始化销售相关图表
             initSalesCharts();
             setChartsInitialized(true);
@@ -366,7 +364,7 @@ function AnalyticsDashboard() {
 
         return () => {
             window.removeEventListener('resize', handleResize);
-            
+
             // 销毁图表实例以防内存泄漏
             Object.values(charts).forEach(chart => {
                 if (chart) chart.dispose();
@@ -416,7 +414,7 @@ function AnalyticsDashboard() {
                     <Tab>{t('admin.analytics.userBehavior')}</Tab>
                     <Tab>{t('admin.analytics.performanceReport')}</Tab>
                 </TabList>
-                
+
                 {/* 销售数据面板 */}
                 <TabPanel value={0}>
                     <Box sx={{mb: 3}}>
@@ -452,7 +450,7 @@ function AnalyticsDashboard() {
                                             backgroundColor: 'rgba(255, 255, 255, 0.8)',
                                             zIndex: 1
                                         }}>
-                                            <CircularProgress />
+                                            <CircularProgress/>
                                         </Box>
                                     )}
                                     <div ref={salesChartRef} style={{width: '100%', height: '100%'}}></div>
@@ -477,7 +475,7 @@ function AnalyticsDashboard() {
                                             backgroundColor: 'rgba(255, 255, 255, 0.8)',
                                             zIndex: 1
                                         }}>
-                                            <CircularProgress />
+                                            <CircularProgress/>
                                         </Box>
                                     )}
                                     <div ref={ordersChartRef} style={{width: '100%', height: '100%'}}></div>

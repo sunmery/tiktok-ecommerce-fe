@@ -1,0 +1,27 @@
+.logistics-container {
+    margin: 20px 0;
+    overflow: hidden;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
+}
+.status-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+}
+.status-control button {
+    padding: 8px 16px;
+    color: white;
+    cursor: pointer;
+    background-color: #4caf50;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+.status-control button:hover {
+    background-color: #45a049;
+}

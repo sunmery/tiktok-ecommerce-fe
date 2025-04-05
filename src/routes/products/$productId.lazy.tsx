@@ -12,9 +12,10 @@ import {
     Grid,
     Typography
 } from '@mui/joy'
-import Breadcrumbs from '@/components/Breadcrumbs'
+import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {cartStore} from '@/store/cartStore.ts'
 import {useProduct} from '@/hooks/useProduct'
+import {showMessage} from "@/utils/showMessage.ts";
 
 export const Route = createLazyFileRoute('/products/$productId')({component: ProductDetail});
 
@@ -45,10 +46,7 @@ export default function ProductDetail() {
                 );
             } catch (error) {
                 console.error('添加到购物车失败:', error);
-                // 使用showMessage显示错误信息
-                import('@/utils/casdoor').then(({showMessage}) => {
-                    showMessage('添加到购物车失败，请稍后重试', 'error');
-                });
+                showMessage('添加到购物车失败，请稍后重试', 'error');
             }
         }
     }

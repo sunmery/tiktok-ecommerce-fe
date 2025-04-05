@@ -1,6 +1,6 @@
 import i18n from 'i18next';
 import {initReactI18next} from 'react-i18next';
-import {isDevelopment, log, warn} from '@/utils/env';
+import {isDevelopment, log, warn} from '@/core/conf/app';
 
 // 从localStorage获取默认语言，如果没有则使用中文
 const getDefaultLanguage = (): string => {
@@ -37,6 +37,7 @@ export function recordTranslationKeyUsage(key: string): void {
 const resources = {
     en: {
         translation: {
+            'app.title': 'T-Commerce Platform',
             "orders.productOverview": "Product Overview",
             "orders.unit": "items",
             "orders.itemCount": "Item Count",
@@ -183,6 +184,8 @@ const resources = {
             'admin.users.edit.display_name': 'Display Name',
             'admin.users.edit.email': 'Email',
             'admin.users.edit.save': 'Save',
+            'admin.users.edit.success': 'Edit user info success',
+            'admin.users.edit.error': 'Edit user info error',
             'admin.users.delete.title': 'Confirm Delete',
             'admin.users.delete.confirm': 'Are you sure you want to delete user "{{username}}"? This action cannot be undone.',
             'admin.users.delete.cancel': 'Cancel',
@@ -199,6 +202,8 @@ const resources = {
             'admin.users.roles.consumer': 'Consumer',
             'admin.users.roles.guest': 'Guest',
             'admin.users.roles.unknown': 'Unknown',
+            'admin.users.loadSuccess': 'Load User List Success',
+            'admin.users.loadError': 'Load User List Error',
 
             // 消费者面板
             'consumer.dashboard.title': 'Consumer Dashboard',
@@ -235,6 +240,7 @@ const resources = {
             'consumer.orders.status.paid': 'Paid',
             'consumer.orders.status.failed': 'Failed',
             'consumer.orders.status.cancelled': 'Cancelled',
+            'consumer.orders.viewFavorites': 'View favorites',
             'consumer.favorites.title': 'My Favorites',
             'consumer.favorites.viewProducts': 'View Favorite Products',
             'consumer.favorites.manage': 'Manage Favorites',
@@ -491,8 +497,8 @@ const resources = {
             'merchant.analytics.load_sales_data_failed': 'Failed to load sales data',
             'merchant.analytics.no_orders_data': 'No orders data available',
 
-            'products.category':'Product category',
-            'products.selectCategory':'Select category',
+            'products.category': 'Product category',
+            'products.selectCategory': 'Select category',
 
             'analytics.loading_orders': 'Loading orders...',
             'analytics.orders_load_complete': 'Orders data loaded:',
@@ -984,11 +990,15 @@ const resources = {
 
             // Common
             'common.cancel': 'Cancel',
-            'common.close': 'Close'
+            'common.close': 'Close',
+            'payment.currency': 'Currency',
+            'payment.type': 'Card type',
+            'payment.currencyPlaceholder': 'Enter currency',
         }
     },
     zh: {
         translation: {
+            'app.title': 'TT电商平台',
             // 库存监控
             'inventory.monitoring.title': '库存监控中心',
             'inventory.monitoring.last_updated': '最后更新',
@@ -1226,6 +1236,8 @@ const resources = {
             'admin.users.edit.display_name': '昵称',
             'admin.users.edit.email': '邮箱',
             'admin.users.edit.save': '保存',
+            'admin.users.edit.success': '编辑用户信息成功',
+            'admin.users.edit.error': '编辑用户信息失败',
             'admin.users.delete.title': '确认删除',
             'admin.users.delete.confirm': '您确定要删除用户 "{{username}}" 吗？此操作不可撤销。',
             'admin.users.delete.cancel': '取消',
@@ -1242,6 +1254,8 @@ const resources = {
             'admin.users.roles.consumer': '消费者',
             'admin.users.roles.guest': '游客',
             'admin.users.roles.unknown': '未知',
+            'admin.users.loadSuccess': '加载用户数据成功',
+            'admin.users.loadError': '加载用户数据失败',
             'admin.dashboard': '管理仪表盘',
             'admin.userManagement': '用户管理',
             'admin.userManagement.addEditDelete': '添加、编辑和删除用户',
@@ -1744,6 +1758,7 @@ const resources = {
             'common.confirmDelete': '确定要删除吗？',
             'common.confirmAction': '确定要执行此操作吗？',
             'common.confirmLogout': '您确定要退出登录吗？',
+            'common.Logout': '退出登录成功',
             'common.confirmCancel': '您确定要取消吗？',
             'common.confirmSubmit': '您确定要提交吗？',
             'common.confirmReset': '您确定要重置吗？',
@@ -1767,6 +1782,7 @@ const resources = {
             'merchant.orderFeatures.orderDetails': '订单详情',
             'merchant.inventoryFeatures.monitor': '监控库存',
             'merchant.inventoryFeatures.alerts': '设置警报',
+            'merchant.inventoryFeatures.adjustments': '调整库存',
             'merchant.reportFeatures.generateReports': '生成报表',
             'merchant.reportFeatures.trends': '查看趋势',
             'merchant.reportFeatures.strategies': '获取策略',
@@ -1823,8 +1839,8 @@ const resources = {
             'merchant.log.navigatedToInventoryMonitoring': '已导航到库存监控页面',
             'merchant.log.navigatedToInventoryAlerts': '已导航到库存警报页面',
 
-            'products.category':'商品分类',
-            'products.selectCategory':'选择分类',
+            'products.category': '商品分类',
+            'products.selectCategory': '选择分类',
 
             // 消费者面板
             'consumer.dashboard.title': '消费者面板',
@@ -1853,6 +1869,7 @@ const resources = {
             'consumer.favorites.priceAlert': '价格提醒',
             'consumer.orders.noOrders': '暂无订单',
             'consumer.orders.filter': '订单筛选',
+            'consumer.orders.viewFavorites': '查看收藏',
 
             // 信用卡
             'creditCard.myCard': '我的银行卡',
@@ -1873,7 +1890,9 @@ const resources = {
             // 订单状态
 
             'consumer.order.amount': '订单金额',
-
+            'payment.currency': '货币类型',
+            'payment.type': '卡类型',
+            'payment.currencyPlaceholder': '请选择货币类型',
         }
     }
 };

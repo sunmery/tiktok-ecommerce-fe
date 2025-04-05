@@ -20,7 +20,7 @@ import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
-import Breadcrumbs from '@/components/Breadcrumbs'
+import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {useAddresses, useCreateAddress, useDeleteAddress, useUpdateAddress} from '@/hooks/useUserAddress'
 import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
@@ -41,7 +41,7 @@ function AddressesRoute() {
 
     const [open, setOpen] = useState(false)
     const [editAddress, setEditAddress] = useState<Address | null>(null)
-    console.log("account",account)
+    console.log("account", account)
     const [formData, setFormData] = useState<Address>({
         id: 0,
         userId: account.id,

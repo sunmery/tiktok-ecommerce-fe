@@ -1,9 +1,9 @@
 import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
 import {useTranslation} from 'react-i18next'
 import {Box, Button, Typography} from '@mui/joy'
-import Breadcrumbs from '@/components/Breadcrumbs'
-import {showMessage} from '@/utils/casdoor.ts'
+import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {useQueryClient} from '@tanstack/react-query'
+import {showMessage} from "@/utils/showMessage.ts";
 
 export const Route = createLazyFileRoute('/logout/')({
     component: () => <LogoutCompose/>,
@@ -31,7 +31,7 @@ function LogoutCompose() {
         queryClient.clear()
 
         // 显示退出成功提示
-        showMessage('退出登录成功', 'success')
+        showMessage(t('common.Logout'), 'success')
 
         // 登出后重定向到首页
         navigate({to: '/'}).then(() => {
@@ -44,9 +44,9 @@ function LogoutCompose() {
     return (
         <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
             {/* 面包屑导航 */}
-            <Breadcrumbs pathMap={{'logout': '退出登录'}}/>
+            <Breadcrumbs pathMap={{'logout': t('common.Logout')}}/>
 
-            <Typography level="h2" sx={{mb: 3}}>退出登录</Typography>
+            <Typography level="h2" sx={{mb: 3}}>{t('common.Logout')}</Typography>
 
             <Button variant="solid" color="danger" onClick={logout}>{t('nav.logout')}</Button>
         </Box>

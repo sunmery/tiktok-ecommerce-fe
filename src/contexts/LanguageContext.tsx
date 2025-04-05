@@ -1,6 +1,6 @@
 import React, {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {log} from '@/utils/env';
+import {log} from '@/core/conf/app';
 
 // 支持的语言
 export type Language = 'zh' | 'en';

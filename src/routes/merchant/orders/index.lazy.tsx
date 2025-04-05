@@ -18,9 +18,10 @@ import {
 } from '@mui/joy'
 import {Order, PaymentStatus} from '@/types/orders'
 import {orderService} from '@/api/orderService'
-import Breadcrumbs from '@/components/Breadcrumbs'
+import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 import {useTranslation} from "react-i18next";
+import {getStatusText} from "@/utils/status.ts";
 
 export const Route = createLazyFileRoute('/merchant/orders/')({
     component: Orders,
@@ -170,43 +171,21 @@ export default function Orders() {
                                                     flexWrap: 'wrap',
                                                 }}
                                             >
-                                                {order.paymentStatus === PaymentStatus.Paid && (
-                                                    <Typography
-                                                        color="success">{t('merchant.orders.status.paid')}</Typography>
-                                                )}
-                                                {order.paymentStatus === PaymentStatus.Processing && (
-                                                    <Typography
-                                                        color="primary">{t('merchant.orders.status.processing')}</Typography>
-                                                )}
-                                                {order.paymentStatus === PaymentStatus.NotPaid && (
-                                                    <Typography
-                                                        color="neutral">{t('merchant.orders.status.notPaid')}</Typography>
-                                                )}
-                                                {order.paymentStatus === PaymentStatus.Failed && (
-                                                    <Typography
-                                                        color="danger">{t('merchant.orders.status.failed')}</Typography>
-                                                )}
-                                                {order.paymentStatus === PaymentStatus.Cancelled && (
-                                                    <Typography
-                                                        color="danger">{t('merchant.orders.status.cancelled')}</Typography>
-                                                )}
-                                                {order.paymentStatus === PaymentStatus.ToBeShipped && (
-                                                    <Typography
-                                                        color="warning">{t('merchant.orders.status.toBeShipped')}</Typography>
-                                                )}
-                                                {order.paymentStatus === PaymentStatus.Shipped && (
-                                                    <Typography
-                                                        color="info">{t('merchant.orders.status.shipped')}</Typography>
-                                                )}
-                                                {order.paymentStatus === PaymentStatus.Received && (
-                                                    <Typography
-                                                        color="success">{t('merchant.orders.status.received')}</Typography>
-                                                )}
+                                                <Typography
+                                                    level="body-sm"
+                                                    sx={{
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: 0.5,
+                                                    }}
+                                                >
+                                                    {getStatusText(order.paymentStatus)}
+                                                </Typography>
                                             </Box>
                                         </td>
                                         <td>{order.userId}</td>
                                         <td>
-                                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                            <Box sx={{display: 'flex', gap: 1}}>
                                                 <Button
                                                     size="sm"
                                                     variant="plain"
@@ -215,7 +194,7 @@ export default function Orders() {
                                                 >
                                                     {t('merchant.orders.viewDetails')}
                                                 </Button>
-                                                
+
                                                 {order.paymentStatus === PaymentStatus.Paid && (
                                                     <Button
                                                         size="sm"
@@ -223,13 +202,21 @@ export default function Orders() {
                                                         color="primary"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            handleStatusChange(order.orderId, PaymentStatus.ToBeShipped);
+                                                            handleStatusChange(order.orderId, PaymentStatus.ToBeShipped).then(() => {
+                                                                setSnackbar({
+                                                                    open: true,
+                                                                    message: t('merchant.orders.markToBeShippedSuccess'),
+                                                                    severity: 'success'
+                                                                });
+                                                            }).catch((error) => {
+                                                                console.error('标记为待发货失败:', error);
+                                                            })
                                                         }}
                                                     >
                                                         {t('merchant.orders.markToBeShipped')}
                                                     </Button>
                                                 )}
-                                                
+
                                                 {order.paymentStatus === PaymentStatus.ToBeShipped && (
                                                     <Button
                                                         size="sm"
@@ -239,7 +226,7 @@ export default function Orders() {
                                                             e.stopPropagation();
                                                             try {
                                                                 await orderService.shipOrder(order.orderId);
-                                                                handleStatusChange(order.orderId, PaymentStatus.Shipped);
+                                                                await handleStatusChange(order.orderId, PaymentStatus.Shipped);
                                                             } catch (error) {
                                                                 console.error('发货失败:', error);
                                                                 setSnackbar({
@@ -262,7 +249,15 @@ export default function Orders() {
                                                     value={order.paymentStatus}
                                                     onChange={(_, value) => {
                                                         if (value) {
-                                                            handleStatusChange(order.orderId, value as PaymentStatus)
+                                                            handleStatusChange(order.orderId, value as PaymentStatus).then(() => {
+                                                                setSnackbar({
+                                                                    open: true,
+                                                                    message: t('merchant.orders.updateSuccess'),
+                                                                    severity: 'success'
+                                                                });
+                                                            }).catch((error) => {
+                                                                console.error('更新订单状态失败:', error);
+                                                            })
                                                         }
                                                     }}
                                                     sx={{minWidth: '120px'}}
@@ -377,7 +372,8 @@ export default function Orders() {
                                     </tr>
                                 ))}
                                 <tr>
-                                    <td colSpan={3} style={{textAlign: 'right', fontWeight: 'bold'}}>{t('orders.total')}</td>
+                                    <td colSpan={3}
+                                        style={{textAlign: 'right', fontWeight: 'bold'}}>{t('orders.total')}</td>
                                     <td style={{fontWeight: 'bold'}}>
                                         {selectedOrder.currency} {selectedOrder.items.reduce((total, item) => total + item.cost, 0).toFixed(2)}
                                     </td>

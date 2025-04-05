@@ -41,3 +41,10 @@ interface ImportMetaEnv {
 interface ImportMeta {
     readonly env: ImportMetaEnv
 }
+
+// 高德地图API全局类型定义
+interface Window {
+    _AMapSecurityConfig: {
+        securityJsCode: string;
+    };
+}

@@ -263,7 +263,8 @@ export default function InventoryAlerts() {
                                     ))}
                                 {products.filter(product => !stockAlerts.some(alert => alert.productId === product.id)).length === 0 && (
                                     <tr>
-                                        <td colSpan={3} style={{textAlign: 'center'}}>{t('inventory.alerts.all_products_alerted')}</td>
+                                        <td colSpan={3}
+                                            style={{textAlign: 'center'}}>{t('inventory.alerts.all_products_alerted')}</td>
                                     </tr>
                                 )}
                                 </tbody>

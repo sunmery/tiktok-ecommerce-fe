@@ -20,11 +20,12 @@ import {
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import {useSnapshot} from 'valtio/react'
-import {userStore} from '@/store/user.ts'
-import {EditUserForm, MerchantApplication, NewUserForm, RoleNames, User} from '@/types/admin'
-import {userService} from "@/api/userService.ts";
+import {userStore} from '@/store/user'
+import {EditUserForm, MerchantApplication, RoleNames, User} from '@/types/admin'
+import {userService} from "@/api/userService";
 import {t} from "i18next";
-import {UserProfile} from "@/types/user.ts";
+import {UserProfile} from "@/types/user";
+import {showMessage} from "@/utils/showMessage.ts";
 
 export const Route = createLazyFileRoute('/admin/users/')({
     component: UserManagement,
@@ -32,17 +33,17 @@ export const Route = createLazyFileRoute('/admin/users/')({
 
 
 // 模拟商家申请数据
-const mockMerchantApplications = [
-    {
-        id: '101',
-        userId: '3',
-        businessName: '王五电子商店',
-        businessLicense: 'BL12345678',
-        contactPhone: '13800138000',
-        applicationDate: '2023-03-08T11:30:00Z',
-        status: 'pending'
-    }
-]
+// const mockMerchantApplications = [
+//     {
+//         id: '101',
+//         userId: '3',
+//         businessName: '王五电子商店',
+//         businessLicense: 'BL12345678',
+//         contactPhone: '13800138000',
+//         applicationDate: '2023-03-08T11:30:00Z',
+//         status: 'pending'
+//     }
+// ]
 
 function UserManagement() {
     const {account} = useSnapshot(userStore)
@@ -59,17 +60,22 @@ function UserManagement() {
                 console.error('加载用户数据失败:', err)
             }
         }
-        loadUsers()
+        loadUsers().then(() => {
+            showMessage(t('admin.users.loadSuccess'), 'success')
+        }).catch((err) => {
+            showMessage(t('admin.users.loadError') + err, 'error')
+        })
     }, [])
-    const [applications, setApplications] = useState<MerchantApplication[]>(mockMerchantApplications)
+    // const [applications, setApplications] = useState<MerchantApplication[]>(mockMerchantApplications)
 
     const [openEditModal, setOpenEditModal] = useState(false)
     const [openDeleteModal, setOpenDeleteModal] = useState(false)
     const [openApprovalModal, setOpenApprovalModal] = useState(false)
-    const [openAddModal, setOpenAddModal] = useState(false)
+    const [, setOpenAddModal] = useState(false)
 
     const [currentUser, setCurrentUser] = useState<User | null>(null)
-    const [currentApplication, setCurrentApplication] = useState<MerchantApplication | null>(null)
+    // const [currentApplication, setCurrentApplication] = useState<MerchantApplication | null>(null)
+    const [currentApplication,] = useState<MerchantApplication | null>(null)
 
     const [editForm, setEditForm] = useState<EditUserForm>({
         id: '',
@@ -78,16 +84,16 @@ function UserManagement() {
         signupApplication: ''
     })
 
-    const [newUser, setNewUser] = useState<NewUserForm>({
-        id: '',
-        name: '',
-        email: '',
-        avatar: "",
-        displayName: "",
-        owner: "",
-        signupApplication: "",
-        password: ''
-    })
+    // const [newUser, setNewUser] = useState<NewUserForm>({
+    //     id: '',
+    //     name: '',
+    //     email: '',
+    //     avatar: "",
+    //     displayName: "",
+    //     owner: "",
+    //     signupApplication: "",
+    //     password: ''
+    // })
 
     // 检查用户是否为管理员，如果不是则重定向到首页
     useEffect(() => {
@@ -120,13 +126,13 @@ function UserManagement() {
     }
 
     // 处理查看商家申请
-    const handleViewApplication = (userId: string) => {
-        const application = applications.find(app => app.userId === userId)
-        if (application) {
-            setCurrentApplication(application)
-            setOpenApprovalModal(true)
-        }
-    }
+    // const handleViewApplication = (userId: string) => {
+    //     const application = applications.find(app => app.userId === userId)
+    //     if (application) {
+    //         setCurrentApplication(application)
+    //         setOpenApprovalModal(true)
+    //     }
+    // }
 
     // 保存编辑的用户信息
     const saveUserEdit = async () => {
@@ -183,62 +189,62 @@ function UserManagement() {
     }
 
     // 处理商家申请审批
-    const handleMerchantApproval = (approved: boolean) => {
-        if (!currentApplication) return
-        // 更新申请状态
-        setApplications(applications.map(app =>
-            app.id === currentApplication.id ?
-                {...app, status: approved ? 'approved' : 'rejected'} : app
-        ))
-
-        // 如果批准，更新用户角色
-        if (approved) {
-            setUsers(users.map(user =>
-                user.id === currentApplication.userId ?
-                    {...user, role: 'merchant', pendingApproval: false} : user
-            ))
-        } else {
-            setUsers(users.map(user =>
-                user.id === currentApplication.userId ?
-                    {...user, pendingApproval: false} : user
-            ))
-        }
-
-        setOpenApprovalModal(false)
-    }
+    // const handleMerchantApproval = (approved: boolean) => {
+    //     if (!currentApplication) return
+    //     // 更新申请状态
+    //     setApplications(applications.map(app =>
+    //         app.id === currentApplication.id ?
+    //             {...app, status: approved ? 'approved' : 'rejected'} : app
+    //     ))
+    //
+    //     // 如果批准，更新用户角色
+    //     if (approved) {
+    //         setUsers(users.map(user =>
+    //             user.id === currentApplication.userId ?
+    //                 {...user, role: 'merchant', pendingApproval: false} : user
+    //         ))
+    //     } else {
+    //         setUsers(users.map(user =>
+    //             user.id === currentApplication.userId ?
+    //                 {...user, pendingApproval: false} : user
+    //         ))
+    //     }
+    //
+    //     setOpenApprovalModal(false)
+    // }
 
     // 添加新用户
-    const addNewUser = () => {
-        const newId = (Math.max(...users.map(u => parseInt(u.id))) + 1).toString()
-        const now = new Date().toISOString()
-
-        setUsers([
-            ...users,
-            {
-                id: newId,
-                name: newUser.name,
-                email: newUser.email,
-                isDeleted: false,
-                owner: '',
-                avatar: '',
-                role: '',
-                displayName: '',
-            }
-        ])
-
-        setNewUser({
-            avatar: "",
-            displayName: "",
-            id: "",
-            owner: "",
-            signupApplication: "",
-            name: '',
-            email: '',
-            password: ''
-        })
-
-        setOpenAddModal(false)
-    }
+    // const addNewUser = () => {
+    //     const newId = (Math.max(...users.map(u => parseInt(u.id))) + 1).toString()
+    //     const now = new Date().toISOString()
+    //
+    //     setUsers([
+    //         ...users,
+    //         {
+    //             id: newId,
+    //             name: newUser.name,
+    //             email: newUser.email,
+    //             isDeleted: false,
+    //             owner: '',
+    //             avatar: '',
+    //             role: '',
+    //             displayName: '',
+    //         }
+    //     ])
+    //
+    //     setNewUser({
+    //         avatar: "",
+    //         displayName: "",
+    //         id: "",
+    //         owner: "",
+    //         signupApplication: "",
+    //         name: '',
+    //         email: '',
+    //         password: ''
+    //     })
+    //
+    //     setOpenAddModal(false)
+    // }
 
     // 格式化日期显示
     const formatDate = (dateString: string) => {
@@ -288,38 +294,38 @@ function UserManagement() {
                             <td>{user.displayName}</td>
                             <td>{user.email}</td>
                             <td>
-                                {user.pendingApproval ? (
-                                    <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
-                                        <Chip color="warning" size="sm">{roleNames[user.role]}</Chip>
-                                        <Chip
-                                            color="danger"
-                                            size="sm"
-                                            onClick={() => handleViewApplication(user.id)}
-                                            sx={{cursor: 'pointer'}}
-                                        >
-                                            {t('admin.users.pending_approval')}
-                                        </Chip>
-                                    </Box>
-                                ) : (
-                                    <Chip
-                                        color={user.role === 'admin' ? 'success' :
-                                            user.role === 'merchant' ? 'primary' :
+                                {/*{user.isDeleted ? (*/}
+                                {/*    <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>*/}
+                                {/*        <Chip color="warning" size="sm">{roleNames[user.role]}</Chip>*/}
+                                {/*        <Chip*/}
+                                {/*            color="danger"*/}
+                                {/*            size="sm"*/}
+                                {/*            onClick={() => handleViewApplication(user.id)}*/}
+                                {/*            sx={{cursor: 'pointer'}}*/}
+                                {/*        >*/}
+                                {/*            {t('admin.users.pending_approval')}*/}
+                                {/*        </Chip>*/}
+                                {/*    </Box>*/}
+                                {/*) : (*/}
+                                <Chip
+                                    color={user.role === 'admin' ? 'success' :
+                                        user.role === 'merchant' ? 'primary' :
                                             user.role === 'consumer' ? 'warning' : 'neutral'}
-                                        variant="solid"
-                                        size="sm"
-                                    >
-                                        {roleNames[user.role]}
-                                    </Chip>
-                                )}
+                                    variant="solid"
+                                    size="sm"
+                                >
+                                    {roleNames[user.role]}
+                                </Chip>
+                                {/*)}*/}
                             </td>
-                            <td>{formatDate(user.createdTime)}</td>
+                            <td>{formatDate(user.createdTime as string)}</td>
                             <td>
                                 <Box sx={{display: 'flex', gap: 1}}>
                                     <IconButton
                                         size="sm"
                                         variant="outlined"
                                         color="neutral"
-                                        onClick={() => handleEditUser(user)}
+                                        onClick={() => handleEditUser(user as User)}
                                     >
                                         <Tooltip title="编辑用户"><EditIcon/></Tooltip>
                                     </IconButton>
@@ -327,19 +333,19 @@ function UserManagement() {
                                         size="sm"
                                         variant="outlined"
                                         color="danger"
-                                        onClick={() => handleDeleteUser(user)}
+                                        onClick={() => handleDeleteUser(user as User)}
                                     >
                                         <Tooltip title="删除用户"><DeleteIcon/></Tooltip>
                                     </IconButton>
-                                    {user.pendingApproval && (
-                                        <Button
-                                            size="sm"
-                                            color="warning"
-                                            onClick={() => handleViewApplication(user.id)}
-                                        >
-                                            {t('admin.users.approve_application')}
-                                        </Button>
-                                    )}
+                                    {/*{user.pendingApproval && (*/}
+                                    {/*    <Button*/}
+                                    {/*        size="sm"*/}
+                                    {/*        color="warning"*/}
+                                    {/*        onClick={() => handleViewApplication(user.id)}*/}
+                                    {/*    >*/}
+                                    {/*        {t('admin.users.approve_application')}*/}
+                                    {/*    </Button>*/}
+                                    {/*)}*/}
                                 </Box>
                             </td>
                         </tr>
@@ -357,7 +363,11 @@ function UserManagement() {
                     <form
                         onSubmit={(event) => {
                             event.preventDefault();
-                            saveUserEdit();
+                            saveUserEdit().then(() => {
+                                showMessage(t('admin.users.edit.success'), 'success')
+                            }).catch((err) => {
+                                showMessage(t('admin.users.edit.error') + err, 'error')
+                            })
                         }}
                     >
                         <FormControl sx={{mb: 2}}>
@@ -396,11 +406,12 @@ function UserManagement() {
                     <ModalClose/>
                     <Typography level="h4">{t('admin.users.delete.title')}</Typography>
                     <Divider sx={{my: 2}}/>
-                    <Typography>{t('admin.users.delete.confirm', { username: currentUser?.name })}</Typography>
+                    <Typography>{t('admin.users.delete.confirm', {username: currentUser?.name})}</Typography>
                     <Box sx={{display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2}}>
                         <Button variant="outlined" color="neutral"
                                 onClick={() => setOpenDeleteModal(false)}>{t('admin.users.delete.cancel')}</Button>
-                        <Button color="danger" onClick={confirmDeleteUser}>{t('admin.users.delete.confirm_button')}</Button>
+                        <Button color="danger"
+                                onClick={confirmDeleteUser}>{t('admin.users.delete.confirm_button')}</Button>
                     </Box>
                 </ModalDialog>
             </Modal>

@@ -23,19 +23,18 @@ import SearchIcon from '@mui/icons-material/Search'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import MenuIcon from '@mui/icons-material/Menu'
 import CloseIcon from '@mui/icons-material/Close'
-import {getSigninUrl, goToLink, isLoggedIn} from '@/utils/casdoor.ts'
+import {userService} from '@/api/userService'
 import {useSnapshot} from 'valtio/react'
 import {setAccount, userStore} from '@/store/user.ts'
 import {cartStore} from '@/store/cartStore'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import {useEffect, useState} from 'react'
 import {useTranslation} from 'react-i18next'
-import {recordTranslationKeyUsage} from '@/utils/i18n'
 import ChatAssistant from '@/components/ChatAssistant'
 import TranslationDebugger from '@/components/TranslationDebugger'
-import {log} from '@/utils/env'
-import {TOptions} from 'i18next'
+import {log} from '@/core/conf/app'
 import {Person as PersonIcon} from "@mui/icons-material";
+// import LogisticsMap from "@/components/LogisticsMap";
 
 /**
  * 页面模板组件
@@ -52,47 +51,6 @@ export default function Template() {
 
     // 使用 window.matchMedia 替代 useMediaQuery
     const [isMobile, setIsMobile] = useState(false)
-
-    // 记录翻译键的使用
-    const trackTranslation = (key: string) => {
-        recordTranslationKeyUsage(key)
-    }
-
-    // 在使用t函数的地方，调用trackTranslation函数记录使用的翻译键
-    useEffect(() => {
-        // 记录所有常用的翻译键
-        const commonKeys = [
-            'nav.project',
-            'nav.search',
-            'actions.search',
-            'roles.consumer',
-            'roles.merchant',
-            'roles.admin',
-            'nav.products',
-            'nav.profile',
-            'profile.avatar',
-            'nav.orders',
-            'profile.addresses',
-            'profile.payment',
-            'nav.logout',
-            'nav.login',
-            'nav.register',
-            'nav.menu',
-            'nav.home',
-            'nav.cart',
-            'nav.language',
-            'nav.switchRole'
-        ]
-        commonKeys.forEach(trackTranslation)
-    }, [])
-
-    // 增强版的t函数，会记录使用的翻译键
-    const tWithTracking = (key: string, defaultValue?: string) => {
-        trackTranslation(key)
-        // 创建一个选项对象，如果有默认值则包含它
-        const options: TOptions = defaultValue ? {defaultValue} : {}
-        return t(key, options)
-    }
 
     // 使用 useEffect 监听媒体查询变化
     useEffect(() => {
@@ -117,7 +75,7 @@ export default function Template() {
     }, [theme.breakpoints.values.md]) // 依赖于断点值
 
     // 判断用户是否已登录
-    const userLoggedIn = isLoggedIn() && user.account && user.account.id !== ''
+    const userLoggedIn = userService.isLoggedIn() && user.account && user.account.id !== ''
 
     // 处理搜索提交
     const handleSearch = () => {
@@ -132,7 +90,7 @@ export default function Template() {
     }
 
     // 处理回车键搜索
-    const handleKeyPress = (e: KeyboardEvent) => {
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             handleSearch()
         }
@@ -184,7 +142,7 @@ export default function Template() {
         logout: '/logout' as any,
     }
 
-    const handleSearchKeyDown = (e: KeyboardEvent) => {
+    const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && searchQuery.trim()) {
             navigate({to: '/products', search: {query: searchQuery.trim()}}).then(() => {
                 console.log('navigate', {to: '/products', search: {query: searchQuery.trim()}})
@@ -193,13 +151,15 @@ export default function Template() {
     };
 
     return (
-        <Box sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            width: '100vw',
-            minHeight: '100vh',
-            position: 'relative'
+
+
+        <Sheet sx={{
+            // display: 'flex',
+            // flexDirection: 'column',
+            // justifyContent: 'space-between',
+            // width: '100vw',
+            // minHeight: '100vh',
+            // position: 'relative'
         }}>
             <Sheet
                 sx={{
@@ -211,8 +171,8 @@ export default function Template() {
                     position: 'sticky',
                     top: 0,
                     zIndex: 1000,
-                    '& > *:first-of-type': { marginRight: 'auto' },
-                    '& > *:last-child': { marginLeft: 'auto' },
+                    '& > *:first-of-type': {marginRight: 'auto'},
+                    '& > *:last-child': {marginLeft: 'auto'},
                 }}
             >
                 <Box
@@ -228,7 +188,13 @@ export default function Template() {
                     }}
                 >
                     {/* Logo部分 */}
-                    <Box component={Link} to="/" sx={{display: 'flex', alignItems: 'center', textDecoration: 'none', position: 'absolute', left: 0}}>
+                    <Box component={Link} to="/" sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        textDecoration: 'none',
+                        position: 'absolute',
+                        left: 0
+                    }}>
                         <Typography level="title-lg" sx={{mr: 2, color: 'primary.500'}}>
                             {t('nav.project')}
                         </Typography>
@@ -269,16 +235,17 @@ export default function Template() {
                                         onChange={(_, value) => handleRoleChange(value as string)}
                                         sx={{minWidth: 120}}
                                     >
-                                        <Option value="consumer">{tWithTracking('roles.consumer', '消费者')}</Option>
-                                        <Option value="merchant">{tWithTracking('roles.merchant', '商家')}</Option>
-                                        <Option value="admin">{tWithTracking('roles.admin', '管理员')}</Option>
+                                        <Option value="consumer">{t('roles.consumer', '消费者')}</Option>
+                                        <Option value="merchant">{t('roles.merchant', '商家')}</Option>
+                                        <Option value="admin">{t('roles.admin', '管理员')}</Option>
                                     </Select>
                                 </ListItem>
                             )}
                             <ListItem>
                                 <Link to="/products" search={{query: ''}}
-                                      style={{textDecoration: 'none', color: 'inherit'}} onClick={handleNavLinkClick}>
-                                    <Typography level="title-lg">{tWithTracking('nav.products', '商品')}</Typography>
+                                      style={{textDecoration: 'none', color: 'inherit'}}
+                                      onClick={handleNavLinkClick}>
+                                    <Typography level="title-lg">{t('nav.products', '商品')}</Typography>
                                 </Link>
                             </ListItem>
                             <ListItem>
@@ -344,7 +311,7 @@ export default function Template() {
                                                     <Avatar
                                                         size="md"
                                                         src={user.account.avatar}
-                                                        alt={tWithTracking('profile.avatar', '用户头像')}
+                                                        alt={t('profile.avatar', '用户头像')}
                                                     />
                                                 ) : (
                                                     <Person sx={{fontSize: 24}}/>
@@ -358,21 +325,21 @@ export default function Template() {
                                                         textDecoration: 'none',
                                                         color: 'inherit',
                                                         width: '100%'
-                                                    }}>{tWithTracking('nav.orders', '我的订单')}</Link>
+                                                    }}>{t('nav.orders', '我的订单')}</Link>
                                                 </MenuItem>
                                                 <MenuItem>
                                                     <Link to={routeMap.addresses} style={{
                                                         textDecoration: 'none',
                                                         color: 'inherit',
                                                         width: '100%'
-                                                    }}>{tWithTracking('profile.addresses', '收货地址')}</Link>
+                                                    }}>{t('profile.addresses', '收货地址')}</Link>
                                                 </MenuItem>
                                                 <MenuItem>
                                                     <Link to={routeMap.creditCards} style={{
                                                         textDecoration: 'none',
                                                         color: 'inherit',
                                                         width: '100%'
-                                                    }}>{tWithTracking('profile.payment', '支付方式')}</Link>
+                                                    }}>{t('profile.payment', '支付方式')}</Link>
                                                 </MenuItem>
 
                                                 <MenuItem>
@@ -380,16 +347,18 @@ export default function Template() {
                                                         textDecoration: 'none',
                                                         color: 'inherit',
                                                         width: '100%'
-                                                    }}>{tWithTracking('nav.logout', '退出登录')}</Link>
+                                                    }}>{t('nav.logout', '退出登录')}</Link>
                                                 </MenuItem>
                                             </>
                                         ) : (
                                             <>
-                                                <MenuItem onClick={() => goToLink(getSigninUrl())}>
-                                                    {tWithTracking('nav.login', '登录')}
+                                                <MenuItem
+                                                    onClick={() => userService.goToLink(userService.getSigninUrl())}>
+                                                    {t('nav.login', '登录')}
                                                 </MenuItem>
-                                                <MenuItem onClick={() => goToLink(getSigninUrl())}>
-                                                    {tWithTracking('nav.register', '注册')}
+                                                <MenuItem
+                                                    onClick={() => userService.goToLink(userService.getSigninUrl())}>
+                                                    {t('nav.register', '注册')}
                                                 </MenuItem>
                                             </>
                                         )}
@@ -440,7 +409,7 @@ export default function Template() {
                 }}
             >
                 <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2}}>
-                    <Typography level="title-lg">{tWithTracking('nav.menu', '菜单')}</Typography>
+                    <Typography level="title-lg">{t('nav.menu', '菜单')}</Typography>
                     <IconButton onClick={() => setMobileMenuOpen(false)}>
                         <CloseIcon/>
                     </IconButton>
@@ -451,10 +420,10 @@ export default function Template() {
                     <Input
                         size="md"
                         variant="outlined"
-                        placeholder={tWithTracking('nav.search', '搜索商品')}
+                        placeholder={t('nav.search', '搜索商品')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        onKeyPress={handleKeyPress}
+                        onKeyDown={handleKeyPress}
                         startDecorator={<SearchIcon/>}
                         endDecorator={
                             <IconButton onClick={handleSearch}>
@@ -472,7 +441,7 @@ export default function Template() {
                             style={{textDecoration: 'none', color: 'inherit', width: '100%'}}
                             onClick={handleNavLinkClick}
                         >
-                            <Typography level="title-md">{tWithTracking('nav.home', '首页')}</Typography>
+                            <Typography level="title-md">{t('nav.home', '首页')}</Typography>
                         </Link>
                     </ListItem>
                     <ListItem>
@@ -492,7 +461,7 @@ export default function Template() {
                             onClick={handleNavLinkClick}
                         >
                             <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
-                                <Typography level="title-md">{tWithTracking('nav.cart', '购物车')}</Typography>
+                                <Typography level="title-md">{t('nav.cart', '购物车')}</Typography>
                                 <Badge badgeContent={cart.items.length} color="primary"/>
                             </Box>
                         </Link>
@@ -503,7 +472,7 @@ export default function Template() {
                             style={{textDecoration: 'none', color: 'inherit', width: '100%'}}
                             onClick={handleNavLinkClick}
                         >
-                            <Typography level="title-md">{tWithTracking('nav.profile', '个人中心')}</Typography>
+                            <Typography level="title-md">{t('nav.profile', '个人中心')}</Typography>
                         </Link>
                     </ListItem>
                     <ListItem>
@@ -512,7 +481,7 @@ export default function Template() {
                             style={{textDecoration: 'none', color: 'inherit', width: '100%'}}
                             onClick={handleNavLinkClick}
                         >
-                            <Typography level="title-md">{tWithTracking('nav.orders', '我的订单')}</Typography>
+                            <Typography level="title-md">{t('nav.orders', '我的订单')}</Typography>
                         </Link>
                     </ListItem>
 
@@ -520,15 +489,15 @@ export default function Template() {
                         <ListItem>
                             <Box sx={{width: '100%'}}>
                                 <Typography level="body-sm"
-                                            sx={{mb: 1}}>{tWithTracking('nav.switchRole', '切换角色')}</Typography>
+                                            sx={{mb: 1}}>{t('nav.switchRole', '切换角色')}</Typography>
                                 <Select
                                     value={user.account.role || 'consumer'}
                                     onChange={(_, value) => handleRoleChange(value as string)}
                                     sx={{width: '100%'}}
                                 >
-                                    <Option value="consumer">{tWithTracking('roles.consumer', '消费者')}</Option>
-                                    <Option value="merchant">{tWithTracking('roles.merchant', '商家')}</Option>
-                                    <Option value="admin">{tWithTracking('roles.admin', '管理员')}</Option>
+                                    <Option value="consumer">{t('roles.consumer', '消费者')}</Option>
+                                    <Option value="merchant">{t('roles.merchant', '商家')}</Option>
+                                    <Option value="admin">{t('roles.admin', '管理员')}</Option>
                                 </Select>
                             </Box>
                         </ListItem>
@@ -537,7 +506,7 @@ export default function Template() {
                     <ListItem>
                         <Box sx={{width: '100%'}}>
                             <Typography level="body-sm"
-                                        sx={{mb: 1}}>{tWithTracking('nav.language', '语言')}</Typography>
+                                        sx={{mb: 1}}>{t('nav.language', '语言')}</Typography>
                             <LanguageSwitcher/>
                         </Box>
                     </ListItem>
@@ -550,20 +519,20 @@ export default function Template() {
                                 onClick={handleNavLinkClick}
                             >
                                 <Typography level="title-md"
-                                            color="danger">{tWithTracking('nav.logout', '退出登录')}</Typography>
+                                            color="danger">{t('nav.logout', '退出登录')}</Typography>
                             </Link>
                         </ListItem>
                     ) : (
                         <ListItem>
                             <Box
                                 onClick={() => {
-                                    goToLink(getSigninUrl());
+                                    userService.goToLink(userService.getSigninUrl());
                                     setMobileMenuOpen(false);
                                 }}
                                 sx={{width: '100%', cursor: 'pointer'}}
                             >
                                 <Typography level="title-md"
-                                            color="primary">{tWithTracking('nav.login', '登录/注册')}</Typography>
+                                            color="primary">{t('nav.login', '登录/注册')}</Typography>
                             </Box>
                         </ListItem>
                     )}
@@ -579,6 +548,14 @@ export default function Template() {
 
             {/* 翻译调试器（仅在开发环境中显示） */}
             <TranslationDebugger/>
-        </Box>
+
+            {/*<LogisticsMap*/}
+            {/*    sellerPosition={[51.505, -0.09]}  // 商家坐标*/}
+            {/*    userPosition={[51.51, -0.1]}      // 用户坐标*/}
+            {/*    onDeliveryComplete={() => console.log('配送完成!')}*/}
+            {/*/>*/}
+        </Sheet>
+
+
     )
 }

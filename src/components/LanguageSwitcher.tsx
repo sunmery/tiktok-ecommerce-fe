@@ -1,16 +1,16 @@
-import React from 'react';
+import {FC, MouseEvent, useState} from 'react';
 import {IconButton, Menu, MenuItem, Tooltip, Typography} from '@mui/joy';
 import LanguageIcon from '@mui/icons-material/Language';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {useLanguage} from '@/contexts/LanguageContext';
 
-const LanguageSwitcher: React.FC = () => {
+const LanguageSwitcher: FC = () => {
     const {language, setLanguage} = useLanguage();
 
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    const handleClick = (event: MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
 

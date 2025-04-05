@@ -6,10 +6,11 @@ import {userStore} from '@/store/user.ts'
 import {Order, PaymentStatus} from '@/types/orders'
 import {formatCurrency} from '@/utils/format'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import Breadcrumbs from '@/components/Breadcrumbs'
+import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import Skeleton from '@/components/Skeleton'
 import {orderService} from '@/api/orderService'
-import { useTranslation } from 'react-i18next'
+import {useTranslation} from 'react-i18next'
+import {getStatusText} from "@/utils/status.ts";
 
 // 格式化时间戳
 const formatDate = (timestamp: any) => {
@@ -53,7 +54,7 @@ function ConsumerOrderDetail() {
     useEffect(() => {
         const fetchOrderDetail = async () => {
             if (!orderId) return
-            
+
             setLoading(true)
             setError('')
             try {
@@ -63,7 +64,7 @@ function ConsumerOrderDetail() {
                     page: 1,
                     pageSize: 50
                 })
-                
+
                 // 查找指定ID的订单
                 if (response && response.orders) {
                     const foundOrder = response.orders.find(o => o.orderId === orderId)
@@ -106,22 +107,6 @@ function ConsumerOrderDetail() {
         }
     }
 
-    // 获取状态文本
-    const getStatusText = (status: PaymentStatus) => {
-        switch (status) {
-            case PaymentStatus.Paid:
-                return t('consumer.order.status.paid')
-            case PaymentStatus.Processing:
-                return t('consumer.order.status.processing')
-            case PaymentStatus.Failed:
-                return t('consumer.order.status.failed')
-            case PaymentStatus.NotPaid:
-                return t('consumer.order.status.notPaid')
-            default:
-                return t('consumer.order.status.unknown')
-        }
-    }
-
     // 计算订单总金额
     const calculateTotal = (order: Order) => {
         return order.items.reduce((total, item) => {
@@ -129,7 +114,7 @@ function ConsumerOrderDetail() {
         }, 0)
     }
 
-    const { t } = useTranslation();
+    const {t} = useTranslation();
 
     return (
         <Box sx={{p: 2, maxWidth: 1200, margin: '0 auto'}}>
@@ -173,7 +158,8 @@ function ConsumerOrderDetail() {
                                     alignItems: 'center',
                                     mb: 2
                                 }}>
-                                    <Typography level="title-lg">{t('consumer.order.orderId')}: {order.orderId}</Typography>
+                                    <Typography
+                                        level="title-lg">{t('consumer.order.orderId')}: {order.orderId}</Typography>
                                     <Chip
                                         variant="soft"
                                         size="md"
@@ -185,17 +171,21 @@ function ConsumerOrderDetail() {
                                 <Divider sx={{my: 2}}/>
                                 <Grid container spacing={2}>
                                     <Grid xs={12} md={6}>
-                                        <Typography level="body-md">{t('consumer.order.createdTime')}: {formatDate(order.createdAt)}</Typography>
-                                        <Typography level="body-md">{t('consumer.order.userId')}: {order.userId}</Typography>
-                                        <Typography level="body-md">{t('consumer.order.contactEmail')}: {order.email}</Typography>
+                                        <Typography
+                                            level="body-md">{t('consumer.order.createdTime')}: {formatDate(order.createdAt)}</Typography>
+                                        <Typography
+                                            level="body-md">{t('consumer.order.userId')}: {order.userId}</Typography>
+                                        <Typography
+                                            level="body-md">{t('consumer.order.contactEmail')}: {order.email}</Typography>
                                     </Grid>
                                     <Grid xs={12} md={6}>
-                                        <Typography level="title-sm" sx={{mb: 1}}>{t('consumer.order.shippingAddress')}:</Typography>
+                                        <Typography level="title-sm"
+                                                    sx={{mb: 1}}>{t('consumer.order.shippingAddress')}:</Typography>
                                         <Typography level="body-md">
-                                            {order.address.streetAddress || t('consumer.order.noAddress')}, 
-                                            {order.address.city || ''}, 
-                                            {order.address.state || ''}, 
-                                            {order.address.country || ''}, 
+                                            {order.address.streetAddress || t('consumer.order.noAddress')},
+                                            {order.address.city || ''},
+                                            {order.address.state || ''},
+                                            {order.address.country || ''},
                                             {order.address.zipCode || ''}
                                         </Typography>
                                     </Grid>
@@ -276,7 +266,7 @@ function ConsumerOrderDetail() {
                                             {formatDate(order.createdAt)}
                                         </Typography>
                                     </Box>
-                                    
+
                                     <Box sx={{display: 'flex', alignItems: 'center'}}>
                                         <Chip
                                             variant="soft"
@@ -290,7 +280,7 @@ function ConsumerOrderDetail() {
                                             {order.paymentStatus !== PaymentStatus.NotPaid ? formatDate(order.createdAt) : '待处理'}
                                         </Typography>
                                     </Box>
-                                    
+
                                     <Box sx={{display: 'flex', alignItems: 'center'}}>
                                         <Chip
                                             variant="soft"

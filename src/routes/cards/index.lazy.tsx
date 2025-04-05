@@ -4,7 +4,7 @@ import type {ChangeEvent} from 'react'
 import {useState} from 'react'
 import {useMutation} from '@tanstack/react-query'
 import type {CreditCard} from '@/types/creditCards.ts'
-import Breadcrumbs from '@/components/Breadcrumbs'
+import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {t} from "i18next";
 
 export const Route = createLazyFileRoute('/cards/')({
@@ -38,7 +38,7 @@ export default function Cards() {
     }
 
     const addCard = async (card: CreditCard) => {
-        console.log("card",card)
+        console.log("card", card)
         const res = await fetch(`${import.meta.env.VITE_CHECKOUT_URL}`, {
             method: 'POST',
             headers: {

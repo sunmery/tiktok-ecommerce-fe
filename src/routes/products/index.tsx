@@ -11,7 +11,7 @@ import BookmarkAdd from "@mui/icons-material/BookmarkAddOutlined";
 import AspectRatio from "@mui/joy/AspectRatio";
 import CardContent from "@mui/joy/CardContent";
 import Button from "@mui/joy/Button";
-import Breadcrumbs from '@/components/Breadcrumbs';
+import Breadcrumbs from '@/shared/components/Breadcrumbs';
 import {useTranslation} from "react-i18next";
 
 export const Route = createFileRoute('/products/')({

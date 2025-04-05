@@ -1,5 +1,5 @@
 import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
-import {getSigninUrl, getUserinfo, goToLink, isLoggedIn, logout} from '@/utils/casdoor.ts'
+import {userService} from '@/api/userService'
 import type {Account} from '@/types/account'
 
 import {Alert, Avatar, Box, Button, Card, CardContent, Divider, Grid, Option, Select, Stack, Typography} from '@mui/joy'
@@ -22,12 +22,12 @@ export default function Profile() {
     const {error: queryError, isLoading} = useQuery({
         queryKey: ['userinfo'],
         queryFn: async () => {
-            if (!isLoggedIn()) {
+            if (!userService.isLoggedIn()) {
                 await navigate({to: '/login'})
                 return Promise.reject(t('error.notLoggedIn'))
             }
 
-            const res = await getUserinfo()
+            const res = await userService.getUserinfo()
             if (Object.keys(res).length === 0) {
                 throw new Error(t('error.failedToGetUserInfo'))
             }
@@ -95,7 +95,7 @@ export default function Profile() {
     // 退出登录处理函数
     const handleLogout = () => {
         // 清除token和会话信息
-        logout()
+        userService.logout()
 
         // 清空 React Query 缓存
         queryClient.clear()
@@ -141,7 +141,7 @@ export default function Profile() {
                             size="lg"
                             color="primary"
                             variant="solid"
-                            onClick={() => goToLink(getSigninUrl())}
+                            onClick={() => userService.goToLink(userService.getSigninUrl())}
                         >
                             {t('profile.login')}
                         </Button>

@@ -2,12 +2,10 @@ import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
 
 import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
-import {addressesStore} from '@/store/addressesStore.ts'
-import {creditCardsStore} from '@/store/creditCards.ts'
 import {cartStore} from '@/store/cartStore.ts'
 import {useEffect, useState} from 'react'
-import Breadcrumbs from '@/components/Breadcrumbs'
-import Skeleton from '@/components/Skeleton'
+import Breadcrumbs from '@/shared/components/Breadcrumbs'
+
 import {Box, Button, Card, CardContent, CircularProgress, Divider, Grid, Table, Typography} from '@mui/joy'
 import {useAddresses} from '@/hooks/useUserAddress'
 import {useCreditCards} from '@/hooks/useCreditCard'
@@ -15,6 +13,7 @@ import type {CartItem} from '@/types/cart'
 import type {Address} from '@/types/addresses'
 import type {CreditCard} from '@/types/creditCards'
 import {useTranslation} from 'react-i18next'
+import {showMessage} from "@/utils/showMessage.ts";
 
 export const Route = createLazyFileRoute('/checkout/')({
     component: RouteComponent,
@@ -28,8 +27,6 @@ function RouteComponent() {
     const {t} = useTranslation()
     const navigate = useNavigate()
     const account = useSnapshot(userStore.account)
-    const cart = useSnapshot(cartStore)
-    
     const [loading, setLoading] = useState(true)
     const [selectedItems, setSelectedItems] = useState<CartItem[]>([])
     const [selectedAddressId, setSelectedAddressId] = useState<number>(0)
@@ -57,10 +54,11 @@ function RouteComponent() {
                 }
             } else {
                 // 如果没有选中的商品数据，回到购物车页面
-                navigate({to: '/carts'})
+                navigate({to: '/carts'}).then(() => {
+                    console.log('没有选中的商品数据，回到购物车页面')
+                })
             }
         }
-        
         loadSelectedCartItems()
     }, [navigate])
 
@@ -74,7 +72,7 @@ function RouteComponent() {
                 setSelectedAddress(addressesData.addresses[0])
             }
         }
-        
+
         if (!isLoadingCreditCards && creditCardsData?.creditCards) {
             setCreditCards(creditCardsData.creditCards)
             // 如果有信用卡，设置第一个为默认选择
@@ -83,7 +81,7 @@ function RouteComponent() {
                 setSelectedCard(creditCardsData.creditCards[0])
             }
         }
-        
+
         // 数据加载完成后，关闭加载状态
         if (!isLoadingAddresses && !isLoadingCreditCards) {
             setLoading(false)
@@ -113,16 +111,13 @@ function RouteComponent() {
     // 创建订单
     const createCheckout = () => {
         if (!selectedAddress || !selectedCard) {
-            // 导入showMessage函数
-            import('@/utils/casdoor').then(({showMessage}) => {
-                showMessage(t('checkout.selectAddressAndPayment'), 'error')
-            })
+            showMessage(t('checkout.selectAddressAndPayment'), 'error')
             return
         }
-        
+
         setLoading(true)
         console.log('正在请求结算接口:', `${import.meta.env.VITE_URL}${import.meta.env.VITE_CHECKOUT_URL}`)
-        
+
         fetch(`${import.meta.env.VITE_URL}${import.meta.env.VITE_CHECKOUT_URL}`, {
             method: 'POST',
             headers: {
@@ -152,28 +147,29 @@ function RouteComponent() {
                 console.log(data)
                 // 清除本地存储中的选中商品
                 localStorage.removeItem('selectedCartItems')
-                
+
                 // 如果结算成功，从购物车中移除已购买的商品
                 selectedItems.forEach(item => {
-                    cartStore.removeItem(item.productId)
+                    cartStore.removeItem(item.productId).then(() => {
+                        console.log(`结算成功, 已从购物车中移除商品ID: ${item.productId}`)
+                    })
                 })
-                
+
                 // 导入showMessage函数
-                import('@/utils/casdoor').then(({showMessage}) => {
-                    showMessage(t('checkout.success'), 'success')
-                    // 跳转到支付页面
-                    window.open(data.paymentUrl, '_blank')
-                    // 成功后跳转到订单页面
-                    navigate({to: '/consumer/orders'})
+
+                showMessage(t('checkout.success'), 'success')
+                // 跳转到支付页面
+                window.open(data.paymentUrl, '_blank')
+                // 成功后跳转到订单页面
+                navigate({to: '/consumer/orders'}).then(() => {
+                    console.log('跳转到订单页面')
                 })
+
             })
             .catch((e) => {
                 console.error(t('checkout.failed'), e)
                 setLoading(false)
-                // 导入showMessage函数
-                import('@/utils/casdoor').then(({showMessage}) => {
-                    showMessage(e.message || t('checkout.tryAgain'), 'error')
-                })
+                showMessage(e.message || t('checkout.tryAgain'), 'error')
             })
     }
 
@@ -217,7 +213,7 @@ function RouteComponent() {
             <Grid container spacing={2}>
                 {addresses.map(address => (
                     <Grid xs={12} md={6} key={address.id}>
-                        <Card 
+                        <Card
                             variant={selectedAddressId === address.id ? "solid" : "outlined"}
                             color={selectedAddressId === address.id ? "primary" : "neutral"}
                             sx={{
@@ -255,23 +251,21 @@ function RouteComponent() {
 
         return (
             <Grid container spacing={2}>
-                {creditCards.map((card, index) => {
-                    const bgVariant = index % 3 === 0 ? 'green' :
-                        index % 3 === 1 ? 'purple' : 'default'
+                {creditCards.map((card: CreditCard) => {
                     return (
                         <Grid xs={12} md={6} key={card.id}>
-                            <Card 
+                            <Card
                                 variant={selectedCardId === card.id ? "solid" : "outlined"}
                                 color={selectedCardId === card.id ? "primary" : "neutral"}
                                 sx={{
                                     cursor: 'pointer',
                                     background: selectedCardId === card.id ? 'primary.600' : (
                                         card.brand === 'visa' ? 'linear-gradient(135deg, #0033a0, #00b2a9)' :
-                                        card.brand === 'mastercard' ? 'linear-gradient(135deg, #ff5f00, #eb001b)' :
-                                        card.brand === 'amex' ? 'linear-gradient(135deg, #108168, #1B6FA3)' :
-                                        card.brand === 'discover' ? 'linear-gradient(135deg, #ff6600, #d35400)' :
-                                        card.brand === 'unionpay' ? 'linear-gradient(135deg, #e21836, #00447c)' :
-                                        'linear-gradient(135deg, #5f6368, #3c4043)'
+                                            card.brand === 'mastercard' ? 'linear-gradient(135deg, #ff5f00, #eb001b)' :
+                                                card.brand === 'amex' ? 'linear-gradient(135deg, #108168, #1B6FA3)' :
+                                                    card.brand === 'discover' ? 'linear-gradient(135deg, #ff6600, #d35400)' :
+                                                        card.brand === 'unionpay' ? 'linear-gradient(135deg, #e21836, #00447c)' :
+                                                            'linear-gradient(135deg, #5f6368, #3c4043)'
                                     ),
                                     color: selectedCardId === card.id ? 'white' : 'inherit',
                                     '&:hover': {
@@ -282,14 +276,16 @@ function RouteComponent() {
                             >
                                 <CardContent>
                                     <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 2}}>
-                                        <Typography level="title-md" sx={{color: 'white'}}>{card.name || t('payment.myCard')}</Typography>
+                                        <Typography level="title-md"
+                                                    sx={{color: 'white'}}>{card.name || t('payment.myCard')}</Typography>
                                     </Box>
                                     <Typography level="body-sm" sx={{color: 'white'}}>
                                         **** **** **** {card.number.slice(-4)}
                                     </Typography>
                                     <Box sx={{display: 'flex', justifyContent: 'space-between', mt: 2}}>
                                         <Typography level="body-sm" sx={{color: 'white'}}>{card.owner}</Typography>
-                                        <Typography level="body-sm" sx={{color: 'white'}}>{card.expMonth}/{card.expYear.slice(-2)}</Typography>
+                                        <Typography level="body-sm"
+                                                    sx={{color: 'white'}}>{card.expMonth}/{card.expYear.slice(-2)}</Typography>
                                     </Box>
                                 </CardContent>
                             </Card>
@@ -309,7 +305,7 @@ function RouteComponent() {
 
             {loading ? (
                 <Box sx={{display: 'flex', justifyContent: 'center', p: 4}}>
-                    <CircularProgress size="lg" />
+                    <CircularProgress size="lg"/>
                 </Box>
             ) : (
                 <Grid container spacing={3}>
@@ -395,7 +391,8 @@ function RouteComponent() {
 
                                 <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 1}}>
                                     <Typography level="body-md">{t('checkout.subtotal')}</Typography>
-                                    <Typography level="body-md">{formatCurrency(getSelectedItemsTotalPrice())}</Typography>
+                                    <Typography
+                                        level="body-md">{formatCurrency(getSelectedItemsTotalPrice())}</Typography>
                                 </Box>
                                 <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 1}}>
                                     <Typography level="body-md">{t('checkout.shipping')}</Typography>
@@ -413,11 +410,11 @@ function RouteComponent() {
                                     <Typography level="title-md"
                                                 color="primary">{formatCurrency(getSelectedItemsTotalPrice())}</Typography>
                                 </Box>
-                                
+
                                 <Box sx={{mt: 3}}>
-                                    <Button 
-                                        fullWidth 
-                                        size="lg" 
+                                    <Button
+                                        fullWidth
+                                        size="lg"
                                         onClick={createCheckout}
                                         disabled={selectedItems.length === 0 || !selectedAddressId || !selectedCardId || loading}
                                     >
@@ -434,23 +431,35 @@ function RouteComponent() {
                         <Grid xs={12}>
                             <Card variant="outlined" sx={{mb: 3}}>
                                 <CardContent>
-                                    <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2}}>
+                                    <Box sx={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        mb: 2
+                                    }}>
                                         <Typography level="h3">{t('checkout.shippingAddress')}</Typography>
-                                        <Button onClick={() => navigate({to: '/addresses'})} size="sm">{t('addresses.manage')}</Button>
+                                        <Button onClick={() => navigate({to: '/addresses'})}
+                                                size="sm">{t('addresses.manage')}</Button>
                                     </Box>
                                     <Divider sx={{my: 2}}/>
                                     {renderAddressList()}
                                 </CardContent>
                             </Card>
                         </Grid>
-                        
+
                         {/* 支付方式 */}
                         <Grid xs={12}>
                             <Card variant="outlined">
                                 <CardContent>
-                                    <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2}}>
+                                    <Box sx={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        mb: 2
+                                    }}>
                                         <Typography level="h3">{t('checkout.paymentMethod')}</Typography>
-                                        <Button onClick={() => navigate({to: '/credit_cards'})} size="sm">{t('payment.manage')}</Button>
+                                        <Button onClick={() => navigate({to: '/credit_cards'})}
+                                                size="sm">{t('payment.manage')}</Button>
                                     </Box>
                                     <Divider sx={{my: 2}}/>
                                     {renderCardList()}

@@ -1,17 +1,16 @@
-import {Box, SxProps} from '@mui/joy';
+import {Box} from '@mui/joy';
 import {ReactNode} from 'react';
 
 interface CardBackgroundProps {
     children: ReactNode;
     variant?: 'green' | 'purple' | 'default';
-    sx?: SxProps;
 }
 
 /**
  * 信用卡背景组件
  * 提供不同风格的卡片背景效果
  */
-const CardBackground = ({children, variant = 'default', sx = {}}: CardBackgroundProps) => {
+const CardBackground = ({children, variant = 'default'}: CardBackgroundProps) => {
     // 背景样式配置
     const getBgStyles = () => {
         switch (variant) {
@@ -100,7 +99,6 @@ const CardBackground = ({children, variant = 'default', sx = {}}: CardBackground
                 borderRadius: '12px',
                 overflow: 'hidden',
                 ...getBgStyles(),
-                ...sx
             }}
         >
             <Box sx={{position: 'relative', zIndex: 1}}>

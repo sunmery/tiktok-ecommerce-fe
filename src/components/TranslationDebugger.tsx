@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {FC, useState} from 'react';
 import {
     Box,
     Button,
@@ -15,13 +15,13 @@ import {
 } from '@mui/joy';
 import {Close as CloseIcon, Refresh as RefreshIcon} from '@mui/icons-material';
 import {showTranslationCoverage} from '@/utils/i18n';
-import {isDevelopment, showTranslationDebugger} from '@/utils/env';
+import {isDevelopment, showTranslationDebugger} from '@/core/conf/app';
 
 /**
  * 翻译调试器组件，仅在开发环境中使用
  * 用于显示翻译覆盖率和未使用的键信息
  */
-const TranslationDebugger: React.FC = () => {
+const TranslationDebugger: FC = () => {
     const [open, setOpen] = useState(false);
     const [coverage, setCoverage] = useState<{
         totalKeys: number;

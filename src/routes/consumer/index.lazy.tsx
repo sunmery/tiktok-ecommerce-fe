@@ -4,7 +4,7 @@ import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
 import {useEffect, useState} from 'react'
 import Skeleton from '@/components/Skeleton'
-import {Order, PaymentStatus} from '@/types/orders'
+import {Order} from '@/types/orders'
 import {orderService} from '@/api/orderService'
 import {useTranslation} from "react-i18next";
 
@@ -17,7 +17,7 @@ function ConsumerDashboard() {
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
     const [loading, setLoading] = useState(true)
-    const [recentOrders, setRecentOrders] = useState<Order[]>([])
+    const [, setRecentOrders] = useState<Order[]>([])
 
     // 检查用户是否为消费者，如果不是则重定向到首页
     useEffect(() => {
@@ -26,7 +26,7 @@ function ConsumerDashboard() {
                 console.log('非消费者用户，已重定向到首页')
             })
         }
-        
+
         // 加载最近订单
         loadRecentOrders().then(() => {
             setLoading(false)
@@ -35,7 +35,7 @@ function ConsumerDashboard() {
             setLoading(false)
         })
     }, [account.role, navigate])
-    
+
     // 加载最近订单
     const loadRecentOrders = async () => {
         try {
@@ -45,34 +45,12 @@ function ConsumerDashboard() {
                 page: 1,
                 pageSize: 3 // 只获取最近的3个订单
             })
-            
+
             if (response && response.orders) {
                 setRecentOrders(response.orders)
             }
         } catch (error) {
             console.error('获取最近订单失败:', error)
-        }
-    }
-    
-    // 格式化日期
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString)
-        return date.toLocaleString()
-    }
-    
-    // 获取状态文本
-    const getStatusText = (status: PaymentStatus) => {
-        switch (status) {
-            case PaymentStatus.Paid:
-                return t('consumer.order.status.paid')
-            case PaymentStatus.Processing:
-                return t('consumer.order.status.processing')
-            case PaymentStatus.Failed:
-                return t('consumer.order.status.failed')
-            case PaymentStatus.NotPaid:
-                return t('consumer.order.status.notPaid')
-            default:
-                return t('consumer.order.status.unknown')
         }
     }
 
@@ -139,27 +117,41 @@ function ConsumerDashboard() {
                             </Card>
                         </Grid>
 
-                        {/* 收藏夹卡片 */}
-                        {/*<Grid xs={12} md={6}>*/}
-                        {/*    <Card variant="outlined" sx={{height: '100%'}}>*/}
-                        {/*        <CardContent>*/}
-                        {/*            <Typography level="h3">{t('consumer.favorites.title')}</Typography>*/}
-                        {/*            <Divider sx={{my: 2}}/>*/}
-                        {/*            <List>*/}
-                        {/*                <ListItem>*/}
-                        {/*                    <Typography sx={{ color: '#1890ff' }}>{t('consumer.favorites.viewProducts')}</Typography>*/}
-                        {/*                </ListItem>*/}
-                        {/*                <ListItem>*/}
-                        {/*                    <Typography sx={{ color: '#52c41a' }}>{t('consumer.favorites.manage')}</Typography>*/}
-                        {/*                </ListItem>*/}
-                        {/*                <ListItem>*/}
-                        {/*                    <Typography sx={{ color: '#faad14' }}>{t('consumer.favorites.priceAlert')}</Typography>*/}
-                        {/*                </ListItem>*/}
-                        {/*            </List>*/}
-                        {/*        </CardContent>*/}
-                        {/*    </Card>*/}
-                        {/*</Grid>*/}
-                        
+                        {/*收藏夹卡片*/}
+                        <Grid xs={12} md={6}>
+                            <Card variant="outlined" sx={{height: '100%'}}>
+                                <CardContent>
+                                    <Typography level="h3">{t('consumer.favorites.title')}</Typography>
+                                    <Divider sx={{my: 2}}/>
+                                    <List>
+                                        <ListItem>
+                                            <Button
+                                                variant="plain"
+                                                onClick={() => navigate({to: '/consumer/favorites'}).then(() => {
+                                                    console.log('已跳转到订单历史页面')
+                                                })}
+                                                sx={{width: '100%', justifyContent: 'flex-start'}}
+                                            >
+                                                {t('consumer.orders.viewFavorites')}
+                                            </Button>
+                                        </ListItem>
+                                        <ListItem>
+                                            <Typography
+                                                sx={{color: '#1890ff'}}>{t('consumer.favorites.viewProducts')}</Typography>
+                                        </ListItem>
+                                        <ListItem>
+                                            <Typography
+                                                sx={{color: '#52c41a'}}>{t('consumer.favorites.manage')}</Typography>
+                                        </ListItem>
+                                        <ListItem>
+                                            <Typography
+                                                sx={{color: '#faad14'}}>{t('consumer.favorites.priceAlert')}</Typography>
+                                        </ListItem>
+                                    </List>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+
                         {/* 最近订单卡片 */}
                         {/*<Grid xs={12}>*/}
                         {/*    <Card variant="outlined" sx={{mt: 3}}>*/}

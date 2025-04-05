@@ -92,4 +92,50 @@ export const Environment = {
     error,
     getApiBaseUrl,
     getCasdoorUrl
-}; 
+};
+
+/**
+ * 环境配置文件
+ * 从.env文件中读取配置
+ */
+
+// 环境类型定义
+export type AppEnvironment = 'development' | 'staging' | 'production';
+
+// 环境配置接口
+interface EnvironmentConfig {
+    apiBaseUrl: string;
+    timeout: number;
+    debug: boolean;
+    enableLogs: boolean;
+    casdoorUrl: string;
+}
+
+// 获取当前环境
+const getCurrentEnvironment = (): AppEnvironment => {
+    // 首先尝试读取VITE_APP_ENV，其次根据NODE_ENV判断
+    const env = import.meta.env.VITE_APP_ENV ||
+        (import.meta.env.DEV ? 'development' :
+            (import.meta.env.PROD ? 'production' : 'development'));
+
+    return env as AppEnvironment;
+};
+
+// 当前环境
+export const currentEnvironment: AppEnvironment = getCurrentEnvironment();
+
+// 构建环境配置
+const buildConfig = (): EnvironmentConfig => {
+    return {
+        apiBaseUrl: import.meta.env.VITE_URL || 'http://localhost:3000',
+        timeout: Number(import.meta.env.VITE_API_TIMEOUT) ||
+            (currentEnvironment === 'production' ? 2000 :
+                (currentEnvironment === 'staging' ? 1500 : 1000)),
+        debug: import.meta.env.VITE_DEBUG === 'true' || import.meta.env.DEV,
+        enableLogs: import.meta.env.VITE_ENABLE_LOGS === 'true' || import.meta.env.DEV,
+        casdoorUrl: import.meta.env.VITE_CASDOOR_URL || '',
+    };
+};
+
+// 导出当前环境配置
+export const config = buildConfig();

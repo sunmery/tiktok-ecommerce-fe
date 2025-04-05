@@ -29,6 +29,16 @@ import {
 import {Address, DeleteAddressRequest} from '@/types/addresses'
 import {EditUserForm} from "@/types/admin.ts";
 
+import SDK from 'casdoor-js-sdk'
+import {CASDOOR_CONF} from '@/core/conf/casdoor.ts'
+
+// 服务端的URL, 非casdoor的地址
+export const userServer: string = import.meta.env.VITE_USERS_URL
+
+// 读取配置
+export const CASDOOR_SDK = new SDK(CASDOOR_CONF)
+
+
 /**
  * 用户服务API
  */
@@ -181,4 +191,70 @@ export const userService = {
             params: {userId: request.userId} as Record<string, string>,
         });
     },
+
+    // 获取登录接口的URL
+    getSigninUrl: () => {
+        return CASDOOR_SDK.getSigninUrl()
+    },
+    // 设置token
+    setToken: (token: string) => {
+        localStorage.setItem('token', token)
+    },
+    // 判断是否登录
+    isLoggedIn: () => {
+        const token = localStorage.getItem('token')
+        return token !== null && token.length > 0
+    },
+    // 使用React Router进行导航，避免页面刷新
+    goToLink: (link: string) => {
+        // 检查是否在React Router环境中
+        if (typeof window !== 'undefined' && window.__TANSTACK_ROUTER_DEVTOOLS_GLOBAL_HANDLE) {
+            // 使用React Router的导航API
+            const router = window.__TANSTACK_ROUTER_DEVTOOLS_GLOBAL_HANDLE.router;
+            if (router) {
+                router.navigate({to: link, replace: true});
+                return;
+            }
+        }
+
+        // 如果不在React Router环境中，则使用传统方式
+        window.location.replace(link);
+    },
+    // 获取用户信息
+    getUserinfo: async () => {
+        try {
+            const baseUrl = import.meta.env.VITE_URL;
+            if (!baseUrl || !userServer) {
+                new Error('环境变量VITE_URL或VITE_USERS_URL未配置');
+            }
+
+            const res = await fetch(`${baseUrl}${userServer}/profile`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+            })
+
+            // 检查响应内容类型
+            const contentType = res.headers.get('content-type')
+
+            if (contentType && contentType.includes('application/json')) {
+                return await res.json()
+            } else {
+                // 非JSON响应，可能是HTML或其他格式
+                const text = await res.text()
+                console.error('获取用户信息失败：非JSON响应', text)
+                new Error(`预期JSON响应但获得了${contentType || '未知内容类型'}`)
+            }
+        } catch (error) {
+            console.error('获取用户信息时出错:', error)
+            // 返回一个空对象，避免在UI层出现更多错误
+            return {}
+        }
+    },
+    // 登出
+    logout: () => {
+        localStorage.removeItem('token')
+        sessionStorage.removeItem('token')
+    }
 };

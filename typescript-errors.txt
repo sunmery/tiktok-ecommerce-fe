@@ -1,0 +1,221 @@
+
+> frontend@1.0.0 tsc /Users/sumery/golang/src/tt-ecommerce/frontend
+> npx tsc --noEmit --noEmit --pretty
+
+[96msrc/components/ChinaEcommerceMap/index.tsx[0m:[93m171[0m:[93m30[0m - [91merror[0m[90m TS2345: [0mArgument of type '{ type: string; features: ({ type: string; properties: { adcode: number; name: string; center: number[]; centroid: number[]; childrenNum: number; level: string; parent: { adcode: number; }; subFeatureIndex: number; acroutes: number[]; adchar?: undefined; }; geometry: { ...; }; } | { ...; } | { ...; } | { ...; } | { ...' is not assignable to parameter of type 'MapInput | GeoJSONSourceInput'.
+  Type '{ type: string; features: ({ type: string; properties: { adcode: number; name: string; center: number[]; centroid: number[]; childrenNum: number; level: string; parent: { adcode: number; }; subFeatureIndex: number; acroutes: number[]; adchar?: undefined; }; geometry: { ...; }; } | { ...; } | { ...; } | { ...; } | { ...' is not assignable to type 'GeoJSONCompressed'.
+    Types of property 'type' are incompatible.
+      Type 'string' is not assignable to type '"FeatureCollection"'.
+
+[7m171[0m         registerMap('china', chinaGeoJson)
+[7m   [0m [91m                             ~~~~~~~~~~~~[0m
+
+[96msrc/components/DashboardCard/index.tsx[0m:[93m2[0m:[93m74[0m - [91merror[0m[90m TS2305: [0mModule '"@mui/joy"' has no exported member 'SxProps'.
+
+[7m2[0m import { Card, CardContent, Typography, List, ListItem, Divider, Button, SxProps } from '@mui/joy'
+[7m [0m [91m                                                                         ~~~~~~~[0m
+
+[96msrc/components/Pagination/index.tsx[0m:[93m112[0m:[93m18[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 3, '(props: OverrideProps<ExtendIconButtonTypeMap<IconButtonTypeMap<{}, "button">>, "a">): Element', gave the following error.
+    Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; } | { children: Element; ... 5 more ...; sx: { ...; }; } | { ...; }' is not assignable to type 'IntrinsicAttributes & { action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; } & IconButtonSlotsAndSlotProps & Omit<...>'.
+      Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; }' is not assignable to type '{ action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; }'.
+        Types of property 'size' are incompatible.
+          Type 'string' is not assignable to type 'OverridableStringUnion<"sm" | "md" | "lg", IconButtonPropsSizeOverrides> | undefined'.
+  Overload 2 of 3, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & { action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; } & IconButtonSlotsAndSlotProps & Omit<...>): Element | null', gave the following error.
+    Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; } | { children: Element; ... 5 more ...; sx: { ...; }; } | { ...; }' is not assignable to type 'IntrinsicAttributes & { component: ElementType<any, keyof IntrinsicElements>; } & { action?: Ref<{ focusVisible(): void; }> | undefined; ... 8 more ...; loadingIndicator?: ReactNode; } & IconButtonSlotsAndSlotProps & Omit<...>'.
+      Property 'component' is missing in type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
+  Overload 3 of 3, '(props: DefaultComponentProps<ExtendIconButtonTypeMap<IconButtonTypeMap<{}, "button">>>): Element | null', gave the following error.
+    Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; } | { children: Element; ... 5 more ...; sx: { ...; }; } | { ...; }' is not assignable to type 'IntrinsicAttributes & { action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; } & IconButtonSlotsAndSlotProps & Omit<...>'.
+      Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; }' is not assignable to type '{ action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; }'.
+        Types of property 'size' are incompatible.
+          Type 'string' is not assignable to type 'OverridableStringUnion<"sm" | "md" | "lg", IconButtonPropsSizeOverrides> | undefined'.
+
+[7m112[0m                 <IconButton
+[7m   [0m [91m                 ~~~~~~~~~~[0m
+
+  [96mnode_modules/.pnpm/@mui+types@7.4.0_@types+react@18.3.20/node_modules/@mui/types/esm/index.d.ts[0m:[93m64[0m:[93m5[0m
+    [7m64[0m     component: C;
+    [7m  [0m [96m    ~~~~~~~~~[0m
+    'component' is declared here.
+
+[96msrc/components/Pagination/index.tsx[0m:[93m123[0m:[93m14[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 3, '(props: OverrideProps<ExtendIconButtonTypeMap<IconButtonTypeMap<{}, "button">>, "a">): Element', gave the following error.
+    Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; } | { children: Element; ... 5 more ...; sx: { ...; }; } | { ...; }' is not assignable to type 'IntrinsicAttributes & { action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; } & IconButtonSlotsAndSlotProps & Omit<...>'.
+      Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; }' is not assignable to type '{ action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; }'.
+        Types of property 'size' are incompatible.
+          Type 'string' is not assignable to type 'OverridableStringUnion<"sm" | "md" | "lg", IconButtonPropsSizeOverrides> | undefined'.
+  Overload 2 of 3, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & { action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; } & IconButtonSlotsAndSlotProps & Omit<...>): Element | null', gave the following error.
+    Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; } | { children: Element; ... 5 more ...; sx: { ...; }; } | { ...; }' is not assignable to type 'IntrinsicAttributes & { component: ElementType<any, keyof IntrinsicElements>; } & { action?: Ref<{ focusVisible(): void; }> | undefined; ... 8 more ...; loadingIndicator?: ReactNode; } & IconButtonSlotsAndSlotProps & Omit<...>'.
+      Property 'component' is missing in type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
+  Overload 3 of 3, '(props: DefaultComponentProps<ExtendIconButtonTypeMap<IconButtonTypeMap<{}, "button">>>): Element | null', gave the following error.
+    Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; } | { children: Element; ... 5 more ...; sx: { ...; }; } | { ...; }' is not assignable to type 'IntrinsicAttributes & { action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; } & IconButtonSlotsAndSlotProps & Omit<...>'.
+      Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; }' is not assignable to type '{ action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; }'.
+        Types of property 'size' are incompatible.
+          Type 'string' is not assignable to type 'OverridableStringUnion<"sm" | "md" | "lg", IconButtonPropsSizeOverrides> | undefined'.
+
+[7m123[0m             <IconButton
+[7m   [0m [91m             ~~~~~~~~~~[0m
+
+  [96mnode_modules/.pnpm/@mui+types@7.4.0_@types+react@18.3.20/node_modules/@mui/types/esm/index.d.ts[0m:[93m64[0m:[93m5[0m
+    [7m64[0m     component: C;
+    [7m  [0m [96m    ~~~~~~~~~[0m
+    'component' is declared here.
+
+[96msrc/components/Pagination/index.tsx[0m:[93m137[0m:[93m22[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 3, '(props: OverrideProps<ExtendButtonTypeMap<ButtonTypeMap<{}, "button">>, "a">): Element', gave the following error.
+    Type '{ children: string | number; variant: "outlined" | "solid"; color: "primary" | "neutral"; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; key: string | number; } | { ...; } | { ...; }' is not assignable to type 'IntrinsicAttributes & ButtonSlotsAndSlotProps & { action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, ButtonPropsColorOverrides> | undefined; ... 11 more ...; loadingPosition?: "center" | ... 2 more ... | undefined; } & Omit<...>'.
+      Type '{ children: string | number; variant: "outlined" | "solid"; color: "primary" | "neutral"; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; key: string | number; }' is not assignable to type '{ action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, ButtonPropsColorOverrides> | undefined; ... 11 more ...; loadingPosition?: "center" | ... 2 more ... | undefined; }'.
+        Types of property 'size' are incompatible.
+          Type 'string' is not assignable to type 'OverridableStringUnion<"sm" | "md" | "lg", ButtonPropsSizeOverrides> | undefined'.
+  Overload 2 of 3, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & ButtonSlotsAndSlotProps & { action?: Ref<{ focusVisible(): void; }> | undefined; ... 12 more ...; loadingPosition?: "center" | ... 2 more ... | undefined; } & Omit<...>): Element | null', gave the following error.
+    Type '{ children: string | number; variant: "outlined" | "solid"; color: "primary" | "neutral"; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; key: string | number; } | { ...; } | { ...; }' is not assignable to type 'IntrinsicAttributes & { component: ElementType<any, keyof IntrinsicElements>; } & ButtonSlotsAndSlotProps & { ...; } & Omit<...>'.
+      Property 'component' is missing in type '{ children: string | number; variant: "outlined" | "solid"; color: "primary" | "neutral"; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; key: string | number; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
+  Overload 3 of 3, '(props: DefaultComponentProps<ExtendButtonTypeMap<ButtonTypeMap<{}, "button">>>): Element | null', gave the following error.
+    Type '{ children: string | number; variant: "outlined" | "solid"; color: "primary" | "neutral"; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; key: string | number; } | { ...; } | { ...; }' is not assignable to type 'IntrinsicAttributes & ButtonSlotsAndSlotProps & { action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, ButtonPropsColorOverrides> | undefined; ... 11 more ...; loadingPosition?: "center" | ... 2 more ... | undefined; } & Omit<...>'.
+      Type '{ children: string | number; variant: "outlined" | "solid"; color: "primary" | "neutral"; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; key: string | number; }' is not assignable to type '{ action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, ButtonPropsColorOverrides> | undefined; ... 11 more ...; loadingPosition?: "center" | ... 2 more ... | undefined; }'.
+        Types of property 'size' are incompatible.
+          Type 'string' is not assignable to type 'OverridableStringUnion<"sm" | "md" | "lg", ButtonPropsSizeOverrides> | undefined'.
+
+[7m137[0m                     <Button
+[7m   [0m [91m                     ~~~~~~[0m
+
+  [96mnode_modules/.pnpm/@mui+types@7.4.0_@types+react@18.3.20/node_modules/@mui/types/esm/index.d.ts[0m:[93m64[0m:[93m5[0m
+    [7m64[0m     component: C;
+    [7m  [0m [96m    ~~~~~~~~~[0m
+    'component' is declared here.
+
+[96msrc/components/Pagination/index.tsx[0m:[93m149[0m:[93m14[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 3, '(props: OverrideProps<ExtendIconButtonTypeMap<IconButtonTypeMap<{}, "button">>, "a">): Element', gave the following error.
+    Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; } | { children: Element; ... 5 more ...; sx: { ...; }; } | { ...; }' is not assignable to type 'IntrinsicAttributes & { action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; } & IconButtonSlotsAndSlotProps & Omit<...>'.
+      Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; }' is not assignable to type '{ action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; }'.
+        Types of property 'size' are incompatible.
+          Type 'string' is not assignable to type 'OverridableStringUnion<"sm" | "md" | "lg", IconButtonPropsSizeOverrides> | undefined'.
+  Overload 2 of 3, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & { action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; } & IconButtonSlotsAndSlotProps & Omit<...>): Element | null', gave the following error.
+    Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; } | { children: Element; ... 5 more ...; sx: { ...; }; } | { ...; }' is not assignable to type 'IntrinsicAttributes & { component: ElementType<any, keyof IntrinsicElements>; } & { action?: Ref<{ focusVisible(): void; }> | undefined; ... 8 more ...; loadingIndicator?: ReactNode; } & IconButtonSlotsAndSlotProps & Omit<...>'.
+      Property 'component' is missing in type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
+  Overload 3 of 3, '(props: DefaultComponentProps<ExtendIconButtonTypeMap<IconButtonTypeMap<{}, "button">>>): Element | null', gave the following error.
+    Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; } | { children: Element; ... 5 more ...; sx: { ...; }; } | { ...; }' is not assignable to type 'IntrinsicAttributes & { action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; } & IconButtonSlotsAndSlotProps & Omit<...>'.
+      Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; }' is not assignable to type '{ action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; }'.
+        Types of property 'size' are incompatible.
+          Type 'string' is not assignable to type 'OverridableStringUnion<"sm" | "md" | "lg", IconButtonPropsSizeOverrides> | undefined'.
+
+[7m149[0m             <IconButton
+[7m   [0m [91m             ~~~~~~~~~~[0m
+
+  [96mnode_modules/.pnpm/@mui+types@7.4.0_@types+react@18.3.20/node_modules/@mui/types/esm/index.d.ts[0m:[93m64[0m:[93m5[0m
+    [7m64[0m     component: C;
+    [7m  [0m [96m    ~~~~~~~~~[0m
+    'component' is declared here.
+
+[96msrc/components/Pagination/index.tsx[0m:[93m160[0m:[93m18[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 3, '(props: OverrideProps<ExtendIconButtonTypeMap<IconButtonTypeMap<{}, "button">>, "a">): Element', gave the following error.
+    Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; } | { children: Element; ... 5 more ...; sx: { ...; }; } | { ...; }' is not assignable to type 'IntrinsicAttributes & { action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; } & IconButtonSlotsAndSlotProps & Omit<...>'.
+      Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; }' is not assignable to type '{ action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; }'.
+        Types of property 'size' are incompatible.
+          Type 'string' is not assignable to type 'OverridableStringUnion<"sm" | "md" | "lg", IconButtonPropsSizeOverrides> | undefined'.
+  Overload 2 of 3, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & { action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; } & IconButtonSlotsAndSlotProps & Omit<...>): Element | null', gave the following error.
+    Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; } | { children: Element; ... 5 more ...; sx: { ...; }; } | { ...; }' is not assignable to type 'IntrinsicAttributes & { component: ElementType<any, keyof IntrinsicElements>; } & { action?: Ref<{ focusVisible(): void; }> | undefined; ... 8 more ...; loadingIndicator?: ReactNode; } & IconButtonSlotsAndSlotProps & Omit<...>'.
+      Property 'component' is missing in type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
+  Overload 3 of 3, '(props: DefaultComponentProps<ExtendIconButtonTypeMap<IconButtonTypeMap<{}, "button">>>): Element | null', gave the following error.
+    Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; } | { children: Element; ... 5 more ...; sx: { ...; }; } | { ...; }' is not assignable to type 'IntrinsicAttributes & { action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; } & IconButtonSlotsAndSlotProps & Omit<...>'.
+      Type '{ children: Element; variant: "outlined"; color: "neutral"; disabled: boolean; onClick: () => void; size: string; sx: { minWidth: number; height: number; }; }' is not assignable to type '{ action?: Ref<{ focusVisible(): void; }> | undefined; color?: OverridableStringUnion<ColorPaletteProp, IconButtonPropsColorOverrides> | undefined; ... 7 more ...; loadingIndicator?: ReactNode; }'.
+        Types of property 'size' are incompatible.
+          Type 'string' is not assignable to type 'OverridableStringUnion<"sm" | "md" | "lg", IconButtonPropsSizeOverrides> | undefined'.
+
+[7m160[0m                 <IconButton
+[7m   [0m [91m                 ~~~~~~~~~~[0m
+
+  [96mnode_modules/.pnpm/@mui+types@7.4.0_@types+react@18.3.20/node_modules/@mui/types/esm/index.d.ts[0m:[93m64[0m:[93m5[0m
+    [7m64[0m     component: C;
+    [7m  [0m [96m    ~~~~~~~~~[0m
+    'component' is declared here.
+
+[96msrc/core/providers/AlertProvider/index.tsx[0m:[93m79[0m:[93m21[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & AlertSlotsAndSlotProps & { color?: OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides> | undefined; ... 6 more ...; variant?: OverridableStringUnion<...> | undefined; } & Omit<...>): Element | null', gave the following error.
+    Type 'AlertType' is not assignable to type 'OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides> | undefined'.
+      Type '"info"' is not assignable to type 'OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides> | undefined'.
+  Overload 2 of 2, '(props: DefaultComponentProps<AlertTypeMap<{}, "div">>): Element | null', gave the following error.
+    Type 'AlertType' is not assignable to type 'OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides> | undefined'.
+      Type '"info"' is not assignable to type 'OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides> | undefined'.
+
+[7m79[0m                     color={alertType}
+[7m  [0m [91m                    ~~~~~[0m
+
+  [96mnode_modules/.pnpm/@mui+joy@5.0.0-beta.51_@emotion+react@11.14.0_@types+react@18.3.20_react@19.0.0-rc.1__@_9fd4c45bde39e29aecc098c1112560b4/node_modules/@mui/joy/Alert/AlertProps.d.ts[0m:[93m40[0m:[93m9[0m
+    [7m40[0m         color?: OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides>;
+    [7m  [0m [96m        ~~~~~[0m
+    The expected type comes from property 'color' which is declared here on type 'IntrinsicAttributes & { component: ElementType<any, keyof IntrinsicElements>; } & AlertSlotsAndSlotProps & { ...; } & Omit<...>'
+  [96mnode_modules/.pnpm/@mui+joy@5.0.0-beta.51_@emotion+react@11.14.0_@types+react@18.3.20_react@19.0.0-rc.1__@_9fd4c45bde39e29aecc098c1112560b4/node_modules/@mui/joy/Alert/AlertProps.d.ts[0m:[93m40[0m:[93m9[0m
+    [7m40[0m         color?: OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides>;
+    [7m  [0m [96m        ~~~~~[0m
+    The expected type comes from property 'color' which is declared here on type 'IntrinsicAttributes & AlertSlotsAndSlotProps & { color?: OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides> | undefined; ... 6 more ...; variant?: OverridableStringUnion<...> | undefined; } & Omit<...>'
+
+[96msrc/routes/admin/products/index.lazy.tsx[0m:[93m168[0m:[93m51[0m - [91merror[0m[90m TS2345: [0mArgument of type '{ productId: string; merchantId: string; action: AuditAction; reason: string; }' is not assignable to parameter of type 'AuditProductRequest'.
+  Property 'operatorId' is missing in type '{ productId: string; merchantId: string; action: AuditAction; reason: string; }' but required in type 'AuditProductRequest'.
+
+[7m168[0m                 await productService.auditProduct({
+[7m   [0m [91m                                                  ~[0m
+[7m169[0m                     productId,
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m...[0m 
+[7m173[0m                     // operatorId: parseInt(account.id)
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m174[0m                 })
+[7m   [0m [91m~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/types/products.ts[0m:[93m157[0m:[93m5[0m
+    [7m157[0m     operatorId: string
+    [7m   [0m [96m    ~~~~~~~~~~[0m
+    'operatorId' is declared here.
+
+[96msrc/routes/merchant/orders/index.lazy.tsx[0m:[93m199[0m:[93m57[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & TypographySlotsAndSlotProps & Omit<SystemProps, "color"> & { ...; } & Omit<...>): Element | null', gave the following error.
+    Type '"info"' is not assignable to type 'OverridableStringUnion<ColorPaletteProp, TypographyPropsColorOverrides> | undefined'.
+  Overload 2 of 2, '(props: DefaultComponentProps<TypographyTypeMap<{}, "span">>): Element | null', gave the following error.
+    Type '"info"' is not assignable to type 'OverridableStringUnion<ColorPaletteProp, TypographyPropsColorOverrides> | undefined'.
+
+[7m199[0m                                                         color="info">{t('merchant.orders.status.shipped')}</Typography>
+[7m   [0m [91m                                                        ~~~~~[0m
+
+  [96mnode_modules/.pnpm/@mui+joy@5.0.0-beta.51_@emotion+react@11.14.0_@types+react@18.3.20_react@19.0.0-rc.1__@_9fd4c45bde39e29aecc098c1112560b4/node_modules/@mui/joy/Typography/TypographyProps.d.ts[0m:[93m41[0m:[93m9[0m
+    [7m41[0m         color?: OverridableStringUnion<ColorPaletteProp, TypographyPropsColorOverrides>;
+    [7m  [0m [96m        ~~~~~[0m
+    The expected type comes from property 'color' which is declared here on type 'IntrinsicAttributes & { component: ElementType<any, keyof IntrinsicElements>; } & TypographySlotsAndSlotProps & Omit<...> & { ...; } & Omit<...>'
+  [96mnode_modules/.pnpm/@mui+joy@5.0.0-beta.51_@emotion+react@11.14.0_@types+react@18.3.20_react@19.0.0-rc.1__@_9fd4c45bde39e29aecc098c1112560b4/node_modules/@mui/joy/Typography/TypographyProps.d.ts[0m:[93m41[0m:[93m9[0m
+    [7m41[0m         color?: OverridableStringUnion<ColorPaletteProp, TypographyPropsColorOverrides>;
+    [7m  [0m [96m        ~~~~~[0m
+    The expected type comes from property 'color' which is declared here on type 'IntrinsicAttributes & TypographySlotsAndSlotProps & Omit<SystemProps, "color"> & { children?: ReactNode; ... 9 more ...; variant?: OverridableStringUnion<...> | undefined; } & Omit<...>'
+
+[96msrc/routes/merchant/products/index.lazy.tsx[0m:[93m24[0m:[93m33[0m - [91merror[0m[90m TS2307: [0mCannot find module '@/components/ui/ProductAttributes' or its corresponding type declarations.
+
+[7m24[0m import {ProductAttributes} from '@/components/ui/ProductAttributes'
+[7m  [0m [91m                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/routes/products/category/$categoryName.lazy.tsx[0m:[93m62[0m:[93m9[0m - [91merror[0m[90m TS6133: [0m'price' is declared but its value is never read.
+
+[7m62[0m         price: number,
+[7m  [0m [91m        ~~~~~[0m
+
+[96msrc/routes/products/category/$categoryName.lazy.tsx[0m:[93m64[0m:[93m9[0m - [91merror[0m[90m TS6133: [0m'description' is declared but its value is never read.
+
+[7m64[0m         description?: string,
+[7m  [0m [91m        ~~~~~~~~~~~[0m
+
+[96msrc/routes/products/category/$categoryName.lazy.tsx[0m:[93m66[0m:[93m9[0m - [91merror[0m[90m TS6133: [0m'categories' is declared but its value is never read.
+
+[7m66[0m         categories?: string[],
+[7m  [0m [91m        ~~~~~~~~~~[0m
+
+
+Found 14 errors in 8 files.
+
+Errors  Files
+     1  src/components/ChinaEcommerceMap/index.tsx[90m:171[0m
+     1  src/components/DashboardCard/index.tsx[90m:2[0m
+     5  src/components/Pagination/index.tsx[90m:112[0m
+     1  src/core/providers/AlertProvider/index.tsx[90m:79[0m
+     1  src/routes/admin/products/index.lazy.tsx[90m:168[0m
+     1  src/routes/merchant/orders/index.lazy.tsx[90m:199[0m
+     1  src/routes/merchant/products/index.lazy.tsx[90m:24[0m
+     3  src/routes/products/category/$categoryName.lazy.tsx[90m:62[0m
+ ELIFECYCLE  Command failed with exit code 2.

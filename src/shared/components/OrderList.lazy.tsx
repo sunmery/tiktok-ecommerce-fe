@@ -2,11 +2,13 @@ import {Box, Button, Card, CardContent, Chip, Divider, Grid, Typography} from '@
 import {Order, Orders, PaymentStatus} from '@/types/orders.ts'
 import {formatCurrency} from '@/utils/format.ts'
 import {Link} from '@tanstack/react-router'
-import { useState } from 'react'
+import {useState} from 'react'
 import OrderDetailModal from './OrderDetailModal'
-import { orderService } from '@/api/orderService'
-import { useQuery } from '@tanstack/react-query'
-import { useTranslation } from 'react-i18next'
+import {orderService} from '@/api/orderService'
+import {useQuery} from '@tanstack/react-query'
+import {useTranslation} from 'react-i18next'
+import {getStatusText} from '@/utils/status'
+import {getStatusColor} from "@/utils/status.ts";
 
 // 格式化时间戳
 const formatDate = (timestamp: any) => {
@@ -23,48 +25,6 @@ const formatDate = (timestamp: any) => {
     }
 
     return date.toLocaleString()
-}
-
-// 获取状态颜色
-const getStatusColor = (status: PaymentStatus) => {
-    // 如果不是数字类型的枚举，则可能是旧版本的字符串枚举
-    switch (status) {
-        case 'NOT_PAID':
-            return 'warning'
-        case 'PROCESSING':
-            return 'primary'
-        case 'PAID':
-            return 'success'
-        case 'FAILED':
-            return 'danger'
-        case 'CANCELLED':
-            return 'neutral'
-        default:
-            return 'neutral'
-    }
-}
-
-// 获取状态文本
-const getStatusText = (status: string | PaymentStatus, t: any) => {
-    // 如果是前端的OrderStatus（字符串枚举）
-    switch (status) {
-        case 'NOT_PAID':
-            return t('orders.status.notPaid')
-        case 'PROCESSING':
-            return t('orders.status.processing')
-        case 'PAID':
-            return t('orders.status.paid')
-        case 'FAILED':
-            return t('orders.status.failed')
-        case 'CANCELLED':
-            return t('orders.status.cancelled')
-        case 'SHIPPED':
-            return t('orders.status.shipped')
-        case 'OUT_OF_STOCK':
-            return t('orders.status.outOfStock')
-        default:
-            return t('orders.status.unknown')
-    }
 }
 
 // 计算订单总金额
@@ -85,12 +45,12 @@ const calculateTotal = (order: Order) => {
 }
 
 export default function OrderList({orders}: Orders) {
-    const { t } = useTranslation()
+    const {t} = useTranslation()
     const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     // 获取订单详情
-    const { data: orderDetail, isLoading } = useQuery({
+    const {data: orderDetail, isLoading} = useQuery({
         queryKey: ['orderDetail', selectedOrderId],
         queryFn: () => orderService.getOrderDetail(selectedOrderId as string),
         enabled: !!selectedOrderId, // 只有在有selectedOrderId时才执行查询
@@ -127,7 +87,12 @@ export default function OrderList({orders}: Orders) {
                             onClick={() => handleOrderClick(order.orderId)}
                         >
                             <CardContent>
-                                <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2}}>
+                                <Box sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    mb: 2
+                                }}>
                                     <Typography level="title-md">
                                         {t('orders.orderId')}: {order.orderId}
                                     </Typography>
@@ -137,7 +102,7 @@ export default function OrderList({orders}: Orders) {
                                         color={getStatusColor(order.paymentStatus)}
                                         sx={{fontWeight: 'bold'}}
                                     >
-                                        {getStatusText(order.paymentStatus, t)}
+                                        {getStatusText(order.paymentStatus)}
                                     </Chip>
                                 </Box>
 
@@ -178,13 +143,14 @@ export default function OrderList({orders}: Orders) {
                                             ))}
                                             {order.items.length > 3 && (
                                                 <Chip size="sm" variant="soft"
-                                                    color="neutral">+{order.items.length - 3} {t('orders.unit')}</Chip>
+                                                      color="neutral">+{order.items.length - 3} {t('orders.unit')}</Chip>
                                             )}
                                         </Box>
                                     </Box>
                                 )}
 
-                                <Box sx={{display: 'flex', justifyContent: 'flex-end', gap: 1}} onClick={(e) => e.stopPropagation()}>
+                                <Box sx={{display: 'flex', justifyContent: 'flex-end', gap: 1}}
+                                     onClick={(e) => e.stopPropagation()}>
                                     {order.paymentStatus === 'NOT_PAID' && (
                                         <Button
                                             size="sm"
@@ -228,7 +194,7 @@ export default function OrderList({orders}: Orders) {
                     );
                 })}
             </Box>
-            
+
             {/* 订单详情模态框 */}
             <OrderDetailModal
                 open={isModalOpen}

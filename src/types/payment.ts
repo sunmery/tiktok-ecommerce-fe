@@ -3,9 +3,6 @@
  * 基于proto文件生成的TypeScript类型
  */
 
-// 导入时间戳类型
-import {Timestamp} from './user';
-
 // 字符串列表类型
 export interface StringList {
     values: string[];
@@ -35,7 +32,7 @@ export interface PaymentResp {
     paymentId: string;
     status: string;
     paymentUrl: string;
-    createdAt: Timestamp;
+    createdAt: string;
 }
 
 // 获取支付信息请求
@@ -48,7 +45,7 @@ export interface PaymentCallbackReq {
     paymentId: string;
     status: string;
     gatewayResponse: string;
-    processedAt: Timestamp;
+    processedAt: string;
     requestForm: Record<string, StringList>;
 }
 

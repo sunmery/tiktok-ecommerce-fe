@@ -22,9 +22,9 @@ import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
 import {orderService} from '@/api/orderService'
 import OrderList from '@/shared/components/OrderList.lazy'
-import Breadcrumbs from '@/components/Breadcrumbs'
+import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {Order} from "@/types/orders.ts"
-import {Search, FilterList, Clear} from '@mui/icons-material'
+import {Clear, FilterList, Search} from '@mui/icons-material'
 import {useTranslation} from 'react-i18next'
 
 export const Route = createLazyFileRoute('/consumer/orders/')({
@@ -38,15 +38,6 @@ const PAYMENT_STATUS = {
     PAID: 2,
     FAILED: 3,
     CANCELLED: 4
-}
-
-// 支付状态名称映射
-const PAYMENT_STATUS_NAMES = {
-    [PAYMENT_STATUS.NOT_PAID]: '未支付',
-    [PAYMENT_STATUS.PROCESSING]: '处理中',
-    [PAYMENT_STATUS.PAID]: '已支付',
-    [PAYMENT_STATUS.FAILED]: '支付失败',
-    [PAYMENT_STATUS.CANCELLED]: '已取消'
 }
 
 // 订单查询参数类型
@@ -70,14 +61,14 @@ function ConsumerOrders() {
     const pageSize = 10
     const [isFiltering, setIsFiltering] = useState(false)
     const [displayedOrders, setDisplayedOrders] = useState<Order[]>([])
-    
+
     // 查询条件
     const [queryParams, setQueryParams] = useState<OrderQueryParams>({
         userId: account.id,
         page: currentPage,
         pageSize: pageSize
     })
-    
+
     // 过滤条件
     const [startDate, setStartDate] = useState<string>('')
     const [endDate, setEndDate] = useState<string>('')
@@ -113,14 +104,14 @@ function ConsumerOrders() {
         try {
             console.log('查询订单参数:', params)
             const response = await orderService.getConsumerOrder(params)
-            
+
             // 设置分页信息
             if (response.orders) {
                 setTotalOrders(response.orders.length)
                 setTotalPages(Math.ceil(response.orders.length / pageSize))
                 return response.orders || []
             }
-            
+
             return []
         } catch (error) {
             console.error('获取订单失败:', error)
@@ -143,7 +134,7 @@ function ConsumerOrders() {
             page: value
         }))
     }
-    
+
     // 处理查询条件变化
     const handleSearch = () => {
         // 构造查询参数
@@ -152,17 +143,17 @@ function ConsumerOrders() {
             page: 1,  // 重置为第一页
             pageSize: pageSize
         }
-        
+
         if (startDate) newParams.startDate = startDate
         if (endDate) newParams.endDate = endDate
         if (status) newParams.status = parseInt(status, 10)
-        
+
         // 更新查询参数并触发查询
         setCurrentPage(1)
         setQueryParams(newParams)
         refetch()
     }
-    
+
     // 清除查询条件
     const handleClearFilters = () => {
         setStartDate('')
@@ -176,27 +167,22 @@ function ConsumerOrders() {
         setIsFiltering(false)
         refetch()
     }
-    
-    // 获取订单状态名称
-    const getStatusName = (status: number) => {
-        return PAYMENT_STATUS_NAMES[status] || '未知状态'
-    }
-    
+
     // 渲染过滤器部分
     const renderFilters = () => {
         return (
-            <Card variant="outlined" sx={{ mb: 3, p: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+            <Card variant="outlined" sx={{mb: 3, p: 2}}>
+                <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 2}}>
                     <Typography level="title-lg">{t('consumer.orders.filter')}</Typography>
                     <IconButton onClick={() => setIsFiltering(!isFiltering)}>
-                        <FilterList />
+                        <FilterList/>
                     </IconButton>
                 </Box>
-                
+
                 {isFiltering && (
                     <Stack spacing={2}>
-                        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                            <FormControl sx={{ minWidth: 150 }}>
+                        <Box sx={{display: 'flex', gap: 2, flexWrap: 'wrap'}}>
+                            <FormControl sx={{minWidth: 150}}>
                                 <FormLabel>{t('consumer.orders.filter.startDate')}</FormLabel>
                                 <Input
                                     type="date"
@@ -204,8 +190,8 @@ function ConsumerOrders() {
                                     onChange={(e) => setStartDate(e.target.value)}
                                 />
                             </FormControl>
-                            
-                            <FormControl sx={{ minWidth: 150 }}>
+
+                            <FormControl sx={{minWidth: 150}}>
                                 <FormLabel>{t('consumer.orders.filter.endDate')}</FormLabel>
                                 <Input
                                     type="date"
@@ -213,8 +199,8 @@ function ConsumerOrders() {
                                     onChange={(e) => setEndDate(e.target.value)}
                                 />
                             </FormControl>
-                            
-                            <FormControl sx={{ minWidth: 150 }}>
+
+                            <FormControl sx={{minWidth: 150}}>
                                 <FormLabel>{t('consumer.orders.filter.paymentStatus')}</FormLabel>
                                 <Select
                                     value={status}
@@ -222,26 +208,31 @@ function ConsumerOrders() {
                                     placeholder={t('consumer.orders.filter.selectStatus')}
                                 >
                                     <Option value="">{t('consumer.orders.filter.all')}</Option>
-                                    <Option value={String(PAYMENT_STATUS.NOT_PAID)}>{t('consumer.orders.status.notPaid')}</Option>
-                                    <Option value={String(PAYMENT_STATUS.PROCESSING)}>{t('consumer.orders.status.processing')}</Option>
-                                    <Option value={String(PAYMENT_STATUS.PAID)}>{t('consumer.orders.status.paid')}</Option>
-                                    <Option value={String(PAYMENT_STATUS.FAILED)}>{t('consumer.orders.status.failed')}</Option>
-                                    <Option value={String(PAYMENT_STATUS.CANCELLED)}>{t('consumer.orders.status.cancelled')}</Option>
+                                    <Option
+                                        value={String(PAYMENT_STATUS.NOT_PAID)}>{t('consumer.orders.status.notPaid')}</Option>
+                                    <Option
+                                        value={String(PAYMENT_STATUS.PROCESSING)}>{t('consumer.orders.status.processing')}</Option>
+                                    <Option
+                                        value={String(PAYMENT_STATUS.PAID)}>{t('consumer.orders.status.paid')}</Option>
+                                    <Option
+                                        value={String(PAYMENT_STATUS.FAILED)}>{t('consumer.orders.status.failed')}</Option>
+                                    <Option
+                                        value={String(PAYMENT_STATUS.CANCELLED)}>{t('consumer.orders.status.cancelled')}</Option>
                                 </Select>
                             </FormControl>
                         </Box>
-                        
-                        <Box sx={{ display: 'flex', gap: 2 }}>
-                            <Button 
-                                startDecorator={<Search />}
+
+                        <Box sx={{display: 'flex', gap: 2}}>
+                            <Button
+                                startDecorator={<Search/>}
                                 onClick={handleSearch}
                             >
                                 {t('consumer.orders.filter.search')}
                             </Button>
-                            <Button 
-                                variant="soft" 
+                            <Button
+                                variant="soft"
                                 color="neutral"
-                                startDecorator={<Clear />}
+                                startDecorator={<Clear/>}
                                 onClick={handleClearFilters}
                             >
                                 {t('consumer.orders.filter.clear')}
@@ -252,7 +243,7 @@ function ConsumerOrders() {
             </Card>
         )
     }
-    
+
     // 渲染订单列表
     const renderOrderList = () => {
         if (isLoading) {
@@ -262,11 +253,11 @@ function ConsumerOrders() {
                 </Box>
             )
         }
-        
+
         if (error) {
             return <Alert color="danger" sx={{mb: 2}}>{error.message}</Alert>
         }
-        
+
         if (!displayedOrders || displayedOrders.length === 0) {
             return (
                 <Card variant="outlined">
@@ -278,11 +269,11 @@ function ConsumerOrders() {
                 </Card>
             )
         }
-        
+
         return (
             <>
-                <OrderList orders={displayedOrders} />
-                
+                <OrderList orders={displayedOrders}/>
+
                 {totalPages > 1 && (
                     <Box sx={{display: 'flex', justifyContent: 'center', mt: 3}}>
                         <Pagination
@@ -306,14 +297,14 @@ function ConsumerOrders() {
                 }}
             />
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
                 <Typography level="h2">{t('consumer.orders.title')}</Typography>
-                <Typography level="body-sm">{t('consumer.orders.totalCount', { count: totalOrders })}</Typography>
+                <Typography level="body-sm">{t('consumer.orders.totalCount', {count: totalOrders})}</Typography>
             </Box>
-            
+
             {/* 过滤器 */}
             {renderFilters()}
-            
+
             {/* 订单列表 */}
             {renderOrderList()}
         </Box>

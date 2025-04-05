@@ -1,4 +1,4 @@
-import {showMessage} from '@/utils/casdoor'
+import {showMessage} from '@/utils/showMessage'
 
 export const BASE_URL = import.meta.env.VITE_URL
 
@@ -73,7 +73,7 @@ export async function fetchApi<T>(
                 showMessage(`权限不足：您的角色(${role})无权执行此操作`, 'error')
                 return Promise.reject(new Error('权限不足：您没有权限执行此操作'))
             }
-            
+
             const error = await response.json().catch(() => {
                 // 如果无法解析JSON，检查响应的Content-Type
                 const contentType = response.headers.get('Content-Type')

@@ -1,15 +1,14 @@
-import {Box, SxProps} from '@mui/joy';
+import {Box} from '@mui/joy';
 
 interface CardDecorationProps {
     variant?: 'green' | 'purple';
-    sx?: SxProps;
 }
 
 /**
  * 信用卡装饰组件
  * 为卡片背景添加3D球体或漩涡等装饰效果
  */
-const CardDecoration = ({variant = 'green', sx = {}}: CardDecorationProps) => {
+const CardDecoration = ({variant = 'green'}: CardDecorationProps) => {
     // 根据变体类型返回不同的装饰效果
     if (variant === 'green') {
         return (
@@ -26,7 +25,6 @@ const CardDecoration = ({variant = 'green', sx = {}}: CardDecorationProps) => {
                         borderRadius: '50%',
                         filter: 'blur(2px)',
                         zIndex: 0,
-                        ...sx
                     }}
                 />
                 {/* 小球体装饰 */}
@@ -41,7 +39,6 @@ const CardDecoration = ({variant = 'green', sx = {}}: CardDecorationProps) => {
                         borderRadius: '50%',
                         filter: 'blur(1px)',
                         zIndex: 0,
-                        ...sx
                     }}
                 />
                 {/* 光晕效果 */}
@@ -58,7 +55,7 @@ const CardDecoration = ({variant = 'green', sx = {}}: CardDecorationProps) => {
             `,
                         zIndex: 0,
                         borderRadius: 'inherit',
-                        ...sx
+
                     }}
                 />
             </>
@@ -87,7 +84,7 @@ const CardDecoration = ({variant = 'green', sx = {}}: CardDecorationProps) => {
                     borderRadius: 'inherit',
                     transform: 'rotate(45deg)',
                     opacity: 0.7,
-                    ...sx
+
                 }}
             />
             {/* 光晕效果 */}
@@ -102,7 +99,7 @@ const CardDecoration = ({variant = 'green', sx = {}}: CardDecorationProps) => {
                     borderRadius: '50%',
                     transform: 'rotate(45deg)',
                     zIndex: 0,
-                    ...sx
+
                 }}
             />
             {/* 小光点装饰 */}
@@ -118,7 +115,7 @@ const CardDecoration = ({variant = 'green', sx = {}}: CardDecorationProps) => {
                     opacity: 0.6,
                     boxShadow: '0 0 5px 2px rgba(255,255,255,0.3)',
                     zIndex: 0,
-                    ...sx
+
                 }}
             />
             <Box
@@ -133,7 +130,7 @@ const CardDecoration = ({variant = 'green', sx = {}}: CardDecorationProps) => {
                     opacity: 0.6,
                     boxShadow: '0 0 4px 1px rgba(255,255,255,0.3)',
                     zIndex: 0,
-                    ...sx
+
                 }}
             />
         </>

@@ -4,9 +4,10 @@ import {Box, Card, CardContent, CircularProgress, Grid, Typography} from '@mui/j
 import * as echarts from 'echarts'
 import {Order} from '@/types/orders'
 import {orderService} from '@/api/orderService'
-import Breadcrumbs from '@/components/Breadcrumbs'
+import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {formatCurrency} from '@/utils/format'
 import {useTranslation} from "react-i18next";
+import {showMessage} from '@/utils/showMessage'
 
 export const Route = createLazyFileRoute('/merchant/analytics/')({
     component: Analytics,
@@ -68,9 +69,7 @@ export default function Analytics() {
 
             // 处理权限错误
             if (error.message && (error.message.includes('未授权') || error.message.includes('权限不足'))) {
-                import('@/utils/casdoor').then(({showMessage}) => {
-                    showMessage(error.message, 'error')
-                })
+                showMessage(error.message, 'error')
             }
         })
     }, [])

@@ -13,44 +13,10 @@ import {
     Table,
     Typography
 } from '@mui/joy';
-import { Order, PaymentStatus } from '@/types/orders';
-import { formatCurrency } from '@/utils/format';
+import {Order, PaymentStatus} from '@/types/orders';
+import {formatCurrency} from '@/utils/format';
+import {getStatusColor, getStatusText} from '@/utils/status';
 
-// 获取状态颜色
-const getStatusColor = (status: PaymentStatus) => {
-    switch (status) {
-        case PaymentStatus.NotPaid:
-            return 'warning';
-        case PaymentStatus.Processing:
-            return 'primary';
-        case PaymentStatus.Paid:
-            return 'success';
-        case PaymentStatus.Failed:
-            return 'danger';
-        case PaymentStatus.Cancelled:
-            return 'neutral';
-        default:
-            return 'neutral';
-    }
-};
-
-// 获取状态文本
-const getStatusText = (status: PaymentStatus) => {
-    switch (status) {
-        case PaymentStatus.NotPaid:
-            return '待支付';
-        case PaymentStatus.Processing:
-            return '处理中';
-        case PaymentStatus.Paid:
-            return '已支付';
-        case PaymentStatus.Failed:
-            return '支付失败';
-        case PaymentStatus.Cancelled:
-            return '已取消';
-        default:
-            return '未知状态';
-    }
-};
 
 // 格式化时间
 const formatDate = (timestamp: any) => {
@@ -71,7 +37,7 @@ interface OrderDetailModalProps {
     loading: boolean;
 }
 
-const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ open, onClose, order, loading }) => {
+const OrderDetailModal: React.FC<OrderDetailModalProps> = ({open, onClose, order, loading}) => {
     // 计算总金额
     const calculateTotal = () => {
         if (!order || !order.items) return 0;
@@ -79,27 +45,27 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ open, onClose, orde
             return total + (item.cost * (item.item?.quantity || item.quantity || 0));
         }, 0);
     };
-    
+
     return (
         <Modal open={open} onClose={onClose}>
             <ModalDialog
                 aria-labelledby="order-detail-modal-title"
                 size="lg"
                 variant="outlined"
-                sx={{ 
+                sx={{
                     maxWidth: 800,
                     maxHeight: '90vh',
                     overflowY: 'auto'
                 }}
             >
-                <ModalClose />
-                <Typography id="order-detail-modal-title" level="h4" sx={{ mb: 2 }}>
+                <ModalClose/>
+                <Typography id="order-detail-modal-title" level="h4" sx={{mb: 2}}>
                     订单详情
                 </Typography>
-                
+
                 {loading ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-                        <CircularProgress />
+                    <Box sx={{display: 'flex', justifyContent: 'center', p: 3}}>
+                        <CircularProgress/>
                     </Box>
                 ) : !order ? (
                     <Typography level="body-lg" textAlign="center">
@@ -108,11 +74,11 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ open, onClose, orde
                 ) : (
                     <Box>
                         {/* 订单基本信息 */}
-                        <Sheet variant="soft" sx={{ p: 2, mb: 3, borderRadius: 'sm' }}>
+                        <Sheet variant="soft" sx={{p: 2, mb: 3, borderRadius: 'sm'}}>
                             <Grid container spacing={2}>
                                 <Grid xs={12} md={6}>
                                     <Typography level="title-sm">订单编号</Typography>
-                                    <Typography level="body-md" sx={{ fontWeight: 'bold' }}>
+                                    <Typography level="body-md" sx={{fontWeight: 'bold'}}>
                                         {order.orderId}
                                     </Typography>
                                 </Grid>
@@ -122,7 +88,7 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ open, onClose, orde
                                         variant="soft"
                                         color={getStatusColor(order.paymentStatus)}
                                         size="sm"
-                                        sx={{ fontWeight: 'bold', mt: 0.5 }}
+                                        sx={{fontWeight: 'bold', mt: 0.5}}
                                     >
                                         {getStatusText(order.paymentStatus)}
                                     </Chip>
@@ -135,16 +101,16 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ open, onClose, orde
                                 </Grid>
                                 <Grid xs={12} md={6}>
                                     <Typography level="title-sm">总金额</Typography>
-                                    <Typography level="body-md" sx={{ color: 'primary.600', fontWeight: 'bold' }}>
+                                    <Typography level="body-md" sx={{color: 'primary.600', fontWeight: 'bold'}}>
                                         {formatCurrency(calculateTotal(), order.currency)}
                                     </Typography>
                                 </Grid>
                             </Grid>
                         </Sheet>
-                        
+
                         {/* 收货信息 */}
-                        <Typography level="title-md" sx={{ mb: 1 }}>收货信息</Typography>
-                        <Sheet variant="outlined" sx={{ p: 2, mb: 3 }}>
+                        <Typography level="title-md" sx={{mb: 1}}>收货信息</Typography>
+                        <Sheet variant="outlined" sx={{p: 2, mb: 3}}>
                             <Typography level="body-md">
                                 收件人邮箱: {order.email}
                             </Typography>
@@ -152,58 +118,58 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ open, onClose, orde
                                 收货地址: {order.address?.streetAddress}, {order.address?.city}, {order.address?.state}, {order.address?.country} {order.address?.zipCode}
                             </Typography>
                         </Sheet>
-                        
+
                         {/* 商品列表 */}
-                        <Typography level="title-md" sx={{ mb: 1 }}>商品列表</Typography>
-                        <Sheet variant="outlined" sx={{ mb: 3, overflow: 'auto' }}>
+                        <Typography level="title-md" sx={{mb: 1}}>商品列表</Typography>
+                        <Sheet variant="outlined" sx={{mb: 3, overflow: 'auto'}}>
                             <Table>
                                 <thead>
-                                    <tr>
-                                        <th style={{ width: '40%' }}>商品</th>
-                                        <th>单价</th>
-                                        <th>数量</th>
-                                        <th>总价</th>
-                                    </tr>
+                                <tr>
+                                    <th style={{width: '40%'}}>商品</th>
+                                    <th>单价</th>
+                                    <th>数量</th>
+                                    <th>总价</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    {order.items.map((item, index) => {
-                                        // 兼容不同的数据结构
-                                        const productName = item.item?.name || item.name || '商品';
-                                        const price = item.cost || item.price || 0;
-                                        const quantity = item.item?.quantity || item.quantity || 0;
-                                        
-                                        return (
-                                            <tr key={index}>
-                                                <td>{productName}</td>
-                                                <td>{formatCurrency(price, order.currency)}</td>
-                                                <td>{quantity}</td>
-                                                <td>{formatCurrency(price * quantity, order.currency)}</td>
-                                            </tr>
-                                        );
-                                    })}
+                                {order.items.map((item, index) => {
+                                    // 兼容不同的数据结构
+                                    const productName = item.item?.name || item.name || '商品';
+                                    const price = item.cost || item.price || 0;
+                                    const quantity = item.item?.quantity || item.quantity || 0;
+
+                                    return (
+                                        <tr key={index}>
+                                            <td>{productName}</td>
+                                            <td>{formatCurrency(price, order.currency)}</td>
+                                            <td>{quantity}</td>
+                                            <td>{formatCurrency(price * quantity, order.currency)}</td>
+                                        </tr>
+                                    );
+                                })}
                                 </tbody>
                             </Table>
                         </Sheet>
-                        
+
                         {/* 订单总计 */}
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
-                            <Sheet variant="soft" sx={{ p: 2, width: { xs: '100%', sm: '300px' } }}>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                        <Box sx={{display: 'flex', justifyContent: 'flex-end', mb: 3}}>
+                            <Sheet variant="soft" sx={{p: 2, width: {xs: '100%', sm: '300px'}}}>
+                                <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 1}}>
                                     <Typography level="title-sm">商品总计</Typography>
                                     <Typography>{formatCurrency(calculateTotal(), order.currency)}</Typography>
                                 </Box>
-                                <Divider sx={{ my: 1 }} />
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Divider sx={{my: 1}}/>
+                                <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
                                     <Typography level="title-md">订单总计</Typography>
-                                    <Typography level="title-md" sx={{ color: 'primary.600' }}>
+                                    <Typography level="title-md" sx={{color: 'primary.600'}}>
                                         {formatCurrency(calculateTotal(), order.currency)}
                                     </Typography>
                                 </Box>
                             </Sheet>
                         </Box>
-                        
+
                         {/* 操作按钮 */}
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                        <Box sx={{display: 'flex', justifyContent: 'flex-end', gap: 1}}>
                             <Button
                                 variant="outlined"
                                 color="neutral"

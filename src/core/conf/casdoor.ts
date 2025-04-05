@@ -1,3 +1,5 @@
+import SDK from "casdoor-js-sdk";
+
 export const CASDOOR_CONF = {
     // 第三方或自有的Casdoor服务端的URL
     // serverUrl: 'http://localhost:8000',
@@ -14,3 +16,5 @@ export const CASDOOR_CONF = {
     // 重新向到哪个路由
     redirectPath: '/callback',
 }
+
+export const CASDOOR_SDK = new SDK(CASDOOR_CONF)

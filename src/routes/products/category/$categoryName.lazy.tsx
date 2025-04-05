@@ -61,9 +61,9 @@ function CategoryProducts() {
         name: string,
         price: number,
         quantity: number = 1,
-        description?: string,
+        _description?: string,
         images?: string[],
-        categories?: string[],
+        _categories?: string[],
     ) => {
         // 确保productId不为空
         if (!id || id.trim() === '') {

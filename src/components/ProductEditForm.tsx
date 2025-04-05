@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Alert,
     AspectRatio,
@@ -10,12 +10,12 @@ import {
     FormLabel,
     Grid,
     Input,
+    Option,
+    Select,
     styled,
     SvgIcon,
     Textarea,
-    Typography,
-    Select,
-    Option
+    Typography
 } from '@mui/joy';
 import {AttributeValue, Product,} from '@/types/products';
 import PhotoIcon from '@mui/icons-material/PhotoCamera';

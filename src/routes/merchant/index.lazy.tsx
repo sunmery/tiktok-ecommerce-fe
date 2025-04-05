@@ -8,7 +8,7 @@ import {userStore} from '@/store/user.ts'
 import {useEffect, useState} from 'react'
 import Skeleton from '@/components/Skeleton'
 import {useTranslation} from "react-i18next";
-import {showMessage} from '@/utils/casdoor'
+import {showMessage} from '@/utils/showMessage'
 
 
 export const Route = createLazyFileRoute('/merchant/')({
@@ -36,7 +36,7 @@ function MerchantDashboard() {
                 })
             }
         }
-        
+
         const timer = setTimeout(() => {
             setLoading(false)
         }, 800)

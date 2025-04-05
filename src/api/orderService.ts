@@ -46,7 +46,7 @@ export const orderService = {
         const url = httpClient.replacePathParams('/v1/orders/:orderId', {
             orderId
         })
-        
+
         return httpClient.get<Order>(url, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -150,7 +150,7 @@ export const orderService = {
             `${import.meta.env.VITE_ORDERS_URL}/{orderId}/ship`,
             {orderId: orderId}
         );
-        return httpClient.put(url, {}, {
+        return httpClient.put(url, null, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json'
@@ -167,7 +167,7 @@ export const orderService = {
             `${import.meta.env.VITE_ORDERS_URL}/{orderId}/receive`,
             {orderId: orderId}
         );
-        return httpClient.put(url, {}, {
+        return httpClient.put(url, null, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json'

@@ -3,7 +3,7 @@
  * 基于原生fetch的HTTP请求封装，支持环境配置
  */
 
-import {config} from './config';
+import {config} from '@/core/conf/app.ts';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 

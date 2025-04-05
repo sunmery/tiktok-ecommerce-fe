@@ -17,12 +17,6 @@ export const UpdateCreditCard = 'credit_cards';
 export const DeleteCreditCard = 'credit_cards';
 export const GetCreditCard = 'credit_cards';
 
-// 时间戳类型（对应google.protobuf.Timestamp）
-export interface Timestamp {
-    seconds: number;
-    nanos: number;
-}
-
 // 空请求类型（对应google.protobuf.Empty）
 export interface Empty {
 }
@@ -60,8 +54,8 @@ export interface UserProfile {
     role: string;
     displayName: string;
     isDeleted: boolean;
-    createdTime?: Timestamp;
-    updatedTime?: Timestamp;
+    createdTime?: string;
+    updatedTime?: string;
     signupApplication?: string;
 }
 

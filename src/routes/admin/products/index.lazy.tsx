@@ -25,12 +25,13 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
 import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
-import {AuditAction, Product, ProductStatus} from '@/types/products.ts'
+import {AuditAction, Product} from '@/types/products.ts'
 import {productService} from '@/api/productService'
 import {useTranslation} from 'react-i18next'
 import {usePagination} from '@/hooks/usePagination'
 import PaginationBar from '@/components/PaginationBar'
-import {translateProductStatus} from "@/utils/translateProductStatus.ts";
+import {translateProductStatus} from "@/utils/translateProductStatus.ts"
+import {getStatusColor} from "@/utils/status.ts";
 
 export const Route = createLazyFileRoute('/admin/products/')({
     component: ProductManagement,
@@ -89,7 +90,6 @@ function ProductManagement() {
             })
 
             setProducts(response.items || [])
-
             // 更新总条目数
             if (response.total !== undefined) {
                 pagination.setTotalItems(response.total);
@@ -170,7 +170,7 @@ function ProductManagement() {
                     merchantId: product.merchantId,
                     action: auditAction,
                     reason: auditReason,
-                    // operatorId: parseInt(account.id)
+                    operatorId: account.id
                 })
             }
 
@@ -193,27 +193,6 @@ function ProductManagement() {
         } finally {
             setLoading(false)
         }
-    }
-
-    // 获取状态对应的颜色
-    const getStatusColor = (status: ProductStatus | number | string) => {
-        if (typeof status === 'number') {
-            switch (status) {
-                case ProductStatus.PRODUCT_STATUS_DRAFT:
-                    return 'neutral';
-                case ProductStatus.PRODUCT_STATUS_PENDING:
-                    return 'warning';
-                case ProductStatus.PRODUCT_STATUS_APPROVED:
-                    return 'success';
-                case ProductStatus.PRODUCT_STATUS_REJECTED:
-                    return 'danger';
-                case ProductStatus.PRODUCT_STATUS_SOLD_OUT:
-                    return 'neutral';
-                default:
-                    return 'neutral';
-            }
-        }
-        return 'neutral';
     }
 
     // 格式化日期

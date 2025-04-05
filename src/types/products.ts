@@ -1,6 +1,4 @@
 // 商品状态枚举
-import {Timestamp} from "@/types/user.ts";
-
 export enum ProductStatus {
     PRODUCT_STATUS_DRAFT = 0,     // 草稿状态
     PRODUCT_STATUS_PENDING = 1,  // 待审核
@@ -129,7 +127,7 @@ export interface CreateProductRequest {
     name: string;
     description: string;
     price: number;
-    stock: number; 
+    stock: number;
     images?: ProductImage[];
     attributes?: Record<string, AttributeValue>;
     category?: CategoryInfo;
@@ -156,13 +154,13 @@ export interface AuditProductRequest {
     merchantId: string
     action: AuditAction
     reason?: string
-    // operatorId: string
+    operatorId: string
 }
 
 export interface CreateProductReply {
     id: string;  // 商品唯一ID（系统生成）
-    createdAt: Timestamp;
-    updatedAt: Timestamp;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface DeleteProductRequest {

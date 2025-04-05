@@ -27,6 +27,7 @@ import {useTranslation} from 'react-i18next'
 import {usePagination} from '@/hooks/usePagination'
 import PaginationBar from '@/components/PaginationBar'
 import {translateProductStatus} from '@/utils/translateProductStatus'
+import {getStatusColor} from "@/utils/status.ts";
 
 export const Route = createLazyFileRoute('/merchant/products/')({
     component: Products,
@@ -54,27 +55,6 @@ export default function Products() {
     const pagination = usePagination({
         initialPageSize: 10,
     });
-
-    // 获取状态对应的颜色
-    const getStatusColor = (status: ProductStatus | number | string) => {
-        if (typeof status === 'number') {
-            switch (status) {
-                case ProductStatus.PRODUCT_STATUS_DRAFT:
-                    return 'neutral';
-                case ProductStatus.PRODUCT_STATUS_PENDING:
-                    return 'warning';
-                case ProductStatus.PRODUCT_STATUS_APPROVED:
-                    return 'success';
-                case ProductStatus.PRODUCT_STATUS_REJECTED:
-                    return 'danger';
-                case ProductStatus.PRODUCT_STATUS_SOLD_OUT:
-                    return 'neutral';
-                default:
-                    return 'neutral';
-            }
-        }
-        return 'neutral';
-    }
 
     useEffect(() => {
         // 获取商家的产品列表
@@ -374,17 +354,17 @@ export default function Products() {
                                             {/* 下架按钮 - 仅在审核通过或待审核状态显示 */}
                                             {product.status === ProductStatus.PRODUCT_STATUS_APPROVED ||
                                                 product.status === ProductStatus.PRODUCT_STATUS_PENDING && (
-                                                <Button
-                                                    size="sm"
-                                                    variant="outlined"
-                                                    color="warning"
-                                                    startDecorator={<UnpublishedIcon/>}
-                                                    onClick={() => handleUnpublish(product)}
-                                                    disabled={submittingId === product.id}
-                                                >
-                                                    {t('products.unpublish')}
-                                                </Button>
-                                            )}
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outlined"
+                                                        color="warning"
+                                                        startDecorator={<UnpublishedIcon/>}
+                                                        onClick={() => handleUnpublish(product)}
+                                                        disabled={submittingId === product.id}
+                                                    >
+                                                        {t('products.unpublish')}
+                                                    </Button>
+                                                )}
 
                                             <Button
                                                 size="sm"

@@ -1,5 +1,5 @@
-import { ProductStatus } from "@/types/products";
-import { t } from "i18next";
+import {ProductStatus} from "@/types/products";
+import {t} from "i18next";
 
 // 商品状态
 export const translateProductStatus = (status: ProductStatus): string => {

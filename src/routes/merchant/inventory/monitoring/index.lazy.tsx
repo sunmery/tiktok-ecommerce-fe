@@ -184,9 +184,12 @@ export default function InventoryMonitoring() {
                 sx={{mb: 2}}
             >
                 <TabList>
-                    <Tab value={0} variant={activeTab === 0 ? "solid" : "plain"}>{t('inventory.monitoring.low_stock_products')}</Tab>
-                    <Tab value={1} variant={activeTab === 1 ? "solid" : "plain"}>{t('inventory.monitoring.alert_settings')}</Tab>
-                    <Tab value={2} variant={activeTab === 2 ? "solid" : "plain"}>{t('inventory.monitoring.recent_adjustments')}</Tab>
+                    <Tab value={0}
+                         variant={activeTab === 0 ? "solid" : "plain"}>{t('inventory.monitoring.low_stock_products')}</Tab>
+                    <Tab value={1}
+                         variant={activeTab === 1 ? "solid" : "plain"}>{t('inventory.monitoring.alert_settings')}</Tab>
+                    <Tab value={2}
+                         variant={activeTab === 2 ? "solid" : "plain"}>{t('inventory.monitoring.recent_adjustments')}</Tab>
                 </TabList>
 
                 {/* 低库存产品 */}
