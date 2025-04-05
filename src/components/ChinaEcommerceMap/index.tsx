@@ -168,7 +168,7 @@ const ChinaEcommerceMap: FC<ChinaEcommerceMapProps> = ({
     // 加载中国地图数据
     useEffect(() => {
         // 注册中国地图数据
-        registerMap('china', chinaGeoJson)
+        registerMap('china', chinaGeoJson as any)
         initChart()
 
         return () => {

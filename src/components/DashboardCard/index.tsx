@@ -1,6 +1,7 @@
 import React from 'react'
-import {Button, Card, CardContent, Divider, List, ListItem, SxProps, Typography} from '@mui/joy'
-import {Theme} from '@mui/joy/styles'
+import {Button, Card, CardContent, Divider, List, ListItem, Typography} from '@mui/joy'
+// @ts-ignore
+import {SxProps, Theme} from '@mui/joy/styles'
 
 interface DashboardCardProps {
     title: string
