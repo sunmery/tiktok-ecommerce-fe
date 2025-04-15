@@ -1,17 +1,6 @@
 import {createLazyFileRoute, useParams} from '@tanstack/react-router'
-import {
-    Alert,
-    Box,
-    Button,
-    Card,
-    CardContent,
-    Chip,
-    CircularProgress,
-    Divider,
-    Grid,
-    Typography
-} from '@mui/material'
-import AspectRatio from '@mui/joy/AspectRatio'
+import {Box, Card, CardContent, CircularProgress, Divider,} from '@mui/material'
+import {Alert, AspectRatio, Button, Chip, Grid, Typography} from '@mui/joy'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {cartStore} from '@/store/cartStore.ts'
 import {useProduct} from '@/hooks/useProduct'

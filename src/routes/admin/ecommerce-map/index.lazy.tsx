@@ -4,12 +4,14 @@ import {Box, Card, CardContent, FormControl, FormLabel, Grid, Option, Select, Ty
 import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
 import ChinaEcommerceMap from '@/components/ChinaEcommerceMap'
+import {useTranslation} from 'react-i18next'
 
 export const Route = createLazyFileRoute('/admin/ecommerce-map/')({
     component: EcommerceMapDashboard,
 })
 
 function EcommerceMapDashboard() {
+    const {t} = useTranslation()
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
     const [timeRange, setTimeRange] = useState('weekly')
@@ -25,24 +27,24 @@ function EcommerceMapDashboard() {
 
     return (
         <Box sx={{p: 2}}>
-            <Typography level="h2" sx={{mb: 3}}>电子商务地图分析</Typography>
+            <Typography level="h2" sx={{mb: 3}}>{t('admin.ecommerce.title')}</Typography>
 
             <Grid container spacing={2}>
                 <Grid xs={12} md={3}>
                     <Card variant="outlined">
                         <CardContent>
-                            <Typography level="h3" sx={{mb: 2}}>筛选条件</Typography>
+                            <Typography level="h3" sx={{mb: 2}}>{t('admin.ecommerce.filters')}</Typography>
 
                             <FormControl sx={{mb: 2}}>
-                                <FormLabel>时间范围</FormLabel>
+                                <FormLabel>{t('admin.ecommerce.timeRange')}</FormLabel>
                                 <Select
                                     value={timeRange}
                                     onChange={(_, value) => value && setTimeRange(value)}
                                 >
-                                    <Option value="daily">日视图</Option>
-                                    <Option value="weekly">周视图</Option>
-                                    <Option value="monthly">月视图</Option>
-                                    <Option value="yearly">年视图</Option>
+                                    <Option value="daily">{t('admin.ecommerce.daily')}</Option>
+                                    <Option value="weekly">{t('admin.ecommerce.weekly')}</Option>
+                                    <Option value="monthly">{t('admin.ecommerce.monthly')}</Option>
+                                    <Option value="yearly">{t('admin.ecommerce.yearly')}</Option>
                                 </Select>
                             </FormControl>
                         </CardContent>
@@ -52,7 +54,7 @@ function EcommerceMapDashboard() {
                 <Grid xs={12} md={9}>
                     <Card variant="outlined">
                         <CardContent>
-                            <Typography level="h3" sx={{mb: 2}}>销售地理分布</Typography>
+                            <Typography level="h3" sx={{mb: 2}}>{t('admin.ecommerce.salesDistribution')}</Typography>
                             <Box sx={{height: 500}}>
                                 <ChinaEcommerceMap height="100%"/>
                             </Box>

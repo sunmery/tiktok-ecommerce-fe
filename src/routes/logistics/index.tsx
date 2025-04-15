@@ -1,5 +1,6 @@
 import {createFileRoute} from '@tanstack/react-router'
 import {useEffect, useState} from 'react';
+import {useTranslation} from 'react-i18next';
 import LogisticsMap from '@/components/LogisticsMap';
 import {getCoordinatesByAddress} from '@/utils/geocoding';
 import {Coordinates} from '@/types/logisticsMap';
@@ -25,6 +26,7 @@ const LogisticsPage = () => {
     const [isDelivered, setIsDelivered] = useState<boolean>(false);
     const [sellerAddress, setSellerAddress] = useState<string>('北京市中心');
     const [userAddress, setUserAddress] = useState<string>('北京市朝阳区阜荣街10号');
+    const {t} = useTranslation();
 
     const fetchCoordinates = async () => {
         try {
@@ -60,13 +62,14 @@ const LogisticsPage = () => {
     };
 
     if (isLoading) {
-        return <div className="loading">正在加载地址信息...</div>;
+        const {t} = useTranslation();
+        return <div className="loading">{t('logistics.loading')}</div>;
     }
 
     if (error || !sellerPosition || !userPosition) {
         return (
             <div className="error-container">
-                <p>{error || '发生未知错误'}</p>
+                <p>{error || t('logistics.unknownError')}</p>
                 {sellerPosition && userPosition && (
                     <button onClick={() => setError(null)}>
                         使用默认坐标继续
@@ -78,32 +81,34 @@ const LogisticsPage = () => {
 
     return (
         <div className="logistics-page">
-            <h1>物流跟踪</h1>
+            <h1>{t('logistics.tracking')}</h1>
 
             <div className="order-info">
-                <h2>订单信息</h2>
-                <p>订单号: ORD-2023-12345</p>
-                <p>商品: 高级商品套装</p>
+                <h2>{t('logistics.orderInfo')}</h2>
+                <p>{t('logistics.orderId')}: ORD-2023-12345</p>
+                <p>{t('logistics.product')}: {t('logistics.productName')}</p>
                 <div className="address-inputs">
                     <div className="address-input-group">
-                        <label>发货地址：</label>
+                        <label>{t('logistics.shippingAddress')}：</label>
                         <input
                             type="text"
                             value={sellerAddress}
                             onChange={(e) => setSellerAddress(e.target.value)}
                             placeholder="请输入发货地址"
                         />
-                        <button onClick={updateCoordinates} className="update-btn">更新发货地址</button>
+                        <button onClick={updateCoordinates}
+                                className="update-btn">{t('logistics.updateShippingAddress')}</button>
                     </div>
                     <div className="address-input-group">
-                        <label>收货地址：</label>
+                        <label>{t('logistics.deliveryAddress')}：</label>
                         <input
                             type="text"
                             value={userAddress}
                             onChange={(e) => setUserAddress(e.target.value)}
                             placeholder="请输入收货地址"
                         />
-                        <button onClick={updateCoordinates} className="update-btn">更新收货地址</button>
+                        <button onClick={updateCoordinates}
+                                className="update-btn">{t('logistics.updateDeliveryAddress')}</button>
                     </div>
                 </div>
             </div>
@@ -116,8 +121,8 @@ const LogisticsPage = () => {
 
             {isDelivered && (
                 <div className="delivery-notification">
-                    <h3>🎉 您的包裹已送达!</h3>
-                    <p>感谢您的购买，希望您对我们的服务满意。</p>
+                    <h3>🎉 {t('logistics.packageDelivered')}</h3>
+                    <p>{t('logistics.thankYou')}</p>
                 </div>
             )}
         </div>

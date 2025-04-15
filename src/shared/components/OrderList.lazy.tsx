@@ -171,7 +171,9 @@ export default function OrderList({orders}: Orders) {
                                                 });
                                                 
                                                 // 跳转到结算页面
-                                                navigate({to: '/checkout'});
+                                                navigate({to: '/checkout'}).then(()=>{
+                                                    console.log('跳转到结算页面')
+                                                });
                                             }}
                                         >
                                             {t('orders.pay')}

@@ -13,6 +13,7 @@ import {
     Table,
     Typography
 } from '@mui/joy';
+import { useTranslation } from 'react-i18next';
 import {Order, PaymentStatus} from '@/types/orders';
 import {formatCurrency} from '@/utils/format';
 import {getStatusColor, getStatusText} from '@/utils/status';
@@ -40,6 +41,7 @@ interface OrderDetailModalProps {
 
 const OrderDetailModal: React.FC<OrderDetailModalProps> = ({open, onClose, order, loading}) => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     
     // 计算总金额
     const calculateTotal = () => {
@@ -88,7 +90,7 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({open, onClose, order
             >
                 <ModalClose/>
                 <Typography id="order-detail-modal-title" level="h4" sx={{mb: 2}}>
-                    订单详情
+                    {t('orders.details')}
                 </Typography>
 
                 {loading ? (
@@ -97,7 +99,7 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({open, onClose, order
                     </Box>
                 ) : !order ? (
                     <Typography level="body-lg" textAlign="center">
-                        订单信息不存在
+                        {t('orders.notFound')}
                     </Typography>
                 ) : (
                     <Box>
@@ -105,13 +107,13 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({open, onClose, order
                         <Sheet variant="soft" sx={{p: 2, mb: 3, borderRadius: 'sm'}}>
                             <Grid container spacing={2}>
                                 <Grid xs={12} md={6}>
-                                    <Typography level="title-sm">订单编号</Typography>
+                                    <Typography level="title-sm">{t('orders.orderId')}</Typography>
                                     <Typography level="body-md" sx={{fontWeight: 'bold'}}>
                                         {order.orderId}
                                     </Typography>
                                 </Grid>
                                 <Grid xs={12} md={6}>
-                                    <Typography level="title-sm">订单状态</Typography>
+                                    <Typography level="title-sm">{t('orders.status')}</Typography>
                                     <Chip
                                         variant="soft"
                                         color={getStatusColor(order.paymentStatus)}
@@ -122,13 +124,13 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({open, onClose, order
                                     </Chip>
                                 </Grid>
                                 <Grid xs={12} md={6}>
-                                    <Typography level="title-sm">创建时间</Typography>
+                                    <Typography level="title-sm">{t('orders.createdTime')}</Typography>
                                     <Typography level="body-md">
                                         {formatDate(order.createdAt)}
                                     </Typography>
                                 </Grid>
                                 <Grid xs={12} md={6}>
-                                    <Typography level="title-sm">总金额</Typography>
+                                    <Typography level="title-sm">{t('orders.total')}</Typography>
                                     <Typography level="body-md" sx={{color: 'primary.600', fontWeight: 'bold'}}>
                                         {formatCurrency(calculateTotal(), order.currency)}
                                     </Typography>
@@ -137,26 +139,26 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({open, onClose, order
                         </Sheet>
 
                         {/* 收货信息 */}
-                        <Typography level="title-md" sx={{mb: 1}}>收货信息</Typography>
+                        <Typography level="title-md" sx={{mb: 1}}>{t('orders.shippingInfo')}</Typography>
                         <Sheet variant="outlined" sx={{p: 2, mb: 3}}>
                             <Typography level="body-md">
-                                收件人邮箱: {order.email}
+                                {t('orders.recipientEmail')}: {order.email}
                             </Typography>
                             <Typography level="body-md">
-                                收货地址: {order.address?.streetAddress}, {order.address?.city}, {order.address?.state}, {order.address?.country} {order.address?.zipCode}
+                                {t('orders.shippingAddress')}: {order.address?.streetAddress}, {order.address?.city}, {order.address?.state}, {order.address?.country} {order.address?.zipCode}
                             </Typography>
                         </Sheet>
 
                         {/* 商品列表 */}
-                        <Typography level="title-md" sx={{mb: 1}}>商品列表</Typography>
+                        <Typography level="title-md" sx={{mb: 1}}>{t('orders.productList')}</Typography>
                         <Sheet variant="outlined" sx={{mb: 3, overflow: 'auto'}}>
                             <Table>
                                 <thead>
                                 <tr>
-                                    <th style={{width: '40%'}}>商品</th>
-                                    <th>单价</th>
-                                    <th>数量</th>
-                                    <th>总价</th>
+                                    <th style={{width: '40%'}}>{t('orders.product')}</th>
+                                    <th>{t('orders.unitPrice')}</th>
+                                    <th>{t('orders.quantity')}</th>
+                                    <th>{t('orders.total')}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -183,12 +185,12 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({open, onClose, order
                         <Box sx={{display: 'flex', justifyContent: 'flex-end', mb: 3}}>
                             <Sheet variant="soft" sx={{p: 2, width: {xs: '100%', sm: '300px'}}}>
                                 <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 1}}>
-                                    <Typography level="title-sm">商品总计</Typography>
+                                    <Typography level="title-sm">{t('orders.subtotal')}</Typography>
                                     <Typography>{formatCurrency(calculateTotal(), order.currency)}</Typography>
                                 </Box>
                                 <Divider sx={{my: 1}}/>
                                 <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
-                                    <Typography level="title-md">订单总计</Typography>
+                                    <Typography level="title-md">{t('orders.total')}</Typography>
                                     <Typography level="title-md" sx={{color: 'primary.600'}}>
                                         {formatCurrency(calculateTotal(), order.currency)}
                                     </Typography>
@@ -196,24 +198,18 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({open, onClose, order
                             </Sheet>
                         </Box>
 
-                        {/* 操作按钮 */}
-                        <Box sx={{display: 'flex', justifyContent: 'flex-end', gap: 1}}>
-                            <Button
-                                variant="outlined"
-                                color="neutral"
-                                onClick={onClose}
-                            >
-                                关闭
-                            </Button>
-                            {order.paymentStatus === PaymentStatus.NotPaid && (
-                                <Button 
-                                    color="warning"
+                        {/* 支付按钮 */}
+                        {order.paymentStatus === PaymentStatus.NotPaid && (
+                            <Box sx={{display: 'flex', justifyContent: 'flex-end'}}>
+                                <Button
+                                    variant="solid"
+                                    color="primary"
                                     onClick={handlePayment}
                                 >
-                                    去支付
+                                    {t('orders.pay')}
                                 </Button>
-                            )}
-                        </Box>
+                            </Box>
+                        )}
                     </Box>
                 )}
             </ModalDialog>

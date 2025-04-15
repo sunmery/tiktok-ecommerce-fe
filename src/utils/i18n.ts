@@ -37,6 +37,19 @@ export function recordTranslationKeyUsage(key: string): void {
 const resources = {
     en: {
         translation: {
+            'logistics.loading': 'Loading address information...',
+            'logistics.unknownError': 'An unknown error occurred',
+            'logistics.tracking': 'Logistics Tracking',
+            'logistics.orderInfo': 'Order Information',
+            'logistics.orderId': 'Order ID',
+            'logistics.product': 'Product',
+            'logistics.productName': 'Premium Product Set',
+            'logistics.shippingAddress': 'Shipping Address',
+            'logistics.deliveryAddress': 'Delivery Address',
+            'logistics.updateShippingAddress': 'Update Shipping Address',
+            'logistics.updateDeliveryAddress': 'Update Delivery Address',
+            'logistics.packageDelivered': 'Your package has been delivered!',
+            'logistics.thankYou': 'Thank you for your purchase. We hope you are satisfied with our service.',
             'common.refresh': 'Refresh',
             'common.cancel': 'Cancel',
             'common.close': 'Close',
@@ -69,6 +82,32 @@ const resources = {
             'logistics.orderDetails.createdAt': 'Created At',
 
             'app.title': 'T-Commerce Platform',
+
+            'home.loading': 'Loading...',
+            'home.loadError': 'Loading failed, please try again',
+            'home.hotCategories': 'Hot Categories',
+            'home.projectInfo': 'Project Information',
+            'home.backend': 'Backend',
+            'home.frontend': 'Frontend',
+            'home.gateway': 'Gateway',
+            'home.devops': 'DevOps',
+            'home.paymentMethods': 'Payment Methods',
+            'home.alipayTestEnv': 'Alipay Sandbox',
+            'home.followMe': 'Follow Me',
+            'home.wechatPublic': 'WeChat Public Account',
+            'home.juejin': 'Juejin',
+            'home.blog': 'Blog',
+            'home.copyright': '© {year} Domain-Driven Design E-commerce Microservices Based on Golang Tech Stack and Role-Based Access Control',
+
+            // E-commerce Map
+            'admin.ecommerce.title': 'E-commerce Map Analysis',
+            'admin.ecommerce.filters': 'Filters',
+            'admin.ecommerce.timeRange': 'Time Range',
+            'admin.ecommerce.daily': 'Daily View',
+            'admin.ecommerce.weekly': 'Weekly View',
+            'admin.ecommerce.monthly': 'Monthly View',
+            'admin.ecommerce.yearly': 'Yearly View',
+            'admin.ecommerce.salesDistribution': 'Sales Geographic Distribution',
             "orders.productOverview": "Product Overview",
             "orders.unit": "items",
             "orders.itemCount": "Item Count",
@@ -95,6 +134,17 @@ const resources = {
             'orders.status.pending': 'Pending',
             'orders.unitPrice': 'Unit Price',
             'orders.total': 'Total',
+            'orders.details': 'Order Details',
+            'orders.notFound': 'Order not found',
+            'orders.orderId': 'Order ID',
+            'orders.status': 'Order Status',
+            'orders.createdTime': 'Created Time',
+            'orders.shippingInfo': 'Shipping Information',
+            'orders.recipientEmail': 'Recipient Email',
+            'orders.shippingAddress': 'Shipping Address',
+            'orders.productList': 'Product List',
+            'orders.quantity': 'Quantity',
+            'orders.subtotal': 'Subtotal',
 
             // Inventory Monitoring
             'inventory.monitoring.title': 'Inventory Monitoring Center',
@@ -432,6 +482,11 @@ const resources = {
             'nav.language': 'Language',
             'nav.switchRole': 'Switch Role',
 
+            // Auth related
+            'auth.loginSuccess': 'Login successful',
+            'auth.getRoleFailed': 'Failed to get role information',
+            'auth.getUserInfoFailed': 'Failed to get user information',
+
             // 角色
             'roles.consumer': 'Consumer',
             'roles.merchant': 'Merchant',
@@ -715,19 +770,14 @@ const resources = {
             'merchant.orders.updateSuccess': 'Order status updated successfully',
             'merchant.orders.updateFailed': 'Failed to update order status',
             'merchant.orders.fetchFailed': 'Failed to fetch order list',
+
             'orders.myOrders': 'My Orders',
-            'orders.orderId': 'Order ID',
             'orders.date': 'Date',
-            'orders.status': 'Status',
             'orders.paymentStatus': 'Payment Status',
-            'orders.details': 'Details',
             'orders.noOrders': 'No Orders',
             'orders.customerInfo': 'Customer Information',
-            'orders.shippingAddress': 'Shipping Address',
             'orders.billingAddress': 'Billing Address',
             'orders.products': 'Products',
-            'orders.quantity': 'Quantity',
-            'orders.subtotal': 'Subtotal',
             'orders.shipping': 'Shipping Fee',
             'orders.tax': 'Tax',
             'orders.actions': 'Actions',
@@ -1055,6 +1105,19 @@ const resources = {
     },
     zh: {
         translation: {
+            'logistics.loading': '正在加载地址信息...',
+            'logistics.unknownError': '发生未知错误',
+            'logistics.tracking': '物流跟踪',
+            'logistics.orderInfo': '订单信息',
+            'logistics.orderId': '订单号',
+            'logistics.product': '商品',
+            'logistics.productName': '高级商品套装',
+            'logistics.shippingAddress': '发货地址',
+            'logistics.deliveryAddress': '收货地址',
+            'logistics.updateShippingAddress': '更新发货地址',
+            'logistics.updateDeliveryAddress': '更新收货地址',
+            'logistics.packageDelivered': '您的包裹已送达!',
+            'logistics.thankYou': '感谢您的购买，希望您对我们的服务满意。',
             // 通用
             'common.cancel': '取消',
             'common.refresh': '刷新',
@@ -1084,6 +1147,16 @@ const resources = {
             'common.confirmExit': 'Confirm to exit?',
 
             'app.title': 'TT电商平台',
+
+            // E-commerce Map
+            'admin.ecommerce.title': '电子商务地图分析',
+            'admin.ecommerce.filters': '筛选条件',
+            'admin.ecommerce.timeRange': '时间范围',
+            'admin.ecommerce.daily': '日视图',
+            'admin.ecommerce.weekly': '周视图',
+            'admin.ecommerce.monthly': '月视图',
+            'admin.ecommerce.yearly': '年视图',
+            'admin.ecommerce.salesDistribution': '销售地理分布',
 
             // 物流
             'logistics.orderDetails.title': '物流订单详情',
@@ -1170,6 +1243,11 @@ const resources = {
             'nav.menu': '菜单',
             'nav.language': '语言',
             'nav.switchRole': '切换角色',
+
+            // Auth related
+            'auth.loginSuccess': '登录成功',
+            'auth.getRoleFailed': '获取角色信息失败',
+            'auth.getUserInfoFailed': '获取用户信息失败',
 
             // 角色
             'roles.consumer': '消费者',
@@ -1301,6 +1379,7 @@ const resources = {
             'merchant.orders.loading': '加载中...',
             'merchant.orders.noData': '没有订单数据',
             'merchant.orders.status.paid': '已支付',
+            'orders.status.paid': '已支付',
 
             'merchant.orders.ship': '发货',
             'merchant.orders.shipFailed': '发货失败',
@@ -1513,6 +1592,8 @@ const resources = {
             'payment.manage': '管理支付方式',
 
             // 订单管理
+            'orders.notFound': '未查找到该订单',
+            'orders.createdTime': 'Created Time',
             'orders.title': '订单',
             'orders.myOrders': '我的订单',
             'orders.orderId': '订单号',
