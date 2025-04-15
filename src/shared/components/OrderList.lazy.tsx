@@ -1,7 +1,7 @@
 import {Box, Button, Card, CardContent, Chip, Divider, Grid, Typography} from '@mui/joy'
 import {Order, OrderItem, Orders, PaymentStatus} from '@/types/orders.ts'
 import {formatCurrency} from '@/utils/format.ts'
-import {Link} from '@tanstack/react-router'
+import {Link, useNavigate} from '@tanstack/react-router'
 import {useState} from 'react'
 import OrderDetailModal from './OrderDetailModal'
 import {orderService} from '@/api/orderService'
@@ -9,6 +9,7 @@ import {useQuery} from '@tanstack/react-query'
 import {useTranslation} from 'react-i18next'
 import {getStatusText} from '@/utils/status'
 import {getStatusColor} from "@/utils/status.ts";
+import {cartStore} from '@/store/cartStore';
 
 // 格式化时间戳
 const formatDate = (timestamp: any) => {
@@ -46,6 +47,7 @@ const calculateTotal = (order: Order) => {
 
 export default function OrderList({orders}: Orders) {
     const {t} = useTranslation()
+    const navigate = useNavigate()
     const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -156,6 +158,21 @@ export default function OrderList({orders}: Orders) {
                                             size="sm"
                                             color="warning"
                                             variant="solid"
+                                            onClick={() => {
+                                                // 将订单商品添加到购物车
+                                                order.items.forEach(item => {
+                                                    cartStore.addItem(
+                                                        item.item.productId || '',
+                                                        item.item.name,
+                                                        item.item.merchantId || '',
+                                                        item.item.picture || '',
+                                                        item.item.quantity
+                                                    );
+                                                });
+                                                
+                                                // 跳转到结算页面
+                                                navigate({to: '/checkout'});
+                                            }}
                                         >
                                             {t('orders.pay')}
                                         </Button>

@@ -1,7 +1,6 @@
 import {createLazyFileRoute, useParams} from '@tanstack/react-router'
 import {
     Alert,
-    AspectRatio,
     Box,
     Button,
     Card,
@@ -11,7 +10,8 @@ import {
     Divider,
     Grid,
     Typography
-} from '@mui/joy'
+} from '@mui/material'
+import AspectRatio from '@mui/joy/AspectRatio'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {cartStore} from '@/store/cartStore.ts'
 import {useProduct} from '@/hooks/useProduct'

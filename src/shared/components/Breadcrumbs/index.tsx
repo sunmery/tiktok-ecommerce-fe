@@ -1,7 +1,7 @@
 import {Link, useMatches} from '@tanstack/react-router'
-import {Breadcrumbs as JoyBreadcrumbs} from '@mui/joy'
+import {Breadcrumbs as JoyBreadcrumbs} from '@mui/material'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
-import Typography from '@mui/joy/Typography'
+import Typography from '@mui/material/Typography'
 import {useMemo} from 'react'
 import {useTranslation} from 'react-i18next'
 

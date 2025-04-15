@@ -1,5 +1,6 @@
 import {createLazyFileRoute, Link} from '@tanstack/react-router'
-import {AspectRatio, Box, Card, CardContent, Divider, Grid, Stack, Typography,} from '@mui/joy'
+import {Box, Card, CardContent, Divider, Grid, Stack, Typography} from '@mui/material'
+import AspectRatio from '@mui/joy/AspectRatio'
 import {useTranslation} from 'react-i18next'
 import {useState} from 'react'
 

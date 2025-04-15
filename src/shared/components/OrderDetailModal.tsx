@@ -16,6 +16,7 @@ import {
 import {Order, PaymentStatus} from '@/types/orders';
 import {formatCurrency} from '@/utils/format';
 import {getStatusColor, getStatusText} from '@/utils/status';
+import {useNavigate} from '@tanstack/react-router';
 
 
 // 格式化时间
@@ -38,12 +39,39 @@ interface OrderDetailModalProps {
 }
 
 const OrderDetailModal: React.FC<OrderDetailModalProps> = ({open, onClose, order, loading}) => {
+    const navigate = useNavigate();
+    
     // 计算总金额
     const calculateTotal = () => {
         if (!order || !order.items) return 0;
         return order.items.reduce((total, item) => {
             return total + (item.cost * item.item.quantity);
         }, 0);
+    };
+    
+    // 处理去支付按钮点击事件
+    const handlePayment = () => {
+        if (!order || !order.items) return;
+        
+        // 将订单商品转换为购物车项格式
+        const cartItems = order.items.map(item => ({
+            merchantId: item.item.merchantId || '',
+            productId: item.item.productId || '',
+            name: item.item.name,
+            price: item.cost,
+            quantity: item.item.quantity,
+            picture: item.item.picture || '',
+            selected: true
+        }));
+        
+        // 将商品数据保存到本地存储
+        localStorage.setItem('selectedCartItems', JSON.stringify(cartItems));
+        
+        // 跳转到结算页面
+        navigate({to: '/checkout'});
+        
+        // 关闭模态框
+        onClose();
     };
 
     return (
@@ -178,7 +206,10 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({open, onClose, order
                                 关闭
                             </Button>
                             {order.paymentStatus === PaymentStatus.NotPaid && (
-                                <Button color="warning">
+                                <Button 
+                                    color="warning"
+                                    onClick={handlePayment}
+                                >
                                     去支付
                                 </Button>
                             )}
@@ -190,4 +221,4 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({open, onClose, order
     );
 };
 
-export default OrderDetailModal; 
+export default OrderDetailModal;
