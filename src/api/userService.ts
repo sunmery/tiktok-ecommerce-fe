@@ -31,6 +31,7 @@ import {EditUserForm} from "@/types/admin.ts";
 
 import SDK from 'casdoor-js-sdk'
 import {CASDOOR_CONF} from '@/core/conf/casdoor.ts'
+import {Products} from "@/types/products.ts";
 
 // 服务端的URL, 非casdoor的地址
 export const userServer: string = import.meta.env.VITE_USERS_URL
@@ -43,6 +44,41 @@ export const CASDOOR_SDK = new SDK(CASDOOR_CONF)
  * 用户服务API
  */
 export const userService = {
+    /**
+     * 添加商品收藏
+     * @param productId
+     * @param merchantId
+     */
+    addFavorite: (productId: string, merchantId: string) => {
+        return httpClient.post<{ message: string, code: number }>(`/v1/users/favorites`, {
+            productId,
+            merchantId,
+        });
+    },
+
+    /**
+     * 删除当前用户收藏
+     * @param productId
+     * @param merchantId
+     */
+    deleteFavorites: (productId: string, merchantId: string) => {
+        return httpClient.delete<{ message: string, code: number }>(`/v1/users/favorites`, {
+            params: {
+                productId,
+                merchantId,
+            },
+        });
+    },
+
+    /**
+     * 获取当前用户收藏
+     */
+    getFavorites: (page: number, pageSize: number) => {
+        return httpClient.get<Products>(`/v1/users/favorites`, {
+            params: {page, pageSize},
+        });
+    },
+
     /**
      * 获取用户列表
      * GET /v1/users

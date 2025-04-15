@@ -4,7 +4,7 @@ import {CASDOOR_SDK} from '@/core/conf/casdoor'
 import type {SigninReply} from '@/types/callback'
 import {showMessage} from "@/utils/showMessage";
 import {userService} from "@/api/userService.ts";
-import { useTranslation } from 'react-i18next';
+import { t } from 'i18next';
 
 export const Route = createLazyFileRoute('/callback/')({
     component: () => (
@@ -18,7 +18,6 @@ export const Route = createLazyFileRoute('/callback/')({
 })
 
 const saveToken = (res: Response) => {
-    const { t } = useTranslation();
     const result = res as unknown as SigninReply
     console.log("Result:", result)
 

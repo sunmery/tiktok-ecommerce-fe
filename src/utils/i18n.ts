@@ -85,19 +85,7 @@ const resources = {
 
             'home.loading': 'Loading...',
             'home.loadError': 'Loading failed, please try again',
-            'home.hotCategories': 'Hot Categories',
-            'home.projectInfo': 'Project Information',
-            'home.backend': 'Backend',
-            'home.frontend': 'Frontend',
-            'home.gateway': 'Gateway',
-            'home.devops': 'DevOps',
-            'home.paymentMethods': 'Payment Methods',
-            'home.alipayTestEnv': 'Alipay Sandbox',
-            'home.followMe': 'Follow Me',
-            'home.wechatPublic': 'WeChat Public Account',
-            'home.juejin': 'Juejin',
-            'home.blog': 'Blog',
-            'home.copyright': '© {year} Domain-Driven Design E-commerce Microservices Based on Golang Tech Stack and Role-Based Access Control',
+
 
             // E-commerce Map
             'admin.ecommerce.title': 'E-commerce Map Analysis',
@@ -360,13 +348,24 @@ const resources = {
             'consumer.order.paymentStatus': 'Payment Status',
             'consumer.order.viewDetails': 'Click to view details',
 
-            // 商家面板中文翻译
-            'merchant.log.redirectedNonMerchant': '已将非商家用户重定向到首页',
-            'merchant.log.navigatedToProducts': '已导航到商品管理页面',
-            'merchant.log.navigatedToOrders': '已导航到订单管理页面',
-            'merchant.log.navigatedToInventory': '已导航到库存管理页面',
-            'merchant.log.navigatedToInventoryMonitoring': '已导航到库存监控页面',
-            'merchant.log.navigatedToInventoryAlerts': '已导航到库存警报页面',
+            'home.hotCategories': 'Hot Categories',
+            'home.projectInfo': 'Project Information',
+            'home.backend': 'Backend Services',
+            'home.frontend': 'Frontend Framework',
+            'home.gateway': 'API Gateway',
+            'home.devops': 'DevOps Pipeline',
+            'home.paymentMethods': 'Payment Methods',
+            'home.alipayTestEnv': 'Alipay Sandbox',
+            'home.followMe': 'Follow Me',
+            'home.GitHub': 'GitHub Repository',
+            'home.wechatPublic': 'WeChat Official Account',
+            'home.juejin': 'Juejin Blog',
+            'home.blog': 'Technical Blog',
+            'home.copyright': '© 2025 Go-based E-commerce Microservices with RBAC',
+            'product.loading': '加载中...',
+            'product.not_found': '未找到商品',
+            'product.add_to_cart': '加入购物车',
+            'product.out_of_stock': '暂时缺货',
 
             // 购物车
             'cart.title': 'Cart',
@@ -678,6 +677,14 @@ const resources = {
             'adjustmentReason': 'Adjustment Reason',
             'adjustmentDate': 'Adjustment Date',
             'adjustmentQuantity': 'Adjustment Quantity',
+
+            'profile.myAccount': 'My Account',
+            'profile.favorites': 'My Favorites',
+            'profile.orders': 'My Orders',
+            'profile.logout': 'Logout',
+            'profile.accountSettings': 'Account Settings',
+
+            'consumer.favorites.searchPlaceholder': 'Search favorites',
 
             // 错误消息
             'errorLoadingProducts': 'Failed to load products',
@@ -1191,6 +1198,13 @@ const resources = {
             'inventory.monitoring.refresh_failed': '刷新数据失败',
             'inventory.monitoring.auto_refresh_failed': '自动刷新数据失败',
             'inventory.monitoring.initial_load_failed': '初始加载数据失败',
+
+            'profile.myAccount': '我的账户',
+            'profile.accountSettings': '账户设置',
+            'profile.favorites': '我的收藏',
+            'profile.orders': '我的订单',
+            'profile.logout': '退出登录',
+
             // 库存警报
             'inventory.alerts.title': '库存警报',
             'inventory.alerts.refresh': '刷新',
@@ -1217,6 +1231,16 @@ const resources = {
             'inventory.alerts.cancel': '取消',
             'inventory.alerts.confirm': '确定',
             'inventory.alerts.set_threshold': '设置警戒值',
+
+
+            // 商家面板中文翻译
+            'merchant.log.redirectedNonMerchant': '已将非商家用户重定向到首页',
+            'merchant.log.navigatedToProducts': '已导航到商品管理页面',
+            'merchant.log.navigatedToOrders': '已导航到订单管理页面',
+            'merchant.log.navigatedToInventory': '已导航到库存管理页面',
+            'merchant.log.navigatedToInventoryMonitoring': '已导航到库存监控页面',
+            'merchant.log.navigatedToInventoryAlerts': '已导航到库存警报页面',
+
 
             // 导航
             'home': '首页',
@@ -1274,6 +1298,24 @@ const resources = {
             'outOfStock': '缺货',
             'description': '描述',
             'category': '分类',
+
+            'home.hotCategories': '热门分类',
+            'home.projectInfo': '项目信息',
+            'home.backend': '后端项目',
+            'home.frontend': '前端项目',
+            'home.gateway': '网关服务',
+            'home.devops': '运维体系',
+            'home.paymentMethods': '支付方式',
+            'home.alipayTestEnv': '支付宝沙箱环境',
+            'home.followMe': '关注作者',
+            'home.wechatPublic': '微信公众号',
+            'home.juejin': '掘金主页',
+            'home.blog': '技术博客',
+            'home.copyright': '© 2025 基于Go语言技术栈和RBAC权限控制实现的领域驱动电商微服务',
+            'product.loading': 'Loading...',
+            'product.not_found': 'Product not found',
+            'product.add_to_cart': 'Add to cart',
+            'product.out_of_stock': 'Out of stock',
 
             // 购物车
             'cart.title': '购物车',
@@ -1980,7 +2022,7 @@ const resources = {
             'merchant.inventory.adjustmentHistory': '库存调整记录',
             'merchant.inventory.adjustQuantity': '调整数量',
             'merchant.inventory.reason': '调整原因',
-            'merchant.log.redirectedNonMerchant': '已将非商家用户重定向到首页',
+
             'admin.analytics.week': '第',
             'admin.analytics.month': '第',
             'admin.analytics.monday': '星期一',
@@ -2012,11 +2054,9 @@ const resources = {
             'admin.analytics.orders': '订单数',
             'admin.analytics.salesTrend': '销售趋势',
             'admin.analytics.ordersTrend': '订单趋势',
-            'merchant.log.navigatedToProducts': '已导航到商品管理页面',
-            'merchant.log.navigatedToOrders': '已导航到订单管理页面',
-            'merchant.log.navigatedToInventory': '已导航到库存管理页面',
-            'merchant.log.navigatedToInventoryMonitoring': '已导航到库存监控页面',
-            'merchant.log.navigatedToInventoryAlerts': '已导航到库存警报页面',
+
+            'home.loading': '加载中',
+            'consumer.favorites.searchPlaceholder': '搜索收藏',
 
             'products.category': '商品分类',
             'products.selectCategory': '选择分类',
