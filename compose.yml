@@ -1,23 +1,19 @@
 services:
-  ecommerce-fe:
-    image: ccr.ccs.tencentyun.com/sumery/ecommerce-fe:dev
+  nginx:
+    image: ccr.ccs.tencentyun.com/sumery/blog # 这里需要替换成你的镜像名
+    container_name: nginx
     build:
       context: .
+      dockerfile: .
       target: final
-    container_name: ecommerce-fe
-    restart: unless-stopped  # 自动重启策略
-    environment:
-      - TZ=Asia/Shanghai  # 设置时区
-      - DOMAIN=apikv.com  # 替换为您的域名
-      - HTTP_PORT=80
-      - HTTPS_PORT=443
     ports:
-      - "80:80"        # HTTP 端口映射
-      - "443:443"      # HTTPS 端口映射
-      - "443:443/udp"  # UDP 端口映射
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    # 环境变量
+    environment:
+      DOMAIN: example.com # 这里需要替换成你的域名
+    restart: on-failure:4 # 重启策略，最多重启n次
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./dist:/usr/share/caddy:ro
-      - caddy_data:/data
-volumes:
-  caddy_data:
+      - /home/docker/nginx/conf:/etc/nginx/conf.d
+      - /home/docker/nginx/ssl:/etc/nginx/ssl:ro
