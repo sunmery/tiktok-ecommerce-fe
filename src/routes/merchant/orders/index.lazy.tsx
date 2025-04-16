@@ -131,7 +131,7 @@ export default function Orders() {
 
             <Typography level="h2" sx={{mb: 3}}>{t('merchant.orders.title')}</Typography>
 
-            <Card variant="outlined" sx={{mb: 3}}>
+            <Card variant="outlined" sx={{mb: 3, overflowX: 'auto', minWidth: 900}}>
                 <CardContent>
                     <Typography level="title-lg" sx={{mb: 2}}>{t('merchant.orders.listTitle')}</Typography>
 
@@ -140,16 +140,16 @@ export default function Orders() {
                     ) : orders.length === 0 ? (
                         <Typography>{t('merchant.orders.noData')}</Typography>
                     ) : (
-                        <Table>
+                        <Table sx={{minWidth: 900}}>
                             <thead>
                             <tr>
-                                <th style={{width: '15%'}}>{t('merchant.orders.orderId')}</th>
+                                <th style={{width: '25%'}}>{t('merchant.orders.orderId')}</th>
                                 <th style={{width: '15%'}}>{t('merchant.orders.createdTime')}</th>
                                 <th style={{width: '15%'}}>{t('merchant.orders.amount')}</th>
-                                <th style={{width: '15%'}}>{t('merchant.orders.paymentStatus')}</th>
+                                <th style={{width: '5%'}}>{t('merchant.orders.paymentStatus')}</th>
                                 <th style={{width: '15%'}}>{t('merchant.orders.userId')}</th>
-                                <th style={{width: '25%'}}>{t('merchant.orders.viewDetails')}</th>
-                                <th style={{width: '25%'}}>{t('merchant.orders.actions')}</th>
+                                <th style={{width: '10%'}}>{t('merchant.orders.viewDetails')}</th>
+                                <th style={{width: '35%'}}>{t('merchant.orders.actions')}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -198,44 +198,9 @@ export default function Orders() {
                                                 {order.paymentStatus === PaymentStatus.Paid && (
                                                     <Button
                                                         size="sm"
-                                                        variant="solid"
-                                                        color="primary"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleStatusChange(order.orderId, PaymentStatus.ToBeShipped).then(() => {
-                                                                setSnackbar({
-                                                                    open: true,
-                                                                    message: t('merchant.orders.markToBeShippedSuccess'),
-                                                                    severity: 'success'
-                                                                });
-                                                            }).catch((error) => {
-                                                                console.error('标记为待发货失败:', error);
-                                                            })
-                                                        }}
-                                                    >
-                                                        {t('merchant.orders.markToBeShipped')}
-                                                    </Button>
-                                                )}
-
-                                                {order.paymentStatus === PaymentStatus.ToBeShipped && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="solid"
+                                                        variant="outlined"
                                                         color="success"
-                                                        onClick={async (e) => {
-                                                            e.stopPropagation();
-                                                            try {
-                                                                await orderService.shipOrder(order.orderId);
-                                                                await handleStatusChange(order.orderId, PaymentStatus.Shipped);
-                                                            } catch (error) {
-                                                                console.error('发货失败:', error);
-                                                                setSnackbar({
-                                                                    open: true,
-                                                                    message: t('merchant.orders.shipFailed'),
-                                                                    severity: 'danger'
-                                                                });
-                                                            }
-                                                        }}
+                                                        onClick={() => handleStatusChange(order.orderId, PaymentStatus.Shipped)}
                                                     >
                                                         {t('merchant.orders.ship')}
                                                     </Button>
@@ -243,43 +208,24 @@ export default function Orders() {
                                             </Box>
                                         </td>
                                         <td>
-                                            <FormControl size="sm">
-                                                <Select
+                                            <Box sx={{display: 'flex', gap: 1}}>
+                                                <Button
                                                     size="sm"
-                                                    value={order.paymentStatus}
-                                                    onChange={(_, value) => {
-                                                        if (value) {
-                                                            handleStatusChange(order.orderId, value as PaymentStatus).then(() => {
-                                                                setSnackbar({
-                                                                    open: true,
-                                                                    message: t('merchant.orders.updateSuccess'),
-                                                                    severity: 'success'
-                                                                });
-                                                            }).catch((error) => {
-                                                                console.error('更新订单状态失败:', error);
-                                                            })
-                                                        }
-                                                    }}
-                                                    sx={{minWidth: '120px'}}
+                                                    variant="outlined"
+                                                    color="danger"
+                                                    onClick={() => handleStatusChange(order.orderId, PaymentStatus.Failed)}
                                                 >
-                                                    <Option
-                                                        value={PaymentStatus.NotPaid}>{t('merchant.orders.status.notPaid')}</Option>
-                                                    <Option
-                                                        value={PaymentStatus.Processing}>{t('merchant.orders.status.processing')}</Option>
-                                                    <Option
-                                                        value={PaymentStatus.Paid}>{t('merchant.orders.status.paid')}</Option>
-                                                    <Option
-                                                        value={PaymentStatus.Failed}>{t('merchant.orders.status.failed')}</Option>
-                                                    <Option
-                                                        value={PaymentStatus.Cancelled}>{t('merchant.orders.status.cancelled')}</Option>
-                                                    <Option
-                                                        value={PaymentStatus.ToBeShipped}>{t('merchant.orders.status.toBeShipped')}</Option>
-                                                    <Option
-                                                        value={PaymentStatus.Shipped}>{t('merchant.orders.status.shipped')}</Option>
-                                                    <Option
-                                                        value={PaymentStatus.Received}>{t('merchant.orders.status.received')}</Option>
-                                                </Select>
-                                            </FormControl>
+                                                    {t('merchant.orders.shipFailed')}
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outlined"
+                                                    color="warning"
+                                                    onClick={() => handleStatusChange(order.orderId, PaymentStatus.Processing)}
+                                                >
+                                                    {t('merchant.orders.markToBeShipped')}
+                                                </Button>
+                                            </Box>
                                         </td>
                                     </tr>
                                 )

@@ -37,7 +37,7 @@ export const productService = {
 
     /**
      * 更新商品信息
-     * PUT /v1/products/{id}
+     * PUT v1/merchants/products/{id}
      */
     updateProduct: (request: UpdateProductRequest) => {
         const url = httpClient.replacePathParams(`${import.meta.env.VITE_MERCHANTS_URL}/products/{id}`, {

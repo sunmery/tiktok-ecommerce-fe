@@ -155,7 +155,10 @@ export default function Products() {
                 merchantId: product.merchantId as string,
                 name: product.name as string,
                 description: product.description as string,
-                price: product.price as number
+                price: product.price as number,
+                stock: product.inventory?.stock || 0,
+                url: product.picture as string,
+                attributes: product.attributes as Record<string, any>,
             })
             setSnackbar({
                 open: true,
@@ -210,7 +213,10 @@ export default function Products() {
                     merchantId: productData.merchantId || '',
                     name: productData.name || '',
                     description: productData.description || '',
-                    price: productData.price || 0
+                    price: productData.price || 0,
+                    stock: productData.inventory?.stock || 0,
+                    url: productData.picture as string || '',
+                    attributes: productData.attributes as Record<string, any> || {},
                 })
                 setSnackbar({
                     open: true,

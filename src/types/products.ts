@@ -140,6 +140,9 @@ export interface UpdateProductRequest {
     name: string
     description: string
     price: number
+    stock: number
+    url: string // 图片URL
+    attributes: Record<string, AttributeValue>
 }
 
 // 提交审核请求参数
