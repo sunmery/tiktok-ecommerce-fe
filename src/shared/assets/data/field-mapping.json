@@ -1,0 +1,23 @@
+{
+  "zh": {
+    "商品名称": "name",
+    "商品价格": "price",
+    "商品描述": "description",
+    "库存数量": "stock",
+    "分类.ID": "category.id",
+    "分类.名称": "category. name",
+    "属性[0].名称": "attributes.0.name",
+    "属性[0].值": "attributes.0.value"
+  },
+  "en": {
+    "Product Name": "name",
+    "Product Price": "price",
+    "Description": "description",
+    "Stock": "stock",
+    "Category.ID": "category.id",
+    "Category.Name": "category.name",
+    "Attributes": "attributes",
+    "Attribute[0].Name": "attributes.0.name",
+    "Attribute[0].Value": "attributes.0.value"
+  }
+}

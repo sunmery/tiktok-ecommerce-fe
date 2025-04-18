@@ -15,7 +15,7 @@ import {
     GetCreditCard,
     ListCreditCards,
     UpdateAddress,
-    UpdateCreditCard,
+    UpdateCreditCard, UpdateFavoritesRequest,
     Users
 } from '@/types/user';
 import {
@@ -46,26 +46,24 @@ export const CASDOOR_SDK = new SDK(CASDOOR_CONF)
 export const userService = {
     /**
      * 添加商品收藏
-     * @param productId
-     * @param merchantId
+     * @param request UpdateFavoritesRequest
      */
-    addFavorite: (productId: string, merchantId: string) => {
-        return httpClient.post<{ message: string, code: number }>(`/v1/users/favorites`, {
-            productId,
-            merchantId,
+    addFavorite: (request: UpdateFavoritesRequest) => {
+        return httpClient.put<{ message: string, code: number }>(`${import.meta.env.VITE_USERS_URL}/favorites`, {
+            productId: request.productId,
+            merchantId: request.merchantId,
         });
     },
 
     /**
      * 删除当前用户收藏
-     * @param productId
-     * @param merchantId
+     * @param request UpdateFavoritesRequest
      */
-    deleteFavorites: (productId: string, merchantId: string) => {
-        return httpClient.delete<{ message: string, code: number }>(`/v1/users/favorites`, {
+    deleteFavorites: (request: UpdateFavoritesRequest) => {
+        return httpClient.delete<{ message: string, code: number }>(`${import.meta.env.VITE_USERS_URL}/favorites`, {
             params: {
-                productId,
-                merchantId,
+                productId: request.productId,
+                merchantId: request.merchantId,
             },
         });
     },
@@ -74,25 +72,25 @@ export const userService = {
      * 获取当前用户收藏
      */
     getFavorites: (page: number, pageSize: number) => {
-        return httpClient.get<Products>(`/v1/users/favorites`, {
+        return httpClient.get<Products>(`${import.meta.env.VITE_USERS_URL}/favorites`, {
             params: {page, pageSize},
         });
     },
 
     /**
      * 获取用户列表
-     * GET /v1/users
+     * GET ${import.meta.env.VITE_USERS_URL}
      */
     listUsers: () => {
-        return httpClient.get<Users>('/v1/users');
+        return httpClient.get<Users>('${import.meta.env.VITE_USERS_URL}');
     },
 
     /**
      * 更新用户信息
-     * POST /v1/users/{user_id}
+     * POST ${import.meta.env.VITE_USERS_URL}/{user_id}
      */
     updateUser: (userId: string, userData: EditUserForm) => {
-        return httpClient.post<{ status: string, code: number }>(`/v1/users/${userId}`, {
+        return httpClient.post<{ status: string, code: number }>(`${import.meta.env.VITE_USERS_URL}/${userId}`, {
             userId,
             owner: userData.owner || '',
             name: userData.name,
@@ -105,10 +103,10 @@ export const userService = {
 
     /**
      * 删除用户
-     * POST /v1/users
+     * POST ${import.meta.env.VITE_USERS_URL}
      */
     deleteUser: (userId: string, owner: string, name: string) => {
-        return httpClient.post<{ status: string, code: number }>('/v1/users', {
+        return httpClient.post<{ status: string, code: number }>('${import.meta.env.VITE_USERS_URL}', {
             userId,
             owner,
             name
@@ -117,7 +115,7 @@ export const userService = {
 
     /**
      * 创建用户地址
-     * POST /v1/users/address
+     * POST ${import.meta.env.VITE_USERS_URL}/address
      */
     createAddress: (address: Address) => {
         return httpClient.post<Address>(`${import.meta.env.VITE_USERS_URL}/${CreateAddress}`, {
@@ -133,7 +131,7 @@ export const userService = {
 
     /**
      * 更新用户地址
-     * PATCH /v1/users/address
+     * PATCH ${import.meta.env.VITE_USERS_URL}/address
      */
     updateAddress: (address: Address) => {
         const token = localStorage.getItem('token');
@@ -155,7 +153,7 @@ export const userService = {
 
     /**
      * 删除用户地址
-     * DELETE /v1/users/address
+     * DELETE ${import.meta.env.VITE_USERS_URL}/address
      */
     deleteAddress: (request: DeleteAddressRequest) => {
         return httpClient.delete<DeleteAddressReply>(`${import.meta.env.VITE_USERS_URL}/${DeleteAddress}`, {
@@ -168,7 +166,7 @@ export const userService = {
 
     /**
      * 获取用户地址列表
-     * GET /v1/users/addresses
+     * GET ${import.meta.env.VITE_USERS_URL}/addresses
      */
     getAddresses: () => {
         const token = localStorage.getItem('token');
@@ -182,7 +180,7 @@ export const userService = {
 
     /**
      * 列出用户的信用卡信息
-     * GET /v1/users/credit_cards
+     * GET ${import.meta.env.VITE_USERS_URL}/credit_cards
      */
     listCreditCards: () => {
         return httpClient.get<ListCreditCardsReply>(`${import.meta.env.VITE_USERS_URL}/${ListCreditCards}`);
@@ -190,7 +188,7 @@ export const userService = {
 
     /**
      * 创建用户的信用卡信息
-     * POST /v1/users/creditCards
+     * POST ${import.meta.env.VITE_USERS_URL}/creditCards
      */
     createCreditCard: (creditCard: CreditCard) => {
         return httpClient.post<CardsReply>(`${import.meta.env.VITE_USERS_URL}/${CreateCreditCard}`, creditCard);
@@ -198,7 +196,7 @@ export const userService = {
 
     /**
      * 更新用户的信用卡信息
-     * PATCH /v1/users/creditCards
+     * PATCH ${import.meta.env.VITE_USERS_URL}/creditCards
      */
     updateCreditCard: (creditCard: CreditCard) => {
         return httpClient.patch<CardsReply>(`${import.meta.env.VITE_USERS_URL}/${UpdateCreditCard}`, creditCard);
@@ -206,7 +204,7 @@ export const userService = {
 
     /**
      * 删除用户的信用卡信息
-     * DELETE /v1/users/creditCards/{id}
+     * DELETE ${import.meta.env.VITE_USERS_URL}/creditCards/{id}
      */
     deleteCreditCard: (request: DeleteCreditCardRequest) => {
         const url = httpClient.replacePathParams(`${import.meta.env.VITE_USERS_URL}/${DeleteCreditCard}/{id}`, {
@@ -217,7 +215,7 @@ export const userService = {
 
     /**
      * 获取用户的信用卡信息
-     * GET /v1/users/credit_cards/{id}
+     * GET ${import.meta.env.VITE_USERS_URL}/credit_cards/{id}
      */
     getCreditCard: (request: GetCreditCardRequest) => {
         const url = httpClient.replacePathParams(`${import.meta.env.VITE_USERS_URL}/${GetCreditCard}/{id}`, {

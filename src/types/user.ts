@@ -62,3 +62,8 @@ export interface UserProfile {
 export interface Users {
     users: UserProfile[]
 }
+
+export interface UpdateFavoritesRequest {
+    productId: string
+    merchantId: string
+}

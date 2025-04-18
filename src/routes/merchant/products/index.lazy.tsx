@@ -1,4 +1,4 @@
-import {createLazyFileRoute} from '@tanstack/react-router'
+import {createLazyFileRoute, Link} from '@tanstack/react-router'
 import {useEffect, useState} from 'react'
 import {
     Alert,
@@ -255,6 +255,9 @@ export default function Products() {
                     >
                         {t('products.addProduct')}
                     </Button>
+                    <Button>
+                        <Link to={'/merchant/table'}>导入/导出</Link>
+                    </Button>
                     <Button
                         color="primary"
                         onClick={loadProducts}
@@ -263,6 +266,7 @@ export default function Products() {
                     >
                         {t('common.refresh')}
                     </Button>
+
                 </Box>
             </Box>
 

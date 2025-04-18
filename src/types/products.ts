@@ -122,6 +122,12 @@ export interface AuditRecordResponse {
     data: AuditRecord
 }
 
+// 批量上传文件的行数据类型
+export type ProductRow = Record<string, any>;
+export type ProductRows = {
+    products: ProductRow[]
+};
+
 // 创建商品请求参数
 export interface CreateProductRequest {
     name: string;

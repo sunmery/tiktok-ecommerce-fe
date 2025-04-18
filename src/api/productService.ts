@@ -17,6 +17,7 @@ import {
     ListProductsByCategoryRequest,
     ListRandomProductsRequest,
     Product,
+    ProductRows,
     Products,
     SearchProductRequest,
     SubmitAuditRequest,
@@ -33,6 +34,19 @@ export const productService = {
      */
     createProduct: (request: CreateProductRequest) => {
         return httpClient.post<CreateProductReply>(`${import.meta.env.VITE_PRODUCERS_URL}`, request);
+    },
+
+    /**
+     * 批量创建商品
+     * POST /v1/products/batch
+     */
+    createProductBatch: (objectArray: ProductRows) => {
+        return httpClient.put<CreateProductReply>(`${import.meta.env.VITE_PRODUCERS_URL}`, objectArray, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
     },
 
     /**

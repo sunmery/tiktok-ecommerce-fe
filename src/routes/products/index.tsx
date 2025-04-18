@@ -6,14 +6,15 @@ import {cartStore} from "@/store/cartStore.ts";
 import {Box} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import Card from "@mui/joy/Card";
-import IconButton from "@mui/joy/IconButton";
-import BookmarkAdd from "@mui/icons-material/BookmarkAddOutlined";
 import AspectRatio from "@mui/joy/AspectRatio";
 import CardContent from "@mui/joy/CardContent";
+import CardOverflow from '@mui/joy/CardOverflow';
 import Button from "@mui/joy/Button";
 import Breadcrumbs from '@/shared/components/Breadcrumbs';
 import {useTranslation} from "react-i18next";
-import {useEffect} from "react";
+import Favorites from "@/components/Favorites";
+import {userService} from "@/api/userService.ts";
+import {userStore} from "@/store/user.ts";
 
 export const Route = createFileRoute('/products/')({
     component: RouteComponent,
@@ -35,6 +36,7 @@ function Products() {
     const pageSize = 200
     const status = 2
     const snapshot = useSnapshot(cartStore)
+    const accountStore = useSnapshot(userStore)
     const {t} = useTranslation();
 
     // 使用React Query获取商品列表
@@ -53,6 +55,17 @@ function Products() {
         },
         retry: 1, // 失败后重试一次
     });
+
+    const {data: favoriteProduct, isError: favoriteError, isLoading: favoriteLoading} = useQuery({
+        queryKey: ['favoriteProduct'],
+        queryFn: async () => {
+            const res = await userService.getFavorites(page, pageSize)
+            console.log('favoriteProduct', res)
+            return res.items
+        },
+        retry: 1, // 失败后重试一次
+        enabled: !!accountStore.account.id, // 只有在用户登录后才启用查询
+    })
 
     const addToCartHandler = async (
         id: string,
@@ -75,7 +88,7 @@ function Products() {
     const displayData = data || [];
 
     // 显示错误信息
-    if (isError) {
+    if (isError||favoriteError) {
         return (
             <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
                 <Breadcrumbs pathMap={{'products': t('allProducts')}}/>
@@ -97,7 +110,7 @@ function Products() {
     }
 
     // 显示加载状态
-    if (isLoading) {
+    if (isLoading||favoriteLoading) {
         return (
             <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
                 <Breadcrumbs pathMap={{'products': t('allProducts')}}/>
@@ -110,13 +123,6 @@ function Products() {
         )
     }
 
-    const  favoriteProduct = (id:string) => {
-        console.log(id)
-        useEffect(() => {
-
-        }, [id]);
-    }
-    
     // const UpdateImage = (event: ChangeEvent<HTMLInputElement>) => {
     //     const file = event.target.files?.[0];
     //     if (!file) return;
@@ -205,36 +211,6 @@ function Products() {
                     gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
                 }}
             >
-                {/*<Box>*/}
-                {/*    <Button*/}
-                {/*        component="label"*/}
-                {/*        role={undefined}*/}
-                {/*        tabIndex={-1}*/}
-                {/*        variant="outlined"*/}
-                {/*        color="neutral"*/}
-                {/*        startDecorator={*/}
-                {/*            <SvgIcon>*/}
-                {/*                <svg*/}
-                {/*                    xmlns="http://www.w3.org/2000/svg"*/}
-                {/*                    fill="none"*/}
-                {/*                    viewBox="0 0 24 24"*/}
-                {/*                    strokeWidth={1.5}*/}
-                {/*                    stroke="currentColor"*/}
-                {/*                >*/}
-                {/*                    <path*/}
-                {/*                        strokeLinecap="round"*/}
-                {/*                        strokeLinejoin="round"*/}
-                {/*                        d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"*/}
-                {/*                    />*/}
-                {/*                </svg>*/}
-                {/*            </SvgIcon>*/}
-                {/*        }*/}
-                {/*    >*/}
-                {/*        Upload a file*/}
-                {/*        <VisuallyHiddenInput type="file" onChange={UpdateImage}/>*/}
-                {/*    </Button>*/}
-                {/*</Box>*/}
-
                 {displayData.map((product, index: number) => (
                     <Card
                         key={product.name + index}
@@ -260,13 +236,16 @@ function Products() {
                             });
                         }}
                     >
-                        <AspectRatio ratio="4/3" objectFit="cover">
-                            <img
-                                src={product.images && product.images.length > 0 ? product.images[0].url : "https://picsum.photos/300/200"}
-                                loading="lazy"
-                                alt={product.name}
-                            />
-                        </AspectRatio>
+                        <CardOverflow>
+                            <AspectRatio ratio="4/3" objectFit="cover">
+                                <img
+                                    src={product.images && product.images.length > 0 ? product.images[0].url : null}
+                                    loading="lazy"
+                                    alt={product.name}
+                                />
+                            </AspectRatio>
+                        </CardOverflow>
+
                         <CardContent sx={{flex: 1, display: 'flex', flexDirection: 'column', gap: 1, p: 2}}>
                             <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
                                 <Typography level="title-lg" sx={{
@@ -281,15 +260,7 @@ function Products() {
                                 }}>
                                     {product.name}
                                 </Typography>
-                                <IconButton
-                                    aria-label={t('consumer.favorites')}
-                                    variant="outlined"
-                                    color="neutral"
-                                    size="sm"
-                                    onClick={() => favoriteProduct(product.id)}
-                                >
-                                    <BookmarkAdd/>
-                                </IconButton>
+                                <Favorites products={favoriteProduct}/>
                             </Box>
 
                             <Typography level="body-sm" sx={{

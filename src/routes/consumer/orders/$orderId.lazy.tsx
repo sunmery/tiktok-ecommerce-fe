@@ -12,6 +12,7 @@ import {orderService} from '@/api/orderService'
 import {useTranslation} from 'react-i18next'
 import {getStatusColor, getStatusText} from "@/utils/status.ts";
 import {showMessage} from "@/utils/showMessage.ts";
+import LogisticsMap from '@/components/LogisticsMap';
 
 // 格式化时间戳
 const formatDate = (timestamp: any) => {
@@ -136,6 +137,7 @@ function ConsumerOrderDetail() {
             ) : !order ? (
                 <Alert color="warning" sx={{mb: 2}}>{t('consumer.order.notFound')}</Alert>
             ) : (
+                <>
                 <Grid container spacing={3}>
                     {/* 订单基本信息 */}
                     <Grid xs={12}>
@@ -288,8 +290,28 @@ function ConsumerOrderDetail() {
                         </Card>
                     </Grid>
 
-
+                    {/* 物流地图 */}
+                    {order && order.address && order.sellerAddress && order.address.latitude && order.address.longitude && order.sellerAddress.latitude && order.sellerAddress.longitude && (
+                        <Grid xs={12}>
+                            <Card sx={{mb: 3}}>
+                                <CardContent>
+                                    <Typography level="title-lg" sx={{mb: 2}}>{t('orders.logistics.map')}</Typography>
+                                    <Box sx={{ height: '500px', width: '100%' }}>
+                                        <LogisticsMap
+                                            sellerPosition={[order.sellerAddress.latitude, order.sellerAddress.longitude]}
+                                            userPosition={[order.address.latitude, order.address.longitude]}
+                                            onDeliveryComplete={() => {}}
+                                        />
+                                    </Box>
+                                    <Typography level="body-sm" sx={{ mt: 2, color: 'neutral.500' }}>
+                                        {t('orders.logistics.description')}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    )}
                 </Grid>
+                </>
             )}
         </Box>
     )

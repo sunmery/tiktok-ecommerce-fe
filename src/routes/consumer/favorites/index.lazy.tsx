@@ -1,96 +1,32 @@
 import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
-import {useTranslation} from "react-i18next";
+
+import {AspectRatio, Box, Button, Card, CardContent, CardOverflow, Grid, IconButton, Input, Typography} from "@mui/joy";
+import {Clear, Search, SearchTwoTone} from "@mui/icons-material";
 import {useState} from "react";
-import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import {userService} from "@/api/userService.ts";
-import {Box, Grid} from "@mui/joy";
-import Typography from "@mui/joy/Typography";
-import Input from "@mui/joy/Input";
-import SearchIcon from "@mui/icons-material/Search";
-import IconButton from "@mui/joy/IconButton";
-import Clear from "@mui/icons-material/Clear";
-import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
-import Card from "@mui/joy/Card";
+import {useTranslation} from "react-i18next";
+
 import {Product} from "@/types/products.ts";
-import CardOverflow from "@mui/joy/CardOverflow";
-import AspectRatio from "@mui/joy/AspectRatio";
-import CardContent from "@mui/joy/CardContent";
-import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
-import Button from "@mui/joy/Button";
+import {useQuery} from "@tanstack/react-query";
+import {userService} from '@/api/userService';
+import Favorites from "@/components/Favorites";
 
 export const Route = createLazyFileRoute('/consumer/favorites/')({
     component: FavoritesPage,
 })
 
 function FavoritesPage() {
-    const navigate = useNavigate()
-    const {t} = useTranslation()
     const [searchKeyword, setSearchKeyword] = useState('');
-    const queryClient = useQueryClient()
+    const navigate = useNavigate();
+    const {t} = useTranslation()
 
-    // 使用useQuery获取用户信息
     const {data, error, isLoading} = useQuery({
         queryKey: ['getFavorites'],
         queryFn: async () => {
-            return await userService.getFavorites(1, 10)
+            return await userService.getFavorites(1, 100)
         },
         retry: 2,
         staleTime: 1000 * 60 * 5,
     })
-
-    const filteredItems = data?.items.filter(product => {
-        const lowerKeyword = searchKeyword.toLowerCase();
-        return (
-            product.name.toLowerCase().includes(lowerKeyword) ||
-            product.description?.toLowerCase().includes(lowerKeyword) ||
-            product.category?.categoryName.toLowerCase().includes(lowerKeyword)
-        )
-    }) || [];
-
-    const [deletedItems, setDeletedItems] = useState<Set<string>>(new Set());
-    const [isPending, setIsPending] = useState(false);
-
-    const deleteMutation = useMutation({
-        mutationFn: ({productId, merchantId}: {
-            productId: string,
-            merchantId: string
-        }) => userService.deleteFavorites(productId, merchantId),
-        onSuccess: () => {
-            setTimeout(() => {
-                queryClient.invalidateQueries({queryKey: ['getFavorites']})
-                setDeletedItems(new Set())
-            }, 5000)
-        }
-    })
-
-    const addMutation = useMutation({
-        mutationFn: ({productId, merchantId}: {
-            productId: string,
-            merchantId: string
-        }) => userService.addFavorite(productId, merchantId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['getFavorites']}).then(() => {
-                console.log("invalidateQueries")
-            })
-        }
-    })
-
-    const handleFavoriteClick = async (productId: string, merchantId: string) => {
-        if (isPending) return;
-        setIsPending(true);
-
-        try {
-            if (deletedItems.has(productId)) {
-                await addMutation.mutateAsync({productId, merchantId})
-                setDeletedItems(prev => new Set([...prev].filter(id => id !== productId)))
-            } else {
-                await deleteMutation.mutateAsync({productId, merchantId})
-                setDeletedItems(prev => new Set([...prev, productId]))
-            }
-        } finally {
-            setIsPending(false);
-        }
-    }
 
     if (isLoading) {
         return <div className="loading">{t('loading')}</div>;
@@ -98,7 +34,14 @@ function FavoritesPage() {
     if (error) {
         return <div className="error">{error.message}</div>;
     }
-
+    const filteredItems = data?.items.filter((product: Product) => {
+        const lowerKeyword = searchKeyword.toLowerCase();
+        return (
+            product.name.toLowerCase().includes(lowerKeyword) ||
+            product.description?.toLowerCase().includes(lowerKeyword) ||
+            product.category?.categoryName.toLowerCase().includes(lowerKeyword)
+        )
+    }) || [];
     return (
         <Box>
             <Box
@@ -123,7 +66,7 @@ function FavoritesPage() {
                         placeholder={t('consumer.favorites.searchPlaceholder')}
                         value={searchKeyword}
                         onChange={(e) => setSearchKeyword(e.target.value)}
-                        startDecorator={<SearchIcon/>}
+                        startDecorator={<Search/>}
                         endDecorator={searchKeyword && (
                             <IconButton
                                 variant="plain"
@@ -142,7 +85,7 @@ function FavoritesPage() {
                             borderRadius: '20px',
                         }}
                     />
-                    <SearchTwoToneIcon
+                    <SearchTwoTone
                         sx={{
                             position: 'absolute',
                             width: '30px',
@@ -153,7 +96,6 @@ function FavoritesPage() {
                         }}/>
                 </Box>
             </Box>
-
             <Grid container direction="row" sx={{
                 justifyContent: "space-around",
                 alignItems: "center",
@@ -275,17 +217,7 @@ function FavoritesPage() {
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
                                 }}>
-                                    <FavoriteTwoToneIcon
-                                        sx={{
-                                            width: '35px',
-                                            height: '35px',
-                                            color: deletedItems.has(product.id) ? 'grey' : 'deeppink'
-                                        }}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleFavoriteClick(product.id, product.merchantId)
-                                        }}
-                                    />
+                                    <Favorites />
                                     <Button sx={{
                                         borderRadius: '15px',
                                         backgroundColor: 'deeppink',

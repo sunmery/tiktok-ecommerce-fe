@@ -5,7 +5,7 @@ import {Category} from '@/types/category';
 import {useState} from 'react';
 import {t} from 'i18next';
 
-export const Route = createLazyFileRoute('/categories')({
+export const Route = createLazyFileRoute('/categories/')({
     component: Categories,
 });
 

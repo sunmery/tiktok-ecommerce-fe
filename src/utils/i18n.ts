@@ -50,6 +50,9 @@ const resources = {
             'logistics.updateDeliveryAddress': 'Update Delivery Address',
             'logistics.packageDelivered': 'Your package has been delivered!',
             'logistics.thankYou': 'Thank you for your purchase. We hope you are satisfied with our service.',
+
+            'common.clear': 'Clear',
+            'common.reset': 'Reset',
             'common.refresh': 'Refresh',
             'common.cancel': 'Cancel',
             'common.close': 'Close',
@@ -321,11 +324,14 @@ const resources = {
             'consumer.orders.totalCount': 'Total {{count}} Orders',
 
             'consumer.orders.viewFavorites': 'View favorites',
+
             'consumer.favorites': 'Favorites product',
             'consumer.favorites.title': 'My Favorites',
             'consumer.favorites.viewProducts': 'View Favorite Products',
             'consumer.favorites.manage': 'Manage Favorites',
             'consumer.favorites.priceAlert': 'Price Alerts',
+            'consumer.favorites.noResults': 'No Results',
+            'consumer.favorites.searchPlaceholder': 'Search favorites',
 
             // Credit Card
             'creditCard.myCard': 'My Card',
@@ -623,6 +629,7 @@ const resources = {
 
             'products.category': 'Product category',
             'products.selectCategory': 'Select category',
+            'products.batchUpload': 'Batch Upload',
 
             'analytics.loading_orders': 'Loading orders...',
             'analytics.orders_load_complete': 'Orders data loaded:',
@@ -683,8 +690,6 @@ const resources = {
             'profile.orders': 'My Orders',
             'profile.logout': 'Logout',
             'profile.accountSettings': 'Account Settings',
-
-            'consumer.favorites.searchPlaceholder': 'Search favorites',
 
             // 错误消息
             'errorLoadingProducts': 'Failed to load products',
@@ -870,8 +875,17 @@ const resources = {
             'merchant.quickActions': 'Quick Actions',
             'merchant.viewAll': 'View All',
 
-            // 商品管理
+            // 商家面板中文翻译
+            'merchant.log.redirectedNonMerchant': 'You are not a merchant, redirecting to home page...',
+            'merchant.log.navigatedToProducts': 'You have navigated to the product management page',
+            'merchant.log.navigatedToOrders': 'You have navigated to the order management page',
+            'merchant.log.navigatedToInventory': 'You have navigated to the inventory management page',
+            'merchant.log.navigatedToInventoryMonitoring': 'You have navigated to the inventory monitoring page',
+            'merchant.log.navigatedToInventoryAlerts': 'You have navigated to the inventory alerts page',
+
             'products.title': 'Product Management',
+            'products.loadMockData': 'Load mock data',
+
             'products.addProduct': 'Add Product',
             'products.editProduct': 'Edit Product',
             'products.name': 'Name',
@@ -1129,30 +1143,21 @@ const resources = {
             'common.cancel': '取消',
             'common.refresh': '刷新',
             'common.close': '关闭',
-            'common.confirm': 'Confirm',
-            'common.loading': 'Loading...',
-            'common.success': 'Operation successful',
-            'common.error': 'Operation failed',
-            'common.noData': 'No data available',
-            'common.noResults': 'No results found',
-            'common.noMore': 'No more data',
-            'common.tryAgainLater': 'Try again later',
-            'common.pleaseSelect': 'Please select',
-            'common.unknown': 'Unknown',
-            'common.areYouSure': 'Are you sure?',
-            'common.confirmDelete': 'Confirm to delete?',
-            'common.confirmAction': 'Confirm to perform this action?',
-            'common.confirmLogout': 'Confirm to logout?',
-            'common.Logout': 'Logout successful',
-            'common.confirmCancel': 'Confirm to cancel?',
-            'common.confirmSubmit': 'Confirm to submit?',
-            'common.confirmReset': 'Confirm to reset?',
-            'common.confirmClear': 'Confirm to clear?',
-            'common.confirmSave': 'Confirm to save?',
-            'common.confirmUpload': 'Confirm to upload?',
-            'common.confirmDownload': 'Confirm to download?',
-            'common.confirmExit': 'Confirm to exit?',
-
+            'common.confirm': '确定',
+            'common.submit': '提交',
+            'common.save': '保存',
+            'common.reset': '重置',
+            'common.clear': '清空',
+            'common.upload': '上传',
+            'common.download': '下载',
+            'common.exit': '退出',
+            'common.back': '返回',
+            'common.next': '下一步',
+            'common.previous': '上一步',
+            'common.view': '查看',
+            'common.edit': '编辑',
+            'common.delete': '删除',
+            'common.create': '创建',
             'app.title': 'TT电商平台',
 
             // E-commerce Map
@@ -1729,6 +1734,8 @@ const resources = {
 
             // 商品管理
             'products.title': '商品管理',
+            'products.loadMockData': '加载示例数据',
+            'products.batchUpload': '批量上传',
             'products.addProduct': '添加商品',
             'products.editProduct': '编辑商品',
             'products.name': '名称',
@@ -2056,7 +2063,6 @@ const resources = {
             'admin.analytics.ordersTrend': '订单趋势',
 
             'home.loading': '加载中',
-            'consumer.favorites.searchPlaceholder': '搜索收藏',
 
             'products.category': '商品分类',
             'products.selectCategory': '选择分类',
@@ -2082,11 +2088,15 @@ const resources = {
             'consumer.orders.trackStatus': '跟踪订单状态',
             'consumer.orders.queryDetails': '查询订单详情',
             'consumer.orders.totalCount': '总计 {{count}} 份订单',
+
             'consumer.favorites': '收藏商品',
             'consumer.favorites.title': '我的收藏',
             'consumer.favorites.viewProducts': '查看收藏商品',
             'consumer.favorites.manage': '管理收藏',
             'consumer.favorites.priceAlert': '价格提醒',
+            'consumer.favorites.searchPlaceholder': '搜索收藏',
+            'consumer.favorites.noResults': '暂无收藏',
+
             'consumer.orders.noOrders': '暂无订单',
             'consumer.orders.filter': '订单筛选',
             'consumer.orders.viewFavorites': '查看收藏',
