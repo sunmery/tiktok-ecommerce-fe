@@ -1,10 +1,23 @@
 import {createLazyFileRoute, useParams} from '@tanstack/react-router'
-import {Box, Card, CardContent, CircularProgress, Divider,} from '@mui/material'
-import {Alert, AspectRatio, Button, Chip, Grid, Typography} from '@mui/joy'
+
+import {
+    Alert,
+    AspectRatio,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    Chip,
+    CircularProgress,
+    Divider,
+    Grid,
+    Typography
+} from '@mui/joy'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {cartStore} from '@/store/cartStore.ts'
 import {useProduct} from '@/hooks/useProduct'
 import {showMessage} from "@/utils/showMessage.ts";
+import CommentSection from '@/components/CommentSection';
 
 export const Route = createLazyFileRoute('/products/$productId')({component: ProductDetail});
 
@@ -66,12 +79,13 @@ export default function ProductDetail() {
         )
     }
 
+    // 新增健壮性判断，防止 product 及其属性为 undefined
     const productId_string = productId || '';
-    const productName = product.name || '';
-    const productIdValue = product.id || '';
-    const merchantIdValue = product.merchantId || '';
-    const createdAt = product.createdAt ? new Date(product.createdAt).toLocaleString() : '未知';
-    const updatedAt = product.updatedAt ? new Date(product.updatedAt).toLocaleString() : '未知';
+    const productName = typeof product === 'object' && product && 'name' in product ? product.name : '';
+    const productIdValue = typeof product === 'object' && product && 'id' in product ? product.id : '';
+    const merchantIdValue = typeof product === 'object' && product && 'merchantId' in product ? product.merchantId : '';
+    const createdAt = typeof product === 'object' && product && 'createdAt' in product && product.createdAt ? new Date(product.createdAt).toLocaleString() : '未知';
+    const updatedAt = typeof product === 'object' && product && 'updatedAt' in product && product.updatedAt ? new Date(product.updatedAt).toLocaleString() : '未知';
 
     return (
         <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
@@ -162,6 +176,11 @@ export default function ProductDetail() {
                         </CardContent>
                     </Card>
                 </Grid>
+            </Grid>
+
+            {/* 评论区域 */}
+            <Grid xs={12}>
+                <CommentSection productId={productId} merchantId={merchantId} />
             </Grid>
         </Box>
     )

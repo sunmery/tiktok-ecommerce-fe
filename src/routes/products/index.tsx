@@ -3,18 +3,19 @@ import {useQuery} from "@tanstack/react-query";
 import {productService} from "@/api/productService.ts";
 import {useSnapshot} from "valtio/react";
 import {cartStore} from "@/store/cartStore.ts";
-import {Box} from "@mui/joy";
+import {Box, CardOverflow} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import Card from "@mui/joy/Card";
-import AspectRatio from "@mui/joy/AspectRatio";
+
 import CardContent from "@mui/joy/CardContent";
-import CardOverflow from '@mui/joy/CardOverflow';
+
 import Button from "@mui/joy/Button";
 import Breadcrumbs from '@/shared/components/Breadcrumbs';
 import {useTranslation} from "react-i18next";
-import Favorites from "@/components/Favorites";
+// import Favorites from "@/components/Favorites";
 import {userService} from "@/api/userService.ts";
 import {userStore} from "@/store/user.ts";
+import AspectRatio from "@mui/joy/AspectRatio";
 
 export const Route = createFileRoute('/products/')({
     component: RouteComponent,
@@ -239,7 +240,7 @@ function Products() {
                         <CardOverflow>
                             <AspectRatio ratio="4/3" objectFit="cover">
                                 <img
-                                    src={product.images && product.images.length > 0 ? product.images[0].url : null}
+                                    src={product.images && product.images.length > 0 ? product.images[0].url : ''}
                                     loading="lazy"
                                     alt={product.name}
                                 />
@@ -260,7 +261,7 @@ function Products() {
                                 }}>
                                     {product.name}
                                 </Typography>
-                                <Favorites products={favoriteProduct}/>
+                                {/*<Favorites products={favoriteProduct}/>*/}
                             </Box>
 
                             <Typography level="body-sm" sx={{
