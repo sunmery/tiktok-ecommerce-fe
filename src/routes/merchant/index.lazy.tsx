@@ -127,6 +127,37 @@ function MerchantDashboard() {
                             </CardContent>
                         </Card>
                     </Grid>
+                    <Grid xs={12} md={6}>
+                        <Card variant="outlined" sx={{height: '100%'}}>
+                            <CardContent>
+                                <Typography level="h3">{t('merchant.orderManagement')}</Typography>
+                                <Divider sx={{my: 2}}/>
+                                <List>
+                                    <ListItem>
+                                        <ListItem>{t('merchant.orderFeatures.viewAll')}</ListItem>
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItem>{t('merchant.orderFeatures.processStatus')}</ListItem>
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItem>{t('merchant.orderFeatures.orderDetails')}</ListItem>
+                                    </ListItem>
+                                </List>
+                                <Button
+                                    variant="solid"
+                                    color="primary"
+                                    startDecorator={<AddIcon/>}
+                                    onClick={() => navigate({to: '/merchant/address'}).then(() => {
+                                        console.log(t('merchant.log.navigatedToAddress'))
+                                    })}
+                                    fullWidth
+                                    sx={{mt: 2}}
+                                >
+                                    {t('merchant.manageAddress')}
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </Grid>
 
                     <Grid xs={12} md={6} sx={{mt: 2}}>
                         <Card variant="outlined" sx={{height: '100%'}}>

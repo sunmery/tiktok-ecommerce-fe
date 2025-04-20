@@ -18,31 +18,32 @@ import {cartStore} from '@/store/cartStore.ts'
 import {useProduct} from '@/hooks/useProduct'
 import {showMessage} from "@/utils/showMessage.ts";
 import CommentSection from '@/components/CommentSection';
+import {useEffect, useState} from 'react';
+import {orderService} from '@/api/orderService';
+import {useSnapshot} from 'valtio/react';
+import {userStore} from '@/store/user.ts';
+import {PaymentStatus} from '@/types/orders'
 
 export const Route = createLazyFileRoute('/products/$productId')({component: ProductDetail});
 
 export default function ProductDetail() {
     const {productId} = useParams({from: '/products/$productId'})
     const merchantId = new URLSearchParams(window.location.search).get('merchantId') || ''
-    const {data: productResponse, isLoading: loading, error} = useProduct(productId, merchantId)
-
-    // 确保我们正确获取商品数据，无论是在 productResponse.data 中还是直接在 productResponse 中
-    const product = productResponse?.data || productResponse
+    const {data, isLoading: loading, error} = useProduct(productId, merchantId)
+    const [canComment, setCanComment] = useState(false)
+    const [checkingOrders, setCheckingOrders] = useState(false)
+    const {account} = useSnapshot(userStore)
 
     // 添加到购物车
     const addToCartHandler = () => {
-        if (product) {
+        if (data) {
             try {
-                // 确保productId不为空
-                const productIdentifier = typeof product === 'object' && 'id' in product && product.id ? product.id : '';
-                const productName = product.name || '';
-                const merchantId = product.merchantId || '';
-                const imageUrl = product.images && product.images[0] && product.images[0].url ? product.images[0].url : '';
+                const imageUrl = data.images[0].url ? data.images[0].url : '';
 
                 cartStore.addItem(
-                    productIdentifier,
-                    productName,
-                    merchantId,
+                    data.id as string,
+                    data.name as string,
+                    data.merchantId as string,
                     imageUrl,
                     1
                 );
@@ -52,6 +53,49 @@ export default function ProductDetail() {
             }
         }
     }
+    
+    // 检查用户是否有已支付的订单，只有已支付订单的用户才能发表评论
+    useEffect(() => {
+        const checkUserOrders = async () => {
+            if (!account.id) {
+                setCanComment(false)
+                return
+            }
+            
+            try {
+                setCheckingOrders(true)
+                const response = await orderService.getConsumerOrder({
+                    userId: account.id,
+                    page: 1,
+                    pageSize: 50
+                })
+                
+                if (response && response.orders) {
+                    // 检查用户是否有包含该商品且状态为已支付的订单
+                    const hasPaidOrder = response.orders.some(order => {
+                        // 检查订单是否已支付
+                        const isPaid = order.paymentStatus === PaymentStatus.Paid
+                        
+                        // 检查订单是否包含当前商品
+                        const hasProduct = order.items.some(item => 
+                            item.item.productId === productId
+                        )
+                        
+                        return isPaid && hasProduct
+                    })
+                    
+                    setCanComment(hasPaidOrder)
+                }
+            } catch (error) {
+                console.error('检查用户订单失败:', error)
+                setCanComment(false)
+            } finally {
+                setCheckingOrders(false)
+            }
+        }
+        
+        checkUserOrders()
+    }, [account.id, productId])
 
     if (loading) {
         return (
@@ -69,7 +113,7 @@ export default function ProductDetail() {
         )
     }
 
-    if (error || !product) {
+    if (error || !data) {
         return (
             <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
                 <Alert color="danger" variant="soft">
@@ -79,20 +123,15 @@ export default function ProductDetail() {
         )
     }
 
-    // 新增健壮性判断，防止 product 及其属性为 undefined
-    const productId_string = productId || '';
-    const productName = typeof product === 'object' && product && 'name' in product ? product.name : '';
-    const productIdValue = typeof product === 'object' && product && 'id' in product ? product.id : '';
-    const merchantIdValue = typeof product === 'object' && product && 'merchantId' in product ? product.merchantId : '';
-    const createdAt = typeof product === 'object' && product && 'createdAt' in product && product.createdAt ? new Date(product.createdAt).toLocaleString() : '未知';
-    const updatedAt = typeof product === 'object' && product && 'updatedAt' in product && product.updatedAt ? new Date(product.updatedAt).toLocaleString() : '未知';
+    const createdAt = data && data.createdAt ? new Date(data.createdAt).toLocaleString() : '未知';
+    const updatedAt = data && data.updatedAt ? new Date(data.updatedAt).toLocaleString() : '未知';
 
     return (
         <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
             <Breadcrumbs
                 pathMap={{
                     'products': '全部商品',
-                    [productId_string]: productName
+                    [productId]: data.name || '商品详情'
                 }}
             />
 
@@ -101,8 +140,8 @@ export default function ProductDetail() {
                     <Card variant="outlined">
                         <AspectRatio ratio="1" objectFit="contain">
                             <img
-                                src={product.images?.[0]?.url || ''}
-                                alt={productName}
+                                src={data.images?.[0]?.url || ''}
+                                alt={data.name}
                                 loading="lazy"
                                 style={{objectFit: 'contain', width: '100%', height: '100%'}}
                                 onError={(e) => {
@@ -117,26 +156,26 @@ export default function ProductDetail() {
                 <Grid xs={12} md={6}>
                     <Card variant="outlined" sx={{height: '100%'}}>
                         <CardContent>
-                            <Typography level="h2">{productName}</Typography>
+                            <Typography level="h2">{data.name}</Typography>
 
-                            {product.category && (
+                            {data.category && (
                                 <Box sx={{display: 'flex', gap: 1, mt: 1, mb: 2, flexWrap: 'wrap'}}>
-                                    <Chip key={product.category.categoryName} size="sm" variant="soft">
-                                        {product.category.categoryName}
+                                    <Chip key={data.category.categoryName} size="sm" variant="soft">
+                                        {data.category.categoryName}
                                     </Chip>
                                 </Box>
                             )}
 
                             <Typography level="h3" color="primary" sx={{mt: 2}}>
-                                ¥{(product.price || 0).toLocaleString()}
+                                ¥{(data.price || 0).toLocaleString()}
                             </Typography>
 
                             <Typography level="body-md" sx={{mt: 1}}>
-                                商品ID: {productIdValue}
+                                商品ID: {data.id}
                             </Typography>
 
                             <Typography level="body-md" sx={{mt: 1}}>
-                                商家ID: {merchantIdValue}
+                                商家ID: {data.merchantId}
                             </Typography>
 
                             <Typography level="body-md" sx={{mt: 1}}>
@@ -153,13 +192,13 @@ export default function ProductDetail() {
                                 商品描述
                             </Typography>
                             <Typography level="body-md">
-                                {product.description || '暂无描述'}
+                                {data.description || '暂无描述'}
                             </Typography>
 
                             <Divider sx={{my: 2}}/>
 
                             <Box sx={{display: 'flex', alignItems: 'center', gap: 2, mt: 3}}>
-                                <Typography>库存: {product.inventory?.stock || product.quantity || 0}</Typography>
+                                <Typography>库存: {data.inventory.stock }</Typography>
                             </Box>
 
                             <Button
@@ -169,9 +208,9 @@ export default function ProductDetail() {
                                 fullWidth
                                 sx={{mt: 3}}
                                 onClick={addToCartHandler}
-                                disabled={(product.inventory?.stock || product.quantity || 0) <= 0}
+                                disabled={(data.inventory?.stock || data.quantity || 0) <= 0}
                             >
-                                {(product.inventory?.stock || product.quantity || 0) > 0 ? '加入购物车' : '暂时缺货'}
+                                {(data.inventory.stock) > 0 ? '加入购物车' : '暂时缺货'}
                             </Button>
                         </CardContent>
                     </Card>
@@ -180,7 +219,12 @@ export default function ProductDetail() {
 
             {/* 评论区域 */}
             <Grid xs={12}>
-                <CommentSection productId={productId} merchantId={merchantId} />
+                <CommentSection 
+                    productId={productId} 
+                    merchantId={merchantId} 
+                    canComment={canComment} 
+                    isCheckingOrders={checkingOrders}
+                />
             </Grid>
         </Box>
     )

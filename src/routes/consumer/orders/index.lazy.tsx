@@ -15,9 +15,8 @@ import {
     Stack,
     Typography
 } from '@mui/joy'
-import Pagination from '@/components/Pagination'
 import {useQuery} from '@tanstack/react-query'
-import {SyntheticEvent, useEffect, useState} from 'react'
+import { useEffect, useState} from 'react'
 import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
 import {orderService} from '@/api/orderService'
@@ -26,6 +25,8 @@ import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {Order} from "@/types/orders.ts"
 import {Clear, FilterList, Search} from '@mui/icons-material'
 import {useTranslation} from 'react-i18next'
+import PaginationBar from "@/components/PaginationBar";
+import { usePagination } from '@/hooks/usePagination'
 
 export const Route = createLazyFileRoute('/consumer/orders/')({
     component: ConsumerOrders,
@@ -55,18 +56,20 @@ function ConsumerOrders() {
     const {t} = useTranslation()
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
-    const [currentPage, setCurrentPage] = useState(1)
-    const [totalPages, setTotalPages] = useState(1)
-    const [totalOrders, setTotalOrders] = useState(0)
-    const pageSize = 10
     const [isFiltering, setIsFiltering] = useState(false)
     const [displayedOrders, setDisplayedOrders] = useState<Order[]>([])
+    const [count, setCount] = useState<number>(0)
+
+    // 使用分页钩子
+    const pagination = usePagination({
+        initialPageSize: 20,
+    });
 
     // 查询条件
     const [queryParams, setQueryParams] = useState<OrderQueryParams>({
         userId: account.id,
-        page: currentPage,
-        pageSize: pageSize
+        page: pagination.page,
+        pageSize: pagination.pageSize
     })
 
     // 过滤条件
@@ -107,8 +110,9 @@ function ConsumerOrders() {
 
             // 设置分页信息
             if (response.orders) {
-                setTotalOrders(response.orders.length)
-                setTotalPages(Math.ceil(response.orders.length / pageSize))
+                // 更新总条目数
+                const total = response.orders.length
+                pagination.setTotalItems(total)
                 return response.orders || []
             }
 
@@ -122,18 +126,19 @@ function ConsumerOrders() {
     // 当获取到订单数据时，更新显示的订单
     useEffect(() => {
         if (orders) {
-            setDisplayedOrders(orders)
+            setDisplayedOrders(orders) // 更新显示的订单列表
+            setCount(pagination.totalCount) // 更新总条目数
         }
     }, [orders])
 
-    // 处理页码变化
-    const handlePageChange = (_event: SyntheticEvent<Element, Event>, value: number) => {
-        setCurrentPage(value)
+    // 监听分页变化
+    useEffect(() => {
         setQueryParams(prev => ({
             ...prev,
-            page: value
+            page: pagination.page,
+            pageSize: pagination.pageSize
         }))
-    }
+    }, [pagination.page, pagination.pageSize])
 
     // 处理查询条件变化
     const handleSearch = () => {
@@ -141,7 +146,7 @@ function ConsumerOrders() {
         const newParams: OrderQueryParams = {
             userId: account.id,
             page: 1,  // 重置为第一页
-            pageSize: pageSize
+            pageSize: pagination.pageSize
         }
 
         if (startDate) newParams.startDate = startDate
@@ -149,7 +154,7 @@ function ConsumerOrders() {
         if (status) newParams.status = parseInt(status, 10)
 
         // 更新查询参数并触发查询
-        setCurrentPage(1)
+        // setCurrentPage(1)
         setQueryParams(newParams)
         refetch().then(() => {
             console.log('查询条件更新成功')
@@ -166,7 +171,7 @@ function ConsumerOrders() {
         setQueryParams({
             userId: account.id,
             page: 1,
-            pageSize: pageSize
+            pageSize: pagination.pageSize
         })
         setIsFiltering(false)
         refetch().then(() => {
@@ -252,49 +257,6 @@ function ConsumerOrders() {
         )
     }
 
-    // 渲染订单列表
-    const renderOrderList = () => {
-        if (isLoading) {
-            return (
-                <Box sx={{display: 'flex', justifyContent: 'center', p: 4}}>
-                    <CircularProgress/>
-                </Box>
-            )
-        }
-
-        if (error) {
-            return <Alert color="danger" sx={{mb: 2}}>{error.message}</Alert>
-        }
-
-        if (!displayedOrders || displayedOrders.length === 0) {
-            return (
-                <Card variant="outlined">
-                    <CardContent>
-                        <Typography level="body-lg" textAlign="center">
-                            {t('consumer.orders.noOrders')}
-                        </Typography>
-                    </CardContent>
-                </Card>
-            )
-        }
-
-        return (
-            <>
-                <OrderList orders={displayedOrders}/>
-
-                {totalPages > 1 && (
-                    <Box sx={{display: 'flex', justifyContent: 'center', mt: 3}}>
-                        <Pagination
-                            count={totalPages}
-                            page={currentPage}
-                            onChange={handlePageChange}
-                        />
-                    </Box>
-                )}
-            </>
-        )
-    }
-
     return (
         <Box sx={{p: 2, maxWidth: 1200, margin: '0 auto'}}>
             {/* 面包屑导航 */}
@@ -307,14 +269,42 @@ function ConsumerOrders() {
 
             <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
                 <Typography level="h2">{t('consumer.orders.title')}</Typography>
-                <Typography level="body-sm">{t('consumer.orders.totalCount', {count: totalOrders})}</Typography>
+                <Typography level="body-sm">{t('consumer.orders.totalCount', {count: count })}</Typography>
             </Box>
 
             {/* 过滤器 */}
             {renderFilters()}
 
+            {/* 分页控制 */}
+            <PaginationBar
+                page={pagination.page}
+                pageSize={pagination.pageSize}
+                totalItems={pagination.totalCount}
+                totalPages={pagination.totalPages}
+                onPageChange={pagination.handlePageChange}
+                onPageSizeChange={pagination.handlePageSizeChange}
+                showPageSizeSelector
+                showTotalItems
+            />
+
             {/* 订单列表 */}
-            {renderOrderList()}
+            {isLoading ? (
+                <Box sx={{display: 'flex', justifyContent: 'center', p: 4}}>
+                    <CircularProgress/>
+                </Box>
+            ) : error ? (
+                <Alert color="danger" sx={{mb: 2}}>{error.message}</Alert>
+            ) : !displayedOrders || displayedOrders.length === 0 ? (
+                <Card variant="outlined">
+                    <CardContent>
+                        <Typography level="body-lg" textAlign="center">
+                            {t('consumer.orders.noOrders')}
+                        </Typography>
+                    </CardContent>
+                </Card>
+            ) : (
+                <OrderList orders={displayedOrders}/>
+            )}
         </Box>
     )
 }

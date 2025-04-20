@@ -68,31 +68,6 @@ export interface Product {
     }
 }
 
-// API 请求响应类型
-export interface ProductResponse {
-    state: string
-    msg?: string
-    data: Product
-    // 直接访问属性，兼容旧代码
-    id?: string
-    productId?: string
-    name?: string
-    description?: string
-    price?: number
-    status?: ProductStatus
-    merchantId?: string
-    images?: ProductImage[]
-    quantity?: number
-    inventory?: {
-        productId: string
-        merchantId: string
-        stock: number
-    }
-    category?: CategoryInfo
-    createdAt?: string
-    updatedAt?: string
-}
-
 // 创建商品响应
 export interface CreateProductResponse {
     state: string

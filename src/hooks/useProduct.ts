@@ -1,7 +1,13 @@
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {api} from '@/api/config'
-import type {CreateProductRequest, Product, SubmitAuditRequest,} from '@/types/products.ts'
-import {AuditProductRequest, AuditRecordResponse, CreateProductResponse, ProductResponse} from "@/types/products.ts";
+import {
+    AuditProductRequest,
+    AuditRecordResponse,
+    CreateProductRequest,
+    CreateProductResponse,
+    Product,
+    SubmitAuditRequest,
+} from '@/types/products.ts'
 import {productService} from '@/api/productService';
 import {
     GetCategoryProductsRequest,
@@ -13,7 +19,7 @@ import {
 
 // 获取商品详情的hook
 export function useProduct(id: string, merchantId: string) {
-    return useQuery<ProductResponse>({
+    return useQuery<Product>({
         queryKey: ['product', id],
         queryFn: async ({signal}) => {
             try {
@@ -21,14 +27,12 @@ export function useProduct(id: string, merchantId: string) {
                 const controller = new AbortController()
                 signal?.addEventListener('abort', () => controller.abort())
 
-                const response = await Promise.race([
-                    api.get<ProductResponse>(`/v1/products/${id}?${params.toString()}`, {signal: controller.signal}),
+                return await Promise.race([
+                    api.get<Product>(`/v1/products/${id}?${params.toString()}`, {signal: controller.signal}),
                     new Promise<never>((_, reject) =>
                         setTimeout(() => reject(new Error('请求超时')), 10000)
                     )
                 ]);
-
-                return response as ProductResponse;
             } catch (err: unknown) {
                 if (err instanceof DOMException && err.name === 'AbortError') {
                     throw new Error('请求已取消')
@@ -37,22 +41,6 @@ export function useProduct(id: string, merchantId: string) {
                 if (err instanceof Error && err.message === '请求超时') {
                     throw new Error('获取商品详情超时，请稍后重试')
                 }
-
-                // 如果API请求失败，尝试使用mock数据
-                try {
-                    const {mockProducts} = await import('@/utils/mockData')
-                    const mockProduct = mockProducts.find((p: Product) => p.id === id)
-                    if (mockProduct) {
-                        console.warn('使用mock数据显示商品详情:', mockProduct)
-                        return {
-                            state: "success",
-                            data: mockProduct
-                        } as ProductResponse
-                    }
-                } catch (mockErr) {
-                    console.error('加载mock数据失败:', mockErr)
-                }
-
                 throw new Error(err instanceof Error ? err.message : '商品不存在或已下架')
             }
         },
@@ -81,7 +69,9 @@ export function useCreateProduct() {
         mutationFn: (data) => api.post<CreateProductResponse>('/v1/products', data),
         onSuccess: () => {
             // 创建成功后刷新商品列表
-            queryClient.invalidateQueries({queryKey: ['products']})
+            queryClient.invalidateQueries({queryKey: ['products']}).then(() => {
+                console.log("创建成功, 刷新商品列表")
+            })
         },
     })
 }
@@ -90,9 +80,9 @@ export function useCreateProduct() {
 export function useUpdateProduct() {
     const queryClient = useQueryClient()
 
-    return useMutation<ProductResponse, Error, { id: string, product: any }>({
+    return useMutation<Product, Error, { id: string, product: any }>({
         mutationFn: ({id, product}) =>
-            api.put<ProductResponse>(`/v1/products/${id}`, {product}),
+            api.put<Product>(`/v1/products/${id}`, {product}),
         onSuccess: (data, variables) => {
             // 更新成功后刷新商品详情和列表
             queryClient.setQueryData(['product', variables.id], data)
