@@ -8,6 +8,7 @@ import {showMessage} from '@/utils/showMessage';
 import {useSnapshot} from 'valtio';
 import {formatDistanceToNow} from 'date-fns';
 import {zhCN} from 'date-fns/locale';
+import {filterSensitiveWords} from '@/utils/sensitiveWords';
 
 interface Comment {
     id: number;
@@ -74,7 +75,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({productId, merchantId, c
                     merchantId,
                     userId: userState.account.id,
                     score: rating,
-                    content: comment.trim(),
+                    content: filterSensitiveWords(comment.trim()),
                 }),
             });
 
@@ -195,7 +196,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({productId, merchantId, c
                                     </Box>
                                     <Rating readOnly value={comment.score}/>
                                     <Typography level="body-md" sx={{mt: 1}}>
-                                        {comment.content}
+                                        {filterSensitiveWords(comment.content)}
                                     </Typography>
                                 </CardContent>
                             </Card>
