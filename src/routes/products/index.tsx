@@ -6,16 +6,15 @@ import {cartStore} from "@/store/cartStore.ts";
 import {Box, CardOverflow} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import Card from "@mui/joy/Card";
-
 import CardContent from "@mui/joy/CardContent";
-
 import Button from "@mui/joy/Button";
 import Breadcrumbs from '@/shared/components/Breadcrumbs';
 import {useTranslation} from "react-i18next";
-// import Favorites from "@/components/Favorites";
+import Favorites from "@/components/Favorites";
 import {userService} from "@/api/userService.ts";
 import {userStore} from "@/store/user.ts";
 import AspectRatio from "@mui/joy/AspectRatio";
+import {showMessage} from "@/utils/showMessage.ts";
 
 export const Route = createFileRoute('/products/')({
     component: RouteComponent,
@@ -61,7 +60,6 @@ function Products() {
         queryKey: ['favoriteProduct'],
         queryFn: async () => {
             const res = await userService.getFavorites(page, pageSize)
-            console.log('favoriteProduct', res)
             return res.items
         },
         retry: 1, // 失败后重试一次
@@ -89,7 +87,7 @@ function Products() {
     const displayData = data || [];
 
     // 显示错误信息
-    if (isError||favoriteError) {
+    if (isError || favoriteError) {
         return (
             <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
                 <Breadcrumbs pathMap={{'products': t('allProducts')}}/>
@@ -111,7 +109,7 @@ function Products() {
     }
 
     // 显示加载状态
-    if (isLoading||favoriteLoading) {
+    if (isLoading || favoriteLoading) {
         return (
             <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
                 <Breadcrumbs pathMap={{'products': t('allProducts')}}/>
@@ -184,165 +182,198 @@ function Products() {
     //     width: 1px;
     // `;
 
+    if (data) {
+        return (
+            <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
+                {/* 面包屑导航 */}
+                <Breadcrumbs pathMap={{'products': t('allProducts')}}/>
 
-    return (
-        <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
-            {/* 面包屑导航 */}
-            <Breadcrumbs pathMap={{'products': t('allProducts')}}/>
+                {/* 根据是否有搜索词显示不同标题 */}
+                {search.query ? (
+                    <Typography level="h2" sx={{mb: 3}}>
+                        {t('searchResults')}: {search.query} {displayData.length > 0 ? `(${displayData.length}${t('results')})` : ''}
+                    </Typography>
+                ) : (
+                    <Typography level="h2" sx={{mb: 3}}>{t('allProducts')}</Typography>
+                )}
 
-            {/* 根据是否有搜索词显示不同标题 */}
-            {search.query ? (
-                <Typography level="h2" sx={{mb: 3}}>
-                    {t('searchResults')}: {search.query} {displayData.length > 0 ? `(${displayData.length}${t('results')})` : ''}
-                </Typography>
-            ) : (
-                <Typography level="h2" sx={{mb: 3}}>{t('allProducts')}</Typography>
-            )}
+                {/* 没有搜索结果时显示提示 */}
+                {search.query && displayData.length === 0 && (
+                    <Typography level="body-lg" sx={{mb: 3}}>
+                        {t('noResultsFound')} "{search.query}" {t('noResultsFoundSuffix')}
+                    </Typography>
+                )}
 
-            {/* 没有搜索结果时显示提示 */}
-            {search.query && displayData.length === 0 && (
-                <Typography level="body-lg" sx={{mb: 3}}>
-                    {t('noResultsFound')} "{search.query}" {t('noResultsFoundSuffix')}
-                </Typography>
-            )}
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                    }}
+                >
+                    {displayData.map((product, index: number) => (
+                        <Card
+                            key={product.name + index}
+                            sx={{
+                                width: '100%',
+                                maxWidth: 320,
+                                position: 'relative',
+                                m: 1,
+                                transition: 'all 0.3s ease',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                '&:hover': {
+                                    transform: 'translateY(-4px)',
+                                    boxShadow: 'lg'
+                                }
+                            }}
+                            onClick={async (e) => {
+                                if (e.defaultPrevented) return;
+                                await navigate({
+                                    to: `/products/${product.id}`,
+                                    search: (prev) => ({...prev, merchantId: product.merchantId})
+                                });
+                            }}
+                        >
+                            <CardOverflow>
+                                <AspectRatio ratio="4/3" objectFit="cover">
+                                    <img
+                                        src={product.images && product.images.length > 0 ? product.images[0].url : ''}
+                                        loading="lazy"
+                                        alt={product.name}
+                                    />
+                                </AspectRatio>
+                            </CardOverflow>
 
-            <Box
-                sx={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-                }}
-            >
-                {displayData.map((product, index: number) => (
-                    <Card
-                        key={product.name + index}
-                        sx={{
-                            width: '100%',
-                            maxWidth: 320,
-                            position: 'relative',
-                            m: 1,
-                            transition: 'all 0.3s ease',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            '&:hover': {
-                                transform: 'translateY(-4px)',
-                                boxShadow: 'lg'
-                            }
-                        }}
-                        onClick={async (e) => {
-                            if (e.defaultPrevented) return;
-                            await navigate({
-                                to: `/products/${product.id}`,
-                                search: (prev) => ({...prev, merchantId: product.merchantId})
-                            });
-                        }}
-                    >
-                        <CardOverflow>
-                            <AspectRatio ratio="4/3" objectFit="cover">
-                                <img
-                                    src={product.images && product.images.length > 0 ? product.images[0].url : ''}
-                                    loading="lazy"
-                                    alt={product.name}
-                                />
-                            </AspectRatio>
-                        </CardOverflow>
+                            <CardContent sx={{flex: 1, display: 'flex', flexDirection: 'column', gap: 1, p: 2}}>
+                                <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+                                    <Typography level="title-lg" sx={{
+                                        fontSize: 'md',
+                                        fontWeight: 'bold',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: 2,
+                                        WebkitBoxOrient: 'vertical',
+                                        lineHeight: 1.2
+                                    }}>
+                                        {product.name}
+                                    </Typography>
+                                    <Box onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const isFavorited = favoriteProduct?.some(item =>
+                                            item.id === product.id && item.merchantId === product.merchantId
+                                        );
+                                        if (isFavorited) {
+                                            userService.deleteFavorites({
+                                                productId: product.id,
+                                                merchantId: product.merchantId
+                                            }).then(() => {
+                                                // 刷新收藏列表
+                                                window.location.reload();
+                                                showMessage('取消收藏成功', 'success');
+                                            });
+                                        } else {
+                                            userService.addFavorite({
+                                                productId: product.id,
+                                                merchantId: product.merchantId
+                                            }).then(() => {
+                                                // 刷新收藏列表
+                                                window.location.reload();
+                                                showMessage('添加成功', 'success');
+                                            });
+                                        }
+                                    }}>
+                                        <Favorites
+                                            isFavorited={favoriteProduct ? favoriteProduct.some(item =>
+                                                item.id === product.id && item.merchantId === product.merchantId
+                                            ) : false}
+                                        />
+                                    </Box>
+                                </Box>
 
-                        <CardContent sx={{flex: 1, display: 'flex', flexDirection: 'column', gap: 1, p: 2}}>
-                            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
-                                <Typography level="title-lg" sx={{
-                                    fontSize: 'md',
-                                    fontWeight: 'bold',
+                                <Typography level="body-sm" sx={{
+                                    color: 'text.secondary',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
                                     display: '-webkit-box',
                                     WebkitLineClamp: 2,
                                     WebkitBoxOrient: 'vertical',
-                                    lineHeight: 1.2
+                                    minHeight: '2.5em',
+                                    mb: 1
                                 }}>
-                                    {product.name}
+                                    {product.description || t('noDescription')}
                                 </Typography>
-                                {/*<Favorites products={favoriteProduct}/>*/}
-                            </Box>
 
-                            <Typography level="body-sm" sx={{
-                                color: 'text.secondary',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                display: '-webkit-box',
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                                minHeight: '2.5em',
-                                mb: 1
-                            }}>
-                                {product.description || t('noDescription')}
-                            </Typography>
-
-                            {product.category && (
-                                <Typography
-                                    level="body-xs"
-                                    sx={{
-                                        color: 'primary.500',
-                                        fontWeight: 'md'
-                                    }}
-                                >
-                                    {product.category.categoryName}
-                                </Typography>
-                            )}
-
-                            <Box sx={{
-                                mt: 'auto',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center'
-                            }}>
-                                <Box>
-                                    <Typography level="body-xs" sx={{color: 'text.secondary'}}>{t('price')}</Typography>
+                                {product.category && (
                                     <Typography
-                                        level="h4"
+                                        level="body-xs"
                                         sx={{
-                                            color: 'primary.600',
-                                            fontWeight: 'bold'
+                                            color: 'primary.500',
+                                            fontWeight: 'md'
                                         }}
                                     >
-                                        ¥{product.price}
+                                        {product.category.categoryName}
                                     </Typography>
-                                    <Typography level="body-xs" sx={{color: 'text.secondary'}}>
-                                        {t('stock')}: {product.inventory?.stock || product.quantity || 0}
-                                    </Typography>
+                                )}
+
+                                <Box sx={{
+                                    mt: 'auto',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center'
+                                }}>
+                                    <Box>
+                                        <Typography level="body-xs"
+                                                    sx={{color: 'text.secondary'}}>{t('price')}</Typography>
+                                        <Typography
+                                            level="h4"
+                                            sx={{
+                                                color: 'primary.600',
+                                                fontWeight: 'bold'
+                                            }}
+                                        >
+                                            ¥{product.price}
+                                        </Typography>
+                                        <Typography level="body-xs" sx={{color: 'text.secondary'}}>
+                                            {t('stock')}: {product.inventory?.stock || product.quantity || 0}
+                                        </Typography>
+                                    </Box>
+                                    <Button
+                                        variant="solid"
+                                        size="sm"
+                                        color="primary"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            addToCartHandler(
+                                                product.id,
+                                                product.name,
+                                                product.merchantId,
+                                                // product.price
+                                            ).then(r => {
+                                                console.log("addToCartHandler", r)
+                                            }).catch(e => {
+                                                console.error("addToCartHandler", e)
+                                            })
+                                        }}
+                                        sx={{
+                                            minWidth: 100,
+                                            boxShadow: 'sm'
+                                        }}
+                                        disabled={(product.inventory?.stock || product.quantity || 0) <= 0}
+                                    >
+                                        {(product.inventory?.stock || product.quantity || 0) > 0 ? t('addToCart') : t('outOfStock')}
+                                    </Button>
                                 </Box>
-                                <Button
-                                    variant="solid"
-                                    size="sm"
-                                    color="primary"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        addToCartHandler(
-                                            product.id,
-                                            product.name,
-                                            product.merchantId,
-                                            // product.price
-                                        ).then(r => {
-                                            console.log("addToCartHandler", r)
-                                        }).catch(e => {
-                                            console.error("addToCartHandler", e)
-                                        })
-                                    }}
-                                    sx={{
-                                        minWidth: 100,
-                                        boxShadow: 'sm'
-                                    }}
-                                    disabled={(product.inventory?.stock || product.quantity || 0) <= 0}
-                                >
-                                    {(product.inventory?.stock || product.quantity || 0) > 0 ? t('addToCart') : t('outOfStock')}
-                                </Button>
-                            </Box>
-                        </CardContent>
-                    </Card>
-                ))}
+                            </CardContent>
+                        </Card>
+                    ))}
+                </Box>
+                <Typography level="body-lg">
+                    {t('cartTotal')}: {snapshot.items.length} {t('cartItems')}
+                </Typography>
             </Box>
-            <Typography level="body-lg">
-                {t('cartTotal')}: {snapshot.items.length} {t('cartItems')}
-            </Typography>
-        </Box>
-    );
+        );
+    }
 }

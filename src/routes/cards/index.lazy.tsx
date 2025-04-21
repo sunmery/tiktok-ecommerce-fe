@@ -55,7 +55,7 @@ export default function Cards() {
         mutationFn: addCard,
     })
     return (
-        <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
+        <Box sx={{p: 2, width: '100%', mx: 'auto'}}>
             {/* Breadcrumb navigation */}
             <Breadcrumbs pathMap={{'cards': t('cards.management')}}/>
 

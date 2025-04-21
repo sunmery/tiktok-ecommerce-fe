@@ -68,7 +68,7 @@ function Home() {
 
     return (
         <Box sx={{bgcolor: 'background.default'}}>
-            <Box sx={{maxWidth: 1200, margin: '0 auto', p: 3}}>
+            <Box sx={{maxWidth: '100%', margin: '0 auto', p: 3}}>
                 {/* 面包屑导航 */}
                 <Breadcrumbs showHomeIcon={false}/>
                 {/* 如果有搜索结果，显示搜索结果 */}

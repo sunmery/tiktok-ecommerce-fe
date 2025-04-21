@@ -12,7 +12,7 @@ import {orderService} from '@/api/orderService'
 import {useTranslation} from 'react-i18next'
 import {getStatusColor, getStatusText} from "@/utils/status.ts";
 import {showMessage} from "@/utils/showMessage.ts";
-import LogisticsMap from '@/components/LogisticsMap';
+// import LogisticsMap from '@/components/LogisticsMap';
 
 // 格式化时间戳
 const formatDate = (timestamp: any) => {
@@ -62,7 +62,6 @@ function ConsumerOrderDetail() {
             try {
                 // 调用API获取订单列表
                 const response = await orderService.getConsumerOrder({
-                    userId: '', // 留空，API会使用当前登录用户的ID
                     page: 1,
                     pageSize: 50
                 })
@@ -285,27 +284,103 @@ function ConsumerOrderDetail() {
                                             {order.paymentStatus === PaymentStatus.Paid ? formatDate(order.createdAt) : t('orders.status.pending')}
                                         </Typography>
                                     </Box>
+
+                                    {/* 物流状态 */}
+                                    <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                        <Chip
+                                            variant="soft"
+                                            color={order.shippingStatus === 'SHIPPED' || order.shippingStatus === 'DELIVERED' || order.shippingStatus === 'CONFIRMED' ? 'success' : 'neutral'}
+                                            sx={{mr: 2}}
+                                        >
+                                            {order.shippingStatus === 'SHIPPED' || order.shippingStatus === 'DELIVERED' || order.shippingStatus === 'CONFIRMED' ? t('orders.status.completed') : t('orders.status.waiting')}
+                                        </Chip>
+                                        <Typography level="body-md">商品发货</Typography>
+                                        <Typography level="body-sm" color="neutral" sx={{ml: 'auto'}}>
+                                            {order.shippingStatus === 'SHIPPED' || order.shippingStatus === 'DELIVERED' || order.shippingStatus === 'CONFIRMED' ? formatDate(order.createdAt) : t('orders.status.pending')}
+                                        </Typography>
+                                    </Box>
+
+                                    {/* 物流送达 */}
+                                    <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                        <Chip
+                                            variant="soft"
+                                            color={order.shippingStatus === 'DELIVERED' || order.shippingStatus === 'CONFIRMED' ? 'success' : 'neutral'}
+                                            sx={{mr: 2}}
+                                        >
+                                            {order.shippingStatus === 'DELIVERED' || order.shippingStatus === 'CONFIRMED' ? t('orders.status.completed') : t('orders.status.waiting')}
+                                        </Chip>
+                                        <Typography level="body-md">物流送达</Typography>
+                                        <Typography level="body-sm" color="neutral" sx={{ml: 'auto'}}>
+                                            {order.shippingStatus === 'DELIVERED' || order.shippingStatus === 'CONFIRMED' ? formatDate(order.createdAt) : t('orders.status.pending')}
+                                        </Typography>
+                                    </Box>
+
+                                    {/* 确认收货 */}
+                                    <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                        <Chip
+                                            variant="soft"
+                                            color={order.shippingStatus === 'CONFIRMED' ? 'success' : 'neutral'}
+                                            sx={{mr: 2}}
+                                        >
+                                            {order.shippingStatus === 'CONFIRMED' ? t('orders.status.completed') : t('orders.status.waiting')}
+                                        </Chip>
+                                        <Typography level="body-md">确认收货</Typography>
+                                        <Typography level="body-sm" color="neutral" sx={{ml: 'auto'}}>
+                                            {order.shippingStatus === 'CONFIRMED' ? formatDate(order.createdAt) : t('orders.status.pending')}
+                                        </Typography>
+                                    </Box>
                                 </Stack>
                             </CardContent>
                         </Card>
                     </Grid>
 
-                    {/* 物流地图 */}
-                    {order && order.address && order.sellerAddress && order.address.latitude && order.address.longitude && order.sellerAddress.latitude && order.sellerAddress.longitude && (
+                    {/* 物流信息 */}
+                    {order.shippingInfo && (
                         <Grid xs={12}>
-                            <Card sx={{mb: 3}}>
+                            <Card variant="outlined">
                                 <CardContent>
-                                    <Typography level="title-lg" sx={{mb: 2}}>{t('orders.logistics.map')}</Typography>
-                                    <Box sx={{ height: '500px', width: '100%' }}>
-                                        <LogisticsMap
-                                            sellerPosition={[order.sellerAddress.latitude, order.sellerAddress.longitude]}
-                                            userPosition={[order.address.latitude, order.address.longitude]}
-                                            onDeliveryComplete={() => {}}
-                                        />
+                                    <Typography level="title-lg" sx={{mb: 2}}>物流信息</Typography>
+                                    <Divider sx={{my: 2}}/>
+                                    
+                                    <Grid container spacing={2}>
+                                        <Grid xs={12} md={6}>
+                                            <Typography level="body-md">物流单号: {order.shippingInfo.trackingNumber || '暂无'}</Typography>
+                                            <Typography level="body-md">承运商: {order.shippingInfo.carrier || '暂无'}</Typography>
+                                        </Grid>
+                                        <Grid xs={12} md={6}>
+                                            <Typography level="body-md">预计送达时间: {order.shippingInfo.estimatedDelivery ? formatDate(order.shippingInfo.estimatedDelivery) : '暂无'}</Typography>
+                                        </Grid>
+                                    </Grid>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    )}
+
+                    {/* 确认收货按钮 */}
+                    {order.shippingStatus === 'DELIVERED' && (
+                        <Grid xs={12}>
+                            <Card variant="outlined">
+                                <CardContent>
+                                    <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                        <Typography level="title-md">商品已送达，请确认收货</Typography>
+                                        <Button 
+                                            color="success" 
+                                            variant="solid"
+                                            onClick={async () => {
+                                                try {
+                                                    await orderService.confirmReceived(order.orderId);
+                                                    showMessage('确认收货成功', 'success');
+                                                    // 刷新订单详情
+                                                    window.location.reload();
+                                                } catch (error) {
+                                                    console.error('确认收货失败:', error);
+                                                    showMessage('确认收货失败', 'error');
+                                                }
+                                            }}
+                                        >
+                                            确认收货
+                                        </Button>
                                     </Box>
-                                    <Typography level="body-sm" sx={{ mt: 2, color: 'neutral.500' }}>
-                                        {t('orders.logistics.description')}
-                                    </Typography>
                                 </CardContent>
                             </Card>
                         </Grid>

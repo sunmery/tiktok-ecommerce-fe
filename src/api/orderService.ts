@@ -13,7 +13,11 @@ import {
     Order,
     PlaceOrderReq,
     PlaceOrderResp,
+    ShipOrderReq,
+    ShippingStatus,
 } from '@/types/orders';
+import {ShipOrderResponse} from "@/hooks/useShipping.ts";
+import { t } from 'i18next';
 
 /**
  * 订单服务API
@@ -59,7 +63,6 @@ export const orderService = {
             `${import.meta.env.VITE_ORDERS_URL}`,
             {
                 params: {
-                    userId: request.userId,
                     page: request.page?.toString(),
                     pageSize: request.pageSize?.toString()
                 },
@@ -126,7 +129,7 @@ export const orderService = {
      * 更新订单状态
      * PUT /v1/orders/{orderId}/status
      */
-    updateOrderStatus: (orderId: string, status: string) => {
+    updateOrderStatus: (orderId: string, status: ShippingStatus) => {
         const url = httpClient.replacePathParams(
             `${import.meta.env.VITE_ORDERS_URL}/{orderId}/status`,
             {orderId: orderId}
@@ -144,16 +147,15 @@ export const orderService = {
      * 商家发货
      * PUT /v1/orders/{orderId}/ship
      */
-    shipOrder: (orderId: string) => {
+    shipOrder: (request: ShipOrderReq) => {
         const url = httpClient.replacePathParams(
             `${import.meta.env.VITE_ORDERS_URL}/{orderId}/ship`,
-            {orderId: orderId}
+            {orderId: request.orderId}
         );
-        return httpClient.put(url, null, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                'Content-Type': 'application/json'
-            }
+        return httpClient.put<ShipOrderResponse>(url, {
+            trackingNumber: request.trackingNumber,
+            carrier: request.carrier,
+            estimatedDelivery: request.estimatedDelivery
         });
     },
 
@@ -174,3 +176,23 @@ export const orderService = {
         });
     },
 };
+
+// 支付状态映射
+export const shippingStatus = (shippingStatus: string):string => {
+    switch (shippingStatus) {
+        case ShippingStatus.ShippingPending:
+            return t('merchant.orders.shippingPending')
+        case ShippingStatus.ShippingShipped:
+            return t('merchant.orders.shippingShipped')
+        case ShippingStatus.ShippingInTransit:
+            return t('merchant.orders.shippingInTransit')
+        case ShippingStatus.ShippingDelivered:
+            return t('merchant.orders.shippingDelivered')
+        case ShippingStatus.ShippingConfirmed:
+            return t('merchant.orders.shippingConfirmed')
+        case ShippingStatus.ShippingCancelled:
+            return t('merchant.orders.shippingCancelled')
+        default:
+            return t('merchant.orders.shippingPending')
+    }
+}

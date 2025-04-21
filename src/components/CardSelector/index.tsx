@@ -210,7 +210,7 @@ const CardSelector: FC<CardSelectorProps> = ({selectedCardId, onCardSelect}) => 
                 onClose={handleClose}
                 sx={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}
             >
-                <Card sx={{maxWidth: 500, width: '100%', maxHeight: '90vh', overflow: 'auto'}}>
+                <Card sx={{width: '100%', maxHeight: '90vh', overflow: 'auto'}}>
                     <Box sx={{
                         display: 'flex',
                         justifyContent: 'space-between',

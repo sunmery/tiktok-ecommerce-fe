@@ -258,7 +258,7 @@ function ConsumerOrders() {
     }
 
     return (
-        <Box sx={{p: 2, maxWidth: 1200, margin: '0 auto'}}>
+        <Box sx={{p: 2, maxWidth: '100%', margin: '0 auto'}}>
             {/* 面包屑导航 */}
             <Breadcrumbs
                 pathMap={{

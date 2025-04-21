@@ -180,8 +180,7 @@ export default function Template() {
                         display: 'flex',
                         alignItems: 'center',
                         gap: {xs: 1, md: 3},
-                        maxWidth: 1200,
-                        width: 1200,
+                        width: '100vw',
                         margin: '0 auto',
                         position: 'relative',
                         justifyContent: 'center'
@@ -539,7 +538,7 @@ export default function Template() {
                 </List>
             </Drawer>
 
-            <Box sx={{flex: 1, maxWidth: 1200, margin: '0 auto', width: '100%', p: 3}}>
+            <Box sx={{flex: 1, maxWidth: '100vw', margin: '0 auto', width: '100%', p: 3}}>
                 <Outlet/>
             </Box>
 

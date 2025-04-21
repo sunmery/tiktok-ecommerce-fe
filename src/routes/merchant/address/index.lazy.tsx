@@ -115,7 +115,7 @@ function AddressPage() {
       
       return { previousAddresses };
     },
-    onError: (err, addressId, context) => {
+    onError: (_err, _addressId, context) => {
       // 发生错误时回滚到之前的数据
       queryClient.setQueryData(['addresses'], context?.previousAddresses);
       showAlert('默认地址设置失败', 'danger');

@@ -1,20 +1,8 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
 import {useEffect, useState} from 'react'
-import {
-    Box,
-    Button,
-    Card,
-    CardContent,
-    Grid,
-    IconButton,
-    Modal,
-    Sheet,
-    Snackbar,
-    Table,
-    Typography
-} from '@mui/joy'
-import {Order, PaymentStatus} from '@/types/orders'
-import {orderService} from '@/api/orderService'
+import {Box, Button, Card, CardContent, Grid, IconButton, Modal, Sheet, Snackbar, Table, Typography} from '@mui/joy'
+import {Order, PaymentStatus, ShippingStatus} from '@/types/orders'
+import {orderService, shippingStatus} from '@/api/orderService'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 import {useTranslation} from "react-i18next";
@@ -29,6 +17,9 @@ export default function Orders() {
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
     const [detailOpen, setDetailOpen] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [trackingNumber, setTrackingNumber] = useState('')
+    const [carrier, setCarrier] = useState('')
+    const [estimatedDelivery, setEstimatedDelivery] = useState(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
     const [snackbar, setSnackbar] = useState<{
         open: boolean;
         message: string;
@@ -54,7 +45,6 @@ export default function Orders() {
 
             // 调用API获取订单列表
             const response = await orderService.getOrder({
-                userId: '', // 留空，API会使用当前登录用户的ID
                 page: 1,
                 pageSize: 50
             })
@@ -113,6 +103,28 @@ export default function Orders() {
             })
         }
     }
+    const handleShipOrder = async (orderId: string, trackingNumber: string, carrier: string, estimatedDelivery: string,) => {
+        try {
+            await orderService.shipOrder({
+                orderId,
+                trackingNumber,
+                carrier,
+                estimatedDelivery,
+            })
+            setSnackbar({
+                open: true,
+                message: t('merchant.orders.updateSuccess'),
+                severity: 'success'
+            })
+        } catch (error) {
+            console.error('更新订单状态失败:', error)
+            setSnackbar({
+                open: true,
+                message: t('merchant.orders.updateFailed'),
+                severity: 'danger'
+            })
+        }
+    }
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString)
@@ -137,16 +149,20 @@ export default function Orders() {
                     ) : orders.length === 0 ? (
                         <Typography>{t('merchant.orders.noData')}</Typography>
                     ) : (
-                        <Table sx={{minWidth: 900}}>
+                        <Table sx={{
+                            minWidth: 900,
+                            width: '100vw'
+                        }}>
                             <thead>
                             <tr>
-                                <th style={{width: '25%'}}>{t('merchant.orders.orderId')}</th>
-                                <th style={{width: '15%'}}>{t('merchant.orders.createdTime')}</th>
-                                <th style={{width: '15%'}}>{t('merchant.orders.amount')}</th>
+                                <th style={{width: '15%'}}>{t('merchant.orders.orderId')}</th>
+                                <th style={{width: '10%'}}>{t('merchant.orders.createdTime')}</th>
+                                <th style={{width: '10%'}}>{t('merchant.orders.amount')}</th>
                                 <th style={{width: '5%'}}>{t('merchant.orders.paymentStatus')}</th>
+                                <th style={{width: '5%'}}>{t('merchant.orders.shippingStatus')}</th>
                                 <th style={{width: '15%'}}>{t('merchant.orders.userId')}</th>
                                 <th style={{width: '10%'}}>{t('merchant.orders.viewDetails')}</th>
-                                <th style={{width: '35%'}}>{t('merchant.orders.actions')}</th>
+                                <th style={{width: '25%'}}>{t('merchant.orders.actions')}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -180,6 +196,7 @@ export default function Orders() {
                                                 </Typography>
                                             </Box>
                                         </td>
+                                        <td>{shippingStatus(order.shippingStatus)}</td>
                                         <td>{order.userId}</td>
                                         <td>
                                             <Box sx={{display: 'flex', gap: 1}}>
@@ -197,7 +214,7 @@ export default function Orders() {
                                                         size="sm"
                                                         variant="outlined"
                                                         color="success"
-                                                        onClick={() => handleStatusChange(order.orderId, PaymentStatus.Shipped)}
+                                                        onClick={() => handleShipOrder(order.orderId, trackingNumber, carrier, estimatedDelivery)}
                                                     >
                                                         {t('merchant.orders.ship')}
                                                     </Button>

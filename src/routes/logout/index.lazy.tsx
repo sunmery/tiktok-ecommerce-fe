@@ -42,7 +42,7 @@ function LogoutCompose() {
     }
 
     return (
-        <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
+        <Box sx={{p: 2, maxWidth: '100vw', mx: 'auto'}}>
             {/* 面包屑导航 */}
             <Breadcrumbs pathMap={{'logout': t('common.Logout')}}/>
 
