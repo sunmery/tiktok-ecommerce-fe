@@ -1,6 +1,6 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { Box, Button, Card, CardContent, Chip, FormLabel, Stack, Typography } from '@mui/joy'
+import { Box, Button, Card, CardContent, Chip, FormLabel, Stack, Typography, Modal, ModalDialog, ModalClose } from '@mui/joy'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { useTranslation } from 'react-i18next'
 import { addressService, Address, AddressType } from '@/api/merchant/addressService'
@@ -16,13 +16,14 @@ function LogisticsManagement() {
   const { t } = useTranslation()
   const [orders, setOrders] = useState<Order[]>([])
   const [addresses, setAddresses] = useState<Address[]>([])
-  const [selectedAddress, setSelectedAddress] = useState<number | ''>('')
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isShippingDialogOpen, setIsShippingDialogOpen] = useState(false)
+  const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [trackingNumber, setTrackingNumber] = useState('')
   const [carrier, setCarrier] = useState('')
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
 
   // 获取商家地址列表和订单列表
   useEffect(() => {
@@ -137,6 +138,13 @@ function LogisticsManagement() {
     setSelectedOrder(order)
     setTrackingNumber('')
     setCarrier('')
+    setIsAddressDialogOpen(true)
+  }
+
+  // 处理地址选择
+  const handleAddressSelect = (address: Address) => {
+    setSelectedAddress(address)
+    setIsAddressDialogOpen(false)
     setIsShippingDialogOpen(true)
   }
 
@@ -148,19 +156,21 @@ function LogisticsManagement() {
     }
 
     try {
-      // 获取选中的地址信息
-      const selectedAddressInfo = addresses.find(addr => addr.id === selectedAddress)
-      if (!selectedAddressInfo) {
-        showMessage('请选择有效的发货地址', 'warning')
-        return
-      }
-
       // 调用发货API
       await orderService.shipOrder({
         orderId: selectedOrder.orderId,
         trackingNumber: trackingNumber,
         carrier: carrier,
-        estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 预计7天后送达
+        estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 预计7天后送达
+        shippingAddress: {
+          contactPerson: selectedAddress.contactPerson,
+          contactPhone: selectedAddress.contactPhone,
+          streetAddress: selectedAddress.streetAddress,
+          city: selectedAddress.city,
+          state: selectedAddress.state,
+          country: selectedAddress.country,
+          zipCode: selectedAddress.zipCode
+        }
       })
 
       showMessage('发货成功', 'success')
@@ -224,26 +234,77 @@ function LogisticsManagement() {
         </CardContent>
       </Card>
 
+      {/* 地址选择对话框 */}
+      <Modal
+        open={isAddressDialogOpen}
+        onClose={() => setIsAddressDialogOpen(false)}
+      >
+        <ModalDialog>
+          <ModalClose />
+          <Typography level="h5" sx={{ mb: 2 }}>
+            选择发货地址
+          </Typography>
+          <Stack spacing={2}>
+            {addresses.map((address) => (
+              <Card
+                key={address.id}
+                variant="outlined"
+                sx={{
+                  cursor: 'pointer',
+                  '&:hover': { bgcolor: 'action.hover' },
+                  border: address.isDefault ? '2px solid primary.main' : '1px solid divider'
+                }}
+                onClick={() => handleAddressSelect(address)}
+              >
+                <CardContent>
+                  <Typography level="body-md" fontWeight="bold">
+                    {address.contactPerson} - {address.contactPhone}
+                  </Typography>
+                  <Typography level="body-sm">
+                    {address.streetAddress}, {address.city}, {address.state}, {address.country} {address.zipCode}
+                  </Typography>
+                  {address.isDefault && (
+                    <Chip
+                      size="sm"
+                      color="primary"
+                      sx={{ mt: 1 }}
+                    >
+                      默认地址
+                    </Chip>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </Stack>
+        </ModalDialog>
+      </Modal>
+
       {/* 发货对话框 */}
-      {isShippingDialogOpen && (
-        <Card variant="outlined" sx={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 500, p: 3, zIndex: 1000 }}>
-          <Typography level="title-lg" sx={{ mb: 2 }}>
+      <Modal
+        open={isShippingDialogOpen}
+        onClose={() => setIsShippingDialogOpen(false)}
+      >
+        <ModalDialog>
+          <ModalClose />
+          <Typography level="h5" sx={{ mb: 2 }}>
             确认发货
           </Typography>
           
-          <FormControl fullWidth sx={{ mb: 3 }}>
-            <InputLabel>选择发货地址</InputLabel>
-            <Select
-              value={selectedAddress}
-              onChange={(e) => setSelectedAddress(e.target.value as number)}
-            >
-              {addresses.map((address) => (
-                <MenuItem key={address.id} value={address.id}>
-                  {address.streetAddress} - {address.contactPerson}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          {selectedAddress && (
+            <Card variant="outlined" sx={{ mb: 3 }}>
+              <CardContent>
+                <Typography level="body-md" fontWeight="bold">
+                  发货地址
+                </Typography>
+                <Typography level="body-sm">
+                  {selectedAddress.contactPerson} - {selectedAddress.contactPhone}
+                </Typography>
+                <Typography level="body-sm">
+                  {selectedAddress.streetAddress}, {selectedAddress.city}, {selectedAddress.state}, {selectedAddress.country} {selectedAddress.zipCode}
+                </Typography>
+              </CardContent>
+            </Card>
+          )}
           
           <TextField
             label="物流单号"
@@ -280,8 +341,8 @@ function LogisticsManagement() {
               确认发货
             </Button>
           </Stack>
-        </Card>
-      )}
+        </ModalDialog>
+      </Modal>
     </Box>
   )
 }

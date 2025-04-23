@@ -2,14 +2,17 @@ import {useCallback, useEffect, useState} from 'react';
 import {MapContainer, Marker, Polyline, Popup, TileLayer} from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import {Coordinates, DeliveryStatus} from '@/types/logisticsMap';
+import {Coordinates} from '@/types/logisticsMap';
 import {showMessage} from "@/utils/showMessage.ts";
+import {PaymentStatus, ShippingStatus} from "@/types/orders.ts";
+import {getStatusText, shippingStatus} from "@/utils/status.ts";
 
 // 定义类型
 interface LogisticsMapProps {
     sellerPosition: Coordinates;
     userPosition: Coordinates;
     onDeliveryComplete: () => void;
+    paymentStatus?: PaymentStatus;
 }
 
 // 自定义图标
@@ -32,15 +35,16 @@ const LogisticsMap = ({
                           sellerPosition,
                           userPosition,
                           onDeliveryComplete,
+                          paymentStatus = PaymentStatus.NotPaid,
                       }: LogisticsMapProps) => {
     // 状态管理
-    const [deliveryStatus, setDeliveryStatus] = useState<DeliveryStatus>('pending');
+    const [deliveryStatus, setDeliveryStatus] = useState<ShippingStatus>(ShippingStatus.ShippingPending);
     const [progress, setProgress] = useState(0);
     const [currentPosition, setCurrentPosition] = useState<Coordinates>(sellerPosition);
     const [routePath, setRoutePath] = useState<Coordinates[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
+    const [time, setTime] = useState(30000 * 30)
     // 获取实际道路路径
     const fetchRoutePath = useCallback(async () => {
         setIsLoading(true);
@@ -103,7 +107,7 @@ const LogisticsMap = ({
 
     // 模拟物流运输
     useEffect(() => {
-        if (deliveryStatus === 'shipped' && routePath.length > 0) {
+        if (deliveryStatus === ShippingStatus.ShippingShipped && routePath.length > 0) {
             setCurrentPosition(routePath[0]);
 
             const totalSteps = routePath.length - 1;
@@ -113,7 +117,7 @@ const LogisticsMap = ({
 
                     if (newProgress >= totalSteps) {
                         clearInterval(interval);
-                        setDeliveryStatus('delivered');
+                        setDeliveryStatus(ShippingStatus.ShippingDelivered);
                         onDeliveryComplete();
                         return prev;
                     }
@@ -121,7 +125,7 @@ const LogisticsMap = ({
                     setCurrentPosition(routePath[newProgress]);
                     return newProgress;
                 });
-            }, 1000 * 30 / totalSteps); // 总时间保持30秒
+            }, time / totalSteps); // 总时间
 
             return () => clearInterval(interval);
         }
@@ -129,20 +133,15 @@ const LogisticsMap = ({
 
     // 开始运输
     const startDelivery = () => {
-        setDeliveryStatus('shipped');
+        setDeliveryStatus(ShippingStatus.ShippingShipped);
     };
 
     return (
         <div className="logistics-container">
             <div className="status-control">
-                <p>状态：{{
-                    pending: '等待发货',
-                    shipped: '已发货',
-                    in_transit: '运输中',
-                    delivered: '已送达'
-                }[deliveryStatus]}</p>
-
-                {deliveryStatus === 'pending' && (
+                <p>支付状态：{getStatusText(paymentStatus)}</p>
+                <p>物流状态：{shippingStatus(deliveryStatus)}</p>
+                {deliveryStatus === ShippingStatus.ShippingPending && (
                     <button onClick={startDelivery} disabled={isLoading || routePath.length === 0}>
                         {isLoading ? '加载路径中...' : '模拟发货'}
                     </button>
@@ -181,7 +180,7 @@ const LogisticsMap = ({
                 </Marker>
 
                 {/* 移动的运输车辆 */}
-                {deliveryStatus !== 'pending' && routePath.length > 0 && (
+                {deliveryStatus !== ShippingStatus.ShippingPending && routePath.length > 0 && (
                     <Marker position={currentPosition} icon={truckIcon}>
                         <Popup>运输中 ({Math.round((progress / (routePath.length - 1)) * 100)}%)</Popup>
                     </Marker>

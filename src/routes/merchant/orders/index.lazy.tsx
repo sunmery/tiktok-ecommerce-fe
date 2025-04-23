@@ -1,12 +1,17 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
 import {useEffect, useState} from 'react'
 import {Box, Button, Card, CardContent, Grid, IconButton, Modal, Sheet, Snackbar, Table, Typography} from '@mui/joy'
-import {Order, PaymentStatus, ShippingStatus} from '@/types/orders'
-import {orderService, shippingStatus} from '@/api/orderService'
+import {Order, PaymentStatus} from '@/types/orders'
+import {orderService} from '@/api/orderService'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 import {useTranslation} from "react-i18next";
-import {getStatusText} from "@/utils/status.ts";
+import {getStatusText, shippingStatus} from "@/utils/status.ts";
+import {usePagination} from '@/hooks/usePagination';
+import PaginationBar from "@/components/PaginationBar";
+import RefreshIcon from '@mui/icons-material/Refresh'
+import {AddressSelector} from '@/components/AddressSelector';
+import {MerchantAddress} from '@/api/merchantService';
 
 export const Route = createLazyFileRoute('/merchant/orders/')({
     component: Orders,
@@ -14,12 +19,14 @@ export const Route = createLazyFileRoute('/merchant/orders/')({
 
 export default function Orders() {
     const [orders, setOrders] = useState<Order[]>([])
-    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
     const [detailOpen, setDetailOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const [trackingNumber, setTrackingNumber] = useState('')
     const [carrier, setCarrier] = useState('')
     const [estimatedDelivery, setEstimatedDelivery] = useState(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
+    const [addressSelectorOpen, setAddressSelectorOpen] = useState(false)
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+    const [selectedAddress, setSelectedAddress] = useState<MerchantAddress | null>(null)
     const [snackbar, setSnackbar] = useState<{
         open: boolean;
         message: string;
@@ -31,26 +38,42 @@ export default function Orders() {
     })
     const {t} = useTranslation()
 
+    // 使用分页钩子
+    const pagination = usePagination({
+        initialPageSize: 50,
+    });
+
     useEffect(() => {
         loadOrders().then((data) => {
             console.log('获取订单列表成功:', data)
         }).catch((e) => {
             console.error('获取订单列表失败:', e)
         })
-    }, [])
+    }, [pagination.page, pagination.pageSize])
 
     const loadOrders = async () => {
         try {
             setLoading(true)
 
             // 调用API获取订单列表
-            const response = await orderService.getOrder({
-                page: 1,
-                pageSize: 50
+            const response = await orderService.getMerchantOrders({
+                page: pagination.page,
+                pageSize: pagination.pageSize
             })
 
             if (response && response.orders) {
                 setOrders(response.orders)
+                // 更新总条目数
+                if (response.orders.length !== undefined) {
+                    pagination.setTotalItems(response.orders.length);
+                } else {
+                    // 没有总数时，用当前页数据估算
+                    const isLastPage = response.orders.length < pagination.pageSize;
+                    const estimatedTotal = isLastPage
+                        ? (pagination.page - 1) * pagination.pageSize + response.orders.length
+                        : pagination.page * pagination.pageSize + 1;
+                    pagination.setTotalItems(estimatedTotal);
+                }
                 return response.orders
             }
 
@@ -103,32 +126,76 @@ export default function Orders() {
             })
         }
     }
-    const handleShipOrder = async (orderId: string, trackingNumber: string, carrier: string, estimatedDelivery: string,) => {
+    const handleShipOrder = async (order: Order) => {
+        setSelectedOrder(order);
+        setAddressSelectorOpen(true);
+    };
+
+    const handleAddressSelect = async (address: MerchantAddress) => {
+        if (!selectedOrder) return;
+
         try {
             await orderService.shipOrder({
-                orderId,
+                orderId: selectedOrder.subOrderId as string,
                 trackingNumber,
                 carrier,
                 estimatedDelivery,
-            })
+                shippingAddress: {
+                    addressType: address.addressType,
+                    contactPerson: address.contactPerson,
+                    contactPhone: address.contactPhone,
+                    streetAddress: address.streetAddress,
+                    city: address.city,
+                    state: address.state,
+                    country: address.country,
+                    zipCode: address.zipCode,
+                }
+            });
             setSnackbar({
                 open: true,
-                message: t('merchant.orders.updateSuccess'),
+                message: t('merchant.orders.shipSuccess'),
                 severity: 'success'
-            })
+            });
+            // 刷新订单列表
+            await loadOrders();
         } catch (error) {
-            console.error('更新订单状态失败:', error)
+            console.error('发货失败:', error);
             setSnackbar({
                 open: true,
-                message: t('merchant.orders.updateFailed'),
+                message: t('merchant.orders.shipFailed'),
                 severity: 'danger'
-            })
+            });
+        } finally {
+            setAddressSelectorOpen(false);
+            setSelectedOrder(null);
+            setSelectedAddress(null);
         }
-    }
+    };
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString)
         return date.toLocaleString()
+    }
+
+    const handleRefresh = async () => {
+        try {
+            setLoading(true)
+            await loadOrders()
+            setSnackbar({
+                open: true,
+                message: t('merchant.orders.refreshSuccess'),
+                severity: 'success'
+            })
+        } catch (error) {
+            console.error('刷新订单列表失败:', error)
+            setSnackbar({
+                open: true,
+                message: t('merchant.orders.refreshFailed'),
+                severity: 'danger'
+            })
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -138,7 +205,18 @@ export default function Orders() {
                 'orders': `${t('merchant.orders.title')}`,
             }}/>
 
-            <Typography level="h2" sx={{mb: 3}}>{t('merchant.orders.title')}</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography level="h2">{t('merchant.orders.title')}</Typography>
+                <Button
+                    variant="outlined"
+                    color="primary"
+                    startDecorator={<RefreshIcon />}
+                    onClick={handleRefresh}
+                    loading={loading}
+                >
+                    {t('common.refresh')}
+                </Button>
+            </Box>
 
             <Card variant="outlined" sx={{mb: 3, overflowX: 'auto', minWidth: 900}}>
                 <CardContent>
@@ -171,8 +249,8 @@ export default function Orders() {
                                 const total = order.items.reduce((sum, item) => sum + item.cost, 0)
 
                                 return (
-                                    <tr key={order.orderId}>
-                                        <td>{order.orderId}</td>
+                                    <tr key={order.subOrderId}>
+                                        <td>{order.subOrderId}</td>
                                         <td>{formatDate(order.createdAt)}</td>
                                         <td>{order.currency} {total.toFixed(2)}</td>
                                         <td>
@@ -209,12 +287,12 @@ export default function Orders() {
                                                     {t('merchant.orders.viewDetails')}
                                                 </Button>
 
-                                                {order.paymentStatus === PaymentStatus.Paid && (
+                                                {order.shippingStatus === 'PENDING_SHIPMENT' && (
                                                     <Button
                                                         size="sm"
                                                         variant="outlined"
                                                         color="success"
-                                                        onClick={() => handleShipOrder(order.orderId, trackingNumber, carrier, estimatedDelivery)}
+                                                        onClick={() => handleShipOrder(order)}
                                                     >
                                                         {t('merchant.orders.ship')}
                                                     </Button>
@@ -223,22 +301,26 @@ export default function Orders() {
                                         </td>
                                         <td>
                                             <Box sx={{display: 'flex', gap: 1}}>
-                                                <Button
-                                                    size="sm"
-                                                    variant="outlined"
-                                                    color="danger"
-                                                    onClick={() => handleStatusChange(order.orderId, PaymentStatus.Failed)}
-                                                >
-                                                    {t('merchant.orders.shipFailed')}
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    variant="outlined"
-                                                    color="warning"
-                                                    onClick={() => handleStatusChange(order.orderId, PaymentStatus.Processing)}
-                                                >
-                                                    {t('merchant.orders.markToBeShipped')}
-                                                </Button>
+                                                {order.shippingStatus === 'PENDING_SHIPMENT' && (
+                                                    <>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outlined"
+                                                            color="danger"
+                                                            onClick={() => handleStatusChange(order.orderId, PaymentStatus.Failed)}
+                                                        >
+                                                            {t('merchant.orders.shipFailed')}
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outlined"
+                                                            color="warning"
+                                                            onClick={() => handleStatusChange(order.orderId, PaymentStatus.Processing)}
+                                                        >
+                                                            {t('merchant.orders.markToBeShipped')}
+                                                        </Button>
+                                                    </>
+                                                )}
                                             </Box>
                                         </td>
                                     </tr>
@@ -247,6 +329,20 @@ export default function Orders() {
                             </tbody>
                         </Table>
                     )}
+
+                    {/* 分页控制 */}
+                    <Box sx={{ mt: 2 }}>
+                        <PaginationBar
+                            page={pagination.page}
+                            pageSize={pagination.pageSize}
+                            totalItems={pagination.totalCount}
+                            totalPages={pagination.totalPages}
+                            onPageChange={pagination.handlePageChange}
+                            onPageSizeChange={pagination.handlePageSizeChange}
+                            showPageSizeSelector
+                            showTotalItems
+                        />
+                    </Box>
                 </CardContent>
             </Card>
 
@@ -356,6 +452,16 @@ export default function Orders() {
             >
                 {snackbar.message}
             </Snackbar>
+
+            {/* 地址选择模态框 */}
+            <AddressSelector
+                open={addressSelectorOpen}
+                onClose={() => {
+                    setAddressSelectorOpen(false);
+                    setSelectedOrder(null);
+                }}
+                onSelect={handleAddressSelect}
+            />
         </Box>
     )
 }

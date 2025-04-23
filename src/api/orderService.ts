@@ -15,6 +15,7 @@ import {
     PlaceOrderResp,
     ShipOrderReq,
     ShippingStatus,
+    ShippingInfo,
 } from '@/types/orders';
 import {ShipOrderResponse} from "@/hooks/useShipping.ts";
 import { t } from 'i18next';
@@ -23,6 +24,23 @@ import { t } from 'i18next';
  * 订单服务API
  */
 export const orderService = {
+    /**
+     * 获取子订单物流状态
+     * GET /v1/orders/{orderId}/shipping/{subOrderId}
+     */
+    getSubOrderShipping: (orderId: string) => {
+        const url = httpClient.replacePathParams(
+            `${import.meta.env.VITE_ORDERS_URL}/{orderId}/status`,
+            {orderId, orderId}
+        );
+        return httpClient.get<ShippingInfo>(url, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+    },
+
     /**
      * 创建订单
      * POST /v1/orders
@@ -96,9 +114,9 @@ export const orderService = {
      * 查询订单列表（带分页参数）
      * GET /v1/orders
      */
-    listOrder: (request: ListAllOrderReq) => {
+    getMerchantOrders: (request: ListAllOrderReq) => {
         return httpClient.get<ListOrderResp>(
-            `${import.meta.env.VITE_ADMIN_URL}/orders`,
+            `${import.meta.env.VITE_MERCHANTS_URL}/orders`,
             {
                 params: {
                     page: request.page?.toString(),
@@ -149,13 +167,14 @@ export const orderService = {
      */
     shipOrder: (request: ShipOrderReq) => {
         const url = httpClient.replacePathParams(
-            `${import.meta.env.VITE_ORDERS_URL}/{orderId}/ship`,
+            `${import.meta.env.VITE_MERCHANTS_URL}/orders/{orderId}/ship`,
             {orderId: request.orderId}
         );
         return httpClient.put<ShipOrderResponse>(url, {
             trackingNumber: request.trackingNumber,
             carrier: request.carrier,
-            estimatedDelivery: request.estimatedDelivery
+            estimatedDelivery: request.estimatedDelivery,
+            shippingAddress: request.shippingAddress
         });
     },
 
@@ -176,23 +195,3 @@ export const orderService = {
         });
     },
 };
-
-// 支付状态映射
-export const shippingStatus = (shippingStatus: string):string => {
-    switch (shippingStatus) {
-        case ShippingStatus.ShippingPending:
-            return t('merchant.orders.shippingPending')
-        case ShippingStatus.ShippingShipped:
-            return t('merchant.orders.shippingShipped')
-        case ShippingStatus.ShippingInTransit:
-            return t('merchant.orders.shippingInTransit')
-        case ShippingStatus.ShippingDelivered:
-            return t('merchant.orders.shippingDelivered')
-        case ShippingStatus.ShippingConfirmed:
-            return t('merchant.orders.shippingConfirmed')
-        case ShippingStatus.ShippingCancelled:
-            return t('merchant.orders.shippingCancelled')
-        default:
-            return t('merchant.orders.shippingPending')
-    }
-}

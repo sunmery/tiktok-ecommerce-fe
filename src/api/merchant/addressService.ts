@@ -17,7 +17,7 @@ export enum AddressType {
 export interface Address {
   id: number;
   merchantId: string;
-  addressType: AddressType;
+  addressType: 'WAREHOUSE' | 'RETURN' | 'STORE' | 'BILLING' | 'HEADQUARTERS';
   contactPerson: string;
   contactPhone: string;
   streetAddress: string;
@@ -26,8 +26,8 @@ export interface Address {
   country: string;
   zipCode: string;
   isDefault: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: string;
+  updatedAt: string;
   remarks?: string;
 }
 

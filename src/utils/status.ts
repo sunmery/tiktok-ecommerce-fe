@@ -1,4 +1,4 @@
-import {PaymentStatus} from "@/types/orders";
+import {PaymentStatus, ShippingStatus} from "@/types/orders";
 import {ProductStatus} from "@/types/products.ts";
 import {t} from "i18next";
 
@@ -40,5 +40,25 @@ export const getStatusText = (status: string | PaymentStatus) => {
             return t('orders.status.outOfStock')
         default:
             return t('orders.status.unknown')
+    }
+}
+
+// 物流状态映射
+export const shippingStatus = (shippingStatus: string):string => {
+    switch (shippingStatus) {
+        case ShippingStatus.ShippingPending:
+            return t('merchant.orders.shippingPending')
+        case ShippingStatus.ShippingShipped:
+            return t('merchant.orders.shippingShipped')
+        case ShippingStatus.ShippingInTransit:
+            return t('merchant.orders.shippingInTransit')
+        case ShippingStatus.ShippingDelivered:
+            return t('merchant.orders.shippingDelivered')
+        case ShippingStatus.ShippingConfirmed:
+            return t('merchant.orders.shippingConfirmed')
+        case ShippingStatus.ShippingCancelled:
+            return t('merchant.orders.shippingCancelled')
+        default:
+            return t('merchant.orders.shippingPending')
     }
 }

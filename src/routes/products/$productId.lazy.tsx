@@ -65,7 +65,6 @@ export default function ProductDetail() {
             try {
                 setCheckingOrders(true)
                 const response = await orderService.getConsumerOrder({
-                    userId: account.id,
                     page: 1,
                     pageSize: 50
                 })

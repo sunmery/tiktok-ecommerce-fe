@@ -130,17 +130,17 @@ function MerchantDashboard() {
                     <Grid xs={12} md={6}>
                         <Card variant="outlined" sx={{height: '100%'}}>
                             <CardContent>
-                                <Typography level="h3">{t('merchant.orderManagement')}</Typography>
+                                <Typography level="h3">{t('merchant.addressTitle')}</Typography>
                                 <Divider sx={{my: 2}}/>
                                 <List>
                                     <ListItem>
-                                        <ListItem>{t('merchant.orderFeatures.viewAll')}</ListItem>
+                                        <ListItem>{t('merchant.addAddress')}</ListItem>
                                     </ListItem>
                                     <ListItem>
-                                        <ListItem>{t('merchant.orderFeatures.processStatus')}</ListItem>
+                                        <ListItem>{t('merchant.editAddress')}</ListItem>
                                     </ListItem>
                                     <ListItem>
-                                        <ListItem>{t('merchant.orderFeatures.orderDetails')}</ListItem>
+                                        <ListItem>{t('merchant.addressList')}</ListItem>
                                     </ListItem>
                                 </List>
                                 <Button

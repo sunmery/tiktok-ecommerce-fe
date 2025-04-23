@@ -1,7 +1,7 @@
 // 创建订单请求
 
-import {Address} from "@/types/addresses.ts";
 import {CartItem} from "@/types/cart.ts";
+import {Address} from "@/api/merchant/addressService.ts";
 
 export interface PlaceOrderReq {
     currency: string
@@ -49,6 +49,10 @@ export interface ShippingInfo {
     carrier: string
     estimatedDelivery: string
     updates?: ShippingUpdate[]
+    orderId: string
+    subOrderId: string
+    paymentStatus: string
+    shippingStatus: string
 }
 
 // 物流更新记录
@@ -63,6 +67,7 @@ export interface ShippingUpdate {
 export interface Order {
     items: OrderItem[]
     orderId: string
+    subOrderId?: string
     userId: string
     currency: string
     address: Address
@@ -93,6 +98,7 @@ export interface ShipOrderReq {
     trackingNumber: string
     carrier: string
     estimatedDelivery: string
+    shippingAddress: Partial<Address>
 }
 
 // 商家发货响应

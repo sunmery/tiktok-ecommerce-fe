@@ -23,6 +23,8 @@ import { useAlert } from '@/core/providers/AlertProvider';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { addressService, Address, AddressType } from '@/api/merchant/addressService.ts';
+import Breadcrumbs from "@/shared/components/Breadcrumbs";
+import {t} from "i18next";
 
 function AddressPage() {
   const queryClient = useQueryClient();
@@ -141,29 +143,29 @@ function AddressPage() {
     { field: 'id', headerName: 'ID', width: 90 },
     {
       field: 'addressType',
-      headerName: '地址类型',
+      headerName: t('merchant.address.type'),
       width: 130,
       renderCell: (params: GridRenderCellParams) => {
         const typeMap = {
-          [AddressType.WAREHOUSE]: '仓库地址',
-          [AddressType.RETURN]: '退货地址',
-          [AddressType.STORE]: '门店地址',
-          [AddressType.BILLING]: '财务地址',
-          [AddressType.HEADQUARTERS]: '总部地址',
+          [AddressType.WAREHOUSE]: t('merchant.address.warehouse'),
+          [AddressType.RETURN]: t('merchant.address.return'),
+          [AddressType.STORE]: t('merchant.address.store'),
+          [AddressType.BILLING]: t('merchant.address.billing'),
+          [AddressType.HEADQUARTERS]: t('merchant.address.headquarters'),
         };
         return typeMap[params.value as AddressType];
       },
     },
-    { field: 'contactPerson', headerName: '联系人', width: 130 },
-    { field: 'contactPhone', headerName: '联系电话', width: 130 },
-    { field: 'streetAddress', headerName: '街道地址', width: 200 },
-    { field: 'city', headerName: '城市', width: 100 },
-    { field: 'state', headerName: '省份', width: 100 },
-    { field: 'country', headerName: '国家', width: 100 },
-    { field: 'zipCode', headerName: '邮编', width: 100 },
+    { field: 'contactPerson', headerName: t('merchant.address.contactPerson'), width: 130 },
+    { field: 'contactPhone', headerName: t('merchant.address.contactPhone'), width: 130 },
+    { field: 'streetAddress', headerName: t('merchant.address.streetAddress'), width: 200 },
+    { field: 'city', headerName: t('merchant.address.city'), width: 100 },
+    { field: 'state', headerName: t('merchant.address.state'), width: 100 },
+    { field: 'country', headerName: t('merchant.address.country'), width: 100 },
+    { field: 'zipCode', headerName: t('merchant.address.zipCode'), width: 100 },
     {
       field: 'isDefault',
-      headerName: '是否默认地址',
+      headerName: t('merchant.address.isDefault'),
       width: 150,
       renderCell: (params: GridRenderCellParams) => (
         <FormControlLabel
@@ -180,7 +182,7 @@ function AddressPage() {
     },
     {
       field: 'actions',
-      headerName: '操作',
+      headerName: t('merchant.address.actions'),
       width: 130,
       renderCell: (params: GridRenderCellParams) => (
         <Box>
@@ -194,7 +196,7 @@ function AddressPage() {
           </IconButton>
           <IconButton
             onClick={() => {
-              if (window.confirm('确定要删除这个地址吗？')) {
+              if (window.confirm(t('merchant.address.confirmDelete'))) {
                 deleteMutation.mutate(params.row.id);
               }
             }}
@@ -208,7 +210,10 @@ function AddressPage() {
 
   return (
     <Box sx={{ height: '100%', width: '100%', p: 2 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>        <Typography variant="h5">商家地址管理</Typography>
+      <Breadcrumbs pathMap={{
+        'address': t('addresses.addressTitle')
+      }}/>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>        <Typography variant="h5">{t('merchant.address.title')}</Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <FormControlLabel
             control={
@@ -217,7 +222,7 @@ function AddressPage() {
                 onChange={(e) => setOnlyDefault(e.target.checked)}
               />
             }
-            label="只显示默认地址"
+            label={t('merchant.address.showOnlyDefault')}
           />
           <FormControl sx={{ minWidth: 120 }}>
             <InputLabel>地址类型</InputLabel>
@@ -242,7 +247,7 @@ function AddressPage() {
               setOpenDialog(true);
             }}
           >
-            添加地址
+            {t('merchant.address.add')}
           </Button>
         </Box>
       </Box>
@@ -263,28 +268,28 @@ function AddressPage() {
 
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
         <form onSubmit={handleSubmit}>
-          <DialogTitle>{editingAddress?.id ? '编辑地址' : '添加地址'}</DialogTitle>
+          <DialogTitle>{editingAddress?.id ? t('merchant.address.edit') : t('merchant.address.add')}</DialogTitle>
           <DialogContent>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
               <FormControl fullWidth>
-                <InputLabel>地址类型</InputLabel>
+                <InputLabel>{t('merchant.address.type')}</InputLabel>
                 <Select
                   value={editingAddress?.addressType ?? ''}
-                  label="地址类型"
+                  label={t('merchant.address.type')}
                   onChange={(e) =>
                     setEditingAddress({ ...editingAddress, addressType: e.target.value as AddressType })
                   }
                   required
                 >
-                  <MenuItem value={AddressType.WAREHOUSE}>仓库地址</MenuItem>
-                  <MenuItem value={AddressType.RETURN}>退货地址</MenuItem>
-                  <MenuItem value={AddressType.STORE}>门店地址</MenuItem>
-                  <MenuItem value={AddressType.BILLING}>财务地址</MenuItem>
-                  <MenuItem value={AddressType.HEADQUARTERS}>总部地址</MenuItem>
+                  <MenuItem value={AddressType.WAREHOUSE}>{t('merchant.address.warehouse')}</MenuItem>
+                  <MenuItem value={AddressType.RETURN}>{t('merchant.address.return')}</MenuItem>
+                  <MenuItem value={AddressType.STORE}>{t('merchant.address.store')}</MenuItem>
+                  <MenuItem value={AddressType.BILLING}>{t('merchant.address.billing')}</MenuItem>
+                  <MenuItem value={AddressType.HEADQUARTERS}>{t('merchant.address.headquarters')}</MenuItem>
                 </Select>
               </FormControl>
               <TextField
-                label="联系人"
+                label={t('merchant.address.contactPerson')}
                 value={editingAddress?.contactPerson ?? ''}
                 onChange={(e) =>
                   setEditingAddress({ ...editingAddress, contactPerson: e.target.value })
@@ -292,7 +297,7 @@ function AddressPage() {
                 required
               />
               <TextField
-                label="联系电话"
+                label={t('merchant.address.contactPhone')}
                 value={editingAddress?.contactPhone ?? ''}
                 onChange={(e) =>
                   setEditingAddress({ ...editingAddress, contactPhone: e.target.value })
@@ -300,7 +305,7 @@ function AddressPage() {
                 required
               />
               <TextField
-                label="街道地址"
+                label={t('merchant.address.streetAddress')}
                 value={editingAddress?.streetAddress ?? ''}
                 onChange={(e) =>
                   setEditingAddress({ ...editingAddress, streetAddress: e.target.value })
@@ -308,25 +313,25 @@ function AddressPage() {
                 required
               />
               <TextField
-                label="城市"
+                label={t('merchant.address.city')}
                 value={editingAddress?.city ?? ''}
                 onChange={(e) => setEditingAddress({ ...editingAddress, city: e.target.value })}
                 required
               />
               <TextField
-                label="省份"
+                label={t('merchant.address.state')}
                 value={editingAddress?.state ?? ''}
                 onChange={(e) => setEditingAddress({ ...editingAddress, state: e.target.value })}
                 required
               />
               <TextField
-                label="国家"
+                label={t('merchant.address.country')}
                 value={editingAddress?.country ?? ''}
                 onChange={(e) => setEditingAddress({ ...editingAddress, country: e.target.value })}
                 required
               />
               <TextField
-                label="邮编"
+                label={t('merchant.address.zipCode')}
                 value={editingAddress?.zipCode ?? ''}
                 onChange={(e) => setEditingAddress({ ...editingAddress, zipCode: e.target.value })}
                 required
@@ -340,10 +345,10 @@ function AddressPage() {
                     }
                   />
                 }
-                label="设为默认地址"
+                label={t('merchant.address.setAsDefault')}
               />
               <TextField
-                label="备注"
+                label={t('merchant.address.remarks')}
                 value={editingAddress?.remarks ?? ''}
                 onChange={(e) => setEditingAddress({ ...editingAddress, remarks: e.target.value })}
                 multiline
@@ -352,18 +357,18 @@ function AddressPage() {
             </Box>
             {(createMutation.isError || updateMutation.isError) && (
               <Alert severity="error" sx={{ mt: 2 }}>
-                保存失败，请重试
+                {t('merchant.address.saveFailed')}
               </Alert>
             )}
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setOpenDialog(false)}>取消</Button>
+            <Button onClick={() => setOpenDialog(false)}>{t('common.cancel')}</Button>
             <Button
               type="submit"
               variant="contained"
               disabled={createMutation.isPending || updateMutation.isPending}
             >
-              保存
+              {t('common.save')}
             </Button>
           </DialogActions>
         </form>
