@@ -23,7 +23,7 @@ import {orderService} from '@/api/orderService'
 import OrderList from '@/shared/components/OrderList.lazy'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {Order} from "@/types/orders.ts"
-import {Clear, FilterList, Search} from '@mui/icons-material'
+import {Clear, FilterList, Search, Refresh} from '@mui/icons-material'
 import {useTranslation} from 'react-i18next'
 import PaginationBar from "@/components/PaginationBar";
 import { usePagination } from '@/hooks/usePagination'
@@ -81,11 +81,12 @@ function ConsumerOrders() {
         data: orders,
         isLoading,
         error,
-        refetch
+        refetch,
+        isFetching
     } = useQuery<Order[], Error>({
         queryKey: ['orders', queryParams],
         queryFn: () => fetchOrders(queryParams),
-        staleTime: 5 * 60 * 1000, // 5分钟内数据不会被标记为过时
+        staleTime: 5 * 60 * 1000,
         enabled: !!account.id
     })
 
@@ -269,7 +270,30 @@ function ConsumerOrders() {
 
             <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
                 <Typography level="h2">{t('consumer.orders.title')}</Typography>
-                <Typography level="body-sm">{t('consumer.orders.totalCount', {count: count })}</Typography>
+                <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
+                    <IconButton 
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => refetch()}
+                        disabled={isFetching}
+                        sx={{
+                            animation: isFetching ? 'spin 1s linear infinite' : 'none',
+                            '@keyframes spin': {
+                                '0%': {
+                                    transform: 'rotate(0deg)',
+                                },
+                                '100%': {
+                                    transform: 'rotate(360deg)',
+                                },
+                            },
+                        }}
+                    >
+                        <Refresh />
+                    </IconButton>
+                    <Typography level="body-sm">
+                        {t('consumer.orders.totalCount', {count: count })}
+                    </Typography>
+                </Box>
             </Box>
 
             {/* 过滤器 */}

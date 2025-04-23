@@ -2131,6 +2131,7 @@ const resources = {
             'admin.analytics.ordersTrend': '订单趋势',
 
             'home.loading': '加载中',
+            'home.loadError': '加载失败, 请重试',
 
             'products.category': '商品分类',
             'products.selectCategory': '选择分类',
