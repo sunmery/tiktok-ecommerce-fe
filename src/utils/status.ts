@@ -46,6 +46,8 @@ export const getStatusText = (status: string | PaymentStatus) => {
 // 物流状态映射
 export const shippingStatus = (shippingStatus: string):string => {
     switch (shippingStatus) {
+        case ShippingStatus.ShippingWaitCommand:
+            return t('merchant.orders.shippingWaitCommand')
         case ShippingStatus.ShippingPending:
             return t('merchant.orders.shippingPending')
         case ShippingStatus.ShippingShipped:
@@ -60,5 +62,35 @@ export const shippingStatus = (shippingStatus: string):string => {
             return t('merchant.orders.shippingCancelled')
         default:
             return t('merchant.orders.shippingPending')
+    }
+}
+
+export const transactionType = (type: string): string => {
+    switch (type) {
+        case 'RECHARGE':
+            return t('transaction.type.RECHARGE')
+        case 'PAYMENT':
+            return t('transaction.type.PAYMENT')
+        case 'REFUND':
+            return t('transaction.type.REFUND')
+        case 'WITHDRAW':
+            return t('transaction.type.WITHDRAW')
+        default:
+            return t('common.unknown')
+    }
+}
+
+export const paymentMethod = (method: string): string => {
+    switch (method) {
+        case 'ALIPAY':
+            return t('payment.method.ALIPAY')
+        case 'WECHAT':
+            return t('payment.method.WECHAT')
+        case 'BALANCER':
+            return t('payment.method.BALANCER')
+        case 'BANK_CARD':
+            return t('payment.method.BANK_CARD')
+        default:
+            return t('common.unknown')
     }
 }

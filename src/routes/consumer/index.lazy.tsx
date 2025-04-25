@@ -6,7 +6,7 @@ import {useEffect, useState} from 'react'
 import Skeleton from '@/components/Skeleton'
 import {Order} from '@/types/orders'
 import {orderService} from '@/api/orderService'
-import {useTranslation} from "react-i18next";
+import {useTranslation, t} from "react-i18next"  // 添加 t 的导入
 
 export const Route = createLazyFileRoute('/consumer/')({
     component: ConsumerDashboard,
@@ -90,34 +90,12 @@ function ConsumerDashboard() {
                                                 {t('consumer.orders.viewAll')}
                                             </Button>
                                         </ListItem>
-                                        {/*<ListItem>*/}
-                                        {/*    <Button*/}
-                                        {/*        variant="plain"*/}
-                                        {/*        onClick={() => navigate({to: '/consumer/orders'}).then(() => {*/}
-                                        {/*            console.log('已跳转到订单状态页面')*/}
-                                        {/*        })}*/}
-                                        {/*        sx={{width: '100%', justifyContent: 'flex-start'}}*/}
-                                        {/*    >*/}
-                                        {/*        {t('consumer.orders.trackStatus')}*/}
-                                        {/*    </Button>*/}
-                                        {/*</ListItem>*/}
-                                        {/*<ListItem>*/}
-                                        {/*    <Button*/}
-                                        {/*        variant="plain"*/}
-                                        {/*        onClick={() => navigate({to: '/consumer/orders'}).then(() => {*/}
-                                        {/*            console.log('已跳转到订单详情页面')*/}
-                                        {/*        })}*/}
-                                        {/*        sx={{width: '100%', justifyContent: 'flex-start'}}*/}
-                                        {/*    >*/}
-                                        {/*        {t('consumer.orders.queryDetails')}*/}
-                                        {/*    </Button>*/}
-                                        {/*</ListItem>*/}
                                     </List>
                                 </CardContent>
                             </Card>
                         </Grid>
 
-                        {/*收藏夹卡片*/}
+                        {/* 收藏夹卡片 */}
                         <Grid xs={12} md={6}>
                             <Card variant="outlined" sx={{height: '100%'}}>
                                 <CardContent>
@@ -132,84 +110,13 @@ function ConsumerDashboard() {
                                                 })}
                                                 sx={{width: '100%', justifyContent: 'flex-start'}}
                                             >
-                                                {t('consumer.orders.viewFavorites')}
+                                                {t('consumer.favorites.viewAll')}
                                             </Button>
-                                        </ListItem>
-                                        <ListItem>
-                                            <Typography
-                                                sx={{color: '#1890ff'}}>{t('consumer.favorites.viewProducts')}</Typography>
-                                        </ListItem>
-                                        <ListItem>
-                                            <Typography
-                                                sx={{color: '#52c41a'}}>{t('consumer.favorites.manage')}</Typography>
-                                        </ListItem>
-                                        <ListItem>
-                                            <Typography
-                                                sx={{color: '#faad14'}}>{t('consumer.favorites.priceAlert')}</Typography>
                                         </ListItem>
                                     </List>
                                 </CardContent>
                             </Card>
                         </Grid>
-
-                        {/* 最近订单卡片 */}
-                        {/*<Grid xs={12}>*/}
-                        {/*    <Card variant="outlined" sx={{mt: 3}}>*/}
-                        {/*        <CardContent>*/}
-                        {/*            <Typography level="h3">{t('consumer.recentOrders.title')}</Typography>*/}
-                        {/*            <Divider sx={{my: 2}}/>*/}
-                        {/*            */}
-                        {/*            {recentOrders.length === 0 ? (*/}
-                        {/*                <Typography>{t('consumer.recentOrders.noData')}</Typography>*/}
-                        {/*            ) : (*/}
-                        {/*                <Box>*/}
-                        {/*                    {recentOrders.map((order) => {*/}
-                        {/*                        // 计算订单总金额*/}
-                        {/*                        const total = order.items.reduce((sum, item) => sum + item.cost, 0)*/}
-                        {/*                        */}
-                        {/*                        return (*/}
-                        {/*                            <Card */}
-                        {/*                                key={order.orderId} */}
-                        {/*                                variant="outlined" */}
-                        {/*                                sx={{mb: 2, cursor: 'pointer'}}*/}
-                        {/*                                onClick={() => navigate({*/}
-                        {/*                                    to: `/consumer/orders/${order.orderId}`*/}
-                        {/*                                })}*/}
-                        {/*                            >*/}
-                        {/*                                <CardContent>*/}
-                        {/*                                    <Grid container spacing={2}>*/}
-                        {/*                                        <Grid xs={12} sm={6}>*/}
-                        {/*                                            <Typography level="title-sm">{t('consumer.order.orderId')}</Typography>*/}
-                        {/*                                            <Typography>{order.orderId}</Typography>*/}
-                        {/*                                        </Grid>*/}
-                        {/*                                        <Grid xs={12} sm={6}>*/}
-                        {/*                                            <Typography level="title-sm">{t('consumer.order.createdTime')}</Typography>*/}
-                        {/*                                            <Typography>{formatDate(order.createdAt)}</Typography>*/}
-                        {/*                                        </Grid>*/}
-                        {/*                                        <Grid xs={12} sm={6}>*/}
-                        {/*                                            <Typography level="title-sm">{t('consumer.order.amount')}</Typography>*/}
-                        {/*                                            <Typography>{formatCurrency(total, order.currency)}</Typography>*/}
-                        {/*                                        </Grid>*/}
-                        {/*                                        <Grid xs={12} sm={6}>*/}
-                        {/*                                            <Typography level="title-sm">{t('consumer.order.paymentStatus')}</Typography>*/}
-                        {/*                                            <Typography>{getStatusText(order.paymentStatus)}</Typography>*/}
-                        {/*                                        </Grid>*/}
-                        {/*                                    </Grid>*/}
-                        {/*                                    */}
-                        {/*                                    <Box sx={{mt: 2}}>*/}
-                        {/*                                        <Typography level="body-sm">*/}
-                        {/*                                            {t('consumer.order.viewDetails')}*/}
-                        {/*                                        </Typography>*/}
-                        {/*                                    </Box>*/}
-                        {/*                                </CardContent>*/}
-                        {/*                            </Card>*/}
-                        {/*                        )*/}
-                        {/*                    })}*/}
-                        {/*                </Box>*/}
-                        {/*            )}*/}
-                        {/*        </CardContent>*/}
-                        {/*    </Card>*/}
-                        {/*</Grid>*/}
                     </Grid>
                 </Box>
             )}

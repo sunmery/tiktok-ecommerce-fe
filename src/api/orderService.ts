@@ -18,7 +18,6 @@ import {
     ShippingInfo,
 } from '@/types/orders';
 import {ShipOrderResponse} from "@/hooks/useShipping.ts";
-import { t } from 'i18next';
 
 /**
  * 订单服务API
@@ -144,19 +143,20 @@ export const orderService = {
     },
 
     /**
-     * 更新订单状态
+     * 更新订单货运状态
      * PUT /v1/orders/{orderId}/status
      */
-    updateOrderStatus: (orderId: string, status: ShippingStatus) => {
+    updateOrderShippingStatus: (subOrderId: string, status: ShippingStatus) => {
         const url = httpClient.replacePathParams(
-            `${import.meta.env.VITE_ORDERS_URL}/{orderId}/status`,
-            {orderId: orderId}
+            `${import.meta.env.VITE_MERCHANTS_URL}/orders/ship/{subOrderId}/status`,
+            {subOrderId: subOrderId}
         );
         return httpClient.put(url, JSON.stringify({
             status: status
         }), {
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         });
     },

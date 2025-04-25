@@ -2,7 +2,7 @@
  * 商家地址管理API
  */
 
-import { BASE_URL, fetchApi } from '../config';
+import { fetchApi } from '../config';
 
 // 地址类型枚举
 export enum AddressType {
@@ -128,7 +128,6 @@ export const addressService = {
    * GET /v1/merchants/addresses
    */
   listAddresses: (params: ListAddressesRequest) => {
-    console.log('BASE_URL',BASE_URL)
     const searchParams = new URLSearchParams();
     if (params.addressType !== undefined) {
       searchParams.append('addressType', params.addressType.toString());

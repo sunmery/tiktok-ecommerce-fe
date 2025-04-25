@@ -9,7 +9,7 @@ import {useEffect, useState} from 'react'
 import Skeleton from '@/components/Skeleton'
 import {useTranslation} from "react-i18next";
 import {showMessage} from '@/utils/showMessage'
-
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 
 export const Route = createLazyFileRoute('/merchant/')({
     component: MerchantDashboard,
@@ -159,7 +159,7 @@ function MerchantDashboard() {
                         </Card>
                     </Grid>
 
-                    <Grid xs={12} md={6} sx={{mt: 2}}>
+                    <Grid xs={12} md={6}>
                         <Card variant="outlined" sx={{height: '100%'}}>
                             <CardContent>
                                 <Typography level="h3">{t('merchant.inventoryManagement')}</Typography>
@@ -244,6 +244,37 @@ function MerchantDashboard() {
                                 </Button>
                             </CardContent>
                         </Card>
+                    </Grid>
+                    <Grid xs={12} md={6} mt={2}> 
+                        <Card variant="outlined" sx={{height: '100%'}}> 
+                            <CardContent> 
+                                <Typography level="h3">{t('merchant.orderTransactions')}</Typography> 
+                                <Divider sx={{my: 2}}/> 
+                                <List> 
+                                    <ListItem> 
+                                        <ListItem>{t('merchant.transactionFeatures.viewAll')}</ListItem> 
+                                    </ListItem> 
+                                    <ListItem> 
+                                        <ListItem>{t('merchant.transactionFeatures.trackPayments')}</ListItem> 
+                                    </ListItem> 
+                                    <ListItem> 
+                                        <ListItem>{t('merchant.transactionFeatures.exportData')}</ListItem> 
+                                    </ListItem> 
+                                </List> 
+                                <Button 
+                                    variant="solid" 
+                                    color="primary" 
+                                    startDecorator={<ReceiptLongIcon/>} 
+                                    onClick={() => navigate({to: '/merchant/orders/transactions'}).then(() => { 
+                                        console.log(t('merchant.log.navigatedToTransactions')) 
+                                    })} 
+                                    fullWidth 
+                                    sx={{mt: 2}} 
+                                > 
+                                    {t('merchant.viewTransactions')} 
+                                </Button> 
+                            </CardContent> 
+                        </Card> 
                     </Grid>
                 </Grid>
             )}

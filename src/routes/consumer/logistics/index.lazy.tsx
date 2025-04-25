@@ -39,11 +39,11 @@ function ConsumerLogistics() {
         queryFn: () => userService.getAddresses()
     })
 
-    // 获取商家地址
-    const {data: merchantAddresses} = useQuery({
-        queryKey: ['merchantAddresses'],
-        queryFn: () => addressService.listAddresses({page: 1, pageSize: 10})
-    })
+    // // 获取商家地址
+    // const {data: merchantAddresses} = useQuery({
+    //     queryKey: ['merchantAddresses'],
+    //     queryFn: () => addressService.listAddresses({page: 1, pageSize: 10})
+    // })
 
     // 获取物流信息
     const {data: shippingInfo, isLoading: shippingLoading} = useQuery({

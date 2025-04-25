@@ -3,7 +3,7 @@ import {Alert, Box, Button, Card, CardContent, Chip, Divider, Grid, Stack, Typog
 import {useEffect, useState} from 'react'
 import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
-import {Order, ShippingInfo} from '@/types/orders'
+import {Order} from '@/types/orders'
 import {formatCurrency} from '@/utils/format'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
@@ -242,9 +242,6 @@ function ConsumerOrderDetail() {
                                 </CardContent>
                             </Card>
                         </Grid>
-
-
-                        {/* 删除物流信息组件，改为在商品概览中添加查询按钮 */}
 
                         {/* 确认收货按钮 */}
                         {order.shippingStatus === 'DELIVERED' && (

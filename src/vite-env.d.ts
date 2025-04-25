@@ -36,6 +36,7 @@ interface ImportMetaEnv {
     readonly VITE_PRODUCERS_URL: string
     readonly VITE_ADDRESSES_URL: string
     readonly VITE_MERCHANTS_URL: string
+    readonly VITE_BALANCER_URL: string
 }
 
 interface ImportMeta {

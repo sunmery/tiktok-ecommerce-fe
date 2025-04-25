@@ -10,7 +10,6 @@ interface UsePaginationReturn {
     page: number;
     pageSize: number;
     totalPages: number;
-    totalCount: number;
     setPage: (page: number) => void;
     setPageSize: (pageSize: number) => void;
     setTotalItems: (totalItems: number) => void;
@@ -66,6 +65,5 @@ export function usePagination({
         setTotalItems,
         handlePageChange,
         handlePageSizeChange,
-        totalCount,
     };
 } 

@@ -67,6 +67,9 @@ const ProductsCategoryCategoryNameLazyImport = createFileRoute(
 const ConsumerOrdersOrderIdLazyImport = createFileRoute(
   '/consumer/orders/$orderId',
 )()
+const MerchantOrdersTransactionsIndexLazyImport = createFileRoute(
+  '/merchant/orders/transactions/',
+)()
 
 // Create/Update Routes
 
@@ -344,6 +347,17 @@ const ConsumerOrdersOrderIdLazyRoute = ConsumerOrdersOrderIdLazyImport.update({
 } as any).lazy(() =>
   import('./routes/consumer/orders/$orderId.lazy').then((d) => d.Route),
 )
+
+const MerchantOrdersTransactionsIndexLazyRoute =
+  MerchantOrdersTransactionsIndexLazyImport.update({
+    id: '/merchant/orders/transactions/',
+    path: '/merchant/orders/transactions/',
+    getParentRoute: () => rootRoute,
+  } as any).lazy(() =>
+    import('./routes/merchant/orders/transactions/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
 
 const MerchantInventoryMonitoringIndexRoute =
   MerchantInventoryMonitoringIndexImport.update({
@@ -630,6 +644,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MerchantInventoryMonitoringIndexImport
       parentRoute: typeof rootRoute
     }
+    '/merchant/orders/transactions/': {
+      id: '/merchant/orders/transactions/'
+      path: '/merchant/orders/transactions'
+      fullPath: '/merchant/orders/transactions'
+      preLoaderRoute: typeof MerchantOrdersTransactionsIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -673,6 +694,7 @@ export interface FileRoutesByFullPath {
   '/merchant/table': typeof MerchantTableIndexLazyRoute
   '/merchant/inventory/alerts': typeof MerchantInventoryAlertsIndexRoute
   '/merchant/inventory/monitoring': typeof MerchantInventoryMonitoringIndexRoute
+  '/merchant/orders/transactions': typeof MerchantOrdersTransactionsIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
@@ -713,6 +735,7 @@ export interface FileRoutesByTo {
   '/merchant/table': typeof MerchantTableIndexLazyRoute
   '/merchant/inventory/alerts': typeof MerchantInventoryAlertsIndexRoute
   '/merchant/inventory/monitoring': typeof MerchantInventoryMonitoringIndexRoute
+  '/merchant/orders/transactions': typeof MerchantOrdersTransactionsIndexLazyRoute
 }
 
 export interface FileRoutesById {
@@ -754,6 +777,7 @@ export interface FileRoutesById {
   '/merchant/table/': typeof MerchantTableIndexLazyRoute
   '/merchant/inventory/alerts/': typeof MerchantInventoryAlertsIndexRoute
   '/merchant/inventory/monitoring/': typeof MerchantInventoryMonitoringIndexRoute
+  '/merchant/orders/transactions/': typeof MerchantOrdersTransactionsIndexLazyRoute
 }
 
 export interface FileRouteTypes {
@@ -796,6 +820,7 @@ export interface FileRouteTypes {
     | '/merchant/table'
     | '/merchant/inventory/alerts'
     | '/merchant/inventory/monitoring'
+    | '/merchant/orders/transactions'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -835,6 +860,7 @@ export interface FileRouteTypes {
     | '/merchant/table'
     | '/merchant/inventory/alerts'
     | '/merchant/inventory/monitoring'
+    | '/merchant/orders/transactions'
   id:
     | '__root__'
     | '/'
@@ -874,6 +900,7 @@ export interface FileRouteTypes {
     | '/merchant/table/'
     | '/merchant/inventory/alerts/'
     | '/merchant/inventory/monitoring/'
+    | '/merchant/orders/transactions/'
   fileRoutesById: FileRoutesById
 }
 
@@ -915,6 +942,7 @@ export interface RootRouteChildren {
   MerchantTableIndexLazyRoute: typeof MerchantTableIndexLazyRoute
   MerchantInventoryAlertsIndexRoute: typeof MerchantInventoryAlertsIndexRoute
   MerchantInventoryMonitoringIndexRoute: typeof MerchantInventoryMonitoringIndexRoute
+  MerchantOrdersTransactionsIndexLazyRoute: typeof MerchantOrdersTransactionsIndexLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -955,6 +983,8 @@ const rootRouteChildren: RootRouteChildren = {
   MerchantTableIndexLazyRoute: MerchantTableIndexLazyRoute,
   MerchantInventoryAlertsIndexRoute: MerchantInventoryAlertsIndexRoute,
   MerchantInventoryMonitoringIndexRoute: MerchantInventoryMonitoringIndexRoute,
+  MerchantOrdersTransactionsIndexLazyRoute:
+    MerchantOrdersTransactionsIndexLazyRoute,
 }
 
 export const routeTree = rootRoute
@@ -1003,7 +1033,8 @@ export const routeTree = rootRoute
         "/merchant/products/",
         "/merchant/table/",
         "/merchant/inventory/alerts/",
-        "/merchant/inventory/monitoring/"
+        "/merchant/inventory/monitoring/",
+        "/merchant/orders/transactions/"
       ]
     },
     "/": {
@@ -1116,6 +1147,9 @@ export const routeTree = rootRoute
     },
     "/merchant/inventory/monitoring/": {
       "filePath": "merchant/inventory/monitoring/index.tsx"
+    },
+    "/merchant/orders/transactions/": {
+      "filePath": "merchant/orders/transactions/index.lazy.tsx"
     }
   }
 }

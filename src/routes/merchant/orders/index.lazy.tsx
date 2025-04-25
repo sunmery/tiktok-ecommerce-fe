@@ -1,7 +1,7 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
 import {useEffect, useState} from 'react'
 import {Box, Button, Card, CardContent, Grid, IconButton, Modal, Sheet, Snackbar, Table, Typography} from '@mui/joy'
-import {Order, PaymentStatus} from '@/types/orders'
+import {Order, PaymentStatus, ShippingStatus} from '@/types/orders'
 import {orderService} from '@/api/orderService'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
@@ -101,13 +101,13 @@ export default function Orders() {
         setSelectedOrder(null)
     }
 
-    const handleStatusChange = async (orderId: string, status: PaymentStatus) => {
+    const handleStatusChange = async (subOrderId: string, shippingStatus: ShippingStatus) => {
         try {
-            await orderService.updateOrderStatus(orderId, status)
+            await orderService.updateOrderShippingStatus(subOrderId, shippingStatus)
             setOrders(prevOrders => {
                 return prevOrders.map(order => {
-                    if (order.orderId === orderId) {
-                        return {...order, paymentStatus: status}
+                    if (order.subOrderId === subOrderId) {
+                        return {...order, shippingStatus,}
                     }
                     return order
                 })
@@ -287,7 +287,7 @@ export default function Orders() {
                                                     {t('merchant.orders.viewDetails')}
                                                 </Button>
 
-                                                {order.shippingStatus === 'PENDING_SHIPMENT' && (
+                                                {order.shippingStatus === ShippingStatus.ShippingWaitCommand && (
                                                     <Button
                                                         size="sm"
                                                         variant="outlined"
@@ -301,7 +301,7 @@ export default function Orders() {
                                         </td>
                                         <td>
                                             <Box sx={{display: 'flex', gap: 1}}>
-                                                {order.shippingStatus === 'PENDING_SHIPMENT' && (
+                                                {order.shippingStatus === ShippingStatus.ShippingWaitCommand && (
                                                     <>
                                                         <Button
                                                             size="sm"
@@ -315,7 +315,7 @@ export default function Orders() {
                                                             size="sm"
                                                             variant="outlined"
                                                             color="warning"
-                                                            onClick={() => handleStatusChange(order.orderId, PaymentStatus.Processing)}
+                                                            onClick={() => handleStatusChange(order.orderId, ShippingStatus.ShippingPending)}
                                                         >
                                                             {t('merchant.orders.markToBeShipped')}
                                                         </Button>

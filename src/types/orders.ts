@@ -125,6 +125,7 @@ export enum PaymentStatus {
 
 // 货运状态枚举
 export enum ShippingStatus {
+    ShippingWaitCommand  = "WAIT_COMMAND", // 等待操作
     ShippingPending = "PENDING_SHIPMENT", // 待发货
     ShippingShipped = "SHIPPED", // 已发货
     ShippingInTransit = "IN_TRANSIT", // 运输中
