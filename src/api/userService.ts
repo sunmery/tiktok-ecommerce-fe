@@ -82,7 +82,7 @@ export const userService = {
      * GET ${import.meta.env.VITE_USERS_URL}
      */
     listUsers: () => {
-        return httpClient.get<Users>('${import.meta.env.VITE_USERS_URL}');
+        return httpClient.get<Users>(`${import.meta.env.VITE_USERS_URL}`);
     },
 
     /**
@@ -106,7 +106,7 @@ export const userService = {
      * POST ${import.meta.env.VITE_USERS_URL}
      */
     deleteUser: (userId: string, owner: string, name: string) => {
-        return httpClient.post<{ status: string, code: number }>('${import.meta.env.VITE_USERS_URL}', {
+        return httpClient.post<{ status: string, code: number }>(`${import.meta.env.VITE_USERS_URL}`, {
             userId,
             owner,
             name

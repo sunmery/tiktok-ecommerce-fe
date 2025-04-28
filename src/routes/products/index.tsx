@@ -236,9 +236,23 @@ function Products() {
                             }}
                         >
                             <CardOverflow>
-                                <AspectRatio ratio="4/3" objectFit="cover">
+                                <AspectRatio
+                                    ratio="1"
+                                    sx={{
+                                        minHeight: '200px',
+                                        '& img': {
+                                            objectFit: 'contain',
+                                            width: '100%',
+                                            height: '100%',
+                                            transition: 'transform 0.3s ease',
+                                            '&:hover': {
+                                                transform: 'scale(1.05)'
+                                            }
+                                        }
+                                    }}
+                                >
                                     <img
-                                        src={product.images && product.images.length > 0 ? product.images[0].url : ''}
+                                        src={product.images[0].url}
                                         loading="lazy"
                                         alt={product.name}
                                     />

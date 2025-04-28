@@ -6,7 +6,7 @@ import {useEffect, useState} from 'react'
 import Skeleton from '@/components/Skeleton'
 import {Order} from '@/types/orders'
 import {orderService} from '@/api/orderService'
-import {useTranslation, t} from "react-i18next"  // 添加 t 的导入
+import {useTranslation} from "react-i18next"  // 添加 t 的导入
 
 export const Route = createLazyFileRoute('/consumer/')({
     component: ConsumerDashboard,
@@ -41,7 +41,7 @@ function ConsumerDashboard() {
         try {
             // 调用API获取订单列表
             const response = await orderService.getOrder({
-                userId: '', // 留空，API会使用当前登录用户的ID
+                // userId: '', // 留空，API会使用当前登录用户的ID
                 page: 1,
                 pageSize: 3 // 只获取最近的3个订单
             })
@@ -72,6 +72,50 @@ function ConsumerDashboard() {
             ) : (
                 <Box>
                     <Grid container spacing={3}>
+                        {/* 余额卡片 */}
+                        <Grid xs={12} md={6}>
+                            <Card variant="outlined" sx={{height: '100%'}}>
+                                <CardContent>
+                                    <Typography level="h3">{t('consumer.balancer.title')}</Typography>
+                                    <Divider sx={{my: 2}}/>
+                                    <List>
+                                        <ListItem>
+                                            <Button
+                                                variant="plain"
+                                                onClick={() => navigate({to: '/consumer/balancer'}).then(() => {
+                                                    console.log('已跳转到余额页面')
+                                                })}
+                                                sx={{width: '100%', justifyContent: 'flex-start'}}
+                                            >
+                                                {t('consumer.balancer.view')}
+                                            </Button>
+                                        </ListItem>
+                                    </List>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                        {/* 交易记录卡片 */}
+                        <Grid xs={12} md={6}>
+                            <Card variant="outlined" sx={{height: '100%'}}>
+                                <CardContent>
+                                    <Typography level="h3">{t('consumer.transactions.title')}</Typography>
+                                    <Divider sx={{my: 2}}/>
+                                    <List>
+                                        <ListItem>
+                                            <Button
+                                                variant="plain"
+                                                onClick={() => navigate({to: '/consumer/transactions'}).then(() => {
+                                                    console.log('已跳转到余额页面')
+                                                })}
+                                                sx={{width: '100%', justifyContent: 'flex-start'}}
+                                            >
+                                                {t('consumer.transactions.view')}
+                                            </Button>
+                                        </ListItem>
+                                    </List>
+                                </CardContent>
+                            </Card>
+                        </Grid>
                         {/* 我的订单卡片 */}
                         <Grid xs={12} md={6}>
                             <Card variant="outlined" sx={{height: '100%'}}>

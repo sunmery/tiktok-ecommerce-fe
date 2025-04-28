@@ -9,7 +9,6 @@ import {useTranslation} from 'react-i18next'
 import {ShippingUpdate} from '@/types/orders'
 import {orderService} from '@/api/orderService'
 import {useQuery} from '@tanstack/react-query'
-import {addressService} from '@/api/merchant/addressService'
 import {userService} from '@/api/userService'
 import LogisticsMap from '@/components/LogisticsMap'
 import {Coordinates} from '@/types/logisticsMap'
@@ -34,7 +33,7 @@ function ConsumerLogistics() {
     })
 
     // 获取用户地址
-    const {data: userAddresses} = useQuery({
+    useQuery({
         queryKey: ['userAddresses'],
         queryFn: () => userService.getAddresses()
     })

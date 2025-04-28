@@ -16,6 +16,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as ProductsIndexImport } from './routes/products/index'
 import { Route as LogisticsIndexImport } from './routes/logistics/index'
 import { Route as MerchantInventoryIndexImport } from './routes/merchant/inventory/index'
+import { Route as ConsumerTransactionsIndexImport } from './routes/consumer/transactions/index'
 import { Route as MerchantInventoryMonitoringIndexImport } from './routes/merchant/inventory/monitoring/index'
 import { Route as MerchantInventoryAlertsIndexImport } from './routes/merchant/inventory/alerts/index'
 
@@ -55,7 +56,11 @@ const ConsumerLogisticsIndexLazyImport = createFileRoute(
 const ConsumerFavoritesIndexLazyImport = createFileRoute(
   '/consumer/favorites/',
 )()
+const ConsumerBalancerIndexLazyImport = createFileRoute('/consumer/balancer/')()
 const AdminUsersIndexLazyImport = createFileRoute('/admin/users/')()
+const AdminRechargeBalanceIndexLazyImport = createFileRoute(
+  '/admin/rechargeBalance/',
+)()
 const AdminProductsIndexLazyImport = createFileRoute('/admin/products/')()
 const AdminEcommerceMapIndexLazyImport = createFileRoute(
   '/admin/ecommerce-map/',
@@ -287,6 +292,14 @@ const ConsumerFavoritesIndexLazyRoute = ConsumerFavoritesIndexLazyImport.update(
   import('./routes/consumer/favorites/index.lazy').then((d) => d.Route),
 )
 
+const ConsumerBalancerIndexLazyRoute = ConsumerBalancerIndexLazyImport.update({
+  id: '/consumer/balancer/',
+  path: '/consumer/balancer/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/consumer/balancer/index.lazy').then((d) => d.Route),
+)
+
 const AdminUsersIndexLazyRoute = AdminUsersIndexLazyImport.update({
   id: '/admin/users/',
   path: '/admin/users/',
@@ -294,6 +307,15 @@ const AdminUsersIndexLazyRoute = AdminUsersIndexLazyImport.update({
 } as any).lazy(() =>
   import('./routes/admin/users/index.lazy').then((d) => d.Route),
 )
+
+const AdminRechargeBalanceIndexLazyRoute =
+  AdminRechargeBalanceIndexLazyImport.update({
+    id: '/admin/rechargeBalance/',
+    path: '/admin/rechargeBalance/',
+    getParentRoute: () => rootRoute,
+  } as any).lazy(() =>
+    import('./routes/admin/rechargeBalance/index.lazy').then((d) => d.Route),
+  )
 
 const AdminProductsIndexLazyRoute = AdminProductsIndexLazyImport.update({
   id: '/admin/products/',
@@ -328,6 +350,12 @@ const MerchantInventoryIndexRoute = MerchantInventoryIndexImport.update({
 } as any).lazy(() =>
   import('./routes/merchant/inventory/index.lazy').then((d) => d.Route),
 )
+
+const ConsumerTransactionsIndexRoute = ConsumerTransactionsIndexImport.update({
+  id: '/consumer/transactions/',
+  path: '/consumer/transactions/',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const ProductsCategoryCategoryNameLazyRoute =
   ProductsCategoryCategoryNameLazyImport.update({
@@ -525,6 +553,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsCategoryCategoryNameLazyImport
       parentRoute: typeof rootRoute
     }
+    '/consumer/transactions/': {
+      id: '/consumer/transactions/'
+      path: '/consumer/transactions'
+      fullPath: '/consumer/transactions'
+      preLoaderRoute: typeof ConsumerTransactionsIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/merchant/inventory/': {
       id: '/merchant/inventory/'
       path: '/merchant/inventory'
@@ -553,11 +588,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProductsIndexLazyImport
       parentRoute: typeof rootRoute
     }
+    '/admin/rechargeBalance/': {
+      id: '/admin/rechargeBalance/'
+      path: '/admin/rechargeBalance'
+      fullPath: '/admin/rechargeBalance'
+      preLoaderRoute: typeof AdminRechargeBalanceIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/admin/users/': {
       id: '/admin/users/'
       path: '/admin/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AdminUsersIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/consumer/balancer/': {
+      id: '/consumer/balancer/'
+      path: '/consumer/balancer'
+      fullPath: '/consumer/balancer'
+      preLoaderRoute: typeof ConsumerBalancerIndexLazyImport
       parentRoute: typeof rootRoute
     }
     '/consumer/favorites/': {
@@ -677,11 +726,14 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileIndexLazyRoute
   '/consumer/orders/$orderId': typeof ConsumerOrdersOrderIdLazyRoute
   '/products/category/$categoryName': typeof ProductsCategoryCategoryNameLazyRoute
+  '/consumer/transactions': typeof ConsumerTransactionsIndexRoute
   '/merchant/inventory': typeof MerchantInventoryIndexRoute
   '/admin/analytics': typeof AdminAnalyticsIndexLazyRoute
   '/admin/ecommerce-map': typeof AdminEcommerceMapIndexLazyRoute
   '/admin/products': typeof AdminProductsIndexLazyRoute
+  '/admin/rechargeBalance': typeof AdminRechargeBalanceIndexLazyRoute
   '/admin/users': typeof AdminUsersIndexLazyRoute
+  '/consumer/balancer': typeof ConsumerBalancerIndexLazyRoute
   '/consumer/favorites': typeof ConsumerFavoritesIndexLazyRoute
   '/consumer/logistics': typeof ConsumerLogisticsIndexLazyRoute
   '/consumer/map': typeof ConsumerMapIndexLazyRoute
@@ -718,11 +770,14 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileIndexLazyRoute
   '/consumer/orders/$orderId': typeof ConsumerOrdersOrderIdLazyRoute
   '/products/category/$categoryName': typeof ProductsCategoryCategoryNameLazyRoute
+  '/consumer/transactions': typeof ConsumerTransactionsIndexRoute
   '/merchant/inventory': typeof MerchantInventoryIndexRoute
   '/admin/analytics': typeof AdminAnalyticsIndexLazyRoute
   '/admin/ecommerce-map': typeof AdminEcommerceMapIndexLazyRoute
   '/admin/products': typeof AdminProductsIndexLazyRoute
+  '/admin/rechargeBalance': typeof AdminRechargeBalanceIndexLazyRoute
   '/admin/users': typeof AdminUsersIndexLazyRoute
+  '/consumer/balancer': typeof ConsumerBalancerIndexLazyRoute
   '/consumer/favorites': typeof ConsumerFavoritesIndexLazyRoute
   '/consumer/logistics': typeof ConsumerLogisticsIndexLazyRoute
   '/consumer/map': typeof ConsumerMapIndexLazyRoute
@@ -760,11 +815,14 @@ export interface FileRoutesById {
   '/profile/': typeof ProfileIndexLazyRoute
   '/consumer/orders/$orderId': typeof ConsumerOrdersOrderIdLazyRoute
   '/products/category/$categoryName': typeof ProductsCategoryCategoryNameLazyRoute
+  '/consumer/transactions/': typeof ConsumerTransactionsIndexRoute
   '/merchant/inventory/': typeof MerchantInventoryIndexRoute
   '/admin/analytics/': typeof AdminAnalyticsIndexLazyRoute
   '/admin/ecommerce-map/': typeof AdminEcommerceMapIndexLazyRoute
   '/admin/products/': typeof AdminProductsIndexLazyRoute
+  '/admin/rechargeBalance/': typeof AdminRechargeBalanceIndexLazyRoute
   '/admin/users/': typeof AdminUsersIndexLazyRoute
+  '/consumer/balancer/': typeof ConsumerBalancerIndexLazyRoute
   '/consumer/favorites/': typeof ConsumerFavoritesIndexLazyRoute
   '/consumer/logistics/': typeof ConsumerLogisticsIndexLazyRoute
   '/consumer/map/': typeof ConsumerMapIndexLazyRoute
@@ -803,11 +861,14 @@ export interface FileRouteTypes {
     | '/profile'
     | '/consumer/orders/$orderId'
     | '/products/category/$categoryName'
+    | '/consumer/transactions'
     | '/merchant/inventory'
     | '/admin/analytics'
     | '/admin/ecommerce-map'
     | '/admin/products'
+    | '/admin/rechargeBalance'
     | '/admin/users'
+    | '/consumer/balancer'
     | '/consumer/favorites'
     | '/consumer/logistics'
     | '/consumer/map'
@@ -843,11 +904,14 @@ export interface FileRouteTypes {
     | '/profile'
     | '/consumer/orders/$orderId'
     | '/products/category/$categoryName'
+    | '/consumer/transactions'
     | '/merchant/inventory'
     | '/admin/analytics'
     | '/admin/ecommerce-map'
     | '/admin/products'
+    | '/admin/rechargeBalance'
     | '/admin/users'
+    | '/consumer/balancer'
     | '/consumer/favorites'
     | '/consumer/logistics'
     | '/consumer/map'
@@ -883,11 +947,14 @@ export interface FileRouteTypes {
     | '/profile/'
     | '/consumer/orders/$orderId'
     | '/products/category/$categoryName'
+    | '/consumer/transactions/'
     | '/merchant/inventory/'
     | '/admin/analytics/'
     | '/admin/ecommerce-map/'
     | '/admin/products/'
+    | '/admin/rechargeBalance/'
     | '/admin/users/'
+    | '/consumer/balancer/'
     | '/consumer/favorites/'
     | '/consumer/logistics/'
     | '/consumer/map/'
@@ -925,11 +992,14 @@ export interface RootRouteChildren {
   ProfileIndexLazyRoute: typeof ProfileIndexLazyRoute
   ConsumerOrdersOrderIdLazyRoute: typeof ConsumerOrdersOrderIdLazyRoute
   ProductsCategoryCategoryNameLazyRoute: typeof ProductsCategoryCategoryNameLazyRoute
+  ConsumerTransactionsIndexRoute: typeof ConsumerTransactionsIndexRoute
   MerchantInventoryIndexRoute: typeof MerchantInventoryIndexRoute
   AdminAnalyticsIndexLazyRoute: typeof AdminAnalyticsIndexLazyRoute
   AdminEcommerceMapIndexLazyRoute: typeof AdminEcommerceMapIndexLazyRoute
   AdminProductsIndexLazyRoute: typeof AdminProductsIndexLazyRoute
+  AdminRechargeBalanceIndexLazyRoute: typeof AdminRechargeBalanceIndexLazyRoute
   AdminUsersIndexLazyRoute: typeof AdminUsersIndexLazyRoute
+  ConsumerBalancerIndexLazyRoute: typeof ConsumerBalancerIndexLazyRoute
   ConsumerFavoritesIndexLazyRoute: typeof ConsumerFavoritesIndexLazyRoute
   ConsumerLogisticsIndexLazyRoute: typeof ConsumerLogisticsIndexLazyRoute
   ConsumerMapIndexLazyRoute: typeof ConsumerMapIndexLazyRoute
@@ -966,11 +1036,14 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileIndexLazyRoute: ProfileIndexLazyRoute,
   ConsumerOrdersOrderIdLazyRoute: ConsumerOrdersOrderIdLazyRoute,
   ProductsCategoryCategoryNameLazyRoute: ProductsCategoryCategoryNameLazyRoute,
+  ConsumerTransactionsIndexRoute: ConsumerTransactionsIndexRoute,
   MerchantInventoryIndexRoute: MerchantInventoryIndexRoute,
   AdminAnalyticsIndexLazyRoute: AdminAnalyticsIndexLazyRoute,
   AdminEcommerceMapIndexLazyRoute: AdminEcommerceMapIndexLazyRoute,
   AdminProductsIndexLazyRoute: AdminProductsIndexLazyRoute,
+  AdminRechargeBalanceIndexLazyRoute: AdminRechargeBalanceIndexLazyRoute,
   AdminUsersIndexLazyRoute: AdminUsersIndexLazyRoute,
+  ConsumerBalancerIndexLazyRoute: ConsumerBalancerIndexLazyRoute,
   ConsumerFavoritesIndexLazyRoute: ConsumerFavoritesIndexLazyRoute,
   ConsumerLogisticsIndexLazyRoute: ConsumerLogisticsIndexLazyRoute,
   ConsumerMapIndexLazyRoute: ConsumerMapIndexLazyRoute,
@@ -1017,11 +1090,14 @@ export const routeTree = rootRoute
         "/profile/",
         "/consumer/orders/$orderId",
         "/products/category/$categoryName",
+        "/consumer/transactions/",
         "/merchant/inventory/",
         "/admin/analytics/",
         "/admin/ecommerce-map/",
         "/admin/products/",
+        "/admin/rechargeBalance/",
         "/admin/users/",
+        "/consumer/balancer/",
         "/consumer/favorites/",
         "/consumer/logistics/",
         "/consumer/map/",
@@ -1097,6 +1173,9 @@ export const routeTree = rootRoute
     "/products/category/$categoryName": {
       "filePath": "products/category/$categoryName.lazy.tsx"
     },
+    "/consumer/transactions/": {
+      "filePath": "consumer/transactions/index.tsx"
+    },
     "/merchant/inventory/": {
       "filePath": "merchant/inventory/index.tsx"
     },
@@ -1109,8 +1188,14 @@ export const routeTree = rootRoute
     "/admin/products/": {
       "filePath": "admin/products/index.lazy.tsx"
     },
+    "/admin/rechargeBalance/": {
+      "filePath": "admin/rechargeBalance/index.lazy.tsx"
+    },
     "/admin/users/": {
       "filePath": "admin/users/index.lazy.tsx"
+    },
+    "/consumer/balancer/": {
+      "filePath": "consumer/balancer/index.lazy.tsx"
     },
     "/consumer/favorites/": {
       "filePath": "consumer/favorites/index.lazy.tsx"

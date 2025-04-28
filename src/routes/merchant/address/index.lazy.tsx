@@ -22,9 +22,9 @@ import {
 import { useAlert } from '@/core/providers/AlertProvider';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import { addressService, Address, AddressType } from '@/api/merchant/addressService.ts';
 import Breadcrumbs from "@/shared/components/Breadcrumbs";
 import {t} from "i18next";
+import {MerchantAddress, merchantAddressService, MerchantAddressType} from '@/api/merchant/addressService';
 
 function AddressPage() {
   const queryClient = useQueryClient();
@@ -33,64 +33,64 @@ function AddressPage() {
   const [pageSize, setPageSize] = useState(10);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [onlyDefault, setOnlyDefault] = useState<boolean>(false);
-  const [editingAddress, setEditingAddress] = useState<Partial<Address> | null>(null);
-  const [selectedType, setSelectedType] = useState<AddressType>(0);
+  const [editingAddress, setEditingAddress] = useState<Partial<MerchantAddress>>({});  // 修改初始值为空对象而不是字符串
+  const [selectedType, setSelectedType] = useState<MerchantAddressType
+ | ''>('');  // 修改初始值类型
 
   // 获取地址列表
   const { data: addressList, isLoading } = useQuery({
-    queryKey: ['addresses', page, pageSize, selectedType, onlyDefault],
+    queryKey: ['addresses', page, pageSize],
     queryFn: () =>
-      addressService.listAddresses({
+      merchantAddressService.listAddresses({
         page,
         pageSize,
-        onlyDefault,
-        addressType: selectedType as AddressType,
       }),
   });
 
   // 创建地址
   const createMutation = useMutation({
-    mutationFn: addressService.createAddress,
+    mutationFn: merchantAddressService.createMerchantAddress,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
       setOpenDialog(false);
-      setEditingAddress(null);
-      showAlert('地址创建成功', 'success');
+      setEditingAddress(editingAddress);
+      showAlert(t('merchant.address.createSuccess'), 'success');
     },
     onError: () => {
-      showAlert('地址创建失败', 'danger');
+      showAlert(t('merchant.address.createFailed'), 'danger');
     },
   });
 
   // 更新地址
   const updateMutation = useMutation({
-    mutationFn: ({ id, ...data }: Address) => addressService.updateAddress(id, data),
+    mutationFn: ({ id, ...data }: MerchantAddress 
+) => merchantAddressService.updateMerchantAddress(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
       setOpenDialog(false);
-      setEditingAddress(null);
-      showAlert('地址更新成功', 'success');
+      setEditingAddress(editingAddress);
+      showAlert(t('merchant.address.updateSuccess'), 'success');
     },
     onError: () => {
-      showAlert('地址更新失败', 'danger');
+      showAlert(t('merchant.address.updateFailed'), 'danger');
     },
   });
 
   // 删除地址
   const deleteMutation = useMutation({
-    mutationFn: addressService.deleteAddress,
+    mutationFn: merchantAddressService.deleteMerchantAddress,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
-      showAlert('地址删除成功', 'success');
+      showAlert(t('merchant.address.deleteSuccess'), 'success');
     },
     onError: () => {
-      showAlert('地址删除失败', 'danger');
+      showAlert(t('merchant.address.deleteFailed'), 'danger');
     },
   });
 
   // 设置默认地址
   const setDefaultMutation = useMutation({
-    mutationFn: addressService.setDefaultAddress,
+    mutationFn: merchantAddressService.setDefaultMerchantAddress,
     onMutate: async (addressId) => {
       // 取消任何正在进行的重新获取
       await queryClient.cancelQueries({ queryKey: ['addresses'] });
@@ -102,10 +102,12 @@ function AddressPage() {
       queryClient.setQueryData(['addresses'], (old: any) => {
         if (!old?.addresses) return old;
         
-        const targetAddress = old.addresses.find((addr: Address) => addr.id === addressId);
+        const targetAddress = old.addresses.find((addr: MerchantAddress 
+) => addr.id === addressId);
         if (!targetAddress) return old;
         
-        const updatedAddresses = old.addresses.map((addr: Address) => ({
+        const updatedAddresses = old.addresses.map((addr: MerchantAddress 
+) => ({
           ...addr,
           isDefault: addr.id === addressId ? true : 
                      addr.addressType === targetAddress.addressType ? false : 
@@ -132,10 +134,16 @@ function AddressPage() {
     event.preventDefault();
     if (!editingAddress) return;
 
+    // 添加表单验证
+    if (editingAddress.streetAddress && editingAddress.streetAddress.length < 5) {
+      showAlert(t('merchant.address.streetAddressValidationError'),'neutral' );
+      return;
+    }
+
     if ('id' in editingAddress) {
-      updateMutation.mutate(editingAddress as Address);
+      updateMutation.mutate(editingAddress as MerchantAddress);
     } else {
-      createMutation.mutate(editingAddress  as Address);
+      createMutation.mutate(editingAddress as MerchantAddress);
     }
   };
 
@@ -147,13 +155,13 @@ function AddressPage() {
       width: 130,
       renderCell: (params: GridRenderCellParams) => {
         const typeMap = {
-          [AddressType.WAREHOUSE]: t('merchant.address.warehouse'),
-          [AddressType.RETURN]: t('merchant.address.return'),
-          [AddressType.STORE]: t('merchant.address.store'),
-          [AddressType.BILLING]: t('merchant.address.billing'),
-          [AddressType.HEADQUARTERS]: t('merchant.address.headquarters'),
+          [MerchantAddressType.WAREHOUSE]: t('merchant.address.warehouse'),
+          [MerchantAddressType.RETURN]: t('merchant.address.return'),
+          [MerchantAddressType.STORE]: t('merchant.address.store'),
+          [MerchantAddressType.BILLING]: t('merchant.address.billing'),
+          [MerchantAddressType.HEADQUARTERS]: t('merchant.address.headquarters'),
         };
-        return typeMap[params.value as AddressType];
+        return typeMap[params.value as MerchantAddressType];
       },
     },
     { field: 'contactPerson', headerName: t('merchant.address.contactPerson'), width: 130 },
@@ -211,7 +219,7 @@ function AddressPage() {
   return (
     <Box sx={{ height: '100%', width: '100%', p: 2 }}>
       <Breadcrumbs pathMap={{
-        'address': t('addresses.addressTitle')
+        'address': t('merchant.addressTitle')
       }}/>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>        <Typography variant="h5">{t('merchant.address.title')}</Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
@@ -225,25 +233,28 @@ function AddressPage() {
             label={t('merchant.address.showOnlyDefault')}
           />
           <FormControl sx={{ minWidth: 120 }}>
-            <InputLabel>地址类型</InputLabel>
+            <InputLabel>{t('merchant.address.type')}</InputLabel>
             <Select
               value={selectedType}
-              label="地址类型"
-              onChange={(e) => setSelectedType(e.target.value as AddressType)}
+              label={t('merchant.address.type')}
+              onChange={(e) => setSelectedType(e.target.value === '' ? '' : e.target.value as MerchantAddressType)}
             >
-              <MenuItem value="">全部</MenuItem>
-              <MenuItem value={AddressType.WAREHOUSE}>仓库地址</MenuItem>
-              <MenuItem value={AddressType.RETURN}>退货地址</MenuItem>
-              <MenuItem value={AddressType.STORE}>门店地址</MenuItem>
-              <MenuItem value={AddressType.BILLING}>财务地址</MenuItem>
-              <MenuItem value={AddressType.HEADQUARTERS}>总部地址</MenuItem>
+              <MenuItem value="">{t('merchant.address.all')}</MenuItem>
+              <MenuItem value={MerchantAddressType.WAREHOUSE}>{t('merchant.address.warehouse')}</MenuItem>
+              <MenuItem value={MerchantAddressType.RETURN}>{t('merchant.address.return')}</MenuItem>
+              <MenuItem value={MerchantAddressType.STORE}>{t('merchant.address.store')}</MenuItem>
+              <MenuItem value={MerchantAddressType.BILLING}>{t('merchant.address.billing')}</MenuItem>
+              <MenuItem value={MerchantAddressType.HEADQUARTERS}>{t('merchant.address.headquarters')}</MenuItem>
             </Select>
           </FormControl>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => {
-              setEditingAddress({});
+              setEditingAddress({
+                addressType: MerchantAddressType.WAREHOUSE,  // 设置默认类型
+                isDefault: false,
+              });
               setOpenDialog(true);
             }}
           >
@@ -274,18 +285,18 @@ function AddressPage() {
               <FormControl fullWidth>
                 <InputLabel>{t('merchant.address.type')}</InputLabel>
                 <Select
-                  value={editingAddress?.addressType ?? ''}
+                  value={editingAddress?.addressType || ''}
                   label={t('merchant.address.type')}
-                  onChange={(e) =>
-                    setEditingAddress({ ...editingAddress, addressType: e.target.value as AddressType })
-                  }
-                  required
+                  onChange={(e) => setEditingAddress((prev: any) => ({
+                    ...prev,
+                    addressType: e.target.value as MerchantAddressType
+                  }))}
                 >
-                  <MenuItem value={AddressType.WAREHOUSE}>{t('merchant.address.warehouse')}</MenuItem>
-                  <MenuItem value={AddressType.RETURN}>{t('merchant.address.return')}</MenuItem>
-                  <MenuItem value={AddressType.STORE}>{t('merchant.address.store')}</MenuItem>
-                  <MenuItem value={AddressType.BILLING}>{t('merchant.address.billing')}</MenuItem>
-                  <MenuItem value={AddressType.HEADQUARTERS}>{t('merchant.address.headquarters')}</MenuItem>
+                  <MenuItem value={MerchantAddressType.WAREHOUSE}>{t('merchant.address.warehouse')}</MenuItem>
+                  <MenuItem value={MerchantAddressType.RETURN}>{t('merchant.address.return')}</MenuItem>
+                  <MenuItem value={MerchantAddressType.STORE}>{t('merchant.address.store')}</MenuItem>
+                  <MenuItem value={MerchantAddressType.BILLING}>{t('merchant.address.billing')}</MenuItem>
+                  <MenuItem value={MerchantAddressType.HEADQUARTERS}>{t('merchant.address.headquarters')}</MenuItem>
                 </Select>
               </FormControl>
               <TextField
@@ -311,6 +322,15 @@ function AddressPage() {
                   setEditingAddress({ ...editingAddress, streetAddress: e.target.value })
                 }
                 required
+                error={!!editingAddress?.streetAddress && editingAddress.streetAddress.length < 5}
+                helperText={
+                  !!editingAddress?.streetAddress && editingAddress.streetAddress.length < 5
+                    ? t('merchant.address.streetAddressMinLength')
+                    : ''
+                }
+                inputProps={{
+                  minLength: 5
+                }}
               />
               <TextField
                 label={t('merchant.address.city')}

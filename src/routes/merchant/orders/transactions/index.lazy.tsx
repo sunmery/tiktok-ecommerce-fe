@@ -33,6 +33,7 @@ import balancerService, {GetTransactionsRequest, Transactions} from '@/api/balan
 import {usePagination} from '@/hooks/usePagination'
 import PaginationBar from '@/components/PaginationBar'
 import {paymentMethod, transactionType} from "@/utils/status.ts";
+import {PaymentStatus} from "@/types/orders.ts";
 
 export const Route = createLazyFileRoute('/merchant/orders/transactions/')({
     component: TransactionsComponent,
@@ -73,7 +74,7 @@ function TransactionsComponent() {
 
         loadTransactions().catch(error => {
             console.error('加载交易记录失败:', error)
-            showMessage('加载交易记录失败', 'error')
+            showMessage(t('transaction.error.loadFailed'), 'error')
         })
     }, [account, navigate, t, pagination.page, pagination.pageSize])
 
@@ -141,7 +142,7 @@ function TransactionsComponent() {
     const handleExport = () => {
         try {
             // 创建CSV内容
-            let csvContent = "ID,类型,金额,货币,付款方,收款商户,支付方式,支付账号,状态,创建时间,更新时间\n"
+            let csvContent = `${t('transaction.export.headers.id')},${t('transaction.export.headers.type')},${t('transaction.export.headers.amount')},${t('transaction.export.headers.currency')},${t('transaction.export.headers.fromUser')},${t('transaction.export.headers.toMerchant')},${t('transaction.export.headers.paymentMethod')},${t('transaction.export.headers.paymentAccount')},${t('transaction.export.headers.status')},${t('transaction.export.headers.createdAt')},${t('transaction.export.headers.updatedAt')}\n`
 
             transactions.forEach(transaction => {
                 const row = [
@@ -168,7 +169,7 @@ function TransactionsComponent() {
             const link = document.createElement('a')
             const url = URL.createObjectURL(blob)
             link.setAttribute('href', url)
-            link.setAttribute('download', `交易记录_${new Date().toISOString().split('T')[0]}.csv`)
+            link.setAttribute('download', `${t('transaction.export.filename')}_${new Date().toISOString().split('T')[0]}.csv`)
             link.style.visibility = 'hidden'
             document.body.appendChild(link)
             link.click()
@@ -261,8 +262,8 @@ function TransactionsComponent() {
                                     onChange={(_, value) => setCurrency(value as string)}
                                     startDecorator={<AttachMoneyIcon/>}
                                 >
-                                    <Option value="CNY">CNY - 人民币</Option>
-                                    <Option value="USD">USD - 美元</Option>
+                                    <Option value="CNY">{t('transaction.currency.cny')}</Option>
+                                    <Option value="USD">{t('transaction.currency.usd')}</Option>
                                 </Select>
                             </FormControl>
                         </Grid>
@@ -361,12 +362,11 @@ function TransactionsComponent() {
                         <Table stickyHeader>
                             <thead>
                             <tr>
-                                <th style={{width: '8%'}}>{t('transaction.table.id')}</th>
+                                <th style={{width: '15%'}}>{t('transaction.table.id')}</th>
                                 <th style={{width: '8%'}}>{t('transaction.table.type')}</th>
                                 <th style={{width: '10%'}}>{t('transaction.table.amount')}</th>
                                 <th style={{width: '8%'}}>{t('transaction.table.status')}</th>
                                 <th style={{width: '12%'}}>{t('transaction.table.fromUser')}</th>
-                                <th style={{width: '12%'}}>{t('transaction.table.toMerchant')}</th>
                                 <th style={{width: '10%'}}>{t('transaction.table.paymentMethod')}</th>
                                 <th style={{width: '12%'}}>{t('transaction.table.paymentAccount')}</th>
                                 <th style={{width: '10%'}}>{t('transaction.table.createdAt')}</th>
@@ -389,7 +389,6 @@ function TransactionsComponent() {
                                         </Chip>
                                     </td>
                                     <td>{transaction.fromUserId}</td>
-                                    <td>{transaction.toMerchantId}</td>
                                     <td>{paymentMethod(transaction.paymentMethodType)}</td>
                                     <td>{transaction.paymentAccount}</td>
                                     <td>{formatDate(transaction.createdAt)}</td>
@@ -450,8 +449,7 @@ function TransactionsComponent() {
                                 <Typography level="h2">
                                     {Math.round(
                                         (transactions.filter(t =>
-                                                t.status.toLowerCase() === 'completed' ||
-                                                t.status.toLowerCase() === 'success'
+                                                t.status === PaymentStatus.Paid
                                             ).length /
                                             transactions.length) * 100
                                     )}%

@@ -14,13 +14,13 @@ import {
     Typography
 } from '@mui/joy';
 import {useTranslation} from 'react-i18next';
-import {merchantService, MerchantAddress} from '@/api/merchantService';
-import {addressService} from "@/api/merchant/addressService.ts";
+import {MerchantAddress} from '@/api/merchant/addressService';
+import {merchantAddressService} from "@/api/merchant/addressService";
 
 interface AddressSelectorProps {
     open: boolean;
     onClose: () => void;
-    onSelect: (address: MerchantAddress) => void;
+    onSelect: (address: MerchantAddress) => void | Promise<void>;
 }
 
 export const AddressSelector: React.FC<AddressSelectorProps> = ({open, onClose, onSelect}) => {
@@ -38,7 +38,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({open, onClose, 
     const loadAddresses = async () => {
         try {
             setLoading(true);
-            const response = await addressService.listAddresses({
+            const response = await merchantAddressService.listAddresses({
                 page: 1,
                 pageSize: 100
             });

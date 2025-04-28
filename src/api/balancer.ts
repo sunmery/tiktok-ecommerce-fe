@@ -24,6 +24,22 @@ export interface CreateMerchantBalanceRequest {
     accountDetails: Record<string, any>;
 }
 
+export interface RechargeBalanceRequest {
+    userId: string;
+    amount: number;
+    currency: string;
+    externalTransactionId: number;
+    paymentMethodType: string;
+    paymentAccount: string;
+    idempotencyKey: string;
+    expectedVersion: number
+}
+export interface RechargeBalanceReply {
+    success: string
+    transactionId: number
+    newVersion: number
+}
+
 export interface CreateMerchantBalanceReply {
     userId: string;
     currency: string;
@@ -31,6 +47,7 @@ export interface CreateMerchantBalanceReply {
 }
 
 export interface GetBalanceRequest {
+    userId?: string
     currency: string;
 }
 
@@ -141,9 +158,17 @@ const balancerService = {
             })
         );
     },
+    rechargeBalance(request: RechargeBalanceRequest): Promise<RechargeBalanceReply> {
+        const url = `${import.meta.env.VITE_BALANCER_URL}/users/recharge`
+        return httpClient.post<RechargeBalanceReply>(url,
+            JSON.stringify({
+                ...request
+            })
+        );
+    },
 
     getUserBalance(request: GetBalanceRequest): Promise<BalanceReply> {
-        const url = `${import.meta.env.VITE_BALANCER_URL}/user/balance`;
+        const url = `${import.meta.env.VITE_BALANCER_URL}/users/balancer`;
         return httpClient.get<BalanceReply>(url, {
             params: request
         });

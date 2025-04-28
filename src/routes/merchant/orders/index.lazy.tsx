@@ -1,7 +1,8 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
-import {useEffect, useState} from 'react'
-import {Box, Button, Card, CardContent, Grid, IconButton, Modal, Sheet, Snackbar, Table, Typography} from '@mui/joy'
-import {Order, PaymentStatus, ShippingStatus} from '@/types/orders'
+import {useEffect,useState } from 'react'
+import {Box, Button, Card, CardContent, FormControl, Grid, IconButton,  Modal,
+      Sheet, Snackbar, Table, Typography} from '@mui/joy'
+import {Order,  ShippingStatus} from '@/types/orders'
 import {orderService} from '@/api/orderService'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
@@ -11,7 +12,8 @@ import {usePagination} from '@/hooks/usePagination';
 import PaginationBar from "@/components/PaginationBar";
 import RefreshIcon from '@mui/icons-material/Refresh'
 import {AddressSelector} from '@/components/AddressSelector';
-import {MerchantAddress} from '@/api/merchantService';
+import {MerchantAddress} from '@/api/merchant/addressService';
+import { InputLabel, MenuItem, Select } from '@mui/material'
 
 export const Route = createLazyFileRoute('/merchant/orders/')({
     component: Orders,
@@ -26,7 +28,7 @@ export default function Orders() {
     const [estimatedDelivery, setEstimatedDelivery] = useState(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
     const [addressSelectorOpen, setAddressSelectorOpen] = useState(false)
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-    const [selectedAddress, setSelectedAddress] = useState<MerchantAddress | null>(null)
+    const [selectedAddress, setSelectedAddress] = useState<MerchantAddress | null>(null);
     const [snackbar, setSnackbar] = useState<{
         open: boolean;
         message: string;
@@ -198,6 +200,16 @@ export default function Orders() {
         }
     }
 
+    const [filterShippingStatus, setFilterShippingStatus] = useState<string>('');
+    const [filterPaymentStatus, setFilterPaymentStatus] = useState<string>('');
+    
+    // Add this filtered orders computation
+    const filteredOrders = orders.filter(order => {
+        const matchShipping = !filterShippingStatus || order.shippingStatus === filterShippingStatus;
+        const matchPayment = !filterPaymentStatus || order.paymentStatus === filterPaymentStatus;
+        return matchShipping && matchPayment;
+    });
+
     return (
         <Box sx={{p: 2}}>
             <Breadcrumbs pathMap={{
@@ -218,13 +230,49 @@ export default function Orders() {
                 </Button>
             </Box>
 
+            <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                <FormControl sx={{ minWidth: 200 }}>
+                    <InputLabel>{t('merchant.orders.filterShippingStatus')}</InputLabel>
+                    <Select
+                        value={filterShippingStatus}
+                        label={t('merchant.orders.filterShippingStatus')}
+                        onChange={(e) => setFilterShippingStatus(e.target.value)}
+                    >
+                        <MenuItem value="">{t('common.all')}</MenuItem>
+                        <MenuItem value={ShippingStatus.ShippingWaitCommand}>{t('merchant.orders.status.waitCommand')}</MenuItem>
+                        <MenuItem value={ShippingStatus.ShippingPending}>{t('merchant.orders.status.pendingShipment')}</MenuItem>
+                        <MenuItem value={ShippingStatus.ShippingShipped}>{t('merchant.orders.status.shipped')}</MenuItem>
+                        <MenuItem value={ShippingStatus.ShippingInTransit}>{t('merchant.orders.status.inTransit')}</MenuItem>
+                        <MenuItem value={ShippingStatus.ShippingDelivered}>{t('merchant.orders.status.delivered')}</MenuItem>
+                        <MenuItem value={ShippingStatus.ShippingConfirmed}>{t('merchant.orders.status.confirmed')}</MenuItem>
+                        <MenuItem value={ShippingStatus.ShippingCancelled}>{t('merchant.orders.status.cancelled')}</MenuItem>
+                    </Select>
+                </FormControl>
+
+                <FormControl sx={{ minWidth: 200 }}>
+                    <InputLabel>{t('merchant.orders.filterPaymentStatus')}</InputLabel>
+                    <Select
+                        value={filterPaymentStatus}
+                        label={t('merchant.orders.filterPaymentStatus')}
+                        onChange={(e) => setFilterPaymentStatus(e.target.value)}
+                    >
+                        <MenuItem value="">{t('common.all')}</MenuItem>
+                        <MenuItem value="NOT_PAID">{t('merchant.orders.status.notPaid')}</MenuItem>
+                        <MenuItem value="PROCESSING">{t('merchant.orders.status.processing')}</MenuItem>
+                        <MenuItem value="PAID">{t('merchant.orders.status.paid')}</MenuItem>
+                        <MenuItem value="FAILED">{t('merchant.orders.status.failed')}</MenuItem>
+                        <MenuItem value="CANCELLED">{t('merchant.orders.status.cancelled')}</MenuItem>
+                    </Select>
+                </FormControl>
+            </Box>
+
             <Card variant="outlined" sx={{mb: 3, overflowX: 'auto', minWidth: 900}}>
                 <CardContent>
                     <Typography level="title-lg" sx={{mb: 2}}>{t('merchant.orders.listTitle')}</Typography>
 
                     {loading ? (
                         <Typography>{t('merchant.orders.loading')}</Typography>
-                    ) : orders.length === 0 ? (
+                    ) : filteredOrders.length === 0 ? (
                         <Typography>{t('merchant.orders.noData')}</Typography>
                     ) : (
                         <Table sx={{
@@ -244,7 +292,7 @@ export default function Orders() {
                             </tr>
                             </thead>
                             <tbody>
-                            {orders.map((order) => {
+                            {filteredOrders.map((order) => {
                                 // 计算订单总金额
                                 const total = order.items.reduce((sum, item) => sum + item.cost, 0)
 
@@ -287,7 +335,8 @@ export default function Orders() {
                                                     {t('merchant.orders.viewDetails')}
                                                 </Button>
 
-                                                {order.shippingStatus === ShippingStatus.ShippingWaitCommand && (
+                                                {order.shippingStatus === ShippingStatus.ShippingWaitCommand && 
+                                                 !['NOT_PAID', 'FAILED', 'CANCELLED'].includes(order.paymentStatus) && (
                                                     <Button
                                                         size="sm"
                                                         variant="outlined"
@@ -301,13 +350,14 @@ export default function Orders() {
                                         </td>
                                         <td>
                                             <Box sx={{display: 'flex', gap: 1}}>
-                                                {order.shippingStatus === ShippingStatus.ShippingWaitCommand && (
+                                                {order.shippingStatus === ShippingStatus.ShippingWaitCommand && 
+                                                 !['NOT_PAID', 'FAILED', 'CANCELLED'].includes(order.paymentStatus) && (
                                                     <>
                                                         <Button
                                                             size="sm"
                                                             variant="outlined"
                                                             color="danger"
-                                                            onClick={() => handleStatusChange(order.orderId, PaymentStatus.Failed)}
+                                                            onClick={() => handleStatusChange(order.orderId, ShippingStatus.ShippingCancelled)}
                                                         >
                                                             {t('merchant.orders.shipFailed')}
                                                         </Button>
@@ -335,7 +385,7 @@ export default function Orders() {
                         <PaginationBar
                             page={pagination.page}
                             pageSize={pagination.pageSize}
-                            totalItems={pagination.totalCount}
+                            totalItems={orders.length}
                             totalPages={pagination.totalPages}
                             onPageChange={pagination.handlePageChange}
                             onPageSizeChange={pagination.handlePageSizeChange}

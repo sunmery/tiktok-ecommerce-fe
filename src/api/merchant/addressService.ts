@@ -5,7 +5,7 @@
 import { fetchApi } from '../config';
 
 // 地址类型枚举
-export enum AddressType {
+export enum MerchantAddressType {
   WAREHOUSE = 0,    // 仓库地址
   RETURN = 1,       // 退货地址
   STORE = 2,        // 门店地址
@@ -14,10 +14,10 @@ export enum AddressType {
 }
 
 // 地址数据接口
-export interface Address {
+export interface MerchantAddress {
   id: number;
   merchantId: string;
-  addressType: 'WAREHOUSE' | 'RETURN' | 'STORE' | 'BILLING' | 'HEADQUARTERS';
+  addressType: MerchantAddressType;
   contactPerson: string;
   contactPhone: string;
   streetAddress: string;
@@ -33,40 +33,58 @@ export interface Address {
 
 // 地址列表请求参数
 export interface ListAddressesRequest {
-  addressType?: AddressType;
-  onlyDefault?: boolean;
+  merchantId?: string;
   page: number;
   pageSize: number;
 }
 
+// 地址过滤列表请求参数
+export interface ListFilterAddressesRequest {
+  merchantId: string;
+  addressType?: MerchantAddressType;
+  page: number;
+  pageSize: number;
+}
+
+// 获取默认地址请求参数
+export interface GetDefaultAddressRequest {
+  merchantId: string;
+  addressType: MerchantAddressType;
+}
+
+// 获取默认地址列表请求参数
+export interface GetDefaultAddressesRequest {
+  merchantId: string;
+}
+
 // 地址列表响应
-export interface ListAddressesResponse {
-  addresses: Address[];
+export interface ListAddressesReply {
+  addresses: MerchantAddress[];
   totalCount: number;
 }
 
 // 批量创建地址请求
-export interface BatchCreateAddressesRequest {
-  addresses: Address[];
-  skipDuplicates?: boolean;
+export interface BatchCreateMerchantAddressesRequest {
+  addresses: MerchantAddress[];
+  skipDuplicates: boolean;
 }
 
 // 批量创建地址响应
-export interface BatchCreateAddressesResponse {
+export interface BatchCreateMerchantAddressesReply {
   successCount: number;
-  failedItems?: Address[];
+  failedItems?: MerchantAddress[];
 }
 
 /**
  * 商家地址管理API服务
  */
-export const addressService = {
+export const merchantAddressService = {
   /**
    * 创建地址
    * POST /v1/merchants/addresses
    */
-  createAddress: (address: Omit<Address, 'id' | 'merchantId' | 'createdAt' | 'updatedAt'>) => {
-    return fetchApi<Address>(`/v1/merchants/addresses`, {
+  createMerchantAddress: (address: Omit<MerchantAddress, 'id' | 'merchantId' | 'createdAt' | 'updatedAt'>) => {
+    return fetchApi<MerchantAddress>('/v1/merchants/addresses', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -79,8 +97,8 @@ export const addressService = {
    * 批量创建地址
    * POST /v1/merchants/addresses/batch
    */
-  batchCreateAddresses: (request: BatchCreateAddressesRequest) => {
-    return fetchApi<BatchCreateAddressesResponse>(`/v1/merchants/addresses/batch`, {
+  batchCreateMerchantAddresses: (request: BatchCreateMerchantAddressesRequest) => {
+    return fetchApi<BatchCreateMerchantAddressesReply>('/v1/merchants/addresses/batch', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -93,8 +111,8 @@ export const addressService = {
    * 更新地址
    * PATCH /v1/merchants/addresses/{id}
    */
-  updateAddress: (id: number, address: Partial<Omit<Address, 'id' | 'merchantId' | 'createdAt' | 'updatedAt'>>) => {
-    return fetchApi<Address>(`/v1/merchants/addresses/${id}`, {
+  updateMerchantAddress: (id: number, address: Partial<Omit<MerchantAddress, 'id' | 'merchantId' | 'createdAt' | 'updatedAt'>>) => {
+    return fetchApi<MerchantAddress>(`/v1/merchants/addresses/${id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -107,7 +125,7 @@ export const addressService = {
    * 删除地址
    * DELETE /v1/merchants/addresses/{id}
    */
-  deleteAddress: (id: number) => {
+  deleteMerchantAddress: (id: number) => {
     return fetchApi(`/v1/merchants/addresses/${id}`, {
       method: 'DELETE',
     });
@@ -117,8 +135,8 @@ export const addressService = {
    * 获取地址详情
    * GET /v1/merchants/addresses/{id}
    */
-  getAddress: (id: number) => {
-    return fetchApi<Address>(`/v1/merchants/addresses/${id}`, {
+  getMerchantAddress: (id: number) => {
+    return fetchApi<MerchantAddress>(`/v1/merchants/addresses/${id}`, {
       method: 'GET',
     });
   },
@@ -129,16 +147,57 @@ export const addressService = {
    */
   listAddresses: (params: ListAddressesRequest) => {
     const searchParams = new URLSearchParams();
-    if (params.addressType !== undefined) {
-      searchParams.append('addressType', params.addressType.toString());
-    }
-    if (params.onlyDefault !== undefined) {
-      searchParams.append('onlyDefault', params.onlyDefault.toString());
+    if (params.merchantId) {
+      searchParams.append('merchantId', params.merchantId);
     }
     searchParams.append('page', params.page.toString());
     searchParams.append('pageSize', params.pageSize.toString());
 
-    return fetchApi<ListAddressesResponse>(`/v1/merchants/addresses?${searchParams.toString()}`, {
+    return fetchApi<ListAddressesReply>(`/v1/merchants/addresses?${searchParams.toString()}`, {
+      method: 'GET',
+    });
+  },
+
+  /**
+   * 按类型过滤地址列表
+   * GET /v1/merchants/addresses/filter
+   */
+  listFilterAddresses: (params: ListFilterAddressesRequest) => {
+    const searchParams = new URLSearchParams();
+    searchParams.append('merchantId', params.merchantId);
+    if (params.addressType !== undefined) {
+      searchParams.append('addressType', params.addressType.toString());
+    }
+    searchParams.append('page', params.page.toString());
+    searchParams.append('pageSize', params.pageSize.toString());
+
+    return fetchApi<ListAddressesReply>(`/v1/merchants/addresses/filter?${searchParams.toString()}`, {
+      method: 'GET',
+    });
+  },
+
+  /**
+   * 获取指定类型的默认地址
+   * GET /v1/merchants/addresses/default/{addressType}
+   */
+  getDefaultAddress: (params: GetDefaultAddressRequest) => {
+    const searchParams = new URLSearchParams();
+    searchParams.append('merchantId', params.merchantId);
+    
+    return fetchApi<MerchantAddress>(`/v1/merchants/addresses/default/${params.addressType}?${searchParams.toString()}`, {
+      method: 'GET',
+    });
+  },
+
+  /**
+   * 获取所有默认地址
+   * GET /v1/merchants/addresses/default/all
+   */
+  getDefaultAddresses: (params: GetDefaultAddressesRequest) => {
+    const searchParams = new URLSearchParams();
+    searchParams.append('merchantId', params.merchantId);
+
+    return fetchApi<ListAddressesReply>('/v1/merchants/addresses/default/all', {
       method: 'GET',
     });
   },
@@ -147,8 +206,8 @@ export const addressService = {
    * 设置默认地址
    * PUT /v1/merchants/addresses/{id}/default
    */
-  setDefaultAddress: (id: number) => {
-    return fetchApi<Address>(`/v1/merchants/addresses/${id}/default`, {
+  setDefaultMerchantAddress: (id: number) => {
+    return fetchApi<MerchantAddress>(`/v1/merchants/addresses/${id}/default`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

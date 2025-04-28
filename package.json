@@ -47,6 +47,7 @@
     "react-leaflet": "5.0.0-rc.2",
     "react-scan": "^0.3.3",
     "use-debounce": "^10.0.4",
+    "uuid": "^11.1.0",
     "valtio": "^2.1.4",
     "xlsx": "^0.18.5"
   },
