@@ -123,6 +123,7 @@ export interface UpdateProductRequest {
     price: number
     stock: number
     url: string // 图片URL
+    status?: ProductStatus
     attributes: Record<string, AttributeValue>
 }
 
@@ -173,7 +174,10 @@ export interface ListRandomProductsRequest {
     pageSize: number;
     status: ProductStatus;
 }
-
+export interface GetMerchantProductsReq {
+    page: number;
+    pageSize: number;
+}
 export interface GetProductStatusPending {
     page: number;
     pageSize: number;

@@ -379,7 +379,13 @@ function ProductManagement() {
 
             {/* 查看商品详情模态框 */}
             <Modal open={openViewModal} onClose={() => setOpenViewModal(false)}>
-                <ModalDialog size="lg">
+                <ModalDialog
+                    size="lg"
+                    sx={{
+                        maxHeight: '80vh',
+                        overflowY: 'auto'
+                    }}
+                >
                     <ModalClose/>
                     <Typography level="h4">{t('products.modal.details')}</Typography>
                     <Divider sx={{my: 2}}/>

@@ -15,7 +15,7 @@ import {
     PlaceOrderResp,
     ShipOrderReq,
     ShippingStatus,
-    ShippingInfo,
+    ShippingInfo, GetAllOrdersReq,
 } from '@/types/orders';
 import {ShipOrderResponse} from "@/hooks/useShipping.ts";
 
@@ -30,7 +30,7 @@ export const orderService = {
     getSubOrderShipping: (orderId: string) => {
         const url = httpClient.replacePathParams(
             `${import.meta.env.VITE_ORDERS_URL}/{orderId}/status`,
-            {orderId, orderId}
+            {orderId}
         );
         return httpClient.get<ShippingInfo>(url, {
             headers: {
@@ -80,8 +80,22 @@ export const orderService = {
             `${import.meta.env.VITE_ORDERS_URL}`,
             {
                 params: {
-                    page: request.page?.toString(),
-                    pageSize: request.pageSize?.toString()
+                    page: request.page,
+                    pageSize: request.pageSize
+                },
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            }
+        );
+    },
+    getAllOrders: (request: GetAllOrdersReq) => {
+        return httpClient.get<ListOrderResp>(
+            `${import.meta.env.VITE_ORDERS_URL}`,
+            {
+                params: {
+                    page: request.page,
+                    pageSize: request.pageSize
                 },
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -118,8 +132,8 @@ export const orderService = {
             `${import.meta.env.VITE_MERCHANTS_URL}/orders`,
             {
                 params: {
-                    page: request.page?.toString(),
-                    pageSize: request.pageSize?.toString()
+                    page: request.page,
+                    pageSize: request.pageSize
                 },
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`

@@ -63,7 +63,7 @@ function AdminDashboard() {
               buttonText={t('admin.dashboard.enterUserManagement')}
               icon={<PeopleAltIcon/>}
               onClick={() => navigate({to: '/admin/users'}).then(() => {
-                console.log('已进入用户管理页面')
+                console.log(t('admin.log.enteredUserManagement'))
               })}
             />
           </Grid>
@@ -80,7 +80,7 @@ function AdminDashboard() {
               buttonText={t('admin.viewDataAnalytics')}
               icon={<BarChartIcon/>}
               onClick={() => navigate({to: '/admin/analytics'}).then(() => {
-                console.log('已进入数据分析页面')
+                console.log(t('admin.log.enteredAnalytics'))
               })}
               cardSx={{mb: 2}}
               contentSx={{p: 3}}
@@ -99,7 +99,7 @@ function AdminDashboard() {
               buttonText={t('admin.enterRechargeBalance')}
               icon={<AccountBalanceWalletIcon/>}
               onClick={() => navigate({to: '/admin/rechargeBalance'}).then(() => {
-                console.log('已进入用户充值页面')
+                console.log(t('admin.log.enteredRechargeBalance'))
               })}
               cardSx={{mt: 3}}
             />
@@ -117,7 +117,7 @@ function AdminDashboard() {
               buttonText={t('admin.enterProductManagement')}
               icon={<ShoppingCartIcon/>}
               onClick={() => navigate({to: '/admin/products'}).then(() => {
-                console.log('已进入商品管理页面')
+                console.log(t('admin.log.enteredProductManagement'))
               })}
               cardSx={{mt: 3}}
             />

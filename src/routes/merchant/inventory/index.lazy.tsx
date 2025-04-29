@@ -1,5 +1,5 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
-import {useEffect, useState} from 'react'
+import { useState} from 'react'
 import {useTranslation} from 'react-i18next'
 import {
     Alert,
@@ -11,184 +11,110 @@ import {
     FormLabel,
     Input,
     Modal,
+    Radio, // 新增导入
+    RadioGroup, // 新增导入
     Sheet,
     Snackbar,
     Table,
     Typography
 } from '@mui/joy'
-import {Product} from '@/types/products'
+import {GetMerchantProductsReq, Product, Products} from '@/types/products'
 import {productService} from '@/api/productService'
 import {inventoryService} from '@/api/inventoryService'
+import {useQuery, useQueryClient} from '@tanstack/react-query'
+import RefreshIcon from '@mui/icons-material/Refresh'
 
 export const Route = createLazyFileRoute('/merchant/inventory/')({
     component: Inventory,
 })
 
-interface InventoryAlert {
-    productId: string
-    threshold: number
-    currentStock: number
-}
-
-interface StockAdjustment {
-    id: string
-    productId: string
-    quantity: number
-    reason: string
-    date: string
-}
-
 export default function Inventory() {
     const {t} = useTranslation()
-    const [products, setProducts] = useState<Product[]>([])
-    const [alerts, setAlerts] = useState<InventoryAlert[]>([])
-    const [adjustments, setAdjustments] = useState<StockAdjustment[]>([])
+    const queryClient = useQueryClient()
     const [alertOpen, setAlertOpen] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
     const [threshold, setThreshold] = useState(0)
-    const [loading, setLoading] = useState(false)
-    const [snackbar, setSnackbar] = useState({
-        open: false,
-        message: '',
-        severity: 'success' as 'success' | 'error'
-    })
     const [adjustmentOpen, setAdjustmentOpen] = useState(false)
     const [adjustmentData, setAdjustmentData] = useState({
         quantity: 0,
         reason: ''
     })
+    const [adjustmentMode, setAdjustmentMode] = useState('relative'); // Add this line
+    const [adjustmentValue, setAdjustmentValue] = useState(''); // Add this line for the input value
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'success' as 'success' | 'error'
+    })
 
-    useEffect(() => {
-        loadProducts().then((r) => {
-            console.log('routes/merchant/inventory/index.lazy.tsx触发loadProducts', r)
-        }).catch((error) => {
-            console.error('loadProducts error:', error)
-        })
-        loadStockAlerts().then((r) => {
-            console.log('routes/merchant/inventory/index.lazy.tsx触发loadStockAlerts', r)
-        }).catch((error) => {
-            console.error('loadProducts error:', error)
-        })
-        loadStockAdjustmentHistory().then((r) => {
-            console.log('routes/merchant/inventory/index.lazy.tsx触发loadStockAdjustmentHistory', r)
-        }).catch((error) => {
-            console.error('loadProducts error:', error)
-        })
-    }, [])
-
-    const loadStockAlerts = async () => {
-        try {
-            const response = await inventoryService.getStockAlerts({
-                merchantId: '',  // 由服务端从上下文获取
-                page: 1,
-                pageSize: 100
-            })
-
-            // 将获取到的警戒值转换为前端格式
-            if (response.alerts && response.alerts.length > 0) {
-                const newAlerts = response.alerts.map(alert => ({
-                    productId: alert.productId,
-                    threshold: alert.threshold,
-                    currentStock: alert.currentStock
-                }))
-                setAlerts(newAlerts)
-            }
-        } catch (error) {
-            console.error(t('inventory.alerts.load_error'), error)
-        }
-    }
-
-    const loadStockAdjustmentHistory = async () => {
-        try {
-            const response = await inventoryService.getStockAdjustmentHistory({
-                merchantId: '',  // 由服务端从上下文获取
-                page: 1,
-                pageSize: 20
-            })
-
-            // 将获取到的调整记录转换为前端格式
-            if (response.adjustments && response.adjustments.length > 0) {
-                const newAdjustments = response.adjustments.map(adj => ({
-                    id: adj.id,
-                    productId: adj.productId,
-                    quantity: adj.quantity,
-                    reason: adj.reason,
-                    date: adj.createdAt
-                }))
-                setAdjustments(newAdjustments)
-            }
-        } catch (error) {
-            console.error(t('inventory.adjustments.load_error'), error)
-        }
-    }
-
-    const loadProducts = async () => {
-        try {
-            setLoading(true)
-            const response = await productService.listRandomProducts({
+    // 获取商家商品列表
+    const {data: products = [], isLoading: productsLoading, refetch: refetchProducts} = useQuery({
+        queryKey: ['products'],
+        queryFn: async () => {
+            const response = await productService.getMerchantProducts({
                 page: 1,
                 pageSize: 20,
                 status: 1
             })
-            setProducts(response.items || [])
-
-            // 检查库存警报
-            checkLowStock(response.items || [])
-        } catch (error) {
-            console.error(t('inventory.products.load_error'), error)
-            setSnackbar({
-                open: true,
-                message: t('inventory.products.load_error'),
-                severity: 'error'
-            })
-        } finally {
-            setLoading(false)
+            return response.items || []
         }
-    }
+    })
 
-    const checkLowStock = (products: Product[]) => {
-        // 首先，确保 alerts 是最新的
-        const updatedAlerts = [...alerts];
+    // 获取库存警报
+    const {data: alerts = [], isLoading: alertsLoading, refetch: refetchAlerts} = useQuery({
+        queryKey: ['stockAlerts'],
+        queryFn: async () => {
+            const response = await inventoryService.getStockAlerts({
+                page: 1,
+                pageSize: 100
+            })
+            return response.alerts || []
+        }
+    })
 
-        // 更新所有 alert 的当前库存数据
-        products.forEach(product => {
-            const index = updatedAlerts.findIndex(a => a.productId === product.id);
-            if (index >= 0) {
-                // 更新现有警报的当前库存
-                updatedAlerts[index] = {
-                    ...updatedAlerts[index],
-                    currentStock: product.inventory?.stock || 0
-                };
-            }
-        });
+    // 获取库存调整历史
+    const {data: adjustments = [], isLoading: adjustmentsLoading, refetch: refetchAdjustments} = useQuery({
+        queryKey: ['stockAdjustments'],
+        queryFn: async () => {
+            const response = await inventoryService.getStockAdjustmentHistory({
+                page: 1,
+                pageSize: 20
+            })
+            return response.adjustments || []
+        }
+    })
 
-        // 更新 alerts 状态
-        setAlerts(updatedAlerts);
+    // 刷新所有数据
+    const handleRefreshAll = async () => {
+        await Promise.all([
+            refetchProducts(),
+            refetchAlerts(),
+            refetchAdjustments()
+        ])
+        setSnackbar({
+            open: true,
+            message: t('inventory.refreshSuccess'),
+            severity: 'success'
+        })
     }
 
     const handleSetAlert = async () => {
         if (selectedProduct && threshold > 0) {
             try {
-                setLoading(true)
-                // 调用后端API设置库存警戒值
                 await inventoryService.setStockAlert({
                     productId: selectedProduct.id,
                     merchantId: selectedProduct?.inventory?.merchantId || '',
                     threshold: threshold
                 })
 
-                // 设置成功后，重新加载所有警戒值数据
-                await loadStockAlerts()
-
+                // 刷新警报数据
+                await refetchAlerts()
                 setAlertOpen(false)
                 setSnackbar({
                     open: true,
                     message: t('inventory.alerts.set_success'),
                     severity: 'success'
                 })
-
-                // 重新检查库存警报
-                checkLowStock(products)
             } catch (error) {
                 console.error(t('inventory.alerts.set_error'), error)
                 setSnackbar({
@@ -196,37 +122,62 @@ export default function Inventory() {
                     message: t('inventory.alerts.set_error'),
                     severity: 'error'
                 })
-            } finally {
-                setLoading(false)
             }
         }
     }
 
-    const handleStockAdjustment = async (productId: string, quantity: number, reason: string) => {
+    const handleStockAdjustment = async () => {
+        if (!selectedProduct) return
+
+        const currentStock = selectedProduct.inventory?.stock || 0
+        const reason = adjustmentData.reason || t('inventory.manualAdjustment')
+        const value = parseInt(adjustmentValue) // Use adjustmentValue state
+
+        if (isNaN(value)) {
+            setSnackbar({ open: true, message: t('inventory.invalidQuantity'), severity: 'error' })
+            return
+        }
+
+        let quantityChange: number
+
+        if (adjustmentMode === 'set') {
+            const targetQuantity = value
+            if (targetQuantity < 0) {
+                setSnackbar({ open: true, message: t('inventory.negativeStockError'), severity: 'error' })
+                return
+            }
+            quantityChange = targetQuantity - currentStock
+        } else { // relative mode
+            quantityChange = value
+            const finalQuantity = currentStock + quantityChange
+            if (finalQuantity < 0) {
+                setSnackbar({ open: true, message: t('inventory.negativeResultError'), severity: 'error' })
+                return
+            }
+        }
+
         try {
-            setLoading(true)
-            // 调用后端API更新库存
             await inventoryService.updateProductStock({
-                productId: productId,
+                productId: selectedProduct.id,
                 merchantId: selectedProduct?.inventory?.merchantId || '',
-                stock: quantity,
+                stock: quantityChange, // API 接收的是变化量
                 reason: reason
             })
 
-            // 调整成功后重新加载数据
-            await loadProducts()
-            await loadStockAdjustmentHistory()
+            // 刷新所有相关数据
+            await Promise.all([
+                refetchProducts(),
+                refetchAdjustments()
+            ])
 
             setSnackbar({
                 open: true,
                 message: t('inventory.adjustments.success'),
                 severity: 'success'
             })
-
             setAdjustmentOpen(false)
-
-            // 使用最新的产品数据重新检查库存警报
-            checkLowStock(products)
+            setAdjustmentValue('') // 重置输入值
+            setAdjustmentData(prev => ({ ...prev, reason: '' })) // 重置原因
         } catch (error) {
             console.error(t('inventory.adjustments.error'), error)
             setSnackbar({
@@ -234,23 +185,36 @@ export default function Inventory() {
                 message: t('inventory.adjustments.error'),
                 severity: 'error'
             })
-        } finally {
-            setLoading(false)
         }
     }
 
     const openAdjustmentModal = (product: Product) => {
         setSelectedProduct(product)
-        setAdjustmentData({
-            quantity: 0,
-            reason: ''
-        })
+        setAdjustmentMode('relative') // Default to relative adjustment
+        setAdjustmentValue('') // Reset input value
+        setAdjustmentData({ quantity: 0, reason: '' }) // Reset old state
         setAdjustmentOpen(true)
     }
 
     return (
         <Box sx={{p: 2}}>
-            <Typography level="h2" sx={{mb: 3}}>{t('inventory.title')}</Typography>
+            <Box sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                mb: 3
+            }}>
+                <Typography level="h2">{t('inventory.title')}</Typography>
+                <Button
+                    variant="outlined"
+                    color="primary"
+                    startDecorator={<RefreshIcon />}
+                    onClick={handleRefreshAll}
+                    loading={productsLoading || alertsLoading || adjustmentsLoading}
+                >
+                    {t('common.refresh')}
+                </Button>
+            </Box>
 
             {/* 库存警报 */}
             {alerts.length > 0 && (
@@ -341,7 +305,7 @@ export default function Inventory() {
                             const product = products.find(p => p.id === adjustment.productId)
                             return (
                                 <tr key={adjustment.id}>
-                                    <td>{new Date(adjustment.date).toLocaleString()}</td>
+                                    <td>{new Date().toLocaleString()}</td>
                                     <td>{product?.name}</td>
                                     <td>{adjustment.quantity > 0 ? `+${adjustment.quantity}` : adjustment.quantity}</td>
                                     <td>{adjustment.reason}</td>
@@ -382,7 +346,7 @@ export default function Inventory() {
                             <Button variant="outlined" color="neutral" onClick={() => setAlertOpen(false)}>
                                 {t('inventory.cancel')}
                             </Button>
-                            <Button onClick={handleSetAlert} loading={loading}>{t('inventory.confirm')}</Button>
+                            <Button onClick={handleSetAlert} loading={productsLoading}>{t('inventory.confirm')}</Button>
                         </Box>
                     </CardContent>
                 </Card>
@@ -394,24 +358,55 @@ export default function Inventory() {
                 onClose={() => setAdjustmentOpen(false)}
                 sx={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}
             >
-                <Card sx={{maxWidth: 400, mx: 2}}>
+                <Card sx={{maxWidth: 400, width: '90%', mx: 2}}>
                     <CardContent>
                         <Typography level="h3" sx={{mb: 2}}>{t('inventory.adjustTitle')}</Typography>
-                        <Typography level="body-md" sx={{mb: 2}}>
+                        <Typography level="body-md" sx={{mb: 1}}>
                             {t('inventory.alertProduct')}: {selectedProduct?.name}
                         </Typography>
                         <Typography level="body-md" sx={{mb: 2}}>
-                            {t('inventory.currentStockValue')}: {selectedProduct?.inventory.stock || 0}
+                            {t('inventory.currentStockValue')}: {selectedProduct?.inventory?.stock || 0}
                         </Typography>
+
+                        {/* 新增调整模式选择 */}
+                        <FormControl sx={{ mb: 2 }}>
+                            <FormLabel>{t('inventory.adjustmentMode')}</FormLabel>
+                            <RadioGroup
+                                orientation="horizontal"
+                                value={adjustmentMode}
+                                onChange={(e) => setAdjustmentMode(e.target.value as 'relative' | 'set')}
+                            >
+                                <Radio value="relative" label={t('inventory.modeRelative')} />
+                                <Radio value="set" label={t('inventory.modeSet')} />
+                            </RadioGroup>
+                        </FormControl>
+
                         <FormControl sx={{mb: 2}}>
-                            <FormLabel>{t('inventory.adjustQuantityLabel')}</FormLabel>
+                            <FormLabel>
+                                {adjustmentMode === 'relative' ? t('inventory.adjustQuantityLabel') : t('inventory.setQuantityLabel')}
+                            </FormLabel>
                             <Input
-                                type="number"
-                                value={adjustmentData.quantity}
-                                onChange={(e) => setAdjustmentData(prev => ({
-                                    ...prev,
-                                    quantity: parseInt(e.target.value)
-                                }))}
+                                type="text" // 改为 text 以便处理负号和空输入
+                                value={adjustmentValue}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    // 根据模式验证输入
+                                    if (adjustmentMode === 'relative') {
+                                        if (/^-?\d*$/.test(val)) { // 允许负号和数字
+                                            setAdjustmentValue(val);
+                                        }
+                                    } else { // set mode
+                                        if (/^\d*$/.test(val)) { // 只允许数字
+                                            setAdjustmentValue(val);
+                                        }
+                                    }
+                                }}
+                                placeholder={adjustmentMode === 'relative' ? t('inventory.relativePlaceholder') : t('inventory.setPlaceholder')}
+                                slotProps={{
+                                    input: {
+                                        // 移除 inputMode 和 pattern，因为 type="text" 更灵活
+                                    }
+                                }}
                             />
                         </FormControl>
                         <FormControl>
@@ -426,13 +421,9 @@ export default function Inventory() {
                                 {t('inventory.cancel')}
                             </Button>
                             <Button
-                                onClick={() => selectedProduct && handleStockAdjustment(
-                                    selectedProduct.id,
-                                    adjustmentData.quantity,
-                                    adjustmentData.reason || t('inventory.manualAdjustment')
-                                )}
-                                loading={loading}
-                                disabled={!adjustmentData.quantity || !selectedProduct}
+                                onClick={handleStockAdjustment} // 调用修改后的处理函数
+                                loading={productsLoading || adjustmentsLoading} // 可以合并加载状态
+                                disabled={!adjustmentValue || !selectedProduct} // 检查新输入值
                             >
                                 {t('inventory.confirm')}
                             </Button>

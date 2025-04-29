@@ -1,13 +1,15 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
 import {useEffect, useRef, useState} from 'react'
-import {Box, Card, CardContent, CircularProgress, Grid, Typography} from '@mui/joy'
+import {Box, Button, Card, CardContent, CircularProgress, Grid, Typography} from '@mui/joy'
 import * as echarts from 'echarts'
 import {Order} from '@/types/orders'
 import {orderService} from '@/api/orderService'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {formatCurrency} from '@/utils/format'
-import {useTranslation} from "react-i18next";
+import {useTranslation} from "react-i18next"
 import {showMessage} from '@/utils/showMessage'
+import RefreshIcon from '@mui/icons-material/Refresh'
+import {useQuery} from '@tanstack/react-query'
 
 export const Route = createLazyFileRoute('/merchant/analytics/')({
     component: Analytics,
@@ -61,18 +63,29 @@ export default function Analytics() {
     })
     const {t} = useTranslation()
 
-    // 加载数据
-    useEffect(() => {
-        loadSalesData().catch(error => {
-            console.error(t('analytics.load_sales_data_failed'), error)
-            setLoading(false)
-
-            // 处理权限错误
-            if (error.message && (error.message.includes('未授权') || error.message.includes('权限不足'))) {
-                showMessage(error.message, 'error')
+    // 使用 React Query 替换原有的数据加载逻辑
+    const {data, isLoading, error, refetch} = useQuery({
+        queryKey: ['analytics'],
+        queryFn: async () => {
+            const response = await orderService.getOrder({
+                userId: '',
+                page: 1,
+                pageSize: 100
+            })
+            if (!response || !response.orders) {
+                throw new Error(t('analytics.no_orders_data'))
             }
-        })
-    }, [])
+            return response.orders
+        }
+    })
+
+    // 处理数据加载错误
+    useEffect(() => {
+        if (error) {
+            const errorMessage = error instanceof Error ? error.message : t('analytics.load_sales_data_failed')
+            showMessage(errorMessage, 'error')
+        }
+    }, [error])
 
     // 数据加载完成后初始化图表
     useEffect(() => {
@@ -461,10 +474,26 @@ export default function Analytics() {
 
     return (
         <Box sx={{p: 2}}>
-            <Breadcrumbs pathMap={{
-                'merchant': t('merchant.title'),
-                'analytics': t('merchant.analytics.title')
-            }}/>
+            <Box sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                mb: 3
+            }}>
+                <Breadcrumbs pathMap={{
+                    'merchant': t('merchant.title'),
+                    'analytics': t('merchant.analytics.title')
+                }}/>
+                <Button
+                    variant="outlined"
+                    color="primary"
+                    startDecorator={<RefreshIcon />}
+                    onClick={() => refetch()}
+                    loading={isLoading}
+                >
+                    {t('common.refresh')}
+                </Button>
+            </Box>
 
             <Typography level="h2" sx={{mb: 3}}>{t('merchant.analytics.title')}</Typography>
 

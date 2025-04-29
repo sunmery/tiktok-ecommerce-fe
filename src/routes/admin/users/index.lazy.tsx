@@ -26,6 +26,8 @@ import {userService} from "@/api/userService";
 import {t} from "i18next";
 import {UserProfile} from "@/types/user";
 import {showMessage} from "@/utils/showMessage.ts";
+import RefreshIcon from '@mui/icons-material/Refresh'
+import {useQuery, useQueryClient} from '@tanstack/react-query'
 
 export const Route = createLazyFileRoute('/admin/users/')({
     component: UserManagement,
@@ -48,24 +50,34 @@ export const Route = createLazyFileRoute('/admin/users/')({
 function UserManagement() {
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
-    const [users, setUsers] = useState<UserProfile[]>([])
+    const queryClient = useQueryClient()
 
-    // 从API加载用户数据
-    useEffect(() => {
-        const loadUsers = async () => {
+    // 获取用户列表
+    const {data: users} = useQuery<UserProfile[]>({
+        queryKey: ['users'],
+        queryFn: async () => {
             try {
                 const response = await userService.listUsers()
-                setUsers(response.users)
+                return response.users
             } catch (err) {
-                console.error('加载用户数据失败:', err)
+                showMessage(t('admin.users.loadError') + err, 'error')
+                throw err
             }
         }
-        loadUsers().then(() => {
-            showMessage(t('admin.users.loadSuccess'), 'success')
-        }).catch((err) => {
-            showMessage(t('admin.users.loadError') + err, 'error')
+    })
+
+    // 刷新用户列表
+    const handleRefresh = () => {
+        queryClient.invalidateQueries({queryKey: ['users']}).then(() => {
+            showMessage(t('admin.users.refreshing'), 'info')
+        }).then(() => {
+            showMessage(t('admin.users.refreshSuccess'), 'success')
+        }).catch(err => {
+            showMessage(t('admin.users.refreshError') + err, 'error')
         })
-    }, [])
+
+    }
+
     // const [applications, setApplications] = useState<MerchantApplication[]>(mockMerchantApplications)
 
     const [openEditModal, setOpenEditModal] = useState(false)
@@ -148,11 +160,6 @@ function UserManagement() {
                 }
             )
 
-            // 更新成功后刷新用户列表
-            const response = await userService.listUsers()
-            setUsers(response.users)
-
-            // 显示成功消息
             alert('用户信息更新成功')
 
             // 关闭模态框
@@ -174,11 +181,6 @@ function UserManagement() {
                 currentUser.owner,
                 currentUser.name
             )
-
-            // 删除成功后更新本地状态
-            setUsers(users.map(user =>
-                user.id === currentUser.id ? {...user, isDeleted: true} : user
-            ))
 
             // 关闭模态框
             setOpenDeleteModal(false)
@@ -261,193 +263,206 @@ function UserManagement() {
         '': t('admin.users.roles.guest') // 空字符串角色也显示为访客
     }
 
-    return (
-        <Box sx={{p: 2}}>
+    if (users) {
+        return (
+            <Box sx={{p: 2}}>
 
 
-            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
-                <Typography level="h2">{t('admin.users.title')}</Typography>
-                <Button
-                    color="primary"
-                    onClick={() => setOpenAddModal(true)}
-                >
-                    {t('admin.users.add_user')}
-                </Button>
-            </Box>
-
-            <Sheet variant="outlined" sx={{borderRadius: 'md', overflow: 'auto', mb: 5}}>
-                <Table stickyHeader hoverRow>
-                    <thead>
-                    <tr>
-                        <th style={{width: '15%'}}>{t('admin.users.table.application')}</th>
-                        <th style={{width: '15%'}}>{t('admin.users.table.username')}</th>
-                        <th style={{width: '20%'}}>{t('admin.users.table.email')}</th>
-                        <th style={{width: '15%'}}>{t('admin.users.table.role')}</th>
-                        <th style={{width: '20%'}}>{t('admin.users.table.created_time')}</th>
-                        <th style={{width: '25%'}}>{t('admin.users.table.actions')}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {users.map((user) => (
-                        <tr key={user.id}>
-                            <td>{user.signupApplication}</td>
-                            <td>{user.displayName}</td>
-                            <td>{user.email}</td>
-                            <td>
-                                {/*{user.isDeleted ? (*/}
-                                {/*    <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>*/}
-                                {/*        <Chip color="warning" size="sm">{roleNames[user.role]}</Chip>*/}
-                                {/*        <Chip*/}
-                                {/*            color="danger"*/}
-                                {/*            size="sm"*/}
-                                {/*            onClick={() => handleViewApplication(user.id)}*/}
-                                {/*            sx={{cursor: 'pointer'}}*/}
-                                {/*        >*/}
-                                {/*            {t('admin.users.pending_approval')}*/}
-                                {/*        </Chip>*/}
-                                {/*    </Box>*/}
-                                {/*) : (*/}
-                                <Chip
-                                    color={user.role === 'admin' ? 'success' :
-                                        user.role === 'merchant' ? 'primary' :
-                                            user.role === 'consumer' ? 'warning' : 'neutral'}
-                                    variant="solid"
-                                    size="sm"
-                                >
-                                    {roleNames[user.role]}
-                                </Chip>
-                                {/*)}*/}
-                            </td>
-                            <td>{formatDate(user.createdTime as string)}</td>
-                            <td>
-                                <Box sx={{display: 'flex', gap: 1}}>
-                                    <IconButton
-                                        size="sm"
-                                        variant="outlined"
-                                        color="neutral"
-                                        onClick={() => handleEditUser(user as User)}
-                                    >
-                                        <Tooltip title="编辑用户"><EditIcon/></Tooltip>
-                                    </IconButton>
-                                    <IconButton
-                                        size="sm"
-                                        variant="outlined"
-                                        color="danger"
-                                        onClick={() => handleDeleteUser(user as User)}
-                                    >
-                                        <Tooltip title="删除用户"><DeleteIcon/></Tooltip>
-                                    </IconButton>
-                                    {/*{user.pendingApproval && (*/}
-                                    {/*    <Button*/}
-                                    {/*        size="sm"*/}
-                                    {/*        color="warning"*/}
-                                    {/*        onClick={() => handleViewApplication(user.id)}*/}
-                                    {/*    >*/}
-                                    {/*        {t('admin.users.approve_application')}*/}
-                                    {/*    </Button>*/}
-                                    {/*)}*/}
-                                </Box>
-                            </td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </Table>
-            </Sheet>
-
-            {/* 编辑用户模态框 */}
-            <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
-                <ModalDialog>
-                    <ModalClose/>
-                    <Typography level="h4">{t('admin.users.edit.title')}</Typography>
-                    <Divider sx={{my: 2}}/>
-                    <form
-                        onSubmit={(event) => {
-                            event.preventDefault();
-                            saveUserEdit().then(() => {
-                                showMessage(t('admin.users.edit.success'), 'success')
-                            }).catch((err) => {
-                                showMessage(t('admin.users.edit.error') + err, 'error')
-                            })
-                        }}
-                    >
-                        <FormControl sx={{mb: 2}}>
-                            <FormLabel>{t('admin.users.edit.username')}</FormLabel>
-                            <Input
-                                value={editForm.name}
-                                onChange={(e) => setEditForm({...editForm, name: e.target.value})}
-                            />
-                        </FormControl>
-                        <FormControl sx={{mb: 2}}>
-                            <FormLabel>{t('admin.users.edit.display_name')}</FormLabel>
-                            <Input
-                                value={editForm.displayName}
-                                onChange={(e) => setEditForm({...editForm, displayName: e.target.value})}
-                            />
-                        </FormControl>
-                        <FormControl sx={{mb: 2}}>
-                            <FormLabel>{t('admin.users.edit.email')}</FormLabel>
-                            <Input
-                                type="email"
-                                value={editForm.email}
-                                onChange={(e) => setEditForm({...editForm, email: e.target.value})}
-                            />
-                        </FormControl>
-
-                        <Box sx={{display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2}}>
-                            <Button type="submit" color="primary">{t('admin.users.edit.save')}</Button>
-                        </Box>
-                    </form>
-                </ModalDialog>
-            </Modal>
-
-            {/* 删除用户确认模态框 */}
-            <Modal open={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
-                <ModalDialog>
-                    <ModalClose/>
-                    <Typography level="h4">{t('admin.users.delete.title')}</Typography>
-                    <Divider sx={{my: 2}}/>
-                    <Typography>{t('admin.users.delete.confirm', {username: currentUser?.name})}</Typography>
-                    <Box sx={{display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2}}>
-                        <Button variant="outlined" color="neutral"
-                                onClick={() => setOpenDeleteModal(false)}>{t('admin.users.delete.cancel')}</Button>
-                        <Button color="danger"
-                                onClick={confirmDeleteUser}>{t('admin.users.delete.confirm_button')}</Button>
+                <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
+                    <Typography level="h2">{t('admin.users.title')}</Typography>
+                    <Box sx={{display: 'flex', gap: 2}}>
+                        <IconButton
+                            variant="outlined"
+                            color="primary"
+                            onClick={handleRefresh}
+                        >
+                            <Tooltip title={t('admin.users.refresh')}><RefreshIcon/></Tooltip>
+                        </IconButton>
+                        <Button
+                            color="primary"
+                            onClick={() => window.location.href = 'http://99.suyiiyii.top:3012/users'}
+                        >
+                            {t('admin.users.add_user')}
+                        </Button>
                     </Box>
-                </ModalDialog>
-            </Modal>
+                </Box>
 
-            {/* 商家申请审批模态框 */}
-            <Modal open={openApprovalModal} onClose={() => setOpenApprovalModal(false)}>
-                <ModalDialog>
-                    <ModalClose/>
-                    <Typography level="h4">{t('admin.users.merchant_approval.title')}</Typography>
-                    <Divider sx={{my: 2}}/>
-                    {currentApplication && (
-                        <Box>
-                            <Typography level="body-md" sx={{mb: 1}}>
-                                <strong>{t('admin.users.merchant_approval.application_id')}:</strong> {currentApplication.id}
-                            </Typography>
-                            <Typography level="body-md" sx={{mb: 1}}>
-                                <strong>{t('admin.users.merchant_approval.business_name')}:</strong> {currentApplication.businessName}
-                            </Typography>
-                            <Typography level="body-md" sx={{mb: 1}}>
-                                <strong>{t('admin.users.merchant_approval.business_license')}:</strong> {currentApplication.businessLicense}
-                            </Typography>
-                            <Typography level="body-md" sx={{mb: 1}}>
-                                <strong>{t('admin.users.merchant_approval.contact_phone')}:</strong> {currentApplication.contactPhone}
-                            </Typography>
-                            <Typography level="body-md" sx={{mb: 1}}>
-                                <strong>{t('admin.users.merchant_approval.application_date')}:</strong> {currentApplication.applicationDate}
-                            </Typography>
-                            <Typography level="body-md" sx={{mb: 2}}>
-                                <strong>{t('admin.users.merchant_approval.current_status')}:</strong> {currentApplication.status}
-                            </Typography>
+                <Sheet variant="outlined" sx={{borderRadius: 'md', overflow: 'auto', mb: 5}}>
+                    <Table stickyHeader hoverRow>
+                        <thead>
+                        <tr>
+                            <th style={{width: '15%'}}>{t('admin.users.table.application')}</th>
+                            <th style={{width: '15%'}}>{t('admin.users.table.username')}</th>
+                            <th style={{width: '20%'}}>{t('admin.users.table.email')}</th>
+                            <th style={{width: '15%'}}>{t('admin.users.table.role')}</th>
+                            <th style={{width: '20%'}}>{t('admin.users.table.created_time')}</th>
+                            <th style={{width: '25%'}}>{t('admin.users.table.actions')}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {users.map((user) => (
+                            <tr key={user.id}>
+                                <td>{user.signupApplication}</td>
+                                <td>{user.displayName}</td>
+                                <td>{user.email}</td>
+                                <td>
+                                    {/*{user.isDeleted ? (*/}
+                                    {/*    <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>*/}
+                                    {/*        <Chip color="warning" size="sm">{roleNames[user.role]}</Chip>*/}
+                                    {/*        <Chip*/}
+                                    {/*            color="danger"*/}
+                                    {/*            size="sm"*/}
+                                    {/*            onClick={() => handleViewApplication(user.id)}*/}
+                                    {/*            sx={{cursor: 'pointer'}}*/}
+                                    {/*        >*/}
+                                    {/*            {t('admin.users.pending_approval')}*/}
+                                    {/*        </Chip>*/}
+                                    {/*    </Box>*/}
+                                    {/*) : (*/}
+                                    <Chip
+                                        color={user.role === 'admin' ? 'success' :
+                                            user.role === 'merchant' ? 'primary' :
+                                                user.role === 'consumer' ? 'warning' : 'neutral'}
+                                        variant="solid"
+                                        size="sm"
+                                    >
+                                        {roleNames[user.role]}
+                                    </Chip>
+                                    {/*)}*/}
+                                </td>
+                                <td>{formatDate(user.createdTime as string)}</td>
+                                <td>
+                                    <Box sx={{display: 'flex', gap: 1}}>
+                                        <IconButton
+                                            size="sm"
+                                            variant="outlined"
+                                            color="neutral"
+                                            onClick={() => handleEditUser(user as User)}
+                                        >
+                                            <Tooltip title="编辑用户"><EditIcon/></Tooltip>
+                                        </IconButton>
+                                        <IconButton
+                                            size="sm"
+                                            variant="outlined"
+                                            color="danger"
+                                            onClick={() => handleDeleteUser(user as User)}
+                                        >
+                                            <Tooltip title="删除用户"><DeleteIcon/></Tooltip>
+                                        </IconButton>
+                                        {/*{user.pendingApproval && (*/}
+                                        {/*    <Button*/}
+                                        {/*        size="sm"*/}
+                                        {/*        color="warning"*/}
+                                        {/*        onClick={() => handleViewApplication(user.id)}*/}
+                                        {/*    >*/}
+                                        {/*        {t('admin.users.approve_application')}*/}
+                                        {/*    </Button>*/}
+                                        {/*)}*/}
+                                    </Box>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </Table>
+                </Sheet>
+
+                {/* 编辑用户模态框 */}
+                <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
+                    <ModalDialog>
+                        <ModalClose/>
+                        <Typography level="h4">{t('admin.users.edit.title')}</Typography>
+                        <Divider sx={{my: 2}}/>
+                        <form
+                            onSubmit={(event) => {
+                                event.preventDefault();
+                                saveUserEdit().then(() => {
+                                    showMessage(t('admin.users.edit.success'), 'success')
+                                }).catch((err) => {
+                                    showMessage(t('admin.users.edit.error') + err, 'error')
+                                })
+                            }}
+                        >
+                            <FormControl sx={{mb: 2}}>
+                                <FormLabel>{t('admin.users.edit.username')}</FormLabel>
+                                <Input
+                                    value={editForm.name}
+                                    onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                                />
+                            </FormControl>
+                            <FormControl sx={{mb: 2}}>
+                                <FormLabel>{t('admin.users.edit.display_name')}</FormLabel>
+                                <Input
+                                    value={editForm.displayName}
+                                    onChange={(e) => setEditForm({...editForm, displayName: e.target.value})}
+                                />
+                            </FormControl>
+                            <FormControl sx={{mb: 2}}>
+                                <FormLabel>{t('admin.users.edit.email')}</FormLabel>
+                                <Input
+                                    type="email"
+                                    value={editForm.email}
+                                    onChange={(e) => setEditForm({...editForm, email: e.target.value})}
+                                />
+                            </FormControl>
+
+                            <Box sx={{display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2}}>
+                                <Button type="submit" color="primary">{t('admin.users.edit.save')}</Button>
+                            </Box>
+                        </form>
+                    </ModalDialog>
+                </Modal>
+
+                {/* 删除用户确认模态框 */}
+                <Modal open={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
+                    <ModalDialog>
+                        <ModalClose/>
+                        <Typography level="h4">{t('admin.users.delete.title')}</Typography>
+                        <Divider sx={{my: 2}}/>
+                        <Typography>{t('admin.users.delete.confirm', {username: currentUser?.name})}</Typography>
+                        <Box sx={{display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2}}>
+                            <Button variant="outlined" color="neutral"
+                                    onClick={() => setOpenDeleteModal(false)}>{t('admin.users.delete.cancel')}</Button>
+                            <Button color="danger"
+                                    onClick={confirmDeleteUser}>{t('admin.users.delete.confirm_button')}</Button>
                         </Box>
-                    )}
-                </ModalDialog>
-            </Modal>
-        </Box>
-    )
+                    </ModalDialog>
+                </Modal>
+
+                {/* 商家申请审批模态框 */}
+                <Modal open={openApprovalModal} onClose={() => setOpenApprovalModal(false)}>
+                    <ModalDialog>
+                        <ModalClose/>
+                        <Typography level="h4">{t('admin.users.merchant_approval.title')}</Typography>
+                        <Divider sx={{my: 2}}/>
+                        {currentApplication && (
+                            <Box>
+                                <Typography level="body-md" sx={{mb: 1}}>
+                                    <strong>{t('admin.users.merchant_approval.application_id')}:</strong> {currentApplication.id}
+                                </Typography>
+                                <Typography level="body-md" sx={{mb: 1}}>
+                                    <strong>{t('admin.users.merchant_approval.business_name')}:</strong> {currentApplication.businessName}
+                                </Typography>
+                                <Typography level="body-md" sx={{mb: 1}}>
+                                    <strong>{t('admin.users.merchant_approval.business_license')}:</strong> {currentApplication.businessLicense}
+                                </Typography>
+                                <Typography level="body-md" sx={{mb: 1}}>
+                                    <strong>{t('admin.users.merchant_approval.contact_phone')}:</strong> {currentApplication.contactPhone}
+                                </Typography>
+                                <Typography level="body-md" sx={{mb: 1}}>
+                                    <strong>{t('admin.users.merchant_approval.application_date')}:</strong> {currentApplication.applicationDate}
+                                </Typography>
+                                <Typography level="body-md" sx={{mb: 2}}>
+                                    <strong>{t('admin.users.merchant_approval.current_status')}:</strong> {currentApplication.status}
+                                </Typography>
+                            </Box>
+                        )}
+                    </ModalDialog>
+                </Modal>
+            </Box>
+        )
+    }
 }
 
 export default UserManagement
+
+

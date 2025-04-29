@@ -2,7 +2,7 @@ import {createLazyFileRoute} from '@tanstack/react-router'
 import {useEffect,useState } from 'react'
 import {Box, Button, Card, CardContent, FormControl, Grid, IconButton,  Modal,
       Sheet, Snackbar, Table, Typography} from '@mui/joy'
-import {Order,  ShippingStatus} from '@/types/orders'
+import {Order, PaymentStatus, ShippingStatus} from '@/types/orders'
 import {orderService} from '@/api/orderService'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
@@ -200,8 +200,8 @@ export default function Orders() {
         }
     }
 
-    const [filterShippingStatus, setFilterShippingStatus] = useState<string>('');
-    const [filterPaymentStatus, setFilterPaymentStatus] = useState<string>('');
+    const [filterShippingStatus, setFilterShippingStatus] = useState<string>(t('common.all'));
+    const [filterPaymentStatus, setFilterPaymentStatus] = useState<string>(t('common.all'));
     
     // Add this filtered orders computation
     const filteredOrders = orders.filter(order => {
@@ -238,7 +238,7 @@ export default function Orders() {
                         label={t('merchant.orders.filterShippingStatus')}
                         onChange={(e) => setFilterShippingStatus(e.target.value)}
                     >
-                        <MenuItem value="">{t('common.all')}</MenuItem>
+                        <MenuItem value={t('common.all')}>{t('common.all')}</MenuItem>
                         <MenuItem value={ShippingStatus.ShippingWaitCommand}>{t('merchant.orders.status.waitCommand')}</MenuItem>
                         <MenuItem value={ShippingStatus.ShippingPending}>{t('merchant.orders.status.pendingShipment')}</MenuItem>
                         <MenuItem value={ShippingStatus.ShippingShipped}>{t('merchant.orders.status.shipped')}</MenuItem>
@@ -256,7 +256,7 @@ export default function Orders() {
                         label={t('merchant.orders.filterPaymentStatus')}
                         onChange={(e) => setFilterPaymentStatus(e.target.value)}
                     >
-                        <MenuItem value="">{t('common.all')}</MenuItem>
+                        <MenuItem value={t('common.all')}>{t('common.all')}</MenuItem>
                         <MenuItem value="NOT_PAID">{t('merchant.orders.status.notPaid')}</MenuItem>
                         <MenuItem value="PROCESSING">{t('merchant.orders.status.processing')}</MenuItem>
                         <MenuItem value="PAID">{t('merchant.orders.status.paid')}</MenuItem>
@@ -336,7 +336,7 @@ export default function Orders() {
                                                 </Button>
 
                                                 {order.shippingStatus === ShippingStatus.ShippingWaitCommand && 
-                                                 !['NOT_PAID', 'FAILED', 'CANCELLED'].includes(order.paymentStatus) && (
+                                                 ![PaymentStatus.NotPaid, PaymentStatus.Failed, PaymentStatus.Cancelled].includes(order.paymentStatus) && (
                                                     <Button
                                                         size="sm"
                                                         variant="outlined"
@@ -350,8 +350,8 @@ export default function Orders() {
                                         </td>
                                         <td>
                                             <Box sx={{display: 'flex', gap: 1}}>
-                                                {order.shippingStatus === ShippingStatus.ShippingWaitCommand && 
-                                                 !['NOT_PAID', 'FAILED', 'CANCELLED'].includes(order.paymentStatus) && (
+                                                {order.shippingStatus === ShippingStatus.ShippingWaitCommand &&
+                                                    ![PaymentStatus.NotPaid, PaymentStatus.Failed, PaymentStatus.Cancelled].includes(order.paymentStatus) && (
                                                     <>
                                                         <Button
                                                             size="sm"

@@ -76,7 +76,7 @@ export interface SetStockAlertResponse {
 }
 
 export interface GetStockAlertsRequest {
-    merchantId: string;
+    merchantId?: string;
     page: number;
     pageSize: number;
 }
@@ -114,7 +114,7 @@ export interface RecordStockAdjustmentResponse {
 
 export interface GetStockAdjustmentHistoryRequest {
     // productId: string;
-    merchantId: string;
+    merchantId?: string;
     page: number;
     pageSize: number;
 }

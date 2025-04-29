@@ -1,6 +1,7 @@
 import {Box, Button, IconButton, Input, Typography} from '@mui/joy'
 import {FirstPage, KeyboardArrowLeft, KeyboardArrowRight, LastPage} from '@mui/icons-material'
 import {useEffect, useState} from 'react'
+import { t } from 'i18next'
 
 interface PaginationProps {
     count: number
@@ -75,7 +76,7 @@ export default function Pagination({
             endPages.length > 0 ? endPages[0] - 2 : count - 1
         )
 
-        const itemList = [
+        return [
             ...startPages,
             ...(siblingsStart > boundaryCount + 2
                 ? ['ellipsis']
@@ -90,8 +91,6 @@ export default function Pagination({
                     : []),
             ...endPages
         ]
-
-        return itemList
     }
 
     const buttonSizeProps = {
@@ -141,6 +140,7 @@ export default function Pagination({
                         color={currentPage === item ? 'primary' : 'neutral'}
                         onClick={() => handlePageChange(item as number)}
                     >
+
                         {item}
                     </Button>
                 )
@@ -170,7 +170,7 @@ export default function Pagination({
 
             <Input
                 size={size}
-                placeholder="跳转到"
+                placeholder={t('pagination.inputPlaceholder')}
                 value={inputPage}
                 onChange={handleInputChange}
                 onKeyDown={handleInputKeyPress}

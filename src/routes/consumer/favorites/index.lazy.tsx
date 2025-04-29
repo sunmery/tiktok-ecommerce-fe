@@ -55,8 +55,8 @@ function FavoritesPage() {
                         fontSize: '2rem',
                         fontWeight: 'bold',
                         mb: 4,
-                    }}>Favorites</Typography>
-                    <Typography>Find your saved items and get ready to order them.</Typography>
+                    }}>{t('favorites.title')}</Typography>
+                    <Typography>{t('favorites.introduce')}</Typography>
                 </Box>
 
                 <Box sx={{
@@ -96,28 +96,27 @@ function FavoritesPage() {
                         }}/>
                 </Box>
             </Box>
-            <Grid container direction="row" sx={{
-                justifyContent: "space-around",
-                alignItems: "center",
+            <Grid container spacing={2} sx={{
+                justifyContent: "flex-start",
+                alignItems: "stretch",
+                mt: 2
             }}>
-                <Grid component="div" xs={6}>
-                    {filteredItems.length === 0 ? (
+                {filteredItems.length === 0 ? (
+                    <Grid item xs={12}>
                         <Card variant="outlined" sx={{my: 2, width: '100%'}}>
                             <Typography level="body-lg">{t('consumer.favorites.noResults')}</Typography>
                         </Card>
-                    ) : (
-                        filteredItems.map((product: Product, index: number) => (
+                    </Grid>
+                ) : (
+                    filteredItems.map((product: Product, index: number) => (
+                        <Grid item xs={12} sm={6} md={4} lg={3} key={product.name + index}>
                             <Card
-                                key={product.name + index}
                                 sx={{
-                                    width: '100%',
-                                    maxWidth: 320,
-                                    minWidth: 170,
-                                    m: 1,
-                                    transition: 'all 0.3s ease',
-                                    cursor: 'pointer',
+                                    height: '100%',
                                     display: 'flex',
                                     flexDirection: 'column',
+                                    transition: 'all 0.3s ease',
+                                    cursor: 'pointer',
                                     '&:hover': {
                                         transform: 'translateY(-4px)',
                                         boxShadow: 'lg'
@@ -224,9 +223,9 @@ function FavoritesPage() {
                                     }}>Buy</Button>
                                 </Box>
                             </Card>
-                        )))
-                    }
-                </Grid>
+                        </Grid>
+                    ))
+                )}
             </Grid>
         </Box>
     );

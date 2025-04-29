@@ -21,27 +21,35 @@ function MerchantDashboard() {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(true)
 
-    console.log("account", account)
-    console.log("account.role", account.role)
-
     useEffect(() => {
-        // 检查account是否存在且已加载完成
-        if (account && Object.keys(account).length > 0) {
-            // 只有当account已加载完成时才进行角色检查
-            if (account.role !== 'merchant') {
-                // 导入showMessage函数显示权限错误
-                showMessage('权限不足：只有商家可以访问商家中心', 'error')
-                navigate({to: '/'}).then(() => {
-                    console.log(t('log.redirectedNonMerchant'))
-                })
+        const checkAuth = async () => {
+            // 等待account数据加载完成（valtio的响应式更新）
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            if (account?.id && account.role) {
+                console.log("Valid account:", account)
+                if (account.role !== 'merchant') {
+                    showMessage(t('error.merchantAccessOnly'), 'error')
+                    navigate({to: '/'}).then(() => {
+                        showMessage(t('error.merchantAccessOnly'), 'info')
+                    })
+                }
+            } else {
+                // 如果account数据未加载完成，显示加载状态
+                setLoading(true)
             }
         }
+
+        checkAuth().finally(() => {
+            setLoading(false)
+        })
+
 
         const timer = setTimeout(() => {
             setLoading(false)
         }, 800)
         return () => clearTimeout(timer)
-    }, [account, navigate, t])
+    }, [account])
 
     return (
         <Box sx={{p: 2}}>
@@ -245,36 +253,36 @@ function MerchantDashboard() {
                             </CardContent>
                         </Card>
                     </Grid>
-                    <Grid xs={12} md={6} mt={2}> 
-                        <Card variant="outlined" sx={{height: '100%'}}> 
-                            <CardContent> 
-                                <Typography level="h3">{t('merchant.orderTransactions')}</Typography> 
-                                <Divider sx={{my: 2}}/> 
-                                <List> 
-                                    <ListItem> 
-                                        <ListItem>{t('merchant.transactionFeatures.viewAll')}</ListItem> 
-                                    </ListItem> 
-                                    <ListItem> 
-                                        <ListItem>{t('merchant.transactionFeatures.trackPayments')}</ListItem> 
-                                    </ListItem> 
-                                    <ListItem> 
-                                        <ListItem>{t('merchant.transactionFeatures.exportData')}</ListItem> 
-                                    </ListItem> 
-                                </List> 
-                                <Button 
-                                    variant="solid" 
-                                    color="primary" 
-                                    startDecorator={<ReceiptLongIcon/>} 
-                                    onClick={() => navigate({to: '/merchant/orders/transactions'}).then(() => { 
-                                        console.log(t('merchant.log.navigatedToTransactions')) 
-                                    })} 
-                                    fullWidth 
-                                    sx={{mt: 2}} 
-                                > 
-                                    {t('merchant.viewTransactions')} 
-                                </Button> 
-                            </CardContent> 
-                        </Card> 
+                    <Grid xs={12} md={6} mt={2}>
+                        <Card variant="outlined" sx={{height: '100%'}}>
+                            <CardContent>
+                                <Typography level="h3">{t('merchant.orderTransactions')}</Typography>
+                                <Divider sx={{my: 2}}/>
+                                <List>
+                                    <ListItem>
+                                        <ListItem>{t('merchant.transactionFeatures.viewAll')}</ListItem>
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItem>{t('merchant.transactionFeatures.trackPayments')}</ListItem>
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItem>{t('merchant.transactionFeatures.exportData')}</ListItem>
+                                    </ListItem>
+                                </List>
+                                <Button
+                                    variant="solid"
+                                    color="primary"
+                                    startDecorator={<ReceiptLongIcon/>}
+                                    onClick={() => navigate({to: '/merchant/orders/transactions'}).then(() => {
+                                        console.log(t('merchant.log.navigatedToTransactions'))
+                                    })}
+                                    fullWidth
+                                    sx={{mt: 2}}
+                                >
+                                    {t('merchant.viewTransactions')}
+                                </Button>
+                            </CardContent>
+                        </Card>
                     </Grid>
                 </Grid>
             )}

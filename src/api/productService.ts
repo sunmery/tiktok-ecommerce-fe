@@ -11,7 +11,7 @@ import {
     CreateProductReply,
     CreateProductRequest,
     DeleteProductRequest,
-    GetCategoryProductsRequest,
+    GetCategoryProductsRequest, GetMerchantProductsReq,
     GetProductRequest,
     GetProductStatusPending,
     ListProductsByCategoryRequest,
@@ -57,7 +57,7 @@ export const productService = {
         const url = httpClient.replacePathParams(`${import.meta.env.VITE_MERCHANTS_URL}/products/{id}`, {
             id: request.id
         });
-        return httpClient.put<Product>(url, request);
+        return httpClient.patch<Product>(url, request);
     },
 
     /**
@@ -118,7 +118,7 @@ export const productService = {
      * 获取商家商品列表
      * GET /v1/merchants/products
      */
-    getMerchantProducts: (params?: { page?: number; pageSize?: number }) => {
+    getMerchantProducts: (params?: GetMerchantProductsReq) => {
         return httpClient.get<Products>(`${import.meta.env.VITE_MERCHANTS_URL}/products`, {
             params
         });

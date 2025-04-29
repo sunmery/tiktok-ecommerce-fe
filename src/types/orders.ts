@@ -1,11 +1,11 @@
 // 创建订单请求
 
 import {CartItem} from "@/types/cart.ts";
-import {Address} from "@/api/merchant/addressService.ts";
+import {MerchantAddress} from "@/api/merchant/addressService.ts";
 
 export interface PlaceOrderReq {
     currency: string
-    address: Address
+    address: MerchantAddress
     email: string
     orderItems: OrderItem[]
 }
@@ -22,6 +22,17 @@ export interface ListOrderReq {
     page: number
     pageSize: number
     shippingStatus?: ShippingStatus // 新增：按货运状态筛选
+}
+
+// 订单列表请求
+export interface GetAllOrdersReq {
+    page: number
+    pageSize: number
+}
+// 订单列表请求
+export interface GetAllOrdersReply {
+    page: number
+    pageSize: number
 }
 
 // 订单列表请求
@@ -70,7 +81,7 @@ export interface Order {
     subOrderId?: string
     userId: string
     currency: string
-    address: Address
+    address: MerchantAddress
     email: string
     createdAt: string
     paymentStatus: PaymentStatus
@@ -98,7 +109,7 @@ export interface ShipOrderReq {
     trackingNumber: string
     carrier: string
     estimatedDelivery: string
-    shippingAddress: Partial<Address>
+    shippingAddress: Partial<MerchantAddress>
 }
 
 // 商家发货响应

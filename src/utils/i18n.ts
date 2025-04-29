@@ -37,6 +37,10 @@ export function recordTranslationKeyUsage(key: string): void {
 const resources = {
     en: {
         translation: {
+            'admin.log.enteredUserManagement': 'Entered user management page',
+            'admin.log.enteredAnalytics': 'Entered data analytics page',
+            'admin.log.enteredRechargeBalance': 'Entered user recharge page',
+            'admin.log.enteredProductManagement': 'Entered product management page',
             'merchant.transactionFeatures.viewAll': 'View All Transactions',
             'merchant.transactionFeatures.trackPayments': 'Track Payments',
             'merchant.transactionFeatures.exportData': 'Export Data',
@@ -245,6 +249,17 @@ const resources = {
             'orders.subtotal': 'Subtotal',
 
             // Inventory Monitoring
+
+            "inventory.adjustmentMode": "Adjustment Mode",
+            "inventory.modeRelative": "Relative Change (+/-)",
+            "inventory.modeSet": "Set Quantity To",
+            "inventory.setQuantityLabel": "Set stock quantity to",
+            "inventory.relativePlaceholder": "Enter change amount (e.g., -10 or 20)",
+            "inventory.setPlaceholder": "Enter target stock quantity (e.g., 50)",
+            "inventory.invalidQuantity": "Please enter a valid number",
+            "inventory.negativeStockError": "Target stock quantity cannot be negative",
+            "inventory.negativeResultError": "Resulting stock quantity cannot be negative",
+
             'inventory.monitoring.title': 'Inventory Monitoring Center',
             'inventory.monitoring.last_updated': 'Last Updated',
             'inventory.monitoring.refresh_data': 'Refresh Data',
@@ -730,6 +745,9 @@ const resources = {
             // 商家面板
             'dashboard': 'Dashboard',
             'analytics': 'Analytics',
+            'favorites.introduce': 'Find your saved items and get ready to order them.',
+            'favorites.title': 'favorites.title',
+            'transaction.empty': 'Transaction empty',
             // 商家分析页面
             'merchant.analytics.title': 'Analytics',
             'merchant.analytics.loading_orders': 'Loading orders...',
@@ -920,6 +938,7 @@ const resources = {
             'merchant.orders.shippingWaitCommand': 'Wait Command',
             'merchant.orders.shipSuccess': 'Ship Success',
             'merchant.orders.refreshSuccess': 'Refresh Success',
+            'admin.users.refreshSuccess': 'Refresh Success',
             'orders.ship': 'Ship',
             'orders.orders.ship': 'Ship',
             'merchant.orders.shipFailed': 'No Shipping',
@@ -1350,6 +1369,10 @@ const resources = {
             'consumer.transactions.system': 'System',
             'consumer.transactions.noPaymentAccount': 'No payment account',
             'consumer.transactions.noPaymentExtra': 'No additional payment information',
+            'admin.users.refresh': 'Refresh Users List',
+            'admin.users.refreshing': 'Refreshing users list...',
+            'common.importOrExport': 'Import/Export',
+            'pagination.inputPlaceholder': 'Jump To',
 
         }
     },
@@ -1400,6 +1423,7 @@ const resources = {
 
             // 库存监控
             'inventory.monitoring.title': '库存监控中心',
+
             'inventory.monitoring.last_updated': '最后更新',
             'inventory.monitoring.refresh_data': '刷新数据',
             'inventory.monitoring.auto_refresh_on': '自动刷新: 开',
@@ -1681,6 +1705,12 @@ const resources = {
             'merchant.orders.updateFailed': '订单状态更新失败',
             'merchant.orders.fetchFailed': '刷新订单列表失败',
             'merchant.orders.refreshSuccess': '刷新订单列表完成',
+            'admin.users.refreshSuccess': '刷新用户列表完成',
+            'admin.dashboard.userManagement.merchantApproval': '商家审批',
+            'admin.dashboard.userManagement.addEditDelete': '添加/编辑/删除用户',
+            'admin.dashboard.userManagement.manageRoles': '管理用户角色',
+            'admin.dashboard.userManagement.enterUserManagement': '进入用户管理',
+            'admin.dashboard.title': '管理员面板',
 
             // 商家面板
             'dashboard': '仪表盘',
@@ -1712,6 +1742,11 @@ const resources = {
             'admin.enterRechargeBalance': '进入余额管理',
             'admin.rechargeBalance.userBalancerInfo': '用户余额信息',
 
+            'admin.log.enteredUserManagement': '已进入用户管理页面',
+            'admin.log.enteredAnalytics': '已进入数据分析页面',
+            'admin.log.enteredRechargeBalance': '已进入用户充值页面',
+            'admin.log.enteredProductManagement': '已进入商品管理页面',
+            'transaction.empty': '没有交易记录',
             'merchant.orders.status.processing': '处理中',
             // 用户管理
             'admin.users.title': '用户管理',
@@ -2020,6 +2055,9 @@ const resources = {
             'merchant.viewAll': '查看全部',
 
             // 商品管理
+            'common.success': '操作成功',
+            'common.importOrExport': '导入/导出',
+            'pagination.inputPlaceholder': '跳转到',
             'products.title': '商品管理',
             'products.loadMockData': '加载示例数据',
             'products.batchUpload': '批量上传',
@@ -2424,12 +2462,14 @@ const resources = {
             'consumer.favorites': '收藏商品',
             'consumer.favorites.searchPlaceholder': '搜索收藏',
             'consumer.favorites.noResults': '暂无收藏',
+            'favorites.introduce': '您的收藏列表',
+            'favorites.title': '商品收藏',
 
             'consumer.orders.noOrders': '暂无订单',
             'consumer.orders.filter': '订单筛选',
             'consumer.orders.viewFavorites': '查看收藏',
 
-
+            'error.merchantAccessOnly': '您没有权限访问商家页面, 正在跳转到首页',
             'consumer.transactions.empty': '暂无交易记录',
             'consumer.transactions.error.fetch': '获取交易记录失败',
 
@@ -2437,7 +2477,7 @@ const resources = {
             'consumer.transactions.paymentMethod.alipay': '支付宝',
             'consumer.transactions.paymentMethod.wechat': '微信支付',
             'consumer.transactions.paymentMethod.bank_card': '银行卡',
-
+            'log.loggedOut': '您已成功退出登录',
             // 信用卡
             'creditCard.myCard': '我的银行卡',
             'creditCard.cardHolder': '持卡人',
@@ -2534,6 +2574,8 @@ const resources = {
             'merchant.transactions.description': '描述',
             'merchant.transactions.currency': '货币',
             'transaction.table.id': '交易号',
+            'transaction.refresh': '刷新',
+            'transaction.export': '导出',
             'transaction.table.amount': '金额',
             'transaction.table.status': '状态',
             'transaction.search.button': '搜索',
@@ -2599,6 +2641,21 @@ const resources = {
             'transaction.error.loadFailed': '加载交易记录失败',
             'transaction.currency.cny': 'CNY - 人民币',
             'transaction.currency.usd': 'USD - 美元',
+            'admin.users.refresh': '刷新用户列表',
+            'admin.users.refreshing': '正在刷新用户列表...',
+            'admin.users.loading': '正在加载用户数据...',
+
+            "inventory.adjustmentMode": "调整模式",
+            'inventory.refreshSuccess': '库存调整成功',
+            "inventory.modeRelative": "相对调整 (增/减)",
+            "inventory.modeSet": "直接设置数量",
+            "inventory.setQuantityLabel": "设置库存数量为",
+            "inventory.relativePlaceholder": "输入增减数量 (例如: -10 或 20)",
+            "inventory.setPlaceholder": "输入目标库存数量 (例如: 50)",
+            "inventory.invalidQuantity": "请输入有效的数字",
+            "inventory.negativeStockError": "设置的库存数量不能为负数",
+            "inventory.negativeResultError": "调整后的库存数量不能为负数"
+
         }
     }
 

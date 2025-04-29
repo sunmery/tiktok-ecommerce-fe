@@ -1,4 +1,4 @@
-import {createLazyFileRoute, Link} from '@tanstack/react-router'
+import {createLazyFileRoute, Link as RouterLink} from '@tanstack/react-router'
 import {useEffect, useState} from 'react'
 import {
     Alert,
@@ -7,6 +7,7 @@ import {
     Chip,
     CircularProgress,
     IconButton,
+    Link,
     Modal,
     Sheet,
     Snackbar,
@@ -28,6 +29,7 @@ import {usePagination} from '@/hooks/usePagination'
 import PaginationBar from '@/components/PaginationBar'
 import {translateProductStatus} from '@/utils/translateProductStatus'
 import {getStatusColor} from "@/utils/status.ts";
+import {Autorenew, ImportExport } from '@mui/icons-material'
 
 export const Route = createLazyFileRoute('/merchant/products/')({
     component: Products,
@@ -145,7 +147,7 @@ export default function Products() {
         }
     }
 
-    // 处理商品下架（直接更新状态为草稿）
+    // 更新状态为下架
     const handleUnpublish = async (product: Product) => {
         try {
             setLoading(true)
@@ -158,6 +160,7 @@ export default function Products() {
                 price: product.price as number,
                 stock: product.inventory?.stock || 0,
                 url: product.picture as string,
+                status: ProductStatus.PRODUCT_STATUS_SOLD_OUT,
                 attributes: product.attributes as Record<string, any>,
             })
             setSnackbar({
@@ -255,13 +258,22 @@ export default function Products() {
                     >
                         {t('products.addProduct')}
                     </Button>
-                    <Button>
-                        <Link to={'/merchant/table'}>导入/导出</Link>
-                    </Button>
+                    <Link
+                        sx={{
+                            p:1,
+                            borderRadius: '5px',
+                        }}
+                        startDecorator={<ImportExport/>}
+                        variant="solid"
+                        component={RouterLink}
+                        to={'/merchant/table'}
+                    >
+                        {t('common.importOrExport')}
+                    </Link>
                     <Button
                         color="primary"
                         onClick={loadProducts}
-                        startDecorator={loading ? <CircularProgress size="sm"/> : undefined}
+                        startDecorator={loading ? <CircularProgress size="sm"/> : <Autorenew/>}
                         disabled={loading}
                     >
                         {t('common.refresh')}

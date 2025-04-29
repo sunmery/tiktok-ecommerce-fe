@@ -10,8 +10,6 @@ import {
     Grid,
     Option,
     Select,
-    Tab,
-    TabList,
     TabPanel,
     Tabs,
     Typography,
@@ -20,7 +18,6 @@ import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user'
 import * as echarts from 'echarts'
 import {useTranslation} from 'react-i18next'
-import {t} from 'i18next'
 import {orderService} from '@/api/orderService'
 import {GroupedSalesData, groupOrdersByDate} from '@/utils/analyticsHelper'
 import {showMessage} from "@/utils/showMessage";
@@ -32,106 +29,6 @@ export const Route = createLazyFileRoute('/admin/analytics/')({
     component: AnalyticsDashboard,
 })
 
-// Define mock data function to be called inside component to get translated data
-const getMockData = () => {
-    // Mock sales data
-    const mockSalesData = {
-        daily: [
-            {date: '2023-06-01', sales: 12500, orders: 125},
-            {date: '2023-06-02', sales: 14200, orders: 142},
-            {date: '2023-06-03', sales: 16800, orders: 168},
-            {date: '2023-06-04', sales: 15300, orders: 153},
-            {date: '2023-06-05', sales: 18900, orders: 189},
-            {date: '2023-06-06', sales: 21500, orders: 215},
-            {date: '2023-06-07', sales: 19800, orders: 198}
-        ],
-        weekly: [
-            {date: t('admin.analytics.week') + '1', sales: 85000, orders: 850},
-            {date: t('admin.analytics.week') + '2', sales: 92000, orders: 920},
-            {date: t('admin.analytics.week') + '3', sales: 103000, orders: 1030},
-            {date: t('admin.analytics.week') + '4', sales: 115000, orders: 1150}
-        ],
-        monthly: [
-            {date: t('admin.analytics.month') + '1', sales: 320000, orders: 3200},
-            {date: t('admin.analytics.month') + '2', sales: 290000, orders: 2900},
-            {date: t('admin.analytics.month') + '3', sales: 350000, orders: 3500},
-            {date: t('admin.analytics.month') + '4', sales: 380000, orders: 3800},
-            {date: t('admin.analytics.month') + '5', sales: 420000, orders: 4200},
-            {date: t('admin.analytics.month') + '6', sales: 450000, orders: 4500}
-        ]
-    }
-
-    // Mock user behavior data
-    const mockUserBehaviorData = {
-        pageViews: [
-            {date: t('admin.analytics.monday'), views: 5200},
-            {date: t('admin.analytics.tuesday'), views: 5800},
-            {date: t('admin.analytics.wednesday'), views: 6100},
-            {date: t('admin.analytics.thursday'), views: 5900},
-            {date: t('admin.analytics.friday'), views: 6500},
-            {date: t('admin.analytics.saturday'), views: 7200},
-            {date: t('admin.analytics.sunday'), views: 6800}
-        ],
-        conversionRate: [
-            {date: t('admin.analytics.monday'), rate: 2.5},
-            {date: t('admin.analytics.tuesday'), rate: 2.8},
-            {date: t('admin.analytics.wednesday'), rate: 3.2},
-            {date: t('admin.analytics.thursday'), rate: 3.0},
-            {date: t('admin.analytics.friday'), rate: 3.5},
-            {date: t('admin.analytics.saturday'), rate: 4.0},
-            {date: t('admin.analytics.sunday'), rate: 3.8}
-        ],
-        userSources: [
-            {name: t('admin.analytics.directAccess'), value: 335},
-            {name: t('admin.analytics.searchEngine'), value: 679},
-            {name: t('admin.analytics.socialMedia'), value: 548},
-            {name: t('admin.analytics.advertising'), value: 420},
-            {name: t('admin.analytics.others'), value: 288}
-        ],
-        deviceDistribution: [
-            {name: t('admin.analytics.mobile'), value: 65},
-            {name: t('admin.analytics.desktop'), value: 30},
-            {name: t('admin.analytics.tablet'), value: 5}
-        ]
-    }
-
-    return {mockSalesData, mockUserBehaviorData};
-}
-
-// Define mock platform performance data function to be called inside component to get translated data
-const getMockPerformanceData = () => {
-    return {
-        responseTime: [
-            {date: t('admin.analytics.monday'), time: 120},
-            {date: t('admin.analytics.tuesday'), time: 132},
-            {date: t('admin.analytics.wednesday'), time: 101},
-            {date: t('admin.analytics.thursday'), time: 134},
-            {date: t('admin.analytics.friday'), time: 90},
-            {date: t('admin.analytics.saturday'), time: 85},
-            {date: t('admin.analytics.sunday'), time: 95}
-        ],
-        errorRate: [
-            {date: t('admin.analytics.monday'), rate: 0.8},
-            {date: t('admin.analytics.tuesday'), rate: 0.6},
-            {date: t('admin.analytics.wednesday'), rate: 0.9},
-            {date: t('admin.analytics.thursday'), rate: 0.7},
-            {date: t('admin.analytics.friday'), rate: 0.5},
-            {date: t('admin.analytics.saturday'), rate: 0.3},
-            {date: t('admin.analytics.sunday'), rate: 0.4}
-        ],
-        serverLoad: [
-            {date: '00:00', load: 30},
-            {date: '03:00', load: 15},
-            {date: '06:00', load: 25},
-            {date: '09:00', load: 65},
-            {date: '12:00', load: 85},
-            {date: '15:00', load: 75},
-            {date: '18:00', load: 90},
-            {date: '21:00', load: 60}
-        ]
-    };
-}
-
 function AnalyticsDashboard() {
     const {t} = useTranslation()
     const {account} = useSnapshot(userStore)
@@ -142,11 +39,8 @@ function AnalyticsDashboard() {
     const [realSalesData, setRealSalesData] = useState<GroupedSalesData | null>(null)
     const [chartsInitialized, setChartsInitialized] = useState(false)
 
-    // Get translated mock data for other tabs
-    const {mockSalesData: fallbackData} = getMockData()
-    getMockPerformanceData();
-// 使用真实数据或回退到模拟数据
-    const salesData = realSalesData || fallbackData
+    // 使用真实数据
+    const salesData = realSalesData || { daily: [], weekly: [], monthly: [] }
 
     // Chart container refs
     const salesChartRef = useRef<HTMLDivElement>(null)
@@ -293,7 +187,7 @@ function AnalyticsDashboard() {
                 setLoading(true);
                 console.log('开始获取所有订单数据...');
                 // 使用GetAllOrders API获取所有订单
-                const response = await orderService.listOrder({
+                const response = await orderService.getAllOrders({
                     page: 1,
                     pageSize: 1000, // 获取足够多的订单数据以供分析
                 });
@@ -409,12 +303,6 @@ function AnalyticsDashboard() {
             <Typography level="h2" sx={{mb: 3}}>{t('admin.analytics.title')}</Typography>
 
             <Tabs value={activeTab} onChange={handleTabChange} sx={{mb: 3}}>
-                <TabList>
-                    <Tab>{t('admin.analytics.salesData')}</Tab>
-                    <Tab>{t('admin.analytics.userBehavior')}</Tab>
-                    <Tab>{t('admin.analytics.performanceReport')}</Tab>
-                </TabList>
-
                 {/* 销售数据面板 */}
                 <TabPanel value={0}>
                     <Box sx={{mb: 3}}>
