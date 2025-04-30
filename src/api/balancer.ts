@@ -24,6 +24,22 @@ export interface CreateMerchantBalanceRequest {
     accountDetails: Record<string, any>;
 }
 
+export interface RechargeMerchantBalanceRequest {
+  merchantId: string
+  amount: number
+  currency: string
+  paymentMethod: string
+  paymentAccount: string
+  paymentExtra: Record<string, any>
+  expectedVersion: number
+  idempotencyKey: string
+}
+
+export interface RechargeMerchantBalanceReply {
+  transactionId: number
+  newVersion: number
+}
+
 export interface RechargeBalanceRequest {
     userId: string;
     amount: number;
@@ -48,6 +64,11 @@ export interface CreateMerchantBalanceReply {
 
 export interface GetBalanceRequest {
     userId?: string
+    currency: string;
+}
+
+export interface GetMerchantBalanceRequest {
+    merchantId: string
     currency: string;
 }
 
@@ -137,10 +158,10 @@ export interface GetTransactionsReply {
 const balancerService = {
     createConsumerBalance(request: CreateConsumerBalanceRequest): Promise<CreateConsumerBalanceReply> {
         const url = httpClient.replacePathParams(
-            `${import.meta.env.VITE_BALANCER_URL}/consumer/{user_id}/balance`,
+            `${import.meta.env.VITE_BALANCER_URL}consumers/{user_id}/balance`,
             {user_id: request.userId}
         );
-        return httpClient.post<CreateConsumerBalanceReply>(url,
+        return httpClient.put<CreateConsumerBalanceReply>(url,
             JSON.stringify({
                 ...request
             })
@@ -149,17 +170,26 @@ const balancerService = {
 
     createMerchantBalance(request: CreateMerchantBalanceRequest): Promise<CreateMerchantBalanceReply> {
         const url = httpClient.replacePathParams(
-            `${import.meta.env.VITE_BALANCER_URL}/merchant/{merchant_id}/balance`,
-            {merchant_id: request.merchantId}
+            `${import.meta.env.VITE_BALANCER_URL}/merchants/{merchantId}/balance`,
+            {merchantId: request.merchantId}
         );
-        return httpClient.post<CreateMerchantBalanceReply>(url,
+        return httpClient.put<CreateMerchantBalanceReply>(url,
             JSON.stringify({
                 ...request
             })
         );
     },
     rechargeBalance(request: RechargeBalanceRequest): Promise<RechargeBalanceReply> {
-        const url = `${import.meta.env.VITE_BALANCER_URL}/users/recharge`
+        const url = `${import.meta.env.VITE_BALANCER_URL}/consumers/recharge`
+        return httpClient.post<RechargeBalanceReply>(url,
+            JSON.stringify({
+                ...request
+            })
+        );
+    },
+    // 商家余额充值
+    rechargeMerchantBalance: async (request: RechargeMerchantBalanceRequest): Promise<RechargeMerchantBalanceReply> => {
+        const url = `${import.meta.env.VITE_BALANCER_URL}/merchants/recharge`
         return httpClient.post<RechargeBalanceReply>(url,
             JSON.stringify({
                 ...request
@@ -168,14 +198,16 @@ const balancerService = {
     },
 
     getUserBalance(request: GetBalanceRequest): Promise<BalanceReply> {
-        const url = `${import.meta.env.VITE_BALANCER_URL}/users/balancer`;
+        const url = `${import.meta.env.VITE_BALANCER_URL}/consumers/balance`;
         return httpClient.get<BalanceReply>(url, {
             params: request
         });
     },
 
-    getMerchantBalance(request: GetBalanceRequest): Promise<BalanceReply> {
-        const url = `${import.meta.env.VITE_BALANCER_URL}/merchant/balance`;
+    getMerchantBalance(request: GetMerchantBalanceRequest): Promise<BalanceReply> {
+        const url = httpClient.replacePathParams(`${import.meta.env.VITE_BALANCER_URL}/merchants/{merchantId}/balance`,{
+            merchantId: request.merchantId
+        })
         return httpClient.get<BalanceReply>(url, {
             params: request
         });
@@ -183,7 +215,7 @@ const balancerService = {
 
     freezeBalance(request: FreezeBalanceRequest): Promise<FreezeBalanceReply> {
         const url = httpClient.replacePathParams(
-            `${import.meta.env.VITE_BALANCER_URL}/user/{user_id}/freeze`,
+            `${import.meta.env.VITE_BALANCER_URL}consumers/{user_id}/freeze`,
             {user_id: request.userId}
         );
         return httpClient.post<FreezeBalanceReply>(url,

@@ -10,6 +10,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import Skeleton from '@/components/Skeleton'
 import {useTranslation} from 'react-i18next'
 import DashboardCard from '@/components/DashboardCard'
+import {showMessage} from "@/utils/showMessage.ts";
 
 export const Route = createLazyFileRoute('/admin/')({
     component: AdminDashboard,
@@ -23,17 +24,34 @@ function AdminDashboard() {
 
   // 检查用户是否为管理员，如果不是则重定向到首页
   useEffect(() => {
-    if (account.role !== 'admin') {
-      navigate({to: '/'}).then(() => {
-        console.log(t('admin.log.redirectedNonAdmin'))
-      })
+    const checkAuth = async () => {
+      // 等待account数据加载完成（valtio的响应式更新）
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      if (account?.id && account.role) {
+        console.log("Valid account:", account)
+        if (account.role !== 'admin') {
+          showMessage(t('error.adminAccessOnly'), 'error')
+          navigate({to: '/'}).then(() => {
+            showMessage(t('error.adminAccessOnly'), 'info')
+          })
+        }
+      } else {
+        // 如果account数据未加载完成，显示加载状态
+        setLoading(true)
+      }
     }
-    // 模拟加载数据
+
+    checkAuth().finally(() => {
+      setLoading(false)
+    })
+
+
     const timer = setTimeout(() => {
       setLoading(false)
     }, 800)
     return () => clearTimeout(timer)
-  }, [account.role, navigate])
+  }, [account])
 
   return (
     <Box sx={{ p: 2 }}>

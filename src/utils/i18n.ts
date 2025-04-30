@@ -410,6 +410,7 @@ const resources = {
             // User Management
             'admin.users.title': 'User Management',
             'admin.users.add_user': 'Add User',
+            'admin.users.table.id': 'id',
             'admin.users.table.application': 'Application',
             'admin.users.table.username': 'Username',
             'admin.users.table.email': 'Email',
@@ -1098,6 +1099,8 @@ const resources = {
             'products.unpublishFailed': 'Failed to unpublish product',
             'products.merchantFeatures': 'Merchant Features',
             'products.productImage': 'Product image',
+            'error.merchantAccessOnly': 'your account does not have access to the merchant panel, redirecting to the home page',
+            'error.adminAccessOnly': 'your account does not have access to the admin panel, redirecting to the home page',
 
             // 库存管理
             'inventory.table.product_name': 'Product Name',
@@ -1751,6 +1754,7 @@ const resources = {
             // 用户管理
             'admin.users.title': '用户管理',
             'admin.users.add_user': '添加用户',
+            'admin.users.table.id': 'id',
             'admin.users.table.application': '应用',
             'admin.users.table.username': '用户名',
             'admin.users.table.email': '邮箱',
@@ -2470,6 +2474,7 @@ const resources = {
             'consumer.orders.viewFavorites': '查看收藏',
 
             'error.merchantAccessOnly': '您没有权限访问商家页面, 正在跳转到首页',
+            'error.adminAccessOnly': '您没有权限访问管理员页面, 正在跳转到首页',
             'consumer.transactions.empty': '暂无交易记录',
             'consumer.transactions.error.fetch': '获取交易记录失败',
 

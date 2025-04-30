@@ -291,6 +291,7 @@ function UserManagement() {
                     <Table stickyHeader hoverRow>
                         <thead>
                         <tr>
+                            <th style={{width: '15%'}}>{t('admin.users.table.id')}</th>
                             <th style={{width: '15%'}}>{t('admin.users.table.application')}</th>
                             <th style={{width: '15%'}}>{t('admin.users.table.username')}</th>
                             <th style={{width: '20%'}}>{t('admin.users.table.email')}</th>
@@ -302,6 +303,7 @@ function UserManagement() {
                         <tbody>
                         {users.map((user) => (
                             <tr key={user.id}>
+                                <td>{user.id}</td>
                                 <td>{user.signupApplication}</td>
                                 <td>{user.displayName}</td>
                                 <td>{user.email}</td>

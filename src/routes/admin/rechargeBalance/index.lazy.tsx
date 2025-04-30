@@ -1,21 +1,23 @@
 import { createLazyFileRoute, useNavigate } from '@tanstack/react-router'
-import { 
-  Alert, 
-  Box, 
-  Button, 
-  Card, 
-  CardContent, 
-  CircularProgress, 
-  Divider, 
-  FormControl, 
-  FormLabel, 
-  Grid, 
-  Input, 
-  Option, 
-  Select, 
-  Stack, 
-
-  Typography 
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  Divider,
+  FormControl,
+  FormLabel,
+  Grid,
+  Input,
+  Option,
+  Select,
+  Stack,
+  Tab,
+  TabList,
+  Tabs,
+  Typography
 } from '@mui/joy'
 import { useEffect, useState } from 'react'
 import { useSnapshot } from 'valtio/react'
@@ -26,16 +28,23 @@ import { useTranslation } from 'react-i18next'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import balancerService, {
   BalanceReply,
+  CreateConsumerBalanceRequest,
+  CreateMerchantBalanceRequest,
   GetBalanceRequest,
   GetTransactionsRequest,
-  RechargeBalanceRequest
+  RechargeBalanceRequest,
+  RechargeMerchantBalanceRequest
 } from '@/api/balancer'
 import { v4 as uuidv4 } from 'uuid'
+import { showMessage } from '@/utils/showMessage'
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { IconButton } from '@mui/joy';
 
 export const Route = createLazyFileRoute('/admin/rechargeBalance/')({
   component: RechargeBalance,
 })
 
+type OperationMode = 'recharge' | 'initialize';
 
 function RechargeBalance() {
   const { t } = useTranslation()
@@ -44,12 +53,16 @@ function RechargeBalance() {
   const [userId, setUserId] = useState('')
   const [amount, setAmount] = useState<number>(0)
   const [currency, setCurrency] = useState('CNY')
-  const [paymentMethod, setPaymentMethod] = useState('CREDIT_CARD')
-  const [paymentAccount, setPaymentAccount] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState('CREDIT_CARD') // Note: This might be less relevant for initialization
+  const [paymentAccount, setPaymentAccount] = useState('') // Note: This might be less relevant for initialization
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [page, _] = useState(1)
   const [pageSize] = useState(10)
+  const [userType, setUserType] = useState<'consumer' | 'merchant'>('consumer')
+  const [mode, setMode] = useState<OperationMode>('recharge'); // Add mode state
+
+  const INITIAL_BALANCE = 1000; // Default initial balance
 
   // 检查用户是否为管理员，如果不是则重定向到首页
   useEffect(() => {
@@ -61,76 +74,176 @@ function RechargeBalance() {
   }, [account.role, navigate])
 
   // 获取用户余额信息
-  const { 
-    data: balanceData, 
-    isLoading: isBalanceLoading, 
-    refetch: refetchBalance 
-  } = useQuery<BalanceReply>({
-    queryKey: ['userBalance', userId, currency],
+  const {
+    data: balanceData,
+    isLoading: isBalanceLoading,
+    refetch: refetchBalance
+  } = useQuery<BalanceReply | undefined>({
+    queryKey: ['userBalance', userId, currency, userType],
     queryFn: async () => {
       if (!userId || !currency) {
-        throw new Error('用户ID和货币类型不能为空')
+        return undefined;
       }
       const request: GetBalanceRequest = {
         userId,
         currency,
       }
-      return balancerService.getUserBalance(request)
+      console.log('userType', userType)
+      try {
+        return userType === 'consumer'
+          ? await balancerService.getUserBalance(request)
+          : await balancerService.getMerchantBalance({ merchantId: userId, currency });
+      } catch (e) {
+        console.warn("Failed to fetch balance:", e);
+        return undefined;
+      }
     },
     enabled: !!userId && !!currency,
     retry: 1
   })
 
-  // 充值操作
+  // 充值操作 Mutation
   const rechargeMutation = useMutation({
-    mutationFn: async (rechargeData: RechargeBalanceRequest) => {
-      return balancerService.rechargeBalance(rechargeData)
+    mutationFn: (rechargeData: RechargeBalanceRequest | RechargeMerchantBalanceRequest) => {
+      if (userType === 'consumer') {
+        return balancerService.rechargeBalance(rechargeData as RechargeBalanceRequest);
+      } else {
+        return balancerService.rechargeMerchantBalance(rechargeData as RechargeMerchantBalanceRequest);
+      }
     },
     onSuccess: (data) => {
-      setSuccess(`充值成功！交易ID: ${data.transactionId}`)
-      refetchBalance() // 刷新余额
-      // 重置表单
+      setSuccess(`充值成功！交易ID: ${data.transactionId}, 新版本号: ${data.newVersion}`)
+      refetchBalance().then(() => {
+        console.log('余额信息已刷新')
+        showMessage(t('success.rechargeSuccess'), 'success')
+      })
+      // 重置部分表单
       setAmount(0)
-      setPaymentAccount('')
+      // setPaymentAccount('') // Keep payment account for potential subsequent recharges
     },
     onError: (err: Error) => {
-      setError(`充值失败: ${err.message}`)
+      if (err.message.includes('optimistic lock failed') || err.message.includes('OPTIMISTIC_LOCK_FAILED')) {
+        // 乐观锁错误，自动刷新余额并提示用户重试
+        refetchBalance().then(() => {
+          setError(`乐观锁错误：数据已被其他操作修改，已自动刷新余额信息，请重新尝试充值操作。`)
+          showMessage('数据已更新，请重新尝试', 'warning')
+        })
+      } else {
+        setError(`充值失败: ${err.message}`)
+      }
     }
   })
 
-  // 处理充值提交
-  const handleRecharge = () => {
+  // 初始化余额 Mutation
+  const initializeBalanceMutation = useMutation({
+    mutationFn: async (initData: {
+        userId: string;
+        currency: string;
+        balancerType: string; // Payment Method acts as balancerType here
+        accountDetails: Record<string, any>;
+    }) => {
+      if (userType === 'consumer') {
+        const request: CreateConsumerBalanceRequest = {
+          userId: initData.userId,
+          currency: initData.currency,
+          initialBalance: INITIAL_BALANCE,
+          balancerType: initData.balancerType,
+          isDefault: true, // Assuming default for initialization
+          accountDetails: initData.accountDetails,
+        };
+        return balancerService.createConsumerBalance(request);
+      } else {
+        const request: CreateMerchantBalanceRequest = {
+          merchantId: initData.userId, // Use userId as merchantId here
+          currency: initData.currency,
+          initialBalance: INITIAL_BALANCE,
+          balancerType: initData.balancerType,
+          isDefault: true, // Assuming default for initialization
+          accountDetails: initData.accountDetails,
+        };
+        return balancerService.createMerchantBalance(request);
+      }
+    },
+    onSuccess: (data) => {
+      setSuccess(`初始化成功！用户ID: ${data.userId}, 可用余额: ${data.available}`)
+      refetchBalance().then(() => {
+        console.log('余额信息已刷新')
+        showMessage('初始化余额成功', 'success') // Use a specific message
+      })
+       // Reset relevant fields after initialization
+       setPaymentAccount('');
+    },
+    onError: (err: Error) => {
+      setError(`初始化失败: ${err.message}`)
+    }
+  })
+
+
+  // 处理提交 (根据模式调用不同 mutation)
+  const handleSubmit = () => {
     setError(null)
     setSuccess(null)
 
     // 表单验证
     if (!userId) {
-      setError('请输入用户ID')
+      setError(userType === 'consumer' ? '请输入用户ID' : '请输入商家ID')
       return
     }
-    if (!amount || amount <= 0) {
-      setError('请输入有效的充值金额')
-      return
-    }
-    if (!paymentAccount) {
-      setError('请输入支付账号')
-      return
-    }
+     if (!paymentAccount) {
+       setError('请输入支付账号') // Payment account might still be needed for accountDetails
+       return
+     }
 
-    // 创建充值请求
-    const rechargeRequest: RechargeBalanceRequest = {
-      userId,
-      amount,
-      currency,
-      externalTransactionId: 0, // 生成唯一的外部交易ID
-      paymentMethodType: paymentMethod,
-      paymentAccount,
-      idempotencyKey: uuidv4(), // 生成幂等键
-      expectedVersion: balanceData?.version || 0 // 使用乐观锁版本号
-    }
+    if (mode === 'recharge') {
+        if (!amount || amount <= 0) {
+          setError('请输入有效的充值金额')
+          return
+        }
+        if (!balanceData) {
+            setError('无法获取当前用户余额信息，无法充值');
+            return;
+        }
 
-    // 执行充值
-    rechargeMutation.mutate(rechargeRequest)
+        if (userType === 'consumer') {
+          const rechargeData: RechargeBalanceRequest = {
+            userId,
+            amount,
+            currency,
+            externalTransactionId: Date.now(),
+            paymentMethodType: paymentMethod,
+            paymentAccount,
+            idempotencyKey: uuidv4(),
+            expectedVersion: balanceData?.version ?? 0
+          }
+          rechargeMutation.mutate(rechargeData)
+        } else {
+          // 商家充值请求
+          const rechargeData: RechargeMerchantBalanceRequest = {
+            merchantId: userId, // 使用userId作为merchantId
+            amount,
+            currency,
+            paymentMethod: paymentMethod, // 注意：这里使用paymentMethod而不是paymentMethodType
+            paymentAccount,
+            paymentExtra: {},
+            expectedVersion: balanceData?.version ?? 0,
+            idempotencyKey: uuidv4()
+          }
+          rechargeMutation.mutate(rechargeData)
+        }
+    } else if (mode === 'initialize') {
+        // 创建初始化请求
+        const initRequest = {
+            userId,
+            currency,
+            balancerType: paymentMethod, // Use paymentMethod as balancerType
+            accountDetails: {
+                'account': paymentAccount,
+                // Add other relevant details if needed
+            }
+        };
+        // 执行初始化
+        initializeBalanceMutation.mutate(initRequest);
+    }
   }
 
   // 获取交易记录
@@ -138,19 +251,26 @@ function RechargeBalance() {
     data: transactionsData,
     isLoading: isTransactionsLoading
   } = useQuery({
-    queryKey: ['transactions', userId, currency, page, pageSize],
+    queryKey: ['transactions', userId, currency, page, pageSize, userType], // Add userType to key
     queryFn: async () => {
       if (!userId || !currency) {
         return null;
       }
+      // Note: getTransactions might need adjustment if it's user-specific and doesn't support merchantId directly
+      // Assuming getTransactions works for both based on userId for now.
       const request: GetTransactionsRequest = {
-        userId,
+        userId, // Use userId for both consumer and merchant for transactions endpoint
         currency,
         page,
         pageSize,
-        paymentStatus: 'ALL'
+        paymentStatus: 'ALL' // Or filter as needed
       };
-      return balancerService.getTransactions(request);
+      try {
+          return await balancerService.getTransactions(request);
+      } catch (e) {
+          console.warn("Failed to fetch transactions:", e);
+          return { transactions: [] }; // Return empty list on error
+      }
     },
     enabled: !!userId && !!currency
   });
@@ -169,13 +289,28 @@ function RechargeBalance() {
       <Typography level="h2" sx={{ mb: 3 }}>{t('admin.rechargeBalance.title')}</Typography>
 
       <Grid container spacing={3}>
-        {/* 充值表单 */}
+        {/* 表单 */}
         <Grid xs={12} md={6}>
           <Card variant="outlined">
             <CardContent>
+              {/* Mode Tabs */}
+              <Tabs
+                aria-label="Operation mode"
+                value={mode}
+                onChange={(_, newValue) => setMode(newValue as OperationMode)}
+                sx={{ mb: 2 }}
+              >
+                <TabList>
+                  <Tab value="recharge">为现有用户充值</Tab>
+                  <Tab value="initialize">初始化用户余额</Tab>
+                </TabList>
+              </Tabs>
+
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <AccountBalanceWalletIcon color="primary" sx={{ mr: 1 }} />
-                <Typography level="h3">{t('admin.rechargeBalance.formTitle')}</Typography>
+                <Typography level="h3">
+                    {mode === 'recharge' ? t('admin.rechargeBalance.formTitle') : '初始化用户余额'}
+                </Typography>
               </Box>
               <Divider sx={{ my: 2 }} />
 
@@ -193,24 +328,51 @@ function RechargeBalance() {
 
               <Stack spacing={2}>
                 <FormControl required>
-                  <FormLabel>{t('admin.rechargeBalance.userId')}</FormLabel>
-                  <Input
-                    value={userId}
-                    onChange={(e) => setUserId(e.target.value)}
-                    placeholder="请输入用户ID"
-                  />
+                  <FormLabel>{t('admin.rechargeBalance.userType')}</FormLabel>
+                  <Select
+                    value={userType}
+                    onChange={(_, value) => {
+                        if (value) {
+                            setUserType(value);
+                            setUserId(''); // Reset userId when type changes
+                            setError(null);
+                            setSuccess(null);
+                        }
+                    }}
+                  >
+                    <Option value="consumer">消费者</Option>
+                    <Option value="merchant">商家</Option>
+                  </Select>
                 </FormControl>
 
                 <FormControl required>
-                  <FormLabel>{t('admin.rechargeBalance.amount')}</FormLabel>
+                  <FormLabel>{userType === 'consumer' ? t('admin.rechargeBalance.userId') : t('admin.rechargeBalance.merchantId')}</FormLabel>
                   <Input
-                    type="number"
-                    value={amount || ''}
-                    onChange={(e) => setAmount(Number(e.target.value))}
-                    placeholder="请输入充值金额"
-                    slotProps={{ input: { min: 0, step: 0.01 } }}
+                    value={userId}
+                    onChange={(e) => setUserId(e.target.value)}
+                    placeholder={userType === 'consumer' ? "请输入用户ID" : "请输入商家ID"}
                   />
                 </FormControl>
+
+                {/* Conditional Amount Field */}
+                {mode === 'recharge' && (
+                    <FormControl required>
+                      <FormLabel>{t('admin.rechargeBalance.amount')}</FormLabel>
+                      <Input
+                        type="number"
+                        value={amount || ''}
+                        onChange={(e) => setAmount(Number(e.target.value))}
+                        placeholder="请输入充值金额"
+                        slotProps={{ input: { min: 0.01, step: 0.01 } }} // Ensure positive amount
+                      />
+                    </FormControl>
+                )}
+                 {mode === 'initialize' && (
+                    <FormControl disabled>
+                        <FormLabel>初始金额</FormLabel>
+                        <Input value={INITIAL_BALANCE} readOnly />
+                    </FormControl>
+                 )}
 
                 <FormControl required>
                   <FormLabel>{t('admin.rechargeBalance.currency')}</FormLabel>
@@ -225,50 +387,68 @@ function RechargeBalance() {
                 </FormControl>
 
                 <FormControl required>
-                  <FormLabel>{t('admin.rechargeBalance.paymentMethod')}</FormLabel>
+                  {/* Label might need adjustment based on mode */}
+                  <FormLabel>{mode === 'recharge' ? t('admin.rechargeBalance.paymentMethod') : '账户类型'}</FormLabel>
                   <Select
                     value={paymentMethod}
                     onChange={(_, value) => value && setPaymentMethod(value)}
                   >
+                    {/* Adjust options based on what balancerType expects */}
                     <Option value="ALIPAY">支付宝</Option>
                     <Option value="WECHAT">微信支付</Option>
-                    <Option value="BALANCER">银行卡</Option>
-                    <Option value="BANK_CARD">余额</Option>
+                    <Option value="BANK_CARD">银行卡</Option>
+                    <Option value="CREDIT_CARD">信用卡</Option> {/* Added Credit Card */}
+                    <Option value="BALANCER">余额 (内部)</Option>
                   </Select>
                 </FormControl>
 
                 <FormControl required>
-                  <FormLabel>{t('admin.rechargeBalance.paymentAccount')}</FormLabel>
+                   {/* Label might need adjustment based on mode */}
+                  <FormLabel>{mode === 'recharge' ? t('admin.rechargeBalance.paymentAccount') : '账户标识'}</FormLabel>
                   <Input
                     value={paymentAccount}
                     onChange={(e) => setPaymentAccount(e.target.value)}
-                    placeholder="请输入支付账号"
+                    placeholder={mode === 'recharge' ? "请输入支付账号" : "请输入账户标识 (如卡号)"}
                   />
                 </FormControl>
 
                 <Button
                   color="primary"
-                  loading={rechargeMutation.isPending}
-                  onClick={handleRecharge}
+                  loading={rechargeMutation.isPending || initializeBalanceMutation.isPending}
+                  onClick={handleSubmit}
                   sx={{ mt: 2 }}
                 >
-                  确认充值
+                  {mode === 'recharge' ? '确认充值' : '确认初始化'}
                 </Button>
               </Stack>
             </CardContent>
           </Card>
         </Grid>
 
-        {/* 用户余额信息 */}
+        {/* 用户余额信息 & 交易记录 (No changes needed here for the core logic) */}
         <Grid xs={12} md={6}>
           <Card variant="outlined">
             <CardContent>
-              <Typography level="h3" sx={{ mb: 2 }}>{t('admin.rechargeBalance.userBalancerInfo')}</Typography>
+              <Typography level="h3" sx={{ mb: 2 }}>
+                {t('admin.rechargeBalance.userBalancerInfo')}
+                <IconButton 
+                  size="sm" 
+                  variant="plain" 
+                  color="neutral"
+                  onClick={() => {
+                    refetchBalance();
+                    showMessage('正在刷新余额信息...', 'info');
+                  }}
+                  sx={{ ml: 1 }}
+                >
+                  <RefreshIcon />
+                </IconButton>
+              </Typography>
               <Divider sx={{ my: 2 }} />
 
               {!userId ? (
                 <Typography level="body-md" sx={{ textAlign: 'center', py: 4 }}>
-                  请输入用户ID查询余额信息
+                  请输入{userType === 'consumer' ? '用户ID' : '商家ID'}查询余额信息
                 </Typography>
               ) : isBalanceLoading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
@@ -296,9 +476,9 @@ function RechargeBalance() {
                   </Box>
                 </Stack>
               ) : (
-                <Alert color="warning" sx={{ mb: 2 }}>
-                  未找到该用户的余额信息
-                </Alert>
+                 <Alert color="warning" sx={{ mb: 2 }}>
+                   {mode === 'recharge' ? '未找到该用户的余额信息，请先初始化。' : '该用户尚未初始化余额。'}
+                 </Alert>
               )}
             </CardContent>
           </Card>
@@ -308,36 +488,36 @@ function RechargeBalance() {
             <CardContent>
               <Typography level="h3" sx={{ mb: 2 }}>{t('admin.rechargeBalance.recentTransactions')}</Typography>
               <Divider sx={{ my: 2 }} />
-              
+
               {!userId ? (
                 <Typography level="body-md" sx={{ textAlign: 'center', py: 4 }}>
-                  请输入用户ID查询交易记录
+                  请输入{userType === 'consumer' ? '用户ID' : '商家ID'}查询交易记录
                 </Typography>
               ) : isTransactionsLoading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
                   <CircularProgress />
                 </Box>
               ) : transactionsData?.transactions && transactionsData.transactions.length > 0 ? (
-                <Stack spacing={2}>
+                <Stack spacing={2} sx={{ maxHeight: '300px', overflowY: 'auto' }}> {/* Added scroll */}
                   {transactionsData.transactions.map((transaction) => (
-                    <Box key={transaction.id} sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 'sm' }}>
-                      <Grid container spacing={2}>
+                    <Box key={transaction.id} sx={{ p: 1.5, border: '1px solid', borderColor: 'divider', borderRadius: 'sm' }}>
+                      <Grid container spacing={1}>
                         <Grid xs={6}>
-                          <Typography level="body-sm">交易ID: {transaction.id}</Typography>
-                          <Typography level="body-sm">类型: {transaction.type}</Typography>
-                          <Typography level="body-sm">金额: {transaction.amount} {transaction.currency}</Typography>
+                          <Typography level="body-xs">交易ID: {transaction.id}</Typography>
+                          <Typography level="body-xs">类型: {transaction.type}</Typography>
+                          <Typography level="body-xs">金额: {transaction.amount} {transaction.currency}</Typography>
                         </Grid>
                         <Grid xs={6}>
-                          <Typography level="body-sm">状态: {transaction.status}</Typography>
-                          <Typography level="body-sm">支付方式: {transaction.paymentMethodType}</Typography>
-                          <Typography level="body-sm">创建时间: {transaction.createdAt}</Typography>
+                          <Typography level="body-xs">状态: {transaction.status}</Typography>
+                          <Typography level="body-xs">支付方式: {transaction.paymentMethodType}</Typography>
+                          <Typography level="body-xs">时间: {new Date(transaction.createdAt).toLocaleString()}</Typography> {/* Formatted date */}
                         </Grid>
                       </Grid>
                     </Box>
                   ))}
                 </Stack>
               ) : (
-                <Alert color="warning" sx={{ mb: 2 }}>
+                <Alert color="neutral" sx={{ mb: 2 }}> {/* Changed color to neutral */}
                   暂无交易记录
                 </Alert>
               )}
@@ -348,3 +528,4 @@ function RechargeBalance() {
     </Box>
   )
 }
+
