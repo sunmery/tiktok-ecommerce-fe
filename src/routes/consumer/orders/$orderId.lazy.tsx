@@ -11,7 +11,7 @@ import Skeleton from '@/components/Skeleton'
 import {orderService} from '@/api/orderService'
 import {useTranslation} from 'react-i18next'
 import {getStatusColor, getStatusText} from "@/utils/status.ts";
-import {showMessage} from "@/utils/showMessage.ts";
+import {showMessage} from "@/utils/showMessage";
 
 export const Route = createLazyFileRoute('/consumer/orders/$orderId')({
     component: ConsumerOrderDetail,

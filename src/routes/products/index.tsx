@@ -14,7 +14,7 @@ import Favorites from "@/components/Favorites";
 import {userService} from "@/api/userService.ts";
 import {userStore} from "@/store/user.ts";
 import AspectRatio from "@mui/joy/AspectRatio";
-import {showMessage} from "@/utils/showMessage.ts";
+import {showMessage} from "@/utils/showMessage";
 
 export const Route = createFileRoute('/products/')({
     component: RouteComponent,

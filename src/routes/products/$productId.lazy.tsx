@@ -16,7 +16,7 @@ import {
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {cartStore} from '@/store/cartStore.ts'
 import {useProduct} from '@/hooks/useProduct'
-import {showMessage} from "@/utils/showMessage.ts";
+import {showMessage} from "@/utils/showMessage";
 import CommentSection from '@/components/CommentSection';
 import {useEffect, useState} from 'react';
 import {orderService} from '@/api/orderService';

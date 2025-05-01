@@ -13,7 +13,7 @@ import type {CartItem} from '@/types/cart'
 import type {Address} from '@/types/addresses'
 import type {CreditCard} from '@/types/creditCards'
 import {useTranslation} from 'react-i18next'
-import {showMessage} from "@/utils/showMessage.ts";
+import {showMessage} from "@/utils/showMessage";
 
 export const Route = createLazyFileRoute('/checkout/')({
     component: RouteComponent,

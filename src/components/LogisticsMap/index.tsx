@@ -3,7 +3,7 @@ import {MapContainer, Marker, Polyline, Popup, TileLayer} from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {Coordinates} from '@/types/logisticsMap';
-import {showMessage} from "@/utils/showMessage.ts";
+import {showMessage} from "@/utils/showMessage";
 import {PaymentStatus, ShippingStatus} from "@/types/orders.ts";
 import {getStatusText, shippingStatus} from "@/utils/status.ts";
 
@@ -44,7 +44,7 @@ const LogisticsMap = ({
     const [routePath, setRoutePath] = useState<Coordinates[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [time, setTime] = useState(30000 * 30)
+    const [time, _] = useState(30000 * 30)
     // 获取实际道路路径
     const fetchRoutePath = useCallback(async () => {
         setIsLoading(true);

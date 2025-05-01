@@ -10,7 +10,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import Skeleton from '@/components/Skeleton'
 import {useTranslation} from 'react-i18next'
 import DashboardCard from '@/components/DashboardCard'
-import {showMessage} from "@/utils/showMessage.ts";
+import {showMessage} from "@/utils/showMessage";
 
 export const Route = createLazyFileRoute('/admin/')({
     component: AdminDashboard,

@@ -25,7 +25,7 @@ import {EditUserForm, MerchantApplication, RoleNames, User} from '@/types/admin'
 import {userService} from "@/api/userService";
 import {t} from "i18next";
 import {UserProfile} from "@/types/user";
-import {showMessage} from "@/utils/showMessage.ts";
+import {showMessage} from "@/utils/showMessage";
 import RefreshIcon from '@mui/icons-material/Refresh'
 import {useQuery, useQueryClient} from '@tanstack/react-query'
 

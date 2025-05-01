@@ -3,7 +3,7 @@ import {useTranslation} from 'react-i18next'
 import {Box, Button, Typography} from '@mui/joy'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {useQueryClient} from '@tanstack/react-query'
-import {showMessage} from "@/utils/showMessage.ts";
+import {showMessage} from "@/utils/showMessage";
 
 export const Route = createLazyFileRoute('/logout/')({
     component: () => <LogoutCompose/>,

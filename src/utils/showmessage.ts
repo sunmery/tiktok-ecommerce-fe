@@ -12,11 +12,16 @@ export const showMessage = (message: string, type: 'success' | 'warning' | 'erro
         displayMessage = '网络连接失败，请检查您的网络连接';
     }
 
-    // 创建一个自定义事件，携带消息内容和类型
+    // 生成唯一ID用于标识此消息
+    const messageId = Date.now() + Math.random().toString(36).substring(2, 9);
+
+    // 创建一个自定义事件，携带消息内容、类型和ID
     const event = new CustomEvent('show-alert', {
         detail: {
             message: displayMessage,
-            type
+            type,
+            id: messageId, // 添加唯一ID
+            timestamp: Date.now() // 添加时间戳用于排序
         }
     })
 

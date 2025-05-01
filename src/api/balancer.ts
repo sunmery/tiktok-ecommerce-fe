@@ -132,6 +132,7 @@ export interface GetTransactionsRequest {
     userId: string;
     currency: string;
     page: number;
+    userType: string;
     pageSize: number;
     paymentStatus: string;
 }
@@ -256,7 +257,8 @@ const balancerService = {
                     currency: request.currency,
                     page: request.page,
                     pageSize: request.pageSize,
-                    paymentStatus: request.paymentStatus
+                    paymentStatus: request.paymentStatus,
+                    userType: request.userType // 添加 userType 参数
                 }
             }
         );
