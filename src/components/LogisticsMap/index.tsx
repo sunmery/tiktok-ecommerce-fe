@@ -4,10 +4,9 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {Coordinates} from '@/types/logisticsMap';
 import {showMessage} from "@/utils/showMessage";
-// 确保导入 ShippingStatus
 import {PaymentStatus, ShippingStatus} from "@/types/orders.ts";
-import {getStatusText, shippingStatus as getShippingStatusText} from "@/utils/status.ts"; // 重命名导入避免冲突
-import { useTranslation } from 'react-i18next'; // <-- 添加导入
+import {shippingStatus as getShippingStatusText} from "@/utils/status.ts";
+import {useTranslation} from 'react-i18next';
 
 // 定义类型
 interface LogisticsMapProps {
@@ -48,10 +47,10 @@ const LogisticsMap = ({
                           paymentStatus = PaymentStatus.NotPaid,
                           startAnimation = false,
                       }: LogisticsMapProps) => {
-    const { t } = useTranslation(); // <-- 获取 t 函数
+    const {t} = useTranslation(); // <-- 获取 t 函数
     // 状态管理 - 使用传入的初始状态初始化
     const [deliveryStatus, setDeliveryStatus] = useState<ShippingStatus>(initialShippingStatus);
-    const [progress, setProgress] = useState(0); // 仅用于显示或触发其他逻辑，不由动画 effect 直接依赖
+    const [, setProgress] = useState(0); // 仅用于显示或触发其他逻辑，不由动画 effect 直接依赖
     const [currentPosition, setCurrentPosition] = useState<Coordinates>(sellerPosition);
     const [routePath, setRoutePath] = useState<Coordinates[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -98,7 +97,7 @@ const LogisticsMap = ({
         } catch (err) {
             console.error('获取路径失败:', err);
             const errorMsg = err instanceof Error ? err.message : '未知错误';
-            setError(t('logisticsMap.error.fetchRouteFallback', { errorMsg })); // <-- 使用 t() 和插值
+            setError(t('logisticsMap.error.fetchRouteFallback', {errorMsg})); // <-- 使用 t() 和插值
             // 如果API调用失败，回退到直线路径
             const straightPath = generateStraightPath();
             setRoutePath(straightPath);
@@ -133,12 +132,12 @@ const LogisticsMap = ({
             setCurrentPosition(userPosition);
             animationExecutedRef.current = true; // 标记动画已完成（或无需执行）
             // 确保进度条满
-             if (routePath.length > 0) { // 检查路径是否存在
-                 setProgress(routePath.length -1);
-             } else {
-                 // 如果没有路径，也设置一个象征性的满进度值，或者根据需要处理
-                 setProgress(100); // 或者其他表示完成的值
-             }
+            if (routePath.length > 0) { // 检查路径是否存在
+                setProgress(routePath.length - 1);
+            } else {
+                // 如果没有路径，模拟满进度值，或者根据需要处理
+                setProgress(100); // 或者其他表示完成的值
+            }
         } else if (initialShippingStatus === ShippingStatus.ShippingPending || initialShippingStatus === ShippingStatus.ShippingWaitCommand) {
             console.log("初始化：待处理/待指令，重置位置和动画标记");
             setCurrentPosition(sellerPosition);
@@ -165,68 +164,57 @@ const LogisticsMap = ({
     useEffect(() => {
         // 避免在初始化时重复设置（上面的 effect 已处理）
         if (initialShippingStatus !== deliveryStatus) {
-             console.log(`外部状态变化: ${initialShippingStatus}, 当前内部状态: ${deliveryStatus}`);
-             setDeliveryStatus(initialShippingStatus); // 同步状态
+            console.log(`外部状态变化: ${initialShippingStatus}, 当前内部状态: ${deliveryStatus}`);
+            setDeliveryStatus(initialShippingStatus); // 同步状态
 
-             if (initialShippingStatus === ShippingStatus.ShippingDelivered) {
-                 console.log("外部状态变为已送达，设置终点位置并标记完成");
-                 setCurrentPosition(userPosition);
-                 animationExecutedRef.current = true; // 标记完成
-                 // 清理可能正在运行的 interval
-                 if (intervalRef.current) {
-                     clearInterval(intervalRef.current);
-                     intervalRef.current = null;
-                     console.log("清理因状态变为 Delivered 的 interval");
-                 }
-                 // 设置进度为满
-                 if (routePath.length > 0) {
-                     setProgress(routePath.length - 1);
-                 } else {
-                     setProgress(100); // 或者其他完成值
-                 }
+            if (initialShippingStatus === ShippingStatus.ShippingDelivered) {
+                console.log("外部状态变为已送达，设置终点位置并标记完成");
+                setCurrentPosition(userPosition);
+                animationExecutedRef.current = true; // 标记完成
+                // 清理可能正在运行的 interval
+                if (intervalRef.current) {
+                    clearInterval(intervalRef.current);
+                    intervalRef.current = null;
+                    console.log("清理因状态变为 Delivered 的 interval");
+                }
+                // 设置进度为满
+                if (routePath.length > 0) {
+                    setProgress(routePath.length - 1);
+                } else {
+                    setProgress(100); // 或者其他完成值
+                }
 
-             } else if (initialShippingStatus === ShippingStatus.ShippingPending || initialShippingStatus === ShippingStatus.ShippingWaitCommand) {
-                 console.log("外部状态变为 Pending/WaitCommand，重置状态");
-                 setCurrentPosition(sellerPosition);
-                 setProgress(0);
-                 animationExecutedRef.current = false; // 重置标记，允许新动画
-                 setIsInTransitNotified(false);
-                 // 清理可能正在运行的 interval
-                 if (intervalRef.current) {
-                     clearInterval(intervalRef.current);
-                     intervalRef.current = null;
-                      console.log("清理因状态变为 Pending/WaitCommand 的 interval");
-                 }
-             } else if (initialShippingStatus === ShippingStatus.ShippingShipped) {
-                 // 如果外部变为 Shipped，确保内部状态同步，并重置动画标记（如果需要重新开始）
-                 // 通常，如果已经是 Shipped，我们不希望重置动画，除非是全新的发货
-                 // 这里假设外部变为 Shipped 时，如果动画未执行，则应该准备执行
-                 if (!animationExecutedRef.current) {
-                     console.log("外部状态变为 Shipped，准备动画（如果尚未执行）");
-                     setCurrentPosition(sellerPosition); // 确保从起点开始
-                     setProgress(0);
-                     setIsInTransitNotified(false);
-                     // 如果路径未加载，加载路径
-                     if (routePath.length === 0) {
-                         fetchRoutePath().catch(err => console.error('状态驱动的路径获取失败:', err));
-                     }
-                 }
-             }
+            } else if (initialShippingStatus === ShippingStatus.ShippingPending || initialShippingStatus === ShippingStatus.ShippingWaitCommand) {
+                console.log("外部状态变为 Pending/WaitCommand，重置状态");
+                setCurrentPosition(sellerPosition);
+                setProgress(0);
+                animationExecutedRef.current = false; // 重置标记，允许新动画
+                setIsInTransitNotified(false);
+                // 清理可能正在运行的 interval
+                if (intervalRef.current) {
+                    clearInterval(intervalRef.current);
+                    intervalRef.current = null;
+                    console.log("清理因状态变为 Pending/WaitCommand 的 interval");
+                }
+            } else if (initialShippingStatus === ShippingStatus.ShippingShipped) {
+                // 如果外部变为 Shipped，确保内部状态同步，并重置动画标记（如果需要重新开始）
+                // 通常，如果已经是 Shipped，我们不希望重置动画，除非是全新的发货
+                // 这里假设外部变为 Shipped 时，如果动画未执行，则应该准备执行
+                if (!animationExecutedRef.current) {
+                    console.log("外部状态变为 Shipped，准备动画（如果尚未执行）");
+                    setCurrentPosition(sellerPosition); // 确保从起点开始
+                    setProgress(0);
+                    setIsInTransitNotified(false);
+                    // 如果路径未加载，加载路径
+                    if (routePath.length === 0) {
+                        fetchRoutePath().catch(err => console.error('状态驱动的路径获取失败:', err));
+                    }
+                }
+            }
         }
     }, [initialShippingStatus, deliveryStatus, userPosition, sellerPosition, fetchRoutePath, routePath]); // 添加 routePath 依赖
 
-
-    // --- 移除监听 startAnimation 和 animationStarted 的 Effect ---
-    // useEffect(() => { ... }, [startAnimation, fetchRoutePath, routePath.length, sellerPosition, animationStarted]);
-
-    // --- 移除监听 initialShippingStatus 和 animationStarted 的 Effect ---
-    // useEffect(() => { ... }, [initialShippingStatus, userPosition, animationStarted]);
-
-    // --- 移除旧的模拟物流运输 Effect (约 208 行) ---
-    // useEffect(() => { ... }, [deliveryStatus, routePath, onDeliveryComplete, onInTransit, time, isInTransitNotified, progress, animationStarted]);
-
-
-    // --- 主要的动画控制 Effect (原 265 行附近) ---
+    // --- 动画控制
     useEffect(() => {
         console.log("动画控制 Effect 检查:",
             `deliveryStatus=${deliveryStatus}`,
@@ -246,8 +234,7 @@ const LogisticsMap = ({
         if (deliveryStatus === ShippingStatus.ShippingShipped &&
             routePath.length > 0 &&
             startAnimation &&
-            !animationExecutedRef.current)
-        {
+            !animationExecutedRef.current) {
             console.log("条件满足，启动动画 interval");
 
             let currentStep = 0; // 使用局部变量跟踪步数
@@ -319,12 +306,9 @@ const LogisticsMap = ({
                 intervalRef.current = null;
             }
         };
-    // 依赖项：只包含触发动画开始/停止/重置的外部因素和必要数据
-    // 移除了 progress
+        // 依赖项：只包含触发动画开始/停止/重置的外部因素和必要数据
     }, [deliveryStatus, routePath, startAnimation, time, onInTransit, onDeliveryComplete, userPosition, sellerPosition]); // 保持关键依赖
 
-
-    // --- Effect to handle setting position when delivered or path changes (原 311 行附近) ---
     // 这个 Effect 现在主要用于确保在非动画状态下的位置正确性，
     // 以及在状态重置时清理动画标记。动画完成的标记由上面的动画 Effect 处理。
     useEffect(() => {
@@ -333,21 +317,21 @@ const LogisticsMap = ({
         if (deliveryStatus === ShippingStatus.ShippingDelivered) {
             // 确保最终位置正确，并标记动画完成（如果尚未标记）
             if (!animationExecutedRef.current) {
-                 console.log("状态为 Delivered，但动画未标记完成，强制标记");
-                 animationExecutedRef.current = true;
+                console.log("状态为 Delivered，但动画未标记完成，强制标记");
+                animationExecutedRef.current = true;
             }
-             setCurrentPosition(userPosition); // 确保位置是终点
-             if (routePath.length > 0) {
-                 setProgress(routePath.length - 1); // 设置进度为最大
-             } else {
-                 setProgress(100); // 或者其他完成值
-             }
-             // 清理可能残留的 interval
-             if (intervalRef.current) {
-                 console.log("清理因状态为 Delivered 的残留 interval");
-                 clearInterval(intervalRef.current);
-                 intervalRef.current = null;
-             }
+            setCurrentPosition(userPosition); // 确保位置是终点
+            if (routePath.length > 0) {
+                setProgress(routePath.length - 1); // 设置进度为最大
+            } else {
+                setProgress(100); // 或者其他完成值
+            }
+            // 清理可能残留的 interval
+            if (intervalRef.current) {
+                console.log("清理因状态为 Delivered 的残留 interval");
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
         } else if (deliveryStatus === ShippingStatus.ShippingPending || deliveryStatus === ShippingStatus.ShippingWaitCommand) {
             // 当状态重置为初始状态时，重置动画执行标记和通知状态
             console.log("状态重置为 Pending/WaitCommand，重置动画标记和位置");
@@ -356,13 +340,13 @@ const LogisticsMap = ({
             setProgress(0);
             setCurrentPosition(sellerPosition); // 重置到起点
             // 清理可能存在的 interval
-             if (intervalRef.current) {
-                 console.log("清理因状态重置的 interval");
-                 clearInterval(intervalRef.current);
-                 intervalRef.current = null;
-             }
+            if (intervalRef.current) {
+                console.log("清理因状态重置的 interval");
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
         }
-    // 依赖项：当 deliveryStatus 或关键位置变化时触发
+        // 依赖项：当 deliveryStatus 或关键位置变化时触发
     }, [deliveryStatus, userPosition, sellerPosition, routePath]); // 保持依赖
 
 
@@ -388,7 +372,6 @@ const LogisticsMap = ({
     return (
         <div className="logistics-container">
             <div className="status-control">
-                <p>支付状态：{getStatusText(paymentStatus)}</p>
                 {/* 使用重命名后的函数 */}
                 <p>物流状态：{getShippingStatusText(deliveryStatus)}</p>
                 {/* 只有在特定状态下才显示按钮 */}

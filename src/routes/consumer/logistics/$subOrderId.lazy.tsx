@@ -12,9 +12,6 @@ import {Coordinates} from '@/types/logisticsMap'
 import {showMessage} from '@/utils/showMessage'
 import {shippingStatus} from "@/utils/status.ts";
 import {getCoordinatesByAddress} from '@/utils/geocoding';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'; // 添加图标
-import CheckIcon from '@mui/icons-material/Check'; // 确认收货图标
-
 
 export const Route = createLazyFileRoute('/consumer/logistics/$subOrderId')({
     component: ConsumerLogistics,
@@ -22,7 +19,7 @@ export const Route = createLazyFileRoute('/consumer/logistics/$subOrderId')({
 
 function ConsumerLogistics() {
     const navigate = useNavigate()
-    const {t} = useTranslation() // t 函数已存在
+    const {t} = useTranslation()
     const queryClient = useQueryClient();
     const deliverySubmittedRef = useRef(false);
 
@@ -37,7 +34,9 @@ function ConsumerLogistics() {
     // 添加一个状态来跟踪动画是否已经开始
     const [animationInProgress, setAnimationInProgress] = useState(false);
 
-    // Add shipping info query
+    // 添加确认收货状态
+    const [confirmingReceipt, setConfirmingReceipt] = useState(false);
+
     const {
         data: shippingInfo,
         isLoading: shippingLoading,
@@ -71,37 +70,34 @@ function ConsumerLogistics() {
             showMessage(t('consumer.logistics.error.updateFailed', { message: error.message }), 'error');
         },
     });
-    // --- End Mutation ---
 
-
-    // --- Mutation for confirming receipt (MOVED INSIDE) ---
+    // 添加确认收货的mutation
     const confirmReceiptMutation = useMutation({
-        mutationFn: () => orderService.confirmReceived({ subOrderId: subOrderId as string }),
+        mutationFn: (subOrderId: string) => orderService.confirmReceived(subOrderId),
         onSuccess: () => {
+            // 确认收货成功后刷新数据
+            queryClient.invalidateQueries({queryKey: ['shippingInfo', subOrderId]});
             showMessage(t('consumer.logistics.success.receiptConfirmed'), 'success');
-            // 使用 setTimeout 延迟查询失效
-            setTimeout(() => {
-                queryClient.invalidateQueries({ queryKey: ['shippingInfo', subOrderId] });
-            }, 1000); // 延迟1秒
+            setConfirmingReceipt(false);
         },
-        onError: (error: Error) => { // Ensure error type is correct
+        onError: (error: Error) => {
             console.error('确认收货失败:', error);
-            showMessage(t('consumer.logistics.error.confirmFailed', { message: error.message }), 'error');
-        },
+            showMessage(t('consumer.logistics.error.confirmReceiptFailed', { message: error.message }), 'error');
+            setConfirmingReceipt(false);
+        }
     });
-    // --- End Mutation ---
 
-    // --- Callback for confirming receipt ---
+    // 处理确认收货
     const handleConfirmReceipt = () => {
-        confirmReceiptMutation.mutate();
+        if (subOrderId && !confirmingReceipt) {
+            setConfirmingReceipt(true);
+            confirmReceiptMutation.mutate(subOrderId);
+        }
     };
-
 
     if (shippingError){
         showMessage(t('consumer.logistics.error.fetchShippingInfo', { message: shippingError.message }), 'error'); // <-- 使用 t() 和插值
     }
-
-
     // 地理编码逻辑 (依赖 shippingInfo)
     useEffect(() => {
         const fetchCoordinates = async () => {
@@ -270,12 +266,11 @@ function ConsumerLogistics() {
     }, [shippingInfo, shippingLoading, animationInProgress, startAnimation]);
 
     const renderContent = () => {
-
         if (shippingLoading || geocodingLoading) {
             return (
                 <Box sx={{display: 'flex', justifyContent: 'center', p: 2}}>
                     <CircularProgress/>
-                    {geocodingLoading && <Typography sx={{ml: 1}}>{t('consumer.logistics.loadingGeocoding')}</Typography>} {/* <-- 使用 t() */}
+                    {geocodingLoading && <Typography sx={{ml: 1}}>{t('consumer.logistics.loadingGeocoding')}</Typography>}
                 </Box>
             );
         }
@@ -298,30 +293,43 @@ function ConsumerLogistics() {
                 <Grid xs={12}>
                     <Card variant="outlined">
                         <CardContent>
-                            <Typography level="title-lg" sx={{mb: 2}}>{t('orders.shipping.basic')}</Typography>
+                            <Typography level="title-lg" sx={{mb: 2}}>{t('consumer.logistics.basicInfo')}</Typography>
                             <Divider sx={{my: 2}}/>
-                            {/* 确保 shippingInfo 存在再渲染 */}
                             {shippingInfo ? (
                                 <Stack spacing={1}>
-                                    <Typography level="body-md">货运单号: {shippingInfo.orderId}</Typography>
-                                    <Typography level="body-md">商品订单号: {shippingInfo.subOrderId}</Typography>
-                                    <Typography
-                                        level="body-md">货运状态: {getShippingStatusText(shippingInfo.shippingStatus)}</Typography>
-                                    <Typography level="body-md">物流单号: {shippingInfo.trackingNumber}</Typography>
-                                    <Typography level="body-md">物流公司: {shippingInfo.carrier}</Typography>
+                                    <Typography level="body-md">{t('consumer.logistics.shippingId')}: {shippingInfo.orderId}</Typography>
+                                    <Typography level="body-md">{t('consumer.logistics.orderSubId')}: {shippingInfo.subOrderId}</Typography>
+                                    <Typography level="body-md">{t('consumer.logistics.shippingStatus')}: {getShippingStatusText(shippingInfo.shippingStatus)}</Typography>
+                                    <Typography level="body-md">{t('consumer.logistics.trackingNumber')}: {shippingInfo.trackingNumber}</Typography>
+                                    <Typography level="body-md">{t('consumer.logistics.carrier')}: {shippingInfo.carrier}</Typography>
                                     {shippingInfo.shippingAddress && (
                                         <Typography level="body-sm" color="neutral">
-                                            发货地址: {`${shippingInfo.shippingAddress.state || ''} ${shippingInfo.shippingAddress.city || ''} ${shippingInfo.shippingAddress.streetAddress || ''}`}
+                                            {t('consumer.logistics.shippingAddress')}: {`${shippingInfo.shippingAddress.state || ''} ${shippingInfo.shippingAddress.city || ''} ${shippingInfo.shippingAddress.streetAddress || ''}`}
                                         </Typography>
                                     )}
                                     {shippingInfo.receiverAddress && (
                                         <Typography level="body-sm" color="neutral">
-                                            收货地址: {`${shippingInfo.receiverAddress.state || ''} ${shippingInfo.receiverAddress.city || ''} ${shippingInfo.receiverAddress.streetAddress || ''}`}
+                                            {t('consumer.logistics.receiverAddress')}: {`${shippingInfo.receiverAddress.state || ''} ${shippingInfo.receiverAddress.city || ''} ${shippingInfo.receiverAddress.streetAddress || ''}`}
                                         </Typography>
                                     )}
                                 </Stack>
                             ) : (
-                                <Typography>无法加载物流信息。</Typography>
+                                <Typography>{t('consumer.logistics.noShippingInfo')}</Typography>
+                            )}
+                            
+                            {/* 添加确认收货按钮 */}
+                            {shippingInfo && shippingInfo.shippingStatus === ShippingStatus.ShippingDelivered && (
+                                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
+                                    <Button 
+                                        color="success" 
+                                        variant="solid" 
+                                        onClick={handleConfirmReceipt}
+                                        disabled={confirmingReceipt || confirmReceiptMutation.isPending}
+                                        startDecorator={confirmingReceipt && <CircularProgress size="sm" />}
+                                    >
+                                        {confirmingReceipt ? t('consumer.logistics.confirming') : t('consumer.logistics.confirmReceipt')}
+                                    </Button>
+                                </Box>
                             )}
                         </CardContent>
                     </Card>
@@ -331,11 +339,10 @@ function ConsumerLogistics() {
                 <Grid xs={12}>
                     <Card variant="outlined">
                         <CardContent>
-                            <Typography level="title-lg" sx={{mb: 2}}>物流路线</Typography>
+                            <Typography level="title-lg" sx={{mb: 2}}>{t('consumer.logistics.route')}</Typography>
                             {geocodingError && <Alert color="warning" sx={{mb: 1}}>{geocodingError}</Alert>}
                             <Divider sx={{my: 2}}/>
                             <Box sx={{height: '400px', width: '100%'}}>
-                                {/* 确保坐标和 shippingInfo 都存在，并且坐标是有效的数组 */}
                                 {merchantPosition && userPosition && shippingInfo && (
                                     <LogisticsMap
                                         sellerPosition={merchantPosition}
@@ -356,13 +363,13 @@ function ConsumerLogistics() {
                     <Grid xs={12}>
                         <Card variant="outlined">
                             <CardContent>
-                                <Typography level="title-lg" sx={{mb: 2}}>{t('orders.shipping.updates')}</Typography>
+                                <Typography level="title-lg" sx={{mb: 2}}>{t('consumer.logistics.updates')}</Typography>
                                 <Divider sx={{my: 2}}/>
                                 <Stack spacing={2}>
                                     {shippingInfo.updates.map((update: ShippingUpdate, index: number) => (
                                         <Box key={index}>
                                             <Typography level="title-sm">{update.timestamp}</Typography>
-                                            <Typography level="body-md">{update.status} - {update.location}</Typography>
+                                            <Typography level="body-md">{t('consumer.logistics.status')}: {update.status} - {update.location}</Typography>
                                             <Typography level="body-md">{update.description}</Typography>
                                         </Box>
                                     ))}

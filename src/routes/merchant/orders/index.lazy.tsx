@@ -14,7 +14,7 @@ import {
     Table,
     Typography
 } from '@mui/joy'
-import {MerchantOrder, MerchantOrderItem, PaymentStatus, ShippingStatus} from '@/types/orders' // 确保 ShippingStatus 已导入
+import {MerchantOrder, MerchantOrderItem, PaymentStatus, ShippingStatus} from '@/types/orders'
 import {orderService} from '@/api/orderService'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
@@ -26,8 +26,6 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import {AddressSelector} from '@/components/AddressSelector';
 import {MerchantAddress} from '@/api/merchant/addressService';
 import {InputLabel, MenuItem, Select} from '@mui/material'
-import {useMutation, useQueryClient} from "@tanstack/react-query"; // 添加 useMutation 和 useQueryClient
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'; // 添加图标
 
 export const Route = createLazyFileRoute('/merchant/orders/')({
     component: Orders,
@@ -49,7 +47,7 @@ export default function Orders() {
         severity: 'success'
     })
     const {t} = useTranslation()
-    const queryClient = useQueryClient(); // 获取 queryClient 实例
+
 
     // 使用分页钩子
     const pagination = usePagination({
@@ -189,7 +187,7 @@ export default function Orders() {
             });
             setSnackbar({
                 open: true,
-                message: t('merchant.orders.shipSuccess'), // 可以保持不变或更新消息
+                message: t('merchant.orders.shipSuccess'),
                 severity: 'success'
             });
             // 刷新订单列表
@@ -198,13 +196,12 @@ export default function Orders() {
             console.error('发货失败:', error);
             setSnackbar({
                 open: true,
-                message: t('merchant.orders.shipFailed'), // 可以保持不变或更新消息
+                message: t('merchant.orders.shipFailed'),
                 severity: 'danger'
             });
         } finally {
             setAddressSelectorOpen(false);
             setSelectedOrder(null);
-            // setSelectedAddress(null); // 这行似乎没有被使用，可以考虑移除
         }
     };
 
@@ -560,42 +557,3 @@ export default function Orders() {
         </Box>
     )
 }
-
-// --- Mutation for confirming receipt ---
-const confirmReceiptMutation = useMutation({
-    mutationFn: (subOrderId: number) => orderService.confirmReceived({ subOrderId }),
-    onSuccess: (_, subOrderId) => {
-        setSnackbar({
-            open: true,
-            message: t('merchant.orders.confirmSuccess'),
-            severity: 'success'
-        });
-        // 更新本地状态或重新加载数据
-        setOrders(prevOrders => {
-            return prevOrders.map(order => {
-                const updatedItems = order.items.map(item => {
-                    if (item.subOrderId === subOrderId) {
-                        return { ...item, shippingStatus: ShippingStatus.ShippingConfirmed };
-                    }
-                    return item;
-                });
-                return { ...order, items: updatedItems };
-            });
-        });
-        // 或者使查询失效以重新获取数据
-        // queryClient.invalidateQueries({ queryKey: ['merchantOrders'] }); // 假设查询键是 'merchantOrders'
-    },
-    onError: (error: Error) => {
-        console.error('确认收货失败:', error);
-        setSnackbar({
-            open: true,
-            message: t('merchant.orders.confirmFailed', { message: error.message }),
-            severity: 'danger'
-        });
-    },
-});
-// --- End Mutation ---
-
-const handleConfirmReceipt = (subOrderId: number) => {
-    confirmReceiptMutation.mutate(subOrderId);
-};

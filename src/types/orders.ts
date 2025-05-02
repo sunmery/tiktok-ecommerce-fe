@@ -124,6 +124,48 @@ export interface ShippingInfo {
     shippingStatus: ShippingStatus
 }
 
+// 订单详情
+export interface Order {
+    items: OrderItem[]
+    orderId: string
+    subOrderId?: number
+    userId: string
+    currency: string
+    address: MerchantAddress
+    email: string
+    createdAt: string
+    paymentStatus: PaymentStatus
+    shippingStatus: string // 货运状态
+    shippingInfo?: ShippingInfo    // 物流信息
+    orderItems?: OrderItem[]
+}
+
+// 订单列表
+export interface Orders {
+    orders: Order[]
+}
+
+export interface MarkOrderPaidReq {
+    orderId: string
+}
+
+export interface MarkOrderPaidResp {
+
+}
+
+// 商家发货请求
+export interface ShipOrderReq {
+    subOrderId: number
+    trackingNumber: string
+    carrier: string
+    shippingAddress: Partial<MerchantAddress>
+    shippingFee: number // 运费
+}
+
+// 商家发货响应
+export interface ShipOrderResp {
+}
+
 export interface ConsumerAddress {
     city: string
     country: string

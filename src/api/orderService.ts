@@ -13,9 +13,6 @@ import {
     GetSubOrderShippingReply,
     ListOrderReq,
     ListOrderResp,
-    MarkOrderPaidReq,
-    MarkOrderPaidResp,
-    Order,
     PlaceOrderReq,
     PlaceOrderResp, ShippingStatus,
     updateOrderShippingStatusReq,
@@ -191,35 +188,16 @@ export const orderService = {
         });
     },
 
-    // 移除 shipOrder 方法
-    // shipOrder: (request: ShipOrderReq) => {
-    //     const url = httpClient.replacePathParams(
-    //         `${import.meta.env.VITE_MERCHANTS_URL}/orders/ship/{subOrderId}`,
-    //         {subOrderId: request.subOrderId}
-    //     );
-    //     return httpClient.put<ShipOrderResponse>(url, {
-    //         trackingNumber: request.trackingNumber,
-    //         carrier: request.carrier,
-    //         shippingFee: request.shippingFee, // 修正：之前可能是写死的0
-    //         shippingAddress: request.shippingAddress
-    //     }, {
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //             'Authorization': `Bearer ${localStorage.getItem('token')}`
-    //         }
-    //     });
-    // }
-
     /**
      * 用户确认收货
      * PUT /v1/orders/{orderId}/receive
      */
     confirmReceived: (orderId: string) => {
         const url = httpClient.replacePathParams(
-            `${import.meta.env.VITE_ORDERS_URL}/{orderId}/receive`,
+            `${import.meta.env.VITE_CONSUMERS_URL}/orders/{orderId}/receive`,
             {orderId: orderId}
         );
-        return httpClient.put(url, null, {
+        return httpClient.patch(url, null, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json'

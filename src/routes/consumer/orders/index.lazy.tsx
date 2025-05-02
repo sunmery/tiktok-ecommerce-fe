@@ -96,9 +96,9 @@ function ConsumerOrders() {
             navigate({
                 to: '/login',
             }).then(() => {
-                console.log('未登录用户，已重定向到登录页')
+                console.log(t('consumer.orders.redirectToLogin'))
             }).catch(e => {
-                console.error('重定向到登录页失败', e)
+                console.error(t('consumer.orders.redirectError'), e)
             })
         }
     }, [account, navigate])
@@ -106,7 +106,7 @@ function ConsumerOrders() {
     // 获取订单列表
     const fetchOrders = async (params: OrderQueryParams) => {
         try {
-            console.log('查询订单参数:', params)
+            console.log(t('consumer.orders.queryParams'), params)
             const response = await orderService.getConsumerOrder(params)
 
             // 适配新接口：将所有 items 按 orderId 分组为主订单
@@ -245,9 +245,7 @@ function ConsumerOrders() {
                                     <Option value="">{t('consumer.orders.filter.all')}</Option>
                                     <Option
                                         value={String(PAYMENT_STATUS.NOT_PAID)}>{t('consumer.orders.status.notPaid')}</Option>
-                                    <Option
-                                        value={String(PAYMENT_STATUS.PROCESSING)}>{t('consumer.orders.status.processing')}</Option>
-                                    <Option
+                                   <Option
                                         value={String(PAYMENT_STATUS.PAID)}>{t('consumer.orders.status.paid')}</Option>
                                     <Option
                                         value={String(PAYMENT_STATUS.FAILED)}>{t('consumer.orders.status.failed')}</Option>

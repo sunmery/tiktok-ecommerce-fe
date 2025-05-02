@@ -39,7 +39,8 @@ function RouteComponent() {
         currency: 'CNY',
         page: 1,
         pageSize: 100,
-        paymentStatus: 'PAID'
+        paymentStatus: 'PAID',
+        userType: 'CONSUMER'
       })
       return response.transactions || []
     },
