@@ -20,8 +20,8 @@ export const showMessage = (message: string, type: 'success' | 'warning' | 'erro
         detail: {
             message: displayMessage,
             type,
-            id: messageId, // 添加唯一ID
-            timestamp: Date.now() // 添加时间戳用于排序
+            id: messageId, // 唯一ID
+            timestamp: Date.now() // 用于消息排序
         }
     })
 

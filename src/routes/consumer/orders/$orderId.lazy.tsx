@@ -221,7 +221,7 @@ function ConsumerOrderDetail() {
                                                                     showMessage('该订单没有子订单信息，无法查询物流', 'warning');
                                                                     return;
                                                                 }
-                                                                navigate({ to: '/consumer/logistics' });
+                                                                navigate({ to: `/consumer/logistics/${order.subOrderId}` });
                                                             }}
                                                         >
                                                             查看物流

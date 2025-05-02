@@ -336,6 +336,7 @@ const resources = {
             'merchant.address.billing': 'Billing Address',
             'merchant.address.headquarters': 'Headquarters Address',
             'merchant.address.contactPerson': 'Contact Person',
+            'consumer.logistics.title':'Logistics',
             'merchant.address.contactPhone': 'Contact Phone',
             'merchant.address.streetAddress': 'Street Address',
             'merchant.address.city': 'City',
@@ -1313,6 +1314,11 @@ const resources = {
             'products.table.createdTime': 'Created Time',
             'products.table.actions': 'Actions',
 
+            'consumer.balance.total': 'Total Balance',
+            'consumer.balance.alipay': 'Alipay Balance',
+            'consumer.balance.wechat': 'WeChat Balance',
+            'consumer.balance.balancer': 'Platform Balance',
+            'consumer.balance.bank_card': 'Bank Card Balance',
             // Product actions
             'products.actions.batchApprove': 'Batch Approve',
             'products.actions.batchReject': 'Batch Reject',
@@ -1753,6 +1759,11 @@ const resources = {
             'transaction.empty': '没有交易记录',
             'merchant.orders.status.processing': '处理中',
             // 用户管理
+            'consumer.balance.total': '总余额',
+            'consumer.balance.alipay': '支付宝余额',
+            'consumer.balance.wechat': '微信余额',
+            'consumer.balance.balancer': '平台余额',
+            'consumer.balance.bank_card': '银行卡余额',
             'admin.users.title': '用户管理',
             'admin.rechargeBalance.userType': '用户类型',
             'admin.users.add_user': '添加用户',
@@ -2138,6 +2149,7 @@ const resources = {
             'inventory.noAlerts': '没有配置警报',
             'inventory.adjustSuccess': '库存调整成功',
             'inventory.alertSuccess': '库存警报设置成功',
+            'consumer.logistics.title':'物流信息',
 
             // 销售分析
             'analytics.title': '数据分析',

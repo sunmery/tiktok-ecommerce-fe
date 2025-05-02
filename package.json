@@ -33,6 +33,7 @@
     "@tanstack/router-devtools": "^1.117.0",
     "@types/echarts": "^5.0.0",
     "@vitejs/plugin-react": "^4.4.1",
+    "animatejs": "^1.0.1",
     "casdoor-js-sdk": "^0.16.0",
     "casdoor-react-sdk": "^1.2.0",
     "date-fns": "^4.1.0",

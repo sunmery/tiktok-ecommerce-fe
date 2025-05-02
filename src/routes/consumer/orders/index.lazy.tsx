@@ -128,7 +128,7 @@ function ConsumerOrders() {
     useEffect(() => {
         if (orders) {
             setDisplayedOrders(orders) // 更新显示的订单列表
-            setCount(pagination.totalCount) // 更新总条目数
+            setCount(orders.length) // 更新总条目数
         }
     }, [orders])
 
@@ -303,7 +303,7 @@ function ConsumerOrders() {
             <PaginationBar
                 page={pagination.page}
                 pageSize={pagination.pageSize}
-                totalItems={pagination.totalCount}
+                totalItems={orders?.length??0}
                 totalPages={pagination.totalPages}
                 onPageChange={pagination.handlePageChange}
                 onPageSizeChange={pagination.handlePageSizeChange}

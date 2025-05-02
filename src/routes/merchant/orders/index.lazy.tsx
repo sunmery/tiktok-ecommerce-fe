@@ -1,8 +1,20 @@
 import {createLazyFileRoute} from '@tanstack/react-router'
-import {useEffect,useState } from 'react'
-import {Box, Button, Card, CardContent, FormControl, Grid, IconButton,  Modal,
-      Sheet, Snackbar, Table, Typography} from '@mui/joy'
-import {Order, PaymentStatus, ShippingStatus} from '@/types/orders'
+import {useEffect, useState} from 'react'
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    FormControl,
+    Grid,
+    IconButton,
+    Modal,
+    Sheet,
+    Snackbar,
+    Table,
+    Typography
+} from '@mui/joy'
+import {MerchantOrder, MerchantOrderItem, PaymentStatus, ShippingStatus} from '@/types/orders' // 确保 ShippingStatus 已导入
 import {orderService} from '@/api/orderService'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
@@ -13,22 +25,18 @@ import PaginationBar from "@/components/PaginationBar";
 import RefreshIcon from '@mui/icons-material/Refresh'
 import {AddressSelector} from '@/components/AddressSelector';
 import {MerchantAddress} from '@/api/merchant/addressService';
-import { InputLabel, MenuItem, Select } from '@mui/material'
+import {InputLabel, MenuItem, Select} from '@mui/material'
 
 export const Route = createLazyFileRoute('/merchant/orders/')({
     component: Orders,
 })
 
 export default function Orders() {
-    const [orders, setOrders] = useState<Order[]>([])
+    const [orders, setOrders] = useState<MerchantOrder[]>([])
     const [detailOpen, setDetailOpen] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [trackingNumber, setTrackingNumber] = useState('')
-    const [carrier, setCarrier] = useState('')
-    const [estimatedDelivery, setEstimatedDelivery] = useState(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
     const [addressSelectorOpen, setAddressSelectorOpen] = useState(false)
-    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-    const [selectedAddress, setSelectedAddress] = useState<MerchantAddress | null>(null);
+    const [selectedOrder, setSelectedOrder] = useState<MerchantOrderItem | null>(null)
     const [snackbar, setSnackbar] = useState<{
         open: boolean;
         message: string;
@@ -62,21 +70,32 @@ export default function Orders() {
                 page: pagination.page,
                 pageSize: pagination.pageSize
             })
-
+            console.log("response, ", response)
             if (response && response.orders) {
                 setOrders(response.orders)
+
                 // 更新总条目数
-                if (response.orders.length !== undefined) {
-                    pagination.setTotalItems(response.orders.length);
+                const formattedOrders = response.orders.flatMap(order =>
+                    order.items.map(item => ({
+                        ...item,
+                        orderId: order.orderId,
+                        orderCreatedAt: order.createdAt
+                    }))
+                );
+
+                if (formattedOrders.length > 0) {
+                    pagination.setTotalItems(formattedOrders.length);
                 } else {
                     // 没有总数时，用当前页数据估算
-                    const isLastPage = response.orders.length < pagination.pageSize;
+                    const isLastPage = formattedOrders.length < pagination.pageSize;
                     const estimatedTotal = isLastPage
-                        ? (pagination.page - 1) * pagination.pageSize + response.orders.length
+                        ? (pagination.page - 1) * pagination.pageSize + formattedOrders.length
                         : pagination.page * pagination.pageSize + 1;
                     pagination.setTotalItems(estimatedTotal);
                 }
-                return response.orders
+
+                console.log("formatted orders", formattedOrders)
+                return formattedOrders
             }
 
             return []
@@ -93,7 +112,7 @@ export default function Orders() {
         }
     }
 
-    const handleOrderClick = (order: Order) => {
+    const handleOrderClick = (order: MerchantOrderItem) => {
         setSelectedOrder(order)
         setDetailOpen(true)
     }
@@ -103,17 +122,22 @@ export default function Orders() {
         setSelectedOrder(null)
     }
 
-    const handleStatusChange = async (subOrderId: string, shippingStatus: ShippingStatus) => {
+    // TODO 待发货和不发货的订单
+    const handleStatusChange = async (subOrderId: number, shippingStatus: ShippingStatus) => {
         try {
             await orderService.updateOrderShippingStatus(subOrderId, shippingStatus)
             setOrders(prevOrders => {
+                // 创建一个新的数组而不是对象
                 return prevOrders.map(order => {
-                    if (order.subOrderId === subOrderId) {
-                        return {...order, shippingStatus,}
-                    }
-                    return order
-                })
-            })
+                    const updatedItems = order.items.map(item => {
+                        if (item.subOrderId === subOrderId) {
+                            return {...item, shippingStatus};
+                        }
+                        return item;
+                    });
+                    return {...order, items: updatedItems};
+                });
+            });
             setSnackbar({
                 open: true,
                 message: t('merchant.orders.updateSuccess'),
@@ -128,21 +152,29 @@ export default function Orders() {
             })
         }
     }
-    const handleShipOrder = async (order: Order) => {
+    const handleShipOrder = async (order: MerchantOrderItem) => {
         setSelectedOrder(order);
         setAddressSelectorOpen(true);
     };
 
-    const handleAddressSelect = async (address: MerchantAddress) => {
+    const handleAddressSelect = async (address: MerchantAddress, shipInfo: {
+        trackingNumber: string;
+        carrier: string;
+        delivery: string; // 接收 delivery
+        shippingFee: number;
+    }) => {
         if (!selectedOrder) return;
 
         try {
-            await orderService.shipOrder({
-                orderId: selectedOrder.subOrderId as string,
-                trackingNumber,
-                carrier,
-                estimatedDelivery,
-                shippingAddress: {
+            // 调用 updateOrderShippingStatus 替换 shipOrder
+            await orderService.updateOrderShippingStatus({
+                subOrderId: selectedOrder.subOrderId,
+                trackingNumber: shipInfo.trackingNumber,
+                carrier: shipInfo.carrier,
+                shippingFee: shipInfo.shippingFee,
+                delivery: shipInfo.delivery, // 传递 delivery
+                shippingStatus: ShippingStatus.ShippingShipped, // 设置状态为已发货
+                shippingAddress: { // 确保传递地址信息
                     addressType: address.addressType,
                     contactPerson: address.contactPerson,
                     contactPhone: address.contactPhone,
@@ -155,7 +187,7 @@ export default function Orders() {
             });
             setSnackbar({
                 open: true,
-                message: t('merchant.orders.shipSuccess'),
+                message: t('merchant.orders.shipSuccess'), // 可以保持不变或更新消息
                 severity: 'success'
             });
             // 刷新订单列表
@@ -164,20 +196,16 @@ export default function Orders() {
             console.error('发货失败:', error);
             setSnackbar({
                 open: true,
-                message: t('merchant.orders.shipFailed'),
+                message: t('merchant.orders.shipFailed'), // 可以保持不变或更新消息
                 severity: 'danger'
             });
         } finally {
             setAddressSelectorOpen(false);
             setSelectedOrder(null);
-            setSelectedAddress(null);
+            // setSelectedAddress(null); // 这行似乎没有被使用，可以考虑移除
         }
     };
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString)
-        return date.toLocaleString()
-    }
 
     const handleRefresh = async () => {
         try {
@@ -202,13 +230,22 @@ export default function Orders() {
 
     const [filterShippingStatus, setFilterShippingStatus] = useState<string>(t('common.all'));
     const [filterPaymentStatus, setFilterPaymentStatus] = useState<string>(t('common.all'));
-    
-    // Add this filtered orders computation
+
     const filteredOrders = orders.filter(order => {
-        const matchShipping = !filterShippingStatus || order.shippingStatus === filterShippingStatus;
-        const matchPayment = !filterPaymentStatus || order.paymentStatus === filterPaymentStatus;
-        return matchShipping && matchPayment;
+        // MerchantOrder 本身没有 shippingStatus 和 paymentStatus 属性
+        // 我们需要检查订单中的每个项目是否匹配过滤条件
+        // 如果任何一个项目匹配，则保留该订单
+        return order.items.some(item => {
+            const matchShipping = filterShippingStatus === t('common.all') || item.shippingStatus === filterShippingStatus;
+            const matchPayment = filterPaymentStatus === t('common.all') || item.paymentStatus === filterPaymentStatus;
+            return matchShipping && matchPayment;
+        });
     });
+
+    // 格式化日期
+    const formatDate = (dateString: string): string => {
+        return new Date(dateString).toLocaleString();
+    };
 
     return (
         <Box sx={{p: 2}}>
@@ -217,12 +254,12 @@ export default function Orders() {
                 'orders': `${t('merchant.orders.title')}`,
             }}/>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
                 <Typography level="h2">{t('merchant.orders.title')}</Typography>
                 <Button
                     variant="outlined"
                     color="primary"
-                    startDecorator={<RefreshIcon />}
+                    startDecorator={<RefreshIcon/>}
                     onClick={handleRefresh}
                     loading={loading}
                 >
@@ -230,8 +267,8 @@ export default function Orders() {
                 </Button>
             </Box>
 
-            <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                <FormControl sx={{ minWidth: 200 }}>
+            <Box sx={{display: 'flex', gap: 2, mb: 2}}>
+                <FormControl sx={{minWidth: 200}}>
                     <InputLabel>{t('merchant.orders.filterShippingStatus')}</InputLabel>
                     <Select
                         value={filterShippingStatus}
@@ -239,17 +276,24 @@ export default function Orders() {
                         onChange={(e) => setFilterShippingStatus(e.target.value)}
                     >
                         <MenuItem value={t('common.all')}>{t('common.all')}</MenuItem>
-                        <MenuItem value={ShippingStatus.ShippingWaitCommand}>{t('merchant.orders.status.waitCommand')}</MenuItem>
-                        <MenuItem value={ShippingStatus.ShippingPending}>{t('merchant.orders.status.pendingShipment')}</MenuItem>
-                        <MenuItem value={ShippingStatus.ShippingShipped}>{t('merchant.orders.status.shipped')}</MenuItem>
-                        <MenuItem value={ShippingStatus.ShippingInTransit}>{t('merchant.orders.status.inTransit')}</MenuItem>
-                        <MenuItem value={ShippingStatus.ShippingDelivered}>{t('merchant.orders.status.delivered')}</MenuItem>
-                        <MenuItem value={ShippingStatus.ShippingConfirmed}>{t('merchant.orders.status.confirmed')}</MenuItem>
-                        <MenuItem value={ShippingStatus.ShippingCancelled}>{t('merchant.orders.status.cancelled')}</MenuItem>
+                        <MenuItem
+                            value={ShippingStatus.ShippingWaitCommand}>{t('merchant.orders.status.waitCommand')}</MenuItem>
+                        <MenuItem
+                            value={ShippingStatus.ShippingPending}>{t('merchant.orders.status.pendingShipment')}</MenuItem>
+                        <MenuItem
+                            value={ShippingStatus.ShippingShipped}>{t('merchant.orders.status.shipped')}</MenuItem>
+                        <MenuItem
+                            value={ShippingStatus.ShippingInTransit}>{t('merchant.orders.status.inTransit')}</MenuItem>
+                        <MenuItem
+                            value={ShippingStatus.ShippingDelivered}>{t('merchant.orders.status.delivered')}</MenuItem>
+                        <MenuItem
+                            value={ShippingStatus.ShippingConfirmed}>{t('merchant.orders.status.confirmed')}</MenuItem>
+                        <MenuItem
+                            value={ShippingStatus.ShippingCancelled}>{t('merchant.orders.status.cancelled')}</MenuItem>
                     </Select>
                 </FormControl>
 
-                <FormControl sx={{ minWidth: 200 }}>
+                <FormControl sx={{minWidth: 200}}>
                     <InputLabel>{t('merchant.orders.filterPaymentStatus')}</InputLabel>
                     <Select
                         value={filterPaymentStatus}
@@ -292,88 +336,94 @@ export default function Orders() {
                             </tr>
                             </thead>
                             <tbody>
-                            {filteredOrders.map((order) => {
+                            {filteredOrders.map((item) => {
                                 // 计算订单总金额
-                                const total = order.items.reduce((sum, item) => sum + item.cost, 0)
+                                const total = item.items.reduce((sum, item) => sum + item.cost, 0)
 
                                 return (
-                                    <tr key={order.subOrderId}>
-                                        <td>{order.subOrderId}</td>
-                                        <td>{formatDate(order.createdAt)}</td>
-                                        <td>{order.currency} {total.toFixed(2)}</td>
-                                        <td>
-                                            <Box
-                                                sx={{
-                                                    display: 'flex',
-                                                    gap: 1,
-                                                    alignItems: 'center',
-                                                    flexWrap: 'wrap',
-                                                }}
-                                            >
-                                                <Typography
-                                                    level="body-sm"
-                                                    sx={{
-                                                        display: 'inline-flex',
-                                                        alignItems: 'center',
-                                                        gap: 0.5,
-                                                    }}
-                                                >
-                                                    {getStatusText(order.paymentStatus)}
-                                                </Typography>
-                                            </Box>
-                                        </td>
-                                        <td>{shippingStatus(order.shippingStatus)}</td>
-                                        <td>{order.userId}</td>
-                                        <td>
-                                            <Box sx={{display: 'flex', gap: 1}}>
-                                                <Button
-                                                    size="sm"
-                                                    variant="plain"
-                                                    color="primary"
-                                                    onClick={() => handleOrderClick(order)}
-                                                >
-                                                    {t('merchant.orders.viewDetails')}
-                                                </Button>
+                                    <>
+                                        {
+                                            item.items.map((order) => (
+                                                <tr key={order.subOrderId}>
+                                                    <td>{order.subOrderId}</td>
+                                                    <td>{formatDate(order.createdAt)}</td>
+                                                    <td>{order.currency} {total.toFixed(2)}</td>
+                                                    <td>
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                gap: 1,
+                                                                alignItems: 'center',
+                                                                flexWrap: 'wrap',
+                                                            }}
+                                                        >
+                                                            <Typography
+                                                                level="body-sm"
+                                                                sx={{
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    gap: 0.5,
+                                                                }}
+                                                            >
+                                                                {getStatusText(order.paymentStatus)}
+                                                            </Typography>
+                                                        </Box>
+                                                    </td>
+                                                    <td>{shippingStatus(order.shippingStatus)}</td>
+                                                    <td>{order.userId}</td>
+                                                    <td>
+                                                        <Box sx={{display: 'flex', gap: 1}}>
+                                                            <Button
+                                                                size="sm"
+                                                                variant="plain"
+                                                                color="primary"
+                                                                onClick={() => handleOrderClick(order)}
+                                                            >
+                                                                {t('merchant.orders.viewDetails')}
+                                                            </Button>
 
-                                                {order.shippingStatus === ShippingStatus.ShippingWaitCommand && 
-                                                 ![PaymentStatus.NotPaid, PaymentStatus.Failed, PaymentStatus.Cancelled].includes(order.paymentStatus) && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outlined"
-                                                        color="success"
-                                                        onClick={() => handleShipOrder(order)}
-                                                    >
-                                                        {t('merchant.orders.ship')}
-                                                    </Button>
-                                                )}
-                                            </Box>
-                                        </td>
-                                        <td>
-                                            <Box sx={{display: 'flex', gap: 1}}>
-                                                {order.shippingStatus === ShippingStatus.ShippingWaitCommand &&
-                                                    ![PaymentStatus.NotPaid, PaymentStatus.Failed, PaymentStatus.Cancelled].includes(order.paymentStatus) && (
-                                                    <>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outlined"
-                                                            color="danger"
-                                                            onClick={() => handleStatusChange(order.orderId, ShippingStatus.ShippingCancelled)}
-                                                        >
-                                                            {t('merchant.orders.shipFailed')}
-                                                        </Button>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outlined"
-                                                            color="warning"
-                                                            onClick={() => handleStatusChange(order.orderId, ShippingStatus.ShippingPending)}
-                                                        >
-                                                            {t('merchant.orders.markToBeShipped')}
-                                                        </Button>
-                                                    </>
-                                                )}
-                                            </Box>
-                                        </td>
-                                    </tr>
+                                                            {order.shippingStatus === ShippingStatus.ShippingWaitCommand &&
+                                                                ![PaymentStatus.NotPaid, PaymentStatus.Failed, PaymentStatus.Cancelled].includes(order.paymentStatus) && (
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outlined"
+                                                                        color="success"
+                                                                        onClick={() => handleShipOrder(order)}
+                                                                    >
+                                                                        {t('merchant.orders.ship')}
+                                                                    </Button>
+                                                                )}
+                                                        </Box>
+                                                    </td>
+                                                    <td>
+                                                        <Box sx={{display: 'flex', gap: 1}}>
+                                                            {order.shippingStatus === ShippingStatus.ShippingWaitCommand &&
+                                                                ![PaymentStatus.NotPaid, PaymentStatus.Failed, PaymentStatus.Cancelled].includes(order.paymentStatus) && (
+                                                                    <>
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="outlined"
+                                                                            color="danger"
+                                                                            onClick={() => handleStatusChange(order.subOrderId, ShippingStatus.ShippingCancelled)}
+                                                                        >
+                                                                            {t('merchant.orders.shipFailed')}
+                                                                        </Button>
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="outlined"
+                                                                            color="warning"
+                                                                            onClick={() => handleStatusChange(order.subOrderId, ShippingStatus.ShippingPending)}
+                                                                        >
+                                                                            {t('merchant.orders.markToBeShipped')}
+                                                                        </Button>
+                                                                    </>
+                                                                )}
+                                                        </Box>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        }
+                                    </>
                                 )
                             })}
                             </tbody>
@@ -381,7 +431,7 @@ export default function Orders() {
                     )}
 
                     {/* 分页控制 */}
-                    <Box sx={{ mt: 2 }}>
+                    <Box sx={{mt: 2}}>
                         <PaginationBar
                             page={pagination.page}
                             pageSize={pagination.pageSize}
@@ -435,7 +485,7 @@ export default function Orders() {
                             <Grid container spacing={2} sx={{mb: 2}}>
                                 <Grid xs={12} sm={6}>
                                     <Typography level="title-sm">{t('orders.orderId')}</Typography>
-                                    <Typography>{selectedOrder.orderId}</Typography>
+                                    <Typography>{selectedOrder.subOrderId}</Typography>
                                 </Grid>
                                 <Grid xs={12} sm={6}>
                                     <Typography level="title-sm">{t('merchant.orders.createdTime')}</Typography>
@@ -469,19 +519,19 @@ export default function Orders() {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {selectedOrder.items.map((item, index) => (
-                                    <tr key={index}>
-                                        <td>{item.item.name || `${t('orders.product')}${item.item.productId.substring(0, 8)}`}</td>
-                                        <td>{selectedOrder.currency} {(item.cost / item.item.quantity).toFixed(2)}</td>
-                                        <td>{item.item.quantity}</td>
-                                        <td>{selectedOrder.currency} {item.cost.toFixed(2)}</td>
+
+                                    <tr >
+                                        <td>{selectedOrder.item.name || `${t('orders.product')}${selectedOrder.item.productId.substring(0, 8)}`}</td>
+                                        <td>{selectedOrder.currency} {(selectedOrder.cost / selectedOrder.item.quantity).toFixed(2)}</td>
+                                        <td>{selectedOrder.item.quantity}</td>
+                                        <td>{selectedOrder.currency} {selectedOrder.cost.toFixed(2)}</td>
                                     </tr>
-                                ))}
+
                                 <tr>
                                     <td colSpan={3}
                                         style={{textAlign: 'right', fontWeight: 'bold'}}>{t('orders.total')}</td>
                                     <td style={{fontWeight: 'bold'}}>
-                                        {selectedOrder.currency} {selectedOrder.items.reduce((total, item) => total + item.cost, 0).toFixed(2)}
+                                        {selectedOrder.currency} {(selectedOrder.cost*selectedOrder.item.quantity).toFixed(2)}
                                     </td>
                                 </tr>
                                 </tbody>

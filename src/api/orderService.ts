@@ -5,7 +5,9 @@
 
 import {httpClient} from '@/utils/http-client';
 import {
-    ListAllOrderReq,
+    GetAllOrdersReq,
+    GetMerchantOrdersReply,
+    GetMerchantOrdersRequest, GetSubOrderShippingReply,
     ListOrderReq,
     ListOrderResp,
     MarkOrderPaidReq,
@@ -13,11 +15,9 @@ import {
     Order,
     PlaceOrderReq,
     PlaceOrderResp,
-    ShipOrderReq,
-    ShippingStatus,
-    ShippingInfo, GetAllOrdersReq,
+    ShippingInfo,
+    updateOrderShippingStatusReq,
 } from '@/types/orders';
-import {ShipOrderResponse} from "@/hooks/useShipping.ts";
 
 /**
  * 订单服务API
@@ -27,12 +27,12 @@ export const orderService = {
      * 获取子订单物流状态
      * GET /v1/orders/{orderId}/shipping/{subOrderId}
      */
-    getSubOrderShipping: (orderId: string) => {
+    getSubOrderShipping: (orderId: string|number) => {
         const url = httpClient.replacePathParams(
-            `${import.meta.env.VITE_ORDERS_URL}/{orderId}/status`,
+            `${import.meta.env.VITE_ORDERS_URL}/{orderId}/ship/status`,
             {orderId}
         );
-        return httpClient.get<ShippingInfo>(url, {
+        return httpClient.get<GetSubOrderShippingReply>(url, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json'
@@ -124,16 +124,16 @@ export const orderService = {
     },
 
     /**
-     * 查询订单列表（带分页参数）
-     * GET /v1/orders
+     * 查询商家订单列表（带分页参数）
+     * GET /v1/merchants/orders
      */
-    getMerchantOrders: (request: ListAllOrderReq) => {
-        return httpClient.get<ListOrderResp>(
+    getMerchantOrders: (request: GetMerchantOrdersRequest) => {
+        return httpClient.get<GetMerchantOrdersReply>(
             `${import.meta.env.VITE_MERCHANTS_URL}/orders`,
             {
                 params: {
                     page: request.page,
-                    pageSize: request.pageSize
+                    pageSize: request.pageSize,
                 },
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -158,16 +158,22 @@ export const orderService = {
 
     /**
      * 更新订单货运状态
-     * PUT /v1/orders/{orderId}/status
+     * PATCH /v1/merchants/orders/ship/{sub_order_id}/status
      */
-    updateOrderShippingStatus: (subOrderId: string, status: ShippingStatus) => {
+    updateOrderShippingStatus: (request: updateOrderShippingStatusReq) => { // 更新参数类型
         const url = httpClient.replacePathParams(
             `${import.meta.env.VITE_MERCHANTS_URL}/orders/ship/{subOrderId}/status`,
-            {subOrderId: subOrderId}
+            {subOrderId: request.subOrderId}
         );
-        return httpClient.put(url, JSON.stringify({
-            status: status
-        }), {
+        // 发送所有需要的字段，注意字段名称与后端 proto 定义匹配
+        return httpClient.patch(url, {
+            trackingNumber: request.trackingNumber,
+            carrier: request.carrier,
+            shippingFee: request.shippingFee,
+            shippingAddress: request.shippingAddress,
+            shippingStatus: request.shippingStatus,
+            // delivery: request.delivery,
+        }, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -175,22 +181,24 @@ export const orderService = {
         });
     },
 
-    /**
-     * 商家发货
-     * PUT /v1/orders/{orderId}/ship
-     */
-    shipOrder: (request: ShipOrderReq) => {
-        const url = httpClient.replacePathParams(
-            `${import.meta.env.VITE_MERCHANTS_URL}/orders/{orderId}/ship`,
-            {orderId: request.orderId}
-        );
-        return httpClient.put<ShipOrderResponse>(url, {
-            trackingNumber: request.trackingNumber,
-            carrier: request.carrier,
-            estimatedDelivery: request.estimatedDelivery,
-            shippingAddress: request.shippingAddress
-        });
-    },
+    // 移除 shipOrder 方法
+    // shipOrder: (request: ShipOrderReq) => {
+    //     const url = httpClient.replacePathParams(
+    //         `${import.meta.env.VITE_MERCHANTS_URL}/orders/ship/{subOrderId}`,
+    //         {subOrderId: request.subOrderId}
+    //     );
+    //     return httpClient.put<ShipOrderResponse>(url, {
+    //         trackingNumber: request.trackingNumber,
+    //         carrier: request.carrier,
+    //         shippingFee: request.shippingFee, // 修正：之前可能是写死的0
+    //         shippingAddress: request.shippingAddress
+    //     }, {
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'Authorization': `Bearer ${localStorage.getItem('token')}`
+    //         }
+    //     });
+    // }
 
     /**
      * 用户确认收货

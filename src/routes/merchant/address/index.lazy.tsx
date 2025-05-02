@@ -57,7 +57,7 @@ function AddressPage() {
       showAlert(t('merchant.address.createSuccess'), 'success');
     },
     onError: () => {
-      showAlert(t('merchant.address.createFailed'), 'danger');
+      showAlert(t('merchant.address.createFailed'), 'error');
     },
   });
 
@@ -72,7 +72,7 @@ function AddressPage() {
       showAlert(t('merchant.address.updateSuccess'), 'success');
     },
     onError: () => {
-      showAlert(t('merchant.address.updateFailed'), 'danger');
+      showAlert(t('merchant.address.updateFailed'), 'error');
     },
   });
 
@@ -84,7 +84,7 @@ function AddressPage() {
       showAlert(t('merchant.address.deleteSuccess'), 'success');
     },
     onError: () => {
-      showAlert(t('merchant.address.deleteFailed'), 'danger');
+      showAlert(t('merchant.address.deleteFailed'), 'error');
     },
   });
 
@@ -122,7 +122,7 @@ function AddressPage() {
     onError: (_err, _addressId, context) => {
       // 发生错误时回滚到之前的数据
       queryClient.setQueryData(['addresses'], context?.previousAddresses);
-      showAlert('默认地址设置失败', 'danger');
+      showAlert('默认地址设置失败', 'error');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
@@ -136,7 +136,7 @@ function AddressPage() {
 
     // 添加表单验证
     if (editingAddress.streetAddress && editingAddress.streetAddress.length < 5) {
-      showAlert(t('merchant.address.streetAddressValidationError'),'neutral' );
+      showAlert(t('merchant.address.streetAddressValidationError'),'warning' );
       return;
     }
 

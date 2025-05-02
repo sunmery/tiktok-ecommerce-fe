@@ -50,6 +50,7 @@ export default {
 		// 不允许无效的仓 @import 位规则
 		'no-invalid-position-at-import-rule': true,
 		// 禁止字符串中使用无效换行符
+		// 禁止字符串中使用无效换行
 		'string-no-newline': true,
 
 		// Irregular 规则

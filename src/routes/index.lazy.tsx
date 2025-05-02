@@ -5,7 +5,6 @@ import Grid from '@mui/joy/Grid'
 import Typography from '@mui/joy/Typography'
 import {useTranslation} from 'react-i18next'
 import {useState} from 'react'
-
 import {useSearchProducts} from '@/hooks/useProduct'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {Product} from "@/types/products.ts";

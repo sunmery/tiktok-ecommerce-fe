@@ -42,20 +42,20 @@ scan({
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
-        <CssVarsProvider theme={theme} defaultMode="light">
-            <AlertProvider>
+        <ThemeProvider theme={{[MATERIAL_THEME_ID]: materialTheme}}>
+            <CssVarsProvider theme={theme} defaultMode="light">
                 <I18nProvider>
                     <LanguageProvider>
-                        <ThemeProvider theme={{[MATERIAL_THEME_ID]: materialTheme}}>
-                            <JoyCssVarsProvider>
-                                <CssBaseline enableColorScheme/>
+                        <JoyCssVarsProvider>
+                            <CssBaseline enableColorScheme/>
+                            <AlertProvider>
                                 <RouterProvider router={router}/>
-                            </JoyCssVarsProvider>
-                        </ThemeProvider>
+                            </AlertProvider>
+                        </JoyCssVarsProvider>
                     </LanguageProvider>
                 </I18nProvider>
-            </AlertProvider>
-        </CssVarsProvider>
+            </CssVarsProvider>
+        </ThemeProvider>
         <ReactQueryDevtools initialIsOpen={false}/>
     </QueryClientProvider>
 )

@@ -1,85 +1,195 @@
-import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
-import {Snackbar} from '@mui/joy';
-import {ColorPaletteProp} from '@mui/joy/styles';
-import AlertVariousStates from "@/components/ui/Alert.tsx";
+import React, {createContext, useContext, useEffect, useState} from 'react';
+import {Stack} from '@mui/joy';
+import {Alert, AlertColor, Fade, Slide, SlideProps, Snackbar} from '@mui/material';
 
-// 修改AlertType定义，确保与MUI Joy的Alert组件color属性类型兼容
-type AlertType = ColorPaletteProp;
-
-interface AlertContextType {
-    showAlert: (message: string, type?: AlertType) => void;
-    hideAlert: () => void;
+// 定义消息类型
+interface AlertMessage {
+    id: string;
+    message: string;
+    type: AlertColor;
+    timestamp: number;
+    visible: boolean; // 控制消息是否可见
 }
 
-// 创建AlertContext
-const AlertContext = createContext<AlertContextType | undefined>(undefined);
+// 创建上下文
+const AlertContext = createContext<{
+    showAlert: (message: string, type: AlertColor) => void;
+}>({
+    showAlert: () => {
+    },
+});
 
-// 提供一个hook来使用AlertContext
-export const useAlert = () => {
-    const context = useContext(AlertContext);
-    if (!context) {
-        throw new Error('useAlert必须在AlertProvider内部使用');
-    }
-    return context;
-};
+// 自定义Hook，方便在组件中使用
+export const useAlert = () => useContext(AlertContext);
 
-interface AlertProviderProps {
-    children: ReactNode;
+// 滑动动画
+function SlideTransition(props: SlideProps) {
+    return <Slide {...props} direction="down"/>;
 }
 
 // AlertProvider组件
-export const AlertProvider = ({children}: AlertProviderProps) => {
-    const [open, setOpen] = useState(false);
-    const [message, setMessage] = useState('');
-    const [alertType, setAlertType] = useState<AlertType>('secondary');
+export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
+    // 使用数组存储多个消息
+    const [alerts, setAlerts] = useState<AlertMessage[]>([]);
+    
+    // 自动消失时间（毫秒）
+    const AUTO_HIDE_DURATION = 5000;
+    // 消息出现间隔时间（毫秒）
+    const APPEAR_INTERVAL = 300;
 
-    const showAlert = (message: string, type: AlertType = 'secondary') => {
-        setMessage(message);
-        setAlertType(type);
-        setOpen(true);
+    // 添加新消息
+    const showAlert = (message: string, type: AlertColor) => {
+        const newAlert: AlertMessage = {
+            id: Date.now() + Math.random().toString(36).substring(2, 9),
+            message,
+            type,
+            timestamp: Date.now(),
+            visible: false, // 初始设为不可见
+        };
+        
+        // 添加新消息到数组
+        setAlerts((prevAlerts) => [...prevAlerts, newAlert]);
+        
+        // 延迟显示消息
+        setTimeout(() => {
+            setAlerts((prevAlerts) => 
+                prevAlerts.map(alert => 
+                    alert.id === newAlert.id ? {...alert, visible: true} : alert
+                )
+            );
+            
+            // 设置自动消失计时器
+            setTimeout(() => {
+                handleAlertRemoval(newAlert.id);
+            }, AUTO_HIDE_DURATION);
+        }, APPEAR_INTERVAL * alerts.length); // 根据当前消息数量计算延迟时间
     };
 
-    const hideAlert = () => {
-        setOpen(false);
+    // 处理消息移除（先设置为不可见，然后移除）
+    const handleAlertRemoval = (id: string) => {
+        // 先将消息设为不可见
+        setAlerts((prevAlerts) => 
+            prevAlerts.map(alert => 
+                alert.id === id ? {...alert, visible: false} : alert
+            )
+        );
+        
+        // 延迟后从数组中移除
+        setTimeout(() => {
+            removeAlert(id);
+        }, 500); // 动画持续时间
     };
 
-    // 添加事件监听器，监听自定义事件'show-alert'
+    // 移除指定ID的消息
+    const removeAlert = (id: string) => {
+        setAlerts((prevAlerts) => prevAlerts.filter((alert) => alert.id !== id));
+    };
+
+    // 监听自定义事件
     useEffect(() => {
-        const handleShowAlert = (event: CustomEvent<{ message: string; type: AlertType }>) => {
-            showAlert(event.detail.message, event.detail.type);
+        const handleShowAlert = (event: CustomEvent) => {
+            const {message, type, id, timestamp} = event.detail;
+            
+            // 如果事件中已包含ID和时间戳，则使用它们
+            const newAlert: AlertMessage = {
+                id: id || Date.now() + Math.random().toString(36).substring(2, 9),
+                message,
+                type,
+                timestamp: timestamp || Date.now(),
+                visible: false, // 初始设为不可见
+            };
+            
+            // 添加新消息到数组
+            setAlerts((prevAlerts) => [...prevAlerts, newAlert]);
+            
+            // 延迟显示消息
+            setTimeout(() => {
+                setAlerts((prevAlerts) => 
+                    prevAlerts.map(alert => 
+                        alert.id === newAlert.id ? {...alert, visible: true} : alert
+                    )
+                );
+                
+                // 设置自动消失计时器
+                setTimeout(() => {
+                    handleAlertRemoval(newAlert.id);
+                }, AUTO_HIDE_DURATION);
+            }, APPEAR_INTERVAL * alerts.length); // 根据当前消息数量计算延迟时间
         };
 
-        // 添加事件监听
+        // 添加事件监听器
         window.addEventListener('show-alert', handleShowAlert as EventListener);
-
-        // 组件卸载时移除事件监听
+        
+        // 组件卸载时移除事件监听器
         return () => {
             window.removeEventListener('show-alert', handleShowAlert as EventListener);
         };
-    }, []);
+    }, [alerts.length]); // 依赖项添加 alerts.length
 
     return (
-        <AlertContext.Provider value={{showAlert, hideAlert}}>
+        <AlertContext.Provider value={{showAlert}}>
             {children}
-            <Snackbar
-                open={open}
-                autoHideDuration={5000}
-                onClose={hideAlert}
-                anchorOrigin={{vertical: 'top', horizontal: 'center'}}
+            
+            {/* 消息堆叠容器 */}
+            <Stack
+                spacing={1}
                 sx={{
-                    zIndex: 99, // 增加z-index确保消息显示在最上层
-                    mt: '69px', // 增加顶部边距
-                    flexDirection: 'column',
-                    gap: 1,
-                    '--Button-gap': 0
+                    position: 'fixed',
+                    top: '8%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    zIndex: 9999,
+                    maxWidth: '60vw',
+                    width: '60vw',
+                    maxHeight: '80vh',
+                    overflow: 'hidden'
                 }}
             >
-                <AlertVariousStates
-                    message={message}
-                    color={alertType}
-                    onClose={hideAlert}
-                />
-            </Snackbar>
+                {/* 按添加顺序显示消息 */}
+                {alerts.map((alert) => (
+                    <Fade 
+                        key={alert.id}
+                        in={alert.visible}
+                        timeout={{
+                            enter: 400,
+                            exit: 400
+                        }}
+                    >
+                        <Snackbar
+                            open={true}
+                            TransitionComponent={SlideTransition}
+                            sx={{
+                                position: 'relative',
+                                transform: 'none !important',
+                                width: '100%',
+                                opacity: alert.visible ? 1 : 0,
+                                transition: 'opacity 400ms ease-in-out',
+                                '&.MuiSnackbar-root': {
+                                    position: 'relative',
+                                    bottom: 'auto !important' // 强制覆盖响应式样式
+                                }
+                            }}
+                        >
+                            <Alert
+                                variant="standard"
+                                color={alert.type}
+                                onClose={() => handleAlertRemoval(alert.id)}
+                                sx={{
+                                    width: '100%',
+                                    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                                    '& .MuiAlert-action': {  // 修复删除按钮的margin问题
+                                        '& .MuiButtonBase-root': {
+                                            marginRight: '25px'
+                                        }
+                                    }
+                                }}
+                            >
+                                {alert.message}
+                            </Alert>
+                        </Snackbar>
+                    </Fade>
+                ))}
+            </Stack>
         </AlertContext.Provider>
     );
 };

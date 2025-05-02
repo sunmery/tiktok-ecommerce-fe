@@ -34,10 +34,6 @@ export const getStatusText = (status: string | PaymentStatus) => {
             return t('orders.status.failed')
         case 'CANCELLED':
             return t('orders.status.cancelled')
-        case 'SHIPPED':
-            return t('orders.status.shipped')
-        case 'OUT_OF_STOCK':
-            return t('orders.status.outOfStock')
         default:
             return t('orders.status.unknown')
     }
