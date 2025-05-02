@@ -5,17 +5,19 @@
 
 import {httpClient} from '@/utils/http-client';
 import {
+    ConsumerOrders,
     GetAllOrdersReq,
+    GetConsumerOrdersReq,
     GetMerchantOrdersReply,
-    GetMerchantOrdersRequest, GetSubOrderShippingReply,
+    GetMerchantOrdersRequest,
+    GetSubOrderShippingReply,
     ListOrderReq,
     ListOrderResp,
     MarkOrderPaidReq,
     MarkOrderPaidResp,
     Order,
     PlaceOrderReq,
-    PlaceOrderResp,
-    ShippingInfo,
+    PlaceOrderResp, ShippingStatus,
     updateOrderShippingStatusReq,
 } from '@/types/orders';
 
@@ -25,12 +27,12 @@ import {
 export const orderService = {
     /**
      * 获取子订单物流状态
-     * GET /v1/orders/{orderId}/shipping/{subOrderId}
+     * GET /v1/orders/{subOrderId}/ship/status
      */
-    getSubOrderShipping: (orderId: string|number) => {
+    getSubOrderShipping: (subOrderId: string | number) => {
         const url = httpClient.replacePathParams(
-            `${import.meta.env.VITE_ORDERS_URL}/{orderId}/ship/status`,
-            {orderId}
+            `${import.meta.env.VITE_ORDERS_URL}/{subOrderId}/ship/status`,
+            {subOrderId}
         );
         return httpClient.get<GetSubOrderShippingReply>(url, {
             headers: {
@@ -75,11 +77,12 @@ export const orderService = {
         })
     },
 
-    getConsumerOrder: (request: ListOrderReq) => {
-        return httpClient.get<ListOrderResp>(
-            `${import.meta.env.VITE_ORDERS_URL}`,
+    getConsumerOrder: (request: GetConsumerOrdersReq) => {
+        return httpClient.get<ConsumerOrders>(
+            `${import.meta.env.VITE_CONSUMERS_URL}/orders`,
             {
                 params: {
+                    userId: request.userId,
                     page: request.page,
                     pageSize: request.pageSize
                 },
@@ -165,15 +168,22 @@ export const orderService = {
             `${import.meta.env.VITE_MERCHANTS_URL}/orders/ship/{subOrderId}/status`,
             {subOrderId: request.subOrderId}
         );
-        // 发送所有需要的字段，注意字段名称与后端 proto 定义匹配
-        return httpClient.patch(url, {
-            trackingNumber: request.trackingNumber,
+        
+        // 创建请求体对象
+        const requestBody: any = {
             carrier: request.carrier,
+            trackingNumber: request.trackingNumber,
             shippingFee: request.shippingFee,
             shippingAddress: request.shippingAddress,
             shippingStatus: request.shippingStatus,
-            // delivery: request.delivery,
-        }, {
+        };
+        
+        // 只有当状态为已送达且有送达时间时，才添加 delivery 字段
+        if (request.shippingStatus === ShippingStatus.ShippingDelivered && request.delivery) {
+            requestBody.delivery = request.delivery;
+        }
+        
+        return httpClient.patch(url, JSON.stringify(requestBody), {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token')}`

@@ -26,6 +26,8 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import {AddressSelector} from '@/components/AddressSelector';
 import {MerchantAddress} from '@/api/merchant/addressService';
 import {InputLabel, MenuItem, Select} from '@mui/material'
+import {useMutation, useQueryClient} from "@tanstack/react-query"; // 添加 useMutation 和 useQueryClient
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'; // 添加图标
 
 export const Route = createLazyFileRoute('/merchant/orders/')({
     component: Orders,
@@ -47,6 +49,7 @@ export default function Orders() {
         severity: 'success'
     })
     const {t} = useTranslation()
+    const queryClient = useQueryClient(); // 获取 queryClient 实例
 
     // 使用分页钩子
     const pagination = usePagination({
@@ -166,13 +169,12 @@ export default function Orders() {
         if (!selectedOrder) return;
 
         try {
-            // 调用 updateOrderShippingStatus 替换 shipOrder
             await orderService.updateOrderShippingStatus({
                 subOrderId: selectedOrder.subOrderId,
                 trackingNumber: shipInfo.trackingNumber,
                 carrier: shipInfo.carrier,
                 shippingFee: shipInfo.shippingFee,
-                delivery: shipInfo.delivery, // 传递 delivery
+                // delivery: shipInfo.delivery, // 传递 delivery
                 shippingStatus: ShippingStatus.ShippingShipped, // 设置状态为已发货
                 shippingAddress: { // 确保传递地址信息
                     addressType: address.addressType,
@@ -276,20 +278,13 @@ export default function Orders() {
                         onChange={(e) => setFilterShippingStatus(e.target.value)}
                     >
                         <MenuItem value={t('common.all')}>{t('common.all')}</MenuItem>
-                        <MenuItem
-                            value={ShippingStatus.ShippingWaitCommand}>{t('merchant.orders.status.waitCommand')}</MenuItem>
-                        <MenuItem
-                            value={ShippingStatus.ShippingPending}>{t('merchant.orders.status.pendingShipment')}</MenuItem>
-                        <MenuItem
-                            value={ShippingStatus.ShippingShipped}>{t('merchant.orders.status.shipped')}</MenuItem>
-                        <MenuItem
-                            value={ShippingStatus.ShippingInTransit}>{t('merchant.orders.status.inTransit')}</MenuItem>
-                        <MenuItem
-                            value={ShippingStatus.ShippingDelivered}>{t('merchant.orders.status.delivered')}</MenuItem>
-                        <MenuItem
-                            value={ShippingStatus.ShippingConfirmed}>{t('merchant.orders.status.confirmed')}</MenuItem>
-                        <MenuItem
-                            value={ShippingStatus.ShippingCancelled}>{t('merchant.orders.status.cancelled')}</MenuItem>
+                        <MenuItem value={ShippingStatus.ShippingWaitCommand}>{t('merchant.orders.status.waitCommand')}</MenuItem>
+                        <MenuItem value={ShippingStatus.ShippingPending}>{t('merchant.orders.status.pendingShipment')}</MenuItem>
+                        <MenuItem value={ShippingStatus.ShippingShipped}>{t('merchant.orders.status.shipped')}</MenuItem>
+                        <MenuItem value={ShippingStatus.ShippingInTransit}>{t('merchant.orders.status.inTransit')}</MenuItem>
+                        <MenuItem value={ShippingStatus.ShippingDelivered}>{t('merchant.orders.status.delivered')}</MenuItem>
+                        <MenuItem value={ShippingStatus.ShippingConfirmed}>{t('merchant.orders.status.confirmed')}</MenuItem>
+                        <MenuItem value={ShippingStatus.ShippingCancelled}>{t('merchant.orders.status.cancelled')}</MenuItem>
                     </Select>
                 </FormControl>
 
@@ -565,3 +560,42 @@ export default function Orders() {
         </Box>
     )
 }
+
+// --- Mutation for confirming receipt ---
+const confirmReceiptMutation = useMutation({
+    mutationFn: (subOrderId: number) => orderService.confirmReceived({ subOrderId }),
+    onSuccess: (_, subOrderId) => {
+        setSnackbar({
+            open: true,
+            message: t('merchant.orders.confirmSuccess'),
+            severity: 'success'
+        });
+        // 更新本地状态或重新加载数据
+        setOrders(prevOrders => {
+            return prevOrders.map(order => {
+                const updatedItems = order.items.map(item => {
+                    if (item.subOrderId === subOrderId) {
+                        return { ...item, shippingStatus: ShippingStatus.ShippingConfirmed };
+                    }
+                    return item;
+                });
+                return { ...order, items: updatedItems };
+            });
+        });
+        // 或者使查询失效以重新获取数据
+        // queryClient.invalidateQueries({ queryKey: ['merchantOrders'] }); // 假设查询键是 'merchantOrders'
+    },
+    onError: (error: Error) => {
+        console.error('确认收货失败:', error);
+        setSnackbar({
+            open: true,
+            message: t('merchant.orders.confirmFailed', { message: error.message }),
+            severity: 'danger'
+        });
+    },
+});
+// --- End Mutation ---
+
+const handleConfirmReceipt = (subOrderId: number) => {
+    confirmReceiptMutation.mutate(subOrderId);
+};

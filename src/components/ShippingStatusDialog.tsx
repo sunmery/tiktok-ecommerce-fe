@@ -54,9 +54,6 @@ export default function ShippingStatusDialog({
                                 <Typography level="body-sm">货运状态: {shippingStatus(shippingInfo.shippingStatus)}</Typography>
                                 <Typography level="body-sm">物流单号: {shippingInfo.trackingNumber}</Typography>
                                 <Typography level="body-sm">物流公司: {shippingInfo.carrier}</Typography>
-                                <Typography level="body-sm">
-                                    预计送达: {shippingInfo.estimatedDelivery}
-                                </Typography>
                             </Box>
 
                             {shippingInfo.updates && shippingInfo.updates.length > 0 && (

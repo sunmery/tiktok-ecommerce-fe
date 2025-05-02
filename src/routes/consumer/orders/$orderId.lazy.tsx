@@ -3,14 +3,14 @@ import {Alert, Box, Button, Card, CardContent, Chip, Divider, Grid, Stack, Typog
 import {useEffect, useState} from 'react'
 import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
-import {Order} from '@/types/orders'
+import {ConsumerOrder} from '@/types/orders'
 import {formatCurrency} from '@/utils/format'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import Skeleton from '@/components/Skeleton'
 import {orderService} from '@/api/orderService'
 import {useTranslation} from 'react-i18next'
-import {getStatusColor, getStatusText} from "@/utils/status.ts";
+import {getStatusColor, getStatusText, shippingStatus} from "@/utils/status.ts";
 import {showMessage} from "@/utils/showMessage";
 
 export const Route = createLazyFileRoute('/consumer/orders/$orderId')({
@@ -21,7 +21,7 @@ function ConsumerOrderDetail() {
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
     const {orderId} = useParams({from: '/consumer/orders/$orderId'})
-    const [order, setOrder] = useState<Order | null>(null)
+    const [order, setOrder] = useState<ConsumerOrder | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
 
@@ -46,14 +46,25 @@ function ConsumerOrderDetail() {
                 // 调用API获取订单列表
                 const response = await orderService.getConsumerOrder({
                     page: 1,
-                    pageSize: 50
+                    pageSize: 50,
+                    userId: account.id
                 })
 
                 // 查找指定ID的订单
-                if (response && response.orders) {
-                    const foundOrder = response.orders.find(o => o.orderId === orderId)
-                    if (foundOrder) {
-                        setOrder(foundOrder)
+                if (response && response.items) {
+                    // 找到所有具有相同orderId的子订单
+                    const foundOrders = response.items.filter(o => o.orderId === orderId)
+                    if (foundOrders.length > 0) {
+                        // 合并所有子订单的信息
+                        const mergedOrder = {
+                            ...foundOrders[0], // 使用第一个订单的基本信息
+                            items: foundOrders.flatMap(order => order.items.map(item => ({
+                                ...item,
+                                subOrderId: order.subOrderId, // 将子订单ID添加到每个商品项
+                                shippingStatus: order.shippingStatus // 将配送状态添加到每个商品项
+                            })))
+                        }
+                        setOrder(mergedOrder)
                     } else {
                         setError('未找到订单信息')
                     }
@@ -80,7 +91,7 @@ function ConsumerOrderDetail() {
 
 
     // 计算订单总金额
-    const calculateTotal = (order: Order) => {
+    const calculateTotal = (order: ConsumerOrder) => {
         return order.items.reduce((total, item) => {
             return total + (item.cost || 0)
         }, 0)
@@ -196,11 +207,15 @@ function ConsumerOrderDetail() {
                                                     </Typography>
 
                                                     <Typography level="body-sm" color="neutral">
-                                                        商家ID: {item.item.merchantId.substring(0, 8)}
+                                                        商家ID: {item.item.merchantId}
                                                     </Typography>
 
                                                     <Typography level="body-sm" color="neutral">
-                                                        子订单号: {order.subOrderId || '暂无'}
+                                                        子订单号: {item.subOrderId || '暂无'}
+                                                    </Typography>
+
+                                                    <Typography level="body-sm" color="neutral">
+                                                        配送状态: {shippingStatus(item.shippingStatus)}
                                                     </Typography>
 
                                                 </Grid>
@@ -217,11 +232,11 @@ function ConsumerOrderDetail() {
                                                             variant="outlined"
                                                             color="primary"
                                                             onClick={() => {
-                                                                if (!order.subOrderId) {
+                                                                if (!item.subOrderId) {
                                                                     showMessage('该订单没有子订单信息，无法查询物流', 'warning');
                                                                     return;
                                                                 }
-                                                                navigate({ to: `/consumer/logistics/${order.subOrderId}` });
+                                                                navigate({ to: `/consumer/logistics/${item.subOrderId}` });
                                                             }}
                                                         >
                                                             查看物流

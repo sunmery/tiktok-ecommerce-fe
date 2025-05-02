@@ -3,7 +3,6 @@ import {Order, OrderItem, Orders, PaymentStatus} from '@/types/orders.ts'
 import {formatCurrency} from '@/utils/format.ts'
 import {Link, useNavigate} from '@tanstack/react-router'
 import {useState} from 'react'
-import OrderDetailModal from './OrderDetailModal'
 import {orderService} from '@/api/orderService'
 import {useQuery} from '@tanstack/react-query'
 import {useTranslation} from 'react-i18next'
@@ -213,14 +212,6 @@ export default function OrderList({orders}: Orders) {
                     );
                 })}
             </Box>
-
-            {/* 订单详情模态框 */}
-            <OrderDetailModal
-                open={isModalOpen}
-                onClose={handleCloseModal}
-                order={orderDetail || null}
-                loading={isLoading}
-            />
         </>
     )
 }

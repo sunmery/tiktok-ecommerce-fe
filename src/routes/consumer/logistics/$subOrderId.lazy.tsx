@@ -1,12 +1,10 @@
 import {createLazyFileRoute, useNavigate, useParams} from '@tanstack/react-router'
 import {Alert, Box, Button, Card, CardContent, CircularProgress, Divider, Grid, Stack, Typography} from '@mui/joy'
-import {useEffect, useState} from 'react'
-import {useSnapshot} from 'valtio/react'
-import {userStore} from '@/store/user.ts'
+import {useCallback, useEffect, useRef, useState} from 'react'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {useTranslation} from 'react-i18next'
-import {GetSubOrderShippingReply, ShippingStatus, ShippingUpdate, updateOrderShippingStatusReq} from '@/types/orders'
+import {ShippingStatus, ShippingUpdate, updateOrderShippingStatusReq} from '@/types/orders'
 import {orderService} from '@/api/orderService'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import LogisticsMap from '@/components/LogisticsMap'
@@ -14,6 +12,8 @@ import {Coordinates} from '@/types/logisticsMap'
 import {showMessage} from '@/utils/showMessage'
 import {shippingStatus} from "@/utils/status.ts";
 import {getCoordinatesByAddress} from '@/utils/geocoding';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'; // 添加图标
+import CheckIcon from '@mui/icons-material/Check'; // 确认收货图标
 
 
 export const Route = createLazyFileRoute('/consumer/logistics/$subOrderId')({
@@ -21,95 +21,145 @@ export const Route = createLazyFileRoute('/consumer/logistics/$subOrderId')({
 })
 
 function ConsumerLogistics() {
-    const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
-    const {t} = useTranslation()
+    const {t} = useTranslation() // t 函数已存在
     const queryClient = useQueryClient();
+    const deliverySubmittedRef = useRef(false);
+
     // 使用 useParams 获取路由参数
     const {subOrderId} = useParams({from: '/consumer/logistics/$subOrderId'})
     const [merchantPosition, setMerchantPosition] = useState<Coordinates | null>(null);
     const [userPosition, setUserPosition] = useState<Coordinates | null>(null);
     const [geocodingLoading, setGeocodingLoading] = useState(false);
     const [geocodingError, setGeocodingError] = useState<string | null>(null);
+    // 添加一个状态来控制动画的执行
+    const [startAnimation, setStartAnimation] = useState(false);
+    // 添加一个状态来跟踪动画是否已经开始
+    const [animationInProgress, setAnimationInProgress] = useState(false);
 
-    // 移除获取订单列表的 useQuery
-    // const {data: orderData, isLoading: orderLoading} = useQuery({ ... })
-
-    // 获取物流信息 - 使用从 useParams 获取的 subOrderId
+    // Add shipping info query
     const {
         data: shippingInfo,
         isLoading: shippingLoading,
-        refetch: refetchShippingInfo
-    } = useQuery<GetSubOrderShippingReply | null>({
-        // 更新 queryKey 以包含 subOrderId
+        error: shippingError
+    } = useQuery({
         queryKey: ['shippingInfo', subOrderId],
-        queryFn: async () => {
-            // 确保 subOrderId 存在
-            if (!subOrderId) {
-                console.error("SubOrderId not found in route params");
-                showMessage(t('errors.missingSubOrderId'), 'error');
-                return null;
-            }
-            try {
-                return await orderService.getSubOrderShipping(subOrderId);
-            } catch (error) {
-                console.error("获取物流信息失败:", error);
-                showMessage(t('errors.fetchShippingFailed'), 'error');
-                return null;
-            }
-        },
-        // 仅在 subOrderId 存在时启用查询
-        enabled: !!subOrderId
-    })
+        queryFn: () => orderService.getSubOrderShipping(subOrderId as string),
+        enabled: !!subOrderId,
+        // 添加 refetchInterval 以便轮询更新物流状态，例如每30秒
+        refetchInterval: 30000,
+    });
 
-    // --- Mutation for updating shipping status ---
+    // Function to get shipping status text (moved inside or ensure it's accessible)
+    const getShippingStatusText = (status: ShippingStatus) => {
+        return shippingStatus(status);
+    };
+
+    // --- Mutation for updating shipping status (MOVED INSIDE) ---
     const updateStatusMutation = useMutation({
         mutationFn: (params: updateOrderShippingStatusReq) => orderService.updateOrderShippingStatus(params),
-        onSuccess: (_data, variables) => {
-            // 显示一次成功消息
-            showMessage(`物流状态已更新为: ${shippingStatus(variables.shippingStatus)}`, 'success');
-            // 使相关的查询失效，以便重新获取最新数据
-            queryClient.invalidateQueries({queryKey: ['shippingInfo', subOrderId]});
-            // 移除 .then() 中的重复消息
+        onSuccess: (_data, variables) => { // 添加 variables 参数
+            // 使用 setTimeout 延迟查询失效，避免立即触发重新渲染
+            setTimeout(() => {
+                // 使相关的查询失效，以便重新获取最新数据
+                queryClient.invalidateQueries({queryKey: ['shippingInfo', subOrderId]});
+                showMessage(t('consumer.logistics.success.statusUpdated', { status: getShippingStatusText(variables.shippingStatus) }), 'success');
+            }, 1000); // 延迟1秒
         },
-        onError: (error, variables) => {
+        onError: (error: Error, variables) => { // Ensure error type is correct
             console.error(`更新物流状态至 ${variables.shippingStatus} 失败:`, error);
-            showMessage(`更新物流状态失败: ${error.message}`, 'error');
+            showMessage(t('consumer.logistics.error.updateFailed', { message: error.message }), 'error');
         },
     });
     // --- End Mutation ---
 
-    // 检查用户是否为消费者 (保持不变)
-    useEffect(() => {
-        if (account.role !== 'consumer') {
-            navigate({to: '/'}).then(() => {
-                showMessage(t('consumer.order.notAllowed'), 'error')
-            })
-        }
-    }, [account.role, navigate, t])
+
+    // --- Mutation for confirming receipt (MOVED INSIDE) ---
+    const confirmReceiptMutation = useMutation({
+        mutationFn: () => orderService.confirmReceived({ subOrderId: subOrderId as string }),
+        onSuccess: () => {
+            showMessage(t('consumer.logistics.success.receiptConfirmed'), 'success');
+            // 使用 setTimeout 延迟查询失效
+            setTimeout(() => {
+                queryClient.invalidateQueries({ queryKey: ['shippingInfo', subOrderId] });
+            }, 1000); // 延迟1秒
+        },
+        onError: (error: Error) => { // Ensure error type is correct
+            console.error('确认收货失败:', error);
+            showMessage(t('consumer.logistics.error.confirmFailed', { message: error.message }), 'error');
+        },
+    });
+    // --- End Mutation ---
+
+    // --- Callback for confirming receipt ---
+    const handleConfirmReceipt = () => {
+        confirmReceiptMutation.mutate();
+    };
+
+
+    if (shippingError){
+        showMessage(t('consumer.logistics.error.fetchShippingInfo', { message: shippingError.message }), 'error'); // <-- 使用 t() 和插值
+    }
+
 
     // 地理编码逻辑 (依赖 shippingInfo)
     useEffect(() => {
         const fetchCoordinates = async () => {
-            if (shippingInfo && shippingInfo.shippingAddress && shippingInfo.receiverAddress) {
+            if (shippingInfo) {
                 setGeocodingLoading(true);
                 setGeocodingError(null);
                 try {
-                    // @ts-ignore
-                    const merchantAddr = shippingInfo.shippingAddress;
-                    // @ts-ignore
-                    const userAddr = shippingInfo.receiverAddress;
+                    // 尝试从订单信息中获取地址
+                    let merchantAddr = shippingInfo.shippingAddress || {};
+                    let userAddr = shippingInfo.receiverAddress || {};
+
+                    // 如果地址信息不完整，尝试从 orders 数组中查找匹配的子订单
+                    if ((!merchantAddr.city || !merchantAddr.country) && subOrderId) {
+                        // 这里可以添加获取完整订单信息的逻辑
+                        try {
+                            const orderResponse = await orderService.getMerchantOrders({
+                                page: 1,
+                                pageSize: 50
+                            });
+
+                            if (orderResponse && orderResponse.orders) {
+                                // 在所有订单中查找匹配的子订单
+                                for (const order of orderResponse.orders) {
+                                    const matchingItem = order.items.find(item =>
+                                        item.subOrderId.toString() === subOrderId.toString());
+
+                                    if (matchingItem) {
+                                        // 使用找到的订单项中的地址信息
+                                        userAddr = matchingItem.address || userAddr;
+                                        // 商家地址可能需要从其他地方获取
+                                        break;
+                                    }
+                                }
+                            }
+                        } catch (err) {
+                            console.error('获取订单信息失败:', err);
+                        }
+                    }
+
                     const merchantAddressString = `${merchantAddr.country || ''} ${merchantAddr.state || ''} ${merchantAddr.city || ''} ${merchantAddr.streetAddress || ''}`.trim();
                     const userAddressString = `${userAddr.country || ''} ${userAddr.state || ''} ${userAddr.city || ''} ${userAddr.streetAddress || ''}`.trim();
 
-                    if (!merchantAddressString || !userAddressString) {
-                        throw new Error("地址信息不完整");
+                    // 检查地址信息是否完整
+                    if (!merchantAddressString && !userAddressString) {
+                        console.warn('地址信息不完整，使用默认坐标');
+                        setMerchantPosition([39.9042, 116.4074]); // 北京
+                        setUserPosition([31.2304, 121.4737]); // 上海
+                        return;
                     }
 
-                    const [merchantCoords, userCoords] = await Promise.all([
-                        getCoordinatesByAddress(merchantAddressString),
-                        getCoordinatesByAddress(userAddressString)
-                    ]);
+                    // 如果有一个地址不完整，使用默认值
+                    const merchantCoords = merchantAddressString ?
+                        await getCoordinatesByAddress(merchantAddressString) :
+                        [39.9042, 116.4074]; // 默认北京
+
+                    const userCoords = userAddressString ?
+                        await getCoordinatesByAddress(userAddressString) :
+                        [31.2304, 121.4737]; // 默认上海
 
                     setMerchantPosition(merchantCoords);
                     setUserPosition(userCoords);
@@ -117,8 +167,10 @@ function ConsumerLogistics() {
                 } catch (err) {
                     console.error('地理编码失败:', err);
                     const errorMsg = err instanceof Error ? err.message : '未知错误';
-                    setGeocodingError(`无法获取地址坐标: ${errorMsg}。将使用默认坐标。`);
-                    showMessage(`无法获取地址坐标: ${errorMsg}`, 'error');
+                    setGeocodingError(t('consumer.logistics.error.geocodingFailedWithFallback', { errorMsg })); // <-- 使用 t() 和插值
+                    // showMessage(`无法获取地址坐标: ${errorMsg}`, 'error');
+                    console.log(`无法获取地址坐标: ${errorMsg}`, 'error');
+
                     setMerchantPosition([39.9042, 116.4074]); // 北京
                     setUserPosition([31.2304, 121.4737]); // 上海
                 } finally {
@@ -134,67 +186,96 @@ function ConsumerLogistics() {
             console.error('地理编码失败:', err);
             setGeocodingError(t('errors.geocodingFailed'));
             setGeocodingLoading(false);
+            // Ensure default coordinates are set even on error
+            setMerchantPosition([39.9042, 116.4074]);
+            setUserPosition([31.2304, 121.4737]);
         })
-        // 移除 orderData 依赖
-    }, [shippingInfo, shippingLoading, subOrderId, t]); // 添加 subOrderId 依赖
+    }, [shippingInfo, shippingLoading, subOrderId, t]);
 
     // --- Callback functions for LogisticsMap ---
-    const handleInTransit = () => {
-        console.log("触发运输中回调");
-        // 保持不变：仅当状态为 '已发货' 时更新为 '运输中'
-        if (subOrderId && shippingInfo?.shippingStatus === ShippingStatus.ShippingShipped) {
+    // 使用 useCallback 包装回调函数，确保引用稳定
+    const handleInTransit = useCallback(() => {
+        console.log("触发运输中回调 - 仅动画效果，不更新后端状态");
+        // 不再调用后端API更新状态，只保留日志
+    }, []); // 空依赖数组，因为此函数不依赖外部变量
+
+    const handleDeliveryComplete = useCallback(() => {
+        console.log("触发送达回调");
+        // 检查是否已经提交过送达状态，避免重复更新
+        if (subOrderId &&
+            shippingInfo?.shippingStatus !== ShippingStatus.ShippingDelivered &&
+            !updateStatusMutation.isPending &&
+            !deliverySubmittedRef.current) {
+
+            // 标记已经提交过送达状态
+            deliverySubmittedRef.current = true;
+
+            const delivery = new Date().toISOString(); // 使用当前日期时间
             updateStatusMutation.mutate({
                 subOrderId: subOrderId as string,
-                shippingStatus: ShippingStatus.ShippingInTransit,
-                trackingNumber: shippingInfo.trackingNumber || '',
-                carrier: shippingInfo.carrier || '',
-                shippingAddress: shippingInfo.shippingAddress,
-                shippingFee: shippingInfo.shippingFee || 0,
-                delivery: ''
+                shippingStatus: ShippingStatus.ShippingDelivered,
+                trackingNumber: shippingInfo?.trackingNumber || '',
+                carrier: shippingInfo?.carrier || '',
+                shippingAddress: shippingInfo?.shippingAddress,
+                shippingFee: shippingInfo?.shippingFee || 0,
+                delivery: delivery, // 只在送达状态时传递送达时间
+            }, {
+                // 添加成功回调，确保状态更新后不再触发动画
+                onSuccess: () => {
+                    // 重置动画状态
+                    setAnimationInProgress(false);
+                    setStartAnimation(false);
+                    // 强制刷新数据
+                    queryClient.invalidateQueries({queryKey: ['shippingInfo', subOrderId]});
+                    // 显示成功消息
+                    console.log("物流状态已成功更新为已送达");
+                    showMessage(t('consumer.logistics.success.statusUpdated', { status: getShippingStatusText(ShippingStatus.ShippingDelivered) }),'success') // <-- 使用 t() 和插值
+                }
             });
         } else {
-            console.warn("状态不是 '已发货' 或 subOrderId/shippingInfo 不存在，无法更新为 '运输中'");
+            console.warn(`当前状态不适合更新为 '已送达' 或更新已在进行中或已经提交过`);
+            // 重置动画状态，防止循环
+            setAnimationInProgress(false);
+            setStartAnimation(false);
         }
-    };
+        // 依赖项应包含所有在函数内部使用的、可能变化的外部变量
+    }, [subOrderId, shippingInfo, updateStatusMutation, queryClient, t]); // Added t to dependencies
 
-    const handleDeliveryComplete = () => {
-        console.log("触发送达回调");
-        // 使用从 useParams 获取的 subOrderId
-        // 修改条件：允许在状态为 ShippingInTransit 或 ShippingShipped 时触发
-        // 因为 onInTransit 刚触发，状态可能还没更新
-        if (subOrderId && shippingInfo &&
-            (shippingInfo.shippingStatus === ShippingStatus.ShippingInTransit ||
-             shippingInfo.shippingStatus === ShippingStatus.ShippingShipped)) {
-            const delivery = new Date().toISOString()
-            // 确保只在状态不是 Delivered 时才更新
-            if (shippingInfo.shippingStatus !== ShippingStatus.ShippingDelivered) {
-                updateStatusMutation.mutate({
-                    subOrderId: subOrderId, // 使用从 useParams 获取的 subOrderId
-                    shippingStatus: ShippingStatus.ShippingDelivered, // 更新为已送达
-                    trackingNumber: shippingInfo.trackingNumber || '',
-                    carrier: shippingInfo.carrier || '',
-                    shippingAddress: shippingInfo.shippingAddress,
-                    shippingFee: shippingInfo.shippingFee || 0,
-                    delivery: delivery,
-                });
-            } else {
-                 console.log("状态已经是 '已送达'，无需重复更新");
-            }
-        } else {
-            console.warn("状态不符合更新为 '已送达' 的条件或 subOrderId/shippingInfo 不存在");
+    // 处理初始状态变化
+    useEffect(() => {
+        // 如果物流信息已加载且状态为"已发货"，启动动画
+        if (shippingInfo &&
+            !shippingLoading &&
+            shippingInfo.shippingStatus === ShippingStatus.ShippingShipped &&
+            !animationInProgress &&
+            !startAnimation) {
+
+            console.log("检测到已发货状态，启动动画...");
+            // 设置开始动画标志，确保动画开始执行
+            setStartAnimation(true);
+            setAnimationInProgress(true);
         }
-    };
-    // --- End Callbacks ---
 
+        // 如果状态已经是"已送达"，重置所有状态
+        if (shippingInfo?.shippingStatus === ShippingStatus.ShippingDelivered) {
+            setAnimationInProgress(false);
+            setStartAnimation(false);
+        }
 
-    // --- Render Logic ---
+        // 如果状态重置为初始状态，重置引用
+        if (shippingInfo?.shippingStatus === ShippingStatus.ShippingPending ||
+            shippingInfo?.shippingStatus === ShippingStatus.ShippingWaitCommand) {
+            deliverySubmittedRef.current = false;
+        }
+    }, [shippingInfo, shippingLoading, animationInProgress, startAnimation]);
+
     const renderContent = () => {
-        // 移除 orderLoading 检查
+
         if (shippingLoading || geocodingLoading) {
             return (
                 <Box sx={{display: 'flex', justifyContent: 'center', p: 2}}>
                     <CircularProgress/>
-                    {geocodingLoading && <Typography sx={{ml: 1}}>正在获取地址坐标...</Typography>}
+                    {geocodingLoading && <Typography sx={{ml: 1}}>{t('consumer.logistics.loadingGeocoding')}</Typography>} {/* <-- 使用 t() */}
                 </Box>
             );
         }
@@ -207,14 +288,6 @@ function ConsumerLogistics() {
             return <Alert color="danger">{geocodingError}</Alert>;
         }
 
-        if (!merchantPosition || !userPosition) {
-            return (
-                <Box sx={{display: 'flex', justifyContent: 'center', p: 2}}>
-                    <CircularProgress/>
-                    <Typography sx={{ml: 1}}>等待坐标数据...</Typography>
-                </Box>
-            );
-        }
 
         // 确保传递正确的初始状态
         const initialMapStatus = shippingInfo?.shippingStatus || ShippingStatus.ShippingPending;
@@ -230,24 +303,19 @@ function ConsumerLogistics() {
                             {/* 确保 shippingInfo 存在再渲染 */}
                             {shippingInfo ? (
                                 <Stack spacing={1}>
-                                    <Typography level="body-md">主订单号: {shippingInfo.orderId}</Typography>
-                                    <Typography level="body-md">子订单号: {shippingInfo.subOrderId}</Typography>
-                                    <Typography level="body-md">支付状态: {shippingInfo.paymentStatus}</Typography>
+                                    <Typography level="body-md">货运单号: {shippingInfo.orderId}</Typography>
+                                    <Typography level="body-md">商品订单号: {shippingInfo.subOrderId}</Typography>
                                     <Typography
-                                        level="body-md">货运状态: {shippingStatus(shippingInfo.shippingStatus)}</Typography>
+                                        level="body-md">货运状态: {getShippingStatusText(shippingInfo.shippingStatus)}</Typography>
                                     <Typography level="body-md">物流单号: {shippingInfo.trackingNumber}</Typography>
                                     <Typography level="body-md">物流公司: {shippingInfo.carrier}</Typography>
-                                    {/* @ts-ignore */}
                                     {shippingInfo.shippingAddress && (
                                         <Typography level="body-sm" color="neutral">
-                                            {/* @ts-ignore */}
                                             发货地址: {`${shippingInfo.shippingAddress.state || ''} ${shippingInfo.shippingAddress.city || ''} ${shippingInfo.shippingAddress.streetAddress || ''}`}
                                         </Typography>
                                     )}
-                                    {/* @ts-ignore */}
                                     {shippingInfo.receiverAddress && (
                                         <Typography level="body-sm" color="neutral">
-                                            {/* @ts-ignore */}
                                             收货地址: {`${shippingInfo.receiverAddress.state || ''} ${shippingInfo.receiverAddress.city || ''} ${shippingInfo.receiverAddress.streetAddress || ''}`}
                                         </Typography>
                                     )}
@@ -267,7 +335,7 @@ function ConsumerLogistics() {
                             {geocodingError && <Alert color="warning" sx={{mb: 1}}>{geocodingError}</Alert>}
                             <Divider sx={{my: 2}}/>
                             <Box sx={{height: '400px', width: '100%'}}>
-                                {/* 确保坐标和 shippingInfo 都存在 */}
+                                {/* 确保坐标和 shippingInfo 都存在，并且坐标是有效的数组 */}
                                 {merchantPosition && userPosition && shippingInfo && (
                                     <LogisticsMap
                                         sellerPosition={merchantPosition}
@@ -275,7 +343,7 @@ function ConsumerLogistics() {
                                         initialShippingStatus={initialMapStatus}
                                         onInTransit={handleInTransit}
                                         onDeliveryComplete={handleDeliveryComplete}
-                                        paymentStatus={shippingInfo.paymentStatus}
+                                        startAnimation={startAnimation}
                                     />
                                 )}
                             </Box>
@@ -284,7 +352,6 @@ function ConsumerLogistics() {
                 </Grid>
 
                 {/* 物流更新记录 */}
-                {/* @ts-ignore */}
                 {shippingInfo?.updates && shippingInfo.updates.length > 0 && (
                     <Grid xs={12}>
                         <Card variant="outlined">
@@ -292,7 +359,6 @@ function ConsumerLogistics() {
                                 <Typography level="title-lg" sx={{mb: 2}}>{t('orders.shipping.updates')}</Typography>
                                 <Divider sx={{my: 2}}/>
                                 <Stack spacing={2}>
-                                    {/* @ts-ignore */}
                                     {shippingInfo.updates.map((update: ShippingUpdate, index: number) => (
                                         <Box key={index}>
                                             <Typography level="title-sm">{update.timestamp}</Typography>

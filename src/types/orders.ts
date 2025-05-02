@@ -3,6 +3,27 @@
 import {CartItem} from "@/types/cart.ts";
 import {MerchantAddress} from "@/api/merchant/addressService.ts";
 
+// 支付状态枚举
+export enum PaymentStatus {
+    NotPaid = 'NOT_PAID',
+    Processing = 'PROCESSING',
+    Paid = 'PAID',
+    Failed = 'FAILED',
+    Cancelled = 'CANCELLED'
+}
+
+// 货运状态枚举
+export enum ShippingStatus {
+    ShippingWaitCommand = "WAIT_COMMAND", // 等待操作
+    ShippingPending = "PENDING_SHIPMENT", // 待发货
+    ShippingShipped = "SHIPPED", // 已发货
+    ShippingInTransit = "IN_TRANSIT", // 运输中
+    ShippingDelivered = "DELIVERED", // 已送达
+    ShippingConfirmed = "CONFIRMED", // 确认收货
+    ShippingCancelled = "CANCELLED" // 已取消
+}
+
+
 export interface PlaceOrderReq {
     currency: string
     address: MerchantAddress
@@ -115,7 +136,7 @@ export interface ConsumerAddress {
     streetAddress: string
     updatedAt: string
     userId: string
-    zipCod: string
+    zipCode: string  // 修正拼写错误：zipCod -> zipCode
 }
 
 export interface GetSubOrderShippingReply {
@@ -127,7 +148,7 @@ export interface GetSubOrderShippingReply {
     paymentStatus: PaymentStatus
     shippingStatus: ShippingStatus
     shippingAddress: Partial<MerchantAddress>
-    // receiverAddress: Partial<ConsumerAddress>
+    receiverAddress: Partial<ConsumerAddress>
     shippingFee: number // 运费
     delivery: string // 送达日期
 }
@@ -140,8 +161,41 @@ export interface ShippingUpdate {
     description: string
 }
 
-// 订单详情
-export interface Order {
+// 更新订单物流状态请求
+export interface updateOrderShippingStatusReq {
+    subOrderId: string | number;
+    shippingStatus: ShippingStatus;
+    trackingNumber?: string;
+    carrier?: string;
+    shippingAddress?: Partial<MerchantAddress>;
+    shippingFee?: number;
+    delivery?: string; // 送达日期
+}
+
+// 确认收货请求
+export interface ConfirmReceivedReq {
+    subOrderId: string | number;
+}
+
+// 确认收货响应 (通常为空)
+export interface ConfirmReceivedResp {}
+
+
+// 获取消费者订单请求
+export interface GetConsumerOrdersReq {
+    userId: string;
+    page: number;
+    pageSize: number;
+}
+
+// 消费者订单响应
+export interface ConsumerOrders {
+    items: ConsumerOrder[]
+    orderId: number
+}
+
+// 消费者订单
+export interface ConsumerOrder {
     items: OrderItem[]
     orderId: string
     subOrderId?: number
@@ -151,86 +205,6 @@ export interface Order {
     email: string
     createdAt: string
     paymentStatus: PaymentStatus
-    shippingStatus: string // 货运状态
-    shippingInfo?: ShippingInfo    // 物流信息
-    orderItems?: OrderItem[]
-}
-
-// 订单列表
-export interface Orders {
-    orders: Order[]
-}
-
-export interface MarkOrderPaidReq {
-    orderId: string
-}
-
-export interface MarkOrderPaidResp {
-
-}
-
-// 商家发货请求
-export interface ShipOrderReq {
-    subOrderId: number
-    trackingNumber: string
-    carrier: string
-    shippingAddress: Partial<MerchantAddress>
-    shippingFee: number // 运费
-}
-
-// 商家发货响应
-export interface ShipOrderResp {
-}
-
-
-/**
- * 更新订单货运状态请求
- */
-export interface updateOrderShippingStatusReq {
-    subOrderId: number;
-    trackingNumber: string;
-    carrier: string;
-    shippingAddress: Partial<MerchantAddress>; // 发货地址
-    shippingFee: number; // 运费
-    shippingStatus: ShippingStatus; // 货运状态
-    delivery: string; // 送达日期
-}
-
-// 移除 ShipOrderReq 接口
-// export interface ShipOrderReq {
-//     subOrderId: number;
-//     trackingNumber: string;
-//     carrier: string;
-//     shippingAddress: Partial<MerchantAddress>;
-//     shippingFee: number;
-// }
-
-// 用户确认收货请求
-export interface ConfirmReceivedReq {
-    orderId: string
-}
-
-// 用户确认收货响应
-export interface ConfirmReceivedResp {
-}
-
-// 支付状态枚举
-export enum PaymentStatus {
-    NotPaid = 'NOT_PAID',
-    Processing = 'PROCESSING',
-    Paid = 'PAID',
-    Failed = 'FAILED',
-    Cancelled = 'CANCELLED'
-}
-
-// 货运状态枚举
-export enum ShippingStatus {
-    ShippingWaitCommand = "WAIT_COMMAND", // 等待操作
-    ShippingPending = "PENDING_SHIPMENT", // 待发货
-    ShippingShipped = "SHIPPED", // 已发货
-    ShippingInTransit = "IN_TRANSIT", // 运输中
-    ShippingDelivered = "DELIVERED", // 已送达
-    ShippingConfirmed = "CONFIRMED", // 确认收货
-    ShippingCancelled = "CANCELLED" // 已取消
+    shippingStatus: ShippingStatus
 }
 

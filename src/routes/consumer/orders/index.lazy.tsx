@@ -109,15 +109,36 @@ function ConsumerOrders() {
             console.log('查询订单参数:', params)
             const response = await orderService.getConsumerOrder(params)
 
-            // 设置分页信息
-            if (response.orders) {
-                // 更新总条目数
-                const total = response.orders.length
-                pagination.setTotalItems(total)
-                return response.orders || []
+            // 适配新接口：将所有 items 按 orderId 分组为主订单
+            if (response && response.items) {
+                // 分组：orderId -> [subOrder, subOrder, ...]
+                const grouped = response.items.reduce((acc, item) => {
+                    const orderId = item.orderId;
+                    if (!acc[orderId]) {
+                        acc[orderId] = [];
+                    }
+                    acc[orderId].push(item);
+                    return acc;
+                }, {} as Record<string, any[]>);
+
+                // 生成主订单列表，每个主订单下包含所有子订单
+                const mainOrders = Object.entries(grouped).map(([orderId, subOrders]) => {
+                    // 以第一个子订单为主，合并所有 items
+                    const first = subOrders[0];
+                    return {
+                        ...first,
+                        orderId,
+                        items: subOrders.flatMap(sub => sub.items), // 合并所有子订单的商品
+                        subOrders, // 保留原始子订单列表
+                    };
+                });
+
+                // 更新分页信息
+                pagination.setTotalItems(mainOrders.length);
+                return mainOrders;
             }
 
-            return []
+            return [];
         } catch (error) {
             console.error('获取订单失败:', error)
             return []

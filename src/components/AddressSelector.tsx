@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {FC, useEffect, useState} from 'react';
 import {
     Box,
     Button,
@@ -29,7 +29,7 @@ interface AddressSelectorProps {
     }) => void | Promise<void>;
 }
 
-export const AddressSelector: React.FC<AddressSelectorProps> = ({open, onClose, onSelect}) => {
+export const AddressSelector: FC<AddressSelectorProps> = ({open, onClose, onSelect}) => {
     const {t} = useTranslation();
     const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
     const [trackingNumber, setTrackingNumber] = useState('');
@@ -37,7 +37,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({open, onClose, 
     const [delivery, setDelivery] = useState(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]); // 保持 YYYY-MM-DD 格式
     const [shippingFee, setShippingFee] = useState<number>(0);
 
-    // 使用 React Query 获取地址列表
+    // 获取地址列表
     const {data: addressesData, isLoading} = useQuery({
         queryKey: ['merchantAddresses'],
         queryFn: () => merchantAddressService.listAddresses({
@@ -48,7 +48,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({open, onClose, 
     });
 
     // 当地址数据加载完成后，如果有默认地址则自动选中
-    React.useEffect(() => {
+    useEffect(() => {
         if (addressesData?.addresses) {
             const defaultAddress = addressesData.addresses.find(addr => addr.isDefault);
             if (defaultAddress) {
@@ -116,8 +116,8 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({open, onClose, 
                             <FormLabel>{t('merchant.orders.estimatedDelivery')}</FormLabel>
                             <Input
                                 type="date"
-                                value={delivery} // 绑定 state
-                                onChange={(e) => setDelivery(e.target.value)} // 更新 state
+                                value={delivery}
+                                onChange={(e) => setDelivery(e.target.value)}
                                 slotProps={{
                                     input: {
                                         min: new Date().toISOString().split('T')[0]
@@ -217,7 +217,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({open, onClose, 
                     </Button>
                     <Button
                         onClick={handleConfirm}
-                        disabled={!selectedAddressId || isLoading || !trackingNumber || !carrier || !delivery /* 确保 delivery 也被填写 */}
+                        disabled={!selectedAddressId || isLoading || !trackingNumber || !carrier || !delivery}
                     >
                         {t('common.confirm')}
                     </Button>
