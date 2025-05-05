@@ -43,7 +43,7 @@ scan({
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
         <ThemeProvider theme={{[MATERIAL_THEME_ID]: materialTheme}}>
-            <CssVarsProvider theme={theme} defaultMode="light">
+            <CssVarsProvider theme={theme} defaultMode="dark">
                 <I18nProvider>
                     <LanguageProvider>
                         <JoyCssVarsProvider>

@@ -1,5 +1,6 @@
 import {PaymentStatus, ShippingStatus} from "@/types/orders";
 import {ProductStatus} from "@/types/products.ts";
+import {DefaultColorPalette} from "@mui/joy/styles/types";
 import {t} from "i18next";
 
 // 获取状态颜色
@@ -12,13 +13,33 @@ export const getStatusColor = (status: PaymentStatus | ProductStatus) => {
         case PaymentStatus.Paid:
             return 'success';
         case PaymentStatus.Failed:
-            return 'danger';
-        case PaymentStatus.Cancelled:
             return 'neutral';
-        default:
+        case PaymentStatus.Cancelled:
             return 'neutral';
     }
 };
+
+// 物流状态映射
+export const getShippingStatusColor = (shippingStatus: string): DefaultColorPalette => {
+    switch (shippingStatus) {
+        case ShippingStatus.ShippingWaitCommand:
+            return 'primary';
+        case ShippingStatus.ShippingPending:
+            return 'primary';
+        case ShippingStatus.ShippingShipped:
+            return 'success';
+        case ShippingStatus.ShippingInTransit:
+            return 'primary';
+        case ShippingStatus.ShippingDelivered:
+            return 'success';
+        case ShippingStatus.ShippingConfirmed:
+            return 'success';
+        case ShippingStatus.ShippingCancelled:
+            return 'primary';
+        default:
+            return 'primary';
+    }
+}
 
 // 获取状态文本
 export const getStatusText = (status: string | PaymentStatus) => {
@@ -40,7 +61,7 @@ export const getStatusText = (status: string | PaymentStatus) => {
 }
 
 // 物流状态映射
-export const shippingStatus = (shippingStatus: string):string => {
+export const shippingStatus = (shippingStatus: string): string => {
     switch (shippingStatus) {
         case ShippingStatus.ShippingWaitCommand:
             return t('merchant.orders.shippingWaitCommand')

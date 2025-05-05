@@ -40,7 +40,7 @@ function AnalyticsDashboard() {
     const [chartsInitialized, setChartsInitialized] = useState(false)
 
     // 使用真实数据
-    const salesData = realSalesData || { daily: [], weekly: [], monthly: [] }
+    const salesData = realSalesData || {daily: [], weekly: [], monthly: []}
 
     // Chart container refs
     const salesChartRef = useRef<HTMLDivElement>(null)
@@ -180,44 +180,37 @@ function AnalyticsDashboard() {
         }
     }, [account.role, navigate, t])
 
-    // 获取真实订单数据
+    // 在组件内添加获取订单数据的方法
     useEffect(() => {
         const fetchOrderData = async () => {
+            if (account?.role !== 'admin') {
+                return;
+            }
+
+            setLoading(true);
             try {
-                setLoading(true);
-                console.log('开始获取所有订单数据...');
-                // 使用GetAllOrders API获取所有订单
                 const response = await orderService.getAllOrders({
                     page: 1,
-                    pageSize: 1000, // 获取足够多的订单数据以供分析
+                    pageSize: 100 // 获取足够多的订单以进行分析
                 });
 
-                console.log('获取到订单数据:', response);
-
-                if (response && response.orders) {
-                    console.log('订单数量:', response.orders.length);
-
-                    // 处理订单数据，按日期分组
+                if (response.orders) {
+                    // 使用新的数据结构处理订单数据
                     const groupedData = groupOrdersByDate(response.orders);
-                    console.log('处理后的订单数据:', groupedData);
                     setRealSalesData(groupedData);
                 } else {
-                    console.warn('未获取到订单数据');
-                    setRealSalesData(null);
+                    showMessage(t('admin.analytics.noOrderData'), 'warning');
                 }
             } catch (error) {
                 console.error('获取订单数据失败:', error);
-                // 获取失败时使用模拟数据
-                setRealSalesData(null);
+                showMessage(t('admin.analytics.fetchDataError'), 'error');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchOrderData().then(() => {
-            console.log('获取订单数据完成');
-        });
-    }, []);
+        fetchOrderData();
+    }, [account, t]);
 
     // 数据加载完成后初始化图表
     useEffect(() => {

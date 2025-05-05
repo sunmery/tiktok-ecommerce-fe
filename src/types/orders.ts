@@ -23,7 +23,6 @@ export enum ShippingStatus {
     ShippingCancelled = "CANCELLED" // 已取消
 }
 
-
 export interface PlaceOrderReq {
     currency: string
     address: MerchantAddress
@@ -49,6 +48,60 @@ export interface ListOrderReq {
 export interface GetAllOrdersReq {
     page: number
     pageSize: number
+}
+
+// 订单项
+export interface OrderItem {
+    item: CartItem
+    cost: number
+}
+
+// 消费者订单项
+export interface ConsumerOrderItem {
+    item: CartItem
+    cost: number
+}
+
+// 子订单项
+export interface SubOrderItem {
+    item: CartItem
+    cost: number
+}
+
+// 子订单
+export interface SubOrder {
+    orderId: number
+    subOrderId: number
+    totalAmount: number
+    consumerId: string
+    address: ConsumerAddress
+    consumerEmail: string
+    currency: string
+    subOrderItems: SubOrderItem[]
+    paymentStatus: PaymentStatus
+    shippingStatus: ShippingStatus
+    createdAt: string
+    updatedAt: string
+}
+
+// 消费者地址
+export interface ConsumerAddress {
+    userId: string
+    streetAddress: string
+    city: string
+    state: string
+    country: string
+    zipCode: string
+}
+
+// 消费者订单列表响应
+export interface ConsumerOrders {
+    orders: ConsumerOrder[]
+}
+
+// 管理员订单列表响应
+export interface AdminOrderReply {
+    orders: SubOrder[]
 }
 
 // 订单列表请求
@@ -153,19 +206,6 @@ export interface MarkOrderPaidResp {
 
 }
 
-// 商家发货请求
-export interface ShipOrderReq {
-    subOrderId: number
-    trackingNumber: string
-    carrier: string
-    shippingAddress: Partial<MerchantAddress>
-    shippingFee: number // 运费
-}
-
-// 商家发货响应
-export interface ShipOrderResp {
-}
-
 export interface ConsumerAddress {
     city: string
     country: string
@@ -214,39 +254,56 @@ export interface updateOrderShippingStatusReq {
     delivery?: string; // 送达日期
 }
 
-// 确认收货请求
-export interface ConfirmReceivedReq {
-    subOrderId: string | number;
-}
-
-// 确认收货响应 (通常为空)
-export interface ConfirmReceivedResp {}
-
-
 // 获取消费者订单请求
 export interface GetConsumerOrdersReq {
-    userId: string;
-    page: number;
-    pageSize: number;
+    userId?: string
+    page: number
+    pageSize: number
 }
 
 // 消费者订单响应
 export interface ConsumerOrders {
-    items: ConsumerOrder[]
-    orderId: number
+    orders: ConsumerOrder[]
+}
+
+// 消费者订单项
+export interface ConsumerOrderItem {
+    item: CartItem
+    cost: number
 }
 
 // 消费者订单
 export interface ConsumerOrder {
-    items: OrderItem[]
-    orderId: string
-    subOrderId?: number
-    userId: string
+    items: ConsumerOrderItem[]
+    orderId: number
+    subOrderId: number
+    userId?: string
     currency: string
-    address: MerchantAddress
+    address: {
+        streetAddress: string
+        city: string
+        state: string
+        country: string
+        zipCode: string
+    }
     email: string
     createdAt: string
     paymentStatus: PaymentStatus
     shippingStatus: ShippingStatus
+    updatedAt: string
 }
 
+// 合并后的订单类型（用于前端显示）
+export interface MergedOrder {
+    orderId: string
+    items: ConsumerOrderItem[]
+    userId: string
+    currency: string
+    address: ConsumerAddress
+    email: string
+    createdAt: string
+    paymentStatus: PaymentStatus
+    shippingStatus: ShippingStatus
+    totalAmount: number
+    subOrders: ConsumerOrder[] // 包含原始子订单
+}

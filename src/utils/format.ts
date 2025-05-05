@@ -8,7 +8,7 @@
  * @param currency 货币代码（如 USD、CNY 等）
  * @returns 格式化后的货币字符串
  */
-export const formatCurrency = (amount: number, currency: string): string => {
+export const formatCurrency = (amount: number, currency: string = 'CNY'): string => {
     return new Intl.NumberFormat('zh-CN', {
         style: 'currency',
         currency: currency || 'CNY',

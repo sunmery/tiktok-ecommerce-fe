@@ -1,4 +1,4 @@
-import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
+import {createLazyFileRoute} from '@tanstack/react-router'
 import {
     Alert,
     Box,
@@ -16,48 +16,27 @@ import {
     Typography
 } from '@mui/joy'
 import {useQuery} from '@tanstack/react-query'
-import { useEffect, useState} from 'react'
+import {useEffect, useState} from 'react'
 import {useSnapshot} from 'valtio/react'
 import {userStore} from '@/store/user.ts'
 import {orderService} from '@/api/orderService'
 import OrderList from '@/shared/components/OrderList.lazy'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
-import {Order} from "@/types/orders.ts"
-import {Clear, FilterList, Search, Refresh} from '@mui/icons-material'
+import {GetConsumerOrdersReq, MergedOrder, PaymentStatus, ShippingStatus} from "@/types/orders.ts"
+import {Clear, FilterList, Refresh, Search} from '@mui/icons-material'
 import {useTranslation} from 'react-i18next'
 import PaginationBar from "@/components/PaginationBar";
-import { usePagination } from '@/hooks/usePagination'
+import {usePagination} from '@/hooks/usePagination'
 
 export const Route = createLazyFileRoute('/consumer/orders/')({
     component: ConsumerOrders,
 })
 
-// 支付状态枚举
-const PAYMENT_STATUS = {
-    NOT_PAID: 0,
-    PROCESSING: 1,
-    PAID: 2,
-    FAILED: 3,
-    CANCELLED: 4
-}
-
-// 订单查询参数类型
-interface OrderQueryParams {
-    userId: string
-    page: number
-    pageSize: number
-    startDate?: string
-    endDate?: string
-    status?: number
-    orderBy?: string
-}
-
 function ConsumerOrders() {
     const {t} = useTranslation()
     const {account} = useSnapshot(userStore)
-    const navigate = useNavigate()
     const [isFiltering, setIsFiltering] = useState(false)
-    const [displayedOrders, setDisplayedOrders] = useState<Order[]>([])
+    const [displayedOrders, setDisplayedOrders] = useState<MergedOrder[]>([])
     const [count, setCount] = useState<number>(0)
 
     // 使用分页钩子
@@ -66,7 +45,7 @@ function ConsumerOrders() {
     });
 
     // 查询条件
-    const [queryParams, setQueryParams] = useState<OrderQueryParams>({
+    const [queryParams, setQueryParams] = useState<GetConsumerOrdersReq>({
         userId: account.id,
         page: pagination.page,
         pageSize: pagination.pageSize
@@ -77,83 +56,30 @@ function ConsumerOrders() {
     const [endDate, setEndDate] = useState<string>('')
     const [status, setStatus] = useState<string>('')
 
+    // 使用React Query获取订单数据
     const {
-        data: orders,
+        data,
         isLoading,
         error,
         refetch,
         isFetching
-    } = useQuery<Order[], Error>({
-        queryKey: ['orders', queryParams],
-        queryFn: () => fetchOrders(queryParams),
-        staleTime: 5 * 60 * 1000,
-        enabled: !!account.id
+    } = useQuery({
+        queryKey: ['consumerOrders', queryParams],
+        queryFn: () => orderService.getConsumerOrders(queryParams),
+        staleTime: 5 * 60 * 1000, // 5分钟内数据不会被标记为过时
     })
 
-    // 未登录重定向到登录页
+    // 当数据加载完成后，合并订单并更新显示的订单列表
     useEffect(() => {
-        if (!account) {
-            navigate({
-                to: '/login',
-            }).then(() => {
-                console.log(t('consumer.orders.redirectToLogin'))
-            }).catch(e => {
-                console.error(t('consumer.orders.redirectError'), e)
-            })
+        if (data && data.orders) {
+            // 合并相同orderId的订单
+            const mergedOrders = orderService.mergeConsumerOrders(data.orders);
+            setDisplayedOrders(mergedOrders);
+            setCount(mergedOrders.length);
         }
-    }, [account, navigate])
+    }, [data])
 
-    // 获取订单列表
-    const fetchOrders = async (params: OrderQueryParams) => {
-        try {
-            console.log(t('consumer.orders.queryParams'), params)
-            const response = await orderService.getConsumerOrder(params)
-
-            // 适配新接口：将所有 items 按 orderId 分组为主订单
-            if (response && response.items) {
-                // 分组：orderId -> [subOrder, subOrder, ...]
-                const grouped = response.items.reduce((acc, item) => {
-                    const orderId = item.orderId;
-                    if (!acc[orderId]) {
-                        acc[orderId] = [];
-                    }
-                    acc[orderId].push(item);
-                    return acc;
-                }, {} as Record<string, any[]>);
-
-                // 生成主订单列表，每个主订单下包含所有子订单
-                const mainOrders = Object.entries(grouped).map(([orderId, subOrders]) => {
-                    // 以第一个子订单为主，合并所有 items
-                    const first = subOrders[0];
-                    return {
-                        ...first,
-                        orderId,
-                        items: subOrders.flatMap(sub => sub.items), // 合并所有子订单的商品
-                        subOrders, // 保留原始子订单列表
-                    };
-                });
-
-                // 更新分页信息
-                pagination.setTotalItems(mainOrders.length);
-                return mainOrders;
-            }
-
-            return [];
-        } catch (error) {
-            console.error('获取订单失败:', error)
-            return []
-        }
-    }
-
-    // 当获取到订单数据时，更新显示的订单
-    useEffect(() => {
-        if (orders) {
-            setDisplayedOrders(orders) // 更新显示的订单列表
-            setCount(orders.length) // 更新总条目数
-        }
-    }, [orders])
-
-    // 监听分页变化
+    // 当分页参数变化时，更新查询参数
     useEffect(() => {
         setQueryParams(prev => ({
             ...prev,
@@ -162,31 +88,20 @@ function ConsumerOrders() {
         }))
     }, [pagination.page, pagination.pageSize])
 
-    // 处理查询条件变化
-    const handleSearch = () => {
-        // 构造查询参数
-        const newParams: OrderQueryParams = {
-            userId: account.id,
-            page: 1,  // 重置为第一页
-            pageSize: pagination.pageSize
-        }
-
-        if (startDate) newParams.startDate = startDate
-        if (endDate) newParams.endDate = endDate
-        if (status) newParams.status = parseInt(status, 10)
-
-        // 更新查询参数并触发查询
-        // setCurrentPage(1)
-        setQueryParams(newParams)
-        refetch().then(() => {
-            console.log('查询条件更新成功')
-        }).catch(e => {
-            console.error('查询条件更新失败', e)
-        })
+    // 应用过滤条件
+    const applyFilters = () => {
+        setQueryParams(prev => ({
+            ...prev,
+            startDate,
+            endDate,
+            status,
+            page: 1 // 重置到第一页
+        }))
+        pagination.setPage(1)
     }
 
-    // 清除查询条件
-    const handleClearFilters = () => {
+    // 清除过滤条件
+    const clearFilters = () => {
         setStartDate('')
         setEndDate('')
         setStatus('')
@@ -195,29 +110,46 @@ function ConsumerOrders() {
             page: 1,
             pageSize: pagination.pageSize
         })
-        setIsFiltering(false)
+        pagination.setPage(1)
+    }
+
+    // 切换过滤面板
+    const toggleFiltering = () => {
+        setIsFiltering(!isFiltering)
+    }
+
+    // 刷新订单列表
+    const handleRefresh = () => {
         refetch().then(() => {
-            console.log('查询条件已清除')
-        }).catch(e => {
-            console.error('清除查询条件失败', e)
+            console.log('订单列表已刷新')
         })
     }
 
-    // 渲染过滤器部分
-    const renderFilters = () => {
-        return (
-            <Card variant="outlined" sx={{mb: 3, p: 2}}>
-                <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 2}}>
-                    <Typography level="title-lg">{t('consumer.orders.filter')}</Typography>
-                    <IconButton onClick={() => setIsFiltering(!isFiltering)}>
+    return (
+        <Box sx={{p: 2}}>
+            <Breadcrumbs
+                pathMap={{
+                    orders: t('consumer.orders.title'),
+                }}
+            />
+
+            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2}}>
+                <Typography level="h2">{t('consumer.orders.title')}</Typography>
+                <Stack direction="row" spacing={1}>
+                    <IconButton onClick={toggleFiltering} variant="outlined">
                         <FilterList/>
                     </IconButton>
-                </Box>
+                    <IconButton onClick={handleRefresh} variant="outlined" disabled={isFetching}>
+                        <Refresh/>
+                    </IconButton>
+                </Stack>
+            </Box>
 
-                {isFiltering && (
-                    <Stack spacing={2}>
-                        <Box sx={{display: 'flex', gap: 2, flexWrap: 'wrap'}}>
-                            <FormControl sx={{minWidth: 150}}>
+            {isFiltering && (
+                <Card sx={{mb: 3}}>
+                    <CardContent>
+                        <Stack direction={{xs: 'column', sm: 'row'}} spacing={2} sx={{mb: 2}}>
+                            <FormControl sx={{flex: 1}}>
                                 <FormLabel>{t('consumer.orders.filter.startDate')}</FormLabel>
                                 <Input
                                     type="date"
@@ -225,8 +157,7 @@ function ConsumerOrders() {
                                     onChange={(e) => setStartDate(e.target.value)}
                                 />
                             </FormControl>
-
-                            <FormControl sx={{minWidth: 150}}>
+                            <FormControl sx={{flex: 1}}>
                                 <FormLabel>{t('consumer.orders.filter.endDate')}</FormLabel>
                                 <Input
                                     type="date"
@@ -234,119 +165,71 @@ function ConsumerOrders() {
                                     onChange={(e) => setEndDate(e.target.value)}
                                 />
                             </FormControl>
-
-                            <FormControl sx={{minWidth: 150}}>
-                                <FormLabel>{t('consumer.orders.filter.paymentStatus')}</FormLabel>
+                            <FormControl sx={{flex: 1}}>
+                                <FormLabel>{t('consumer.orders.filter.status')}</FormLabel>
                                 <Select
                                     value={status}
                                     onChange={(_, value) => setStatus(value as string)}
-                                    placeholder={t('consumer.orders.filter.selectStatus')}
+                                    placeholder={t('consumer.orders.filter.allStatuses')}
                                 >
-                                    <Option value="">{t('consumer.orders.filter.all')}</Option>
+                                    <Option value="">{t('consumer.orders.filter.allStatuses')}</Option>
+                                    <Option value={PaymentStatus.NotPaid}>{t('status.notPaid')}</Option>
+                                    <Option value={PaymentStatus.Processing}>{t('status.processing')}</Option>
+                                    <Option value={PaymentStatus.Paid}>{t('status.paid')}</Option>
                                     <Option
-                                        value={String(PAYMENT_STATUS.NOT_PAID)}>{t('consumer.orders.status.notPaid')}</Option>
-                                   <Option
-                                        value={String(PAYMENT_STATUS.PAID)}>{t('consumer.orders.status.paid')}</Option>
-                                    <Option
-                                        value={String(PAYMENT_STATUS.FAILED)}>{t('consumer.orders.status.failed')}</Option>
-                                    <Option
-                                        value={String(PAYMENT_STATUS.CANCELLED)}>{t('consumer.orders.status.cancelled')}</Option>
+                                        value={ShippingStatus.ShippingPending}>{t('status.pendingShipment')}</Option>
+                                    <Option value={ShippingStatus.ShippingShipped}>{t('status.shipped')}</Option>
+                                    <Option value={ShippingStatus.ShippingDelivered}>{t('status.delivered')}</Option>
                                 </Select>
                             </FormControl>
-                        </Box>
-
-                        <Box sx={{display: 'flex', gap: 2}}>
+                        </Stack>
+                        <Stack direction="row" spacing={1} justifyContent="flex-end">
                             <Button
-                                startDecorator={<Search/>}
-                                onClick={handleSearch}
-                            >
-                                {t('consumer.orders.filter.search')}
-                            </Button>
-                            <Button
-                                variant="soft"
+                                variant="outlined"
                                 color="neutral"
                                 startDecorator={<Clear/>}
-                                onClick={handleClearFilters}
+                                onClick={clearFilters}
                             >
                                 {t('consumer.orders.filter.clear')}
                             </Button>
-                        </Box>
-                    </Stack>
-                )}
-            </Card>
-        )
-    }
+                            <Button
+                                variant="solid"
+                                color="primary"
+                                startDecorator={<Search/>}
+                                onClick={applyFilters}
+                            >
+                                {t('consumer.orders.filter.apply')}
+                            </Button>
+                        </Stack>
+                    </CardContent>
+                </Card>
+            )}
 
-    return (
-        <Box sx={{p: 2, maxWidth: '100%', margin: '0 auto'}}>
-            {/* 面包屑导航 */}
-            <Breadcrumbs
-                pathMap={{
-                    'consumer': t('consumer.dashboard.title'),
-                    'orders': t('consumer.orders.title')
-                }}
-            />
-
-            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
-                <Typography level="h2">{t('consumer.orders.title')}</Typography>
-                <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
-                    <IconButton 
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => refetch()}
-                        disabled={isFetching}
-                        sx={{
-                            animation: isFetching ? 'spin 1s linear infinite' : 'none',
-                            '@keyframes spin': {
-                                '0%': {
-                                    transform: 'rotate(0deg)',
-                                },
-                                '100%': {
-                                    transform: 'rotate(360deg)',
-                                },
-                            },
-                        }}
-                    >
-                        <Refresh />
-                    </IconButton>
-                    <Typography level="body-sm">
-                        {t('consumer.orders.totalCount', {count: count })}
-                    </Typography>
-                </Box>
-            </Box>
-
-            {/* 过滤器 */}
-            {renderFilters()}
-
-            {/* 分页控制 */}
-            <PaginationBar
-                page={pagination.page}
-                pageSize={pagination.pageSize}
-                totalItems={orders?.length??0}
-                totalPages={pagination.totalPages}
-                onPageChange={pagination.handlePageChange}
-                onPageSizeChange={pagination.handlePageSizeChange}
-                showPageSizeSelector
-                showTotalItems
-            />
-
-            {/* 订单列表 */}
             {isLoading ? (
                 <Box sx={{display: 'flex', justifyContent: 'center', p: 4}}>
                     <CircularProgress/>
                 </Box>
             ) : error ? (
-                <Alert color="danger" sx={{mb: 2}}>{error.message}</Alert>
-            ) : !displayedOrders || displayedOrders.length === 0 ? (
-                <Card variant="outlined">
-                    <CardContent>
-                        <Typography level="body-lg" textAlign="center">
-                            {t('consumer.orders.noOrders')}
-                        </Typography>
-                    </CardContent>
-                </Card>
+                <Alert color="danger" sx={{mb: 2}}>
+                    {t('consumer.orders.error')}
+                </Alert>
+            ) : displayedOrders.length === 0 ? (
+                <Alert color="neutral" sx={{mb: 2}}>
+                    {t('consumer.orders.empty')}
+                </Alert>
             ) : (
-                <OrderList orders={displayedOrders}/>
+                <>
+                    <OrderList orders={displayedOrders}/>
+                    <Box sx={{mt: 2, display: 'flex', justifyContent: 'center'}}>
+                        <PaginationBar
+                            page={pagination.page}
+                            pageSize={pagination.pageSize}
+                            totalCount={count}
+                            onPageChange={pagination.setPage}
+                            onPageSizeChange={pagination.setPageSize}
+                        />
+                    </Box>
+                </>
             )}
         </Box>
     )

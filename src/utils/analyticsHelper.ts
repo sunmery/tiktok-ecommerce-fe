@@ -3,11 +3,10 @@
  * 用于处理订单数据，生成分析图表所需的数据结构
  */
 
-import {Order} from '@/types/orders';
+import { SubOrder } from '@/types/orders';
 
 // 分组后的销售数据类型
 export interface GroupedSalesData {
-
     daily: { date: string, sales: number, orders: number }[];
     weekly: { date: string, sales: number, orders: number }[];
     monthly: { date: string, sales: number, orders: number }[];
@@ -18,7 +17,7 @@ export interface GroupedSalesData {
  * @param orders 订单列表
  * @returns 按日、周、月分组的销售数据
  */
-export function groupOrdersByDate(orders: Order[]): GroupedSalesData {
+export function groupOrdersByDate(orders: SubOrder[]): GroupedSalesData {
     // 初始化结果对象
     const result: GroupedSalesData = {
         daily: [],
@@ -41,8 +40,8 @@ export function groupOrdersByDate(orders: Order[]): GroupedSalesData {
         // 解析订单创建时间
         const orderDate = new Date(order.createdAt);
 
-        // 计算订单总金额 - 使用cost而不是price
-        const orderTotal = order.items.reduce((sum, item) => sum + item.cost, 0);
+        // 使用订单总金额
+        const orderTotal = order.totalAmount;
 
         // 格式化日期字符串
         const dayStr = orderDate.toISOString().split('T')[0]; // YYYY-MM-DD

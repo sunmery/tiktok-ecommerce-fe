@@ -1,6 +1,10 @@
 import React, {createContext, useContext, useEffect, useState} from 'react';
 import {Stack} from '@mui/joy';
 import {Alert, AlertColor, Fade, Slide, SlideProps, Snackbar} from '@mui/material';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 // 定义消息类型
 interface AlertMessage {
@@ -26,6 +30,21 @@ export const useAlert = () => useContext(AlertContext);
 function SlideTransition(props: SlideProps) {
     return <Slide {...props} direction="down"/>;
 }
+
+// 获取对应状态的图标
+const getAlertIcon = (type: AlertColor) => {
+    switch (type) {
+        case 'success':
+            return <CheckCircleOutlineIcon />;
+        case 'error':
+            return <ErrorOutlineIcon />;
+        case 'warning':
+            return <WarningAmberIcon />;
+        case 'info':
+        default:
+            return <InfoOutlinedIcon />;
+    }
+};
 
 // AlertProvider组件
 export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
@@ -129,8 +148,6 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({children
     return (
         <AlertContext.Provider value={{showAlert}}>
             {children}
-            
-            {/* 消息堆叠容器 */}
             <Stack
                 spacing={1}
                 sx={{
@@ -145,7 +162,6 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({children
                     overflow: 'hidden'
                 }}
             >
-                {/* 按添加顺序显示消息 */}
                 {alerts.map((alert) => (
                     <Fade 
                         key={alert.id}
@@ -166,21 +182,25 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({children
                                 transition: 'opacity 400ms ease-in-out',
                                 '&.MuiSnackbar-root': {
                                     position: 'relative',
-                                    bottom: 'auto !important' // 强制覆盖响应式样式
+                                    bottom: 'auto !important'
                                 }
                             }}
                         >
                             <Alert
                                 variant="standard"
                                 color={alert.type}
+                                icon={getAlertIcon(alert.type)}
                                 onClose={() => handleAlertRemoval(alert.id)}
                                 sx={{
                                     width: '100%',
                                     boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                                    '& .MuiAlert-action': {  // 修复删除按钮的margin问题
+                                    '& .MuiAlert-action': {
                                         '& .MuiButtonBase-root': {
                                             marginRight: '25px'
                                         }
+                                    },
+                                    '& .MuiAlert-icon': {
+                                        fontSize: '24px'
                                     }
                                 }}
                             >

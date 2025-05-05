@@ -33,7 +33,7 @@ function AdminDashboard() {
         if (account.role !== 'admin') {
           showMessage(t('error.adminAccessOnly'), 'error')
           navigate({to: '/'}).then(() => {
-            showMessage(t('error.adminAccessOnly'), 'info')
+            console.log(t('admin.log.enteredHome'))
           })
         }
       } else {

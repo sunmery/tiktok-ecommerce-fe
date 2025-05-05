@@ -67,6 +67,19 @@ function ConsumerOrderDetail() {
                         setOrder(mergedOrder)
                     } else {
                         setError('未找到订单信息')
+                        // 改为：
+                        setError(t('consumer.order.notFound'))
+                        
+                        // 以及
+                        setError('获取订单信息失败')
+                        // 改为：
+                        setError(t('consumer.order.fetchFailed'))
+                        
+                        console.error('获取订单详情失败:', err)
+                        setError('获取订单详情失败，请稍后重试')
+                        // 改为：
+                        console.error(t('consumer.order.error.fetchDetailFailed'), err)
+                        setError(t('consumer.order.error.fetchDetailRetry'))
                     }
                 } else {
                     setError('获取订单信息失败')
