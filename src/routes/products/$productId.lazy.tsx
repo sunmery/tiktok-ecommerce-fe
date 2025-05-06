@@ -64,7 +64,7 @@ export default function ProductDetail() {
             
             try {
                 setCheckingOrders(true)
-                const response = await orderService.getConsumerOrder({
+                const response = await orderService.getConsumerOrders({
                     page: 1,
                     pageSize: 50
                 })
@@ -82,7 +82,7 @@ export default function ProductDetail() {
                         
                         return isPaid && hasProduct
                     })
-                    
+                    console.log("hasPaidOrder",hasPaidOrder)
                     setCanComment(hasPaidOrder)
                 }
             } catch (error) {

@@ -29,6 +29,7 @@ interface ImportMetaEnv {
     readonly VITE_USERS_URL: string
     readonly VITE_AUTH_URL: string
     readonly VITE_CASDOOR_URL: string
+    readonly VITE_COMMENT_URL: string
     readonly VITE_CHECKOUT_URL: string
     readonly VITE_CREDIT_CARDS_URL: string
     readonly VITE_ORDERS_URL: string
@@ -38,6 +39,7 @@ interface ImportMetaEnv {
     readonly VITE_MERCHANTS_URL: string
     readonly VITE_BALANCER_URL: string
     readonly VITE_CONSUMERS_URL: string
+    readonly VITE_ADMIN_URL: string
 }
 
 interface ImportMeta {

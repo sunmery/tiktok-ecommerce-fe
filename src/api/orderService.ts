@@ -30,7 +30,7 @@ export const orderService = {
      */
     getSubOrderShipping: (subOrderId: string | number) => {
         const url = httpClient.replacePathParams(
-            `${import.meta.env.VITE_ORDERS_URL}/{subOrderId}/ship/status`,
+            `${import.meta.env.VITE_CONSUMERS_URL}/orders/{subOrderId}/ship/status`,
             {subOrderId}
         );
         return httpClient.get<GetSubOrderShippingReply>(url, {
@@ -62,11 +62,11 @@ export const orderService = {
 
     /**
      * 获取订单详情
-     * @param orderId 订单ID
+     * @param subOrderId 子订单ID
      */
-    getOrderDetail: (orderId: string) => {
-        const url = httpClient.replacePathParams('/v1/orders/{orderId}', {
-            orderId
+    getOrderDetail: (subOrderId: string) => {
+        const url = httpClient.replacePathParams(`${import.meta.env.VITE_CONSUMERS_URL}/orders/{subOrderId}`, {
+            subOrderId
         })
 
         return httpClient.get<Order>(url, {
@@ -85,12 +85,8 @@ export const orderService = {
             `${import.meta.env.VITE_CONSUMERS_URL}/orders`,
             {
                 params: {
-                    userId: request.userId,
                     page: request.page,
                     pageSize: request.pageSize,
-                    startDate: request.startDate,
-                    endDate: request.endDate,
-                    status: request.status
                 },
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`

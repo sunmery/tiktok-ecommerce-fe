@@ -106,6 +106,8 @@ function ConsumerOrderDetail() {
     // 计算订单总金额
     const calculateTotal = (order: ConsumerOrder) => {
         return order.items.reduce((total, item) => {
+            console.log("计算商品cost", item.cost)
+            console.log("计算商品总价total", total + (item.cost || 0))
             return total + (item.cost || 0)
         }, 0)
     }

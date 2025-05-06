@@ -9,6 +9,7 @@ import {productService} from "@/api/productService";
 import {useTranslation} from 'react-i18next';
 import Typography from "@mui/joy/Typography";
 import {ProductRow, ProductRows} from '@/types/products';
+import { showMessage } from '@/utils/showMessage';
 
 // 类型定义
 type CellValue = string | number | boolean | Date;
@@ -26,16 +27,16 @@ const FIELD_MAPPINGS: Record<string, FieldMapping> = {
         '分类.ID': 'category.categoryId',
         '分类.名称': 'category.categoryName',
         '库存数量': 'stock',
-        '图片.链接': 'images'
+        '图片.链接': 'images'  // 修改此处路径映射
     },
     'en': {
         'Product Name': 'name',
         'Price': 'price',
         'Description': 'description',
-        'Category.ID': 'category.categoryId',
+        'Category.ID': 'category.categoryId', 
         'Category.Name': 'category.categoryName',
         'Stock': 'stock',
-        'Image.urls': 'images'
+        'Image URL': 'images'  // 同步修改英文映射
     }
 };
 
@@ -54,7 +55,7 @@ export default function Table() {
 
     // 模拟的Excel数据
     const sampleExcelData: (string | number)[][] = [
-        ['姓名', '年龄', '城市', '职业'],
+        ['商品名称', '商品描述', '商品价格', '职业'],
         ['张三', 28, '北京', '工程师'],
         ['李四', 32, '上海', '设计师'],
         ['王五', 25, '广州', '产品经理'],
@@ -114,12 +115,24 @@ export default function Table() {
 
                     // 处理图片字段
                     if (path === 'images') {
-                        // 将逗号分隔的URL字符串转换为对象数组结构
-                        product.images = String(rawValue).split(',').map((url, index) => ({
-                            url: url.trim(),
-                            isPrimary: index === 0,  // 第一张图片设为主图
-                            sortOrder: index       // 按顺序设置排序值
-                        })).filter(img => img.url.length > 0);
+                        // 确保rawValue不为空且有效
+                        if (rawValue && String(rawValue).trim()) {
+                            // 处理可能包含方括号和反引号的URL字符串
+                            let urlStr = String(rawValue).trim();
+                            // 移除可能存在的方括号和反引号
+                            urlStr = urlStr.replace(/^\s*\[\s*/, '').replace(/\s*\]\s*$/, '');
+                            urlStr = urlStr.replace(/`/g, '');
+                            
+                            // 将逗号分隔的URL字符串转换为对象数组结构
+                            product.images = urlStr.split(',').map((url, index) => ({
+                                url: url.trim(),
+                                isPrimary: index === 0,  // 第一张图片设为主图
+                                sortOrder: index       // 按顺序设置排序值
+                            })).filter(img => img.url.length > 0);
+                        } else {
+                            // 保证 images 字段始终为数组，即使没有图片
+                            product.images = [];
+                        }
                         return;
                     }
                     // 跳过未知列
@@ -197,7 +210,12 @@ export default function Table() {
 
         // 处理图片字段
         if (path === 'images') {
-            return String(value)
+            // 处理可能包含方括号的URL字符串
+            let urlStr = String(value).trim();
+            // 移除可能存在的方括号
+            urlStr = urlStr.replace(/^\s*\[\s*/, '').replace(/\s*\]\s*$/, '');
+            
+            return urlStr
                 .split(',')
                 .map((url, index) => ({
                     url: url.trim(),
@@ -493,18 +511,45 @@ export default function Table() {
                     startDecorator={<Upload/>}
                     onClick={() => {
                         if (uploadedData.products.length === 0) {
-                            alert(t('products.noDataWarning'));
+                            showMessage(t('products.noDataWarning'), 'warning');
                             return;
                         }
 
                         productService.createProductBatch({products: uploadedData.products})
                             .then((res) => {
                                 console.log('上传成功', res);
+                                // 根据返回值显示友好的提示
+                                if (res.successCount > 0) {
+                                    showMessage(
+                                        t('products.uploadSuccess', {
+                                            successCount: res.successCount,
+                                            totalCount: res.successCount + res.failedCount
+                                        }),
+                                        'success'
+                                    );
+                                }
+                                
+                                if (res.failedCount > 0) {
+                                    showMessage(
+                                        t('products.uploadPartialFailed', {
+                                            failedCount: res.failedCount,
+                                            totalCount: res.successCount + res.failedCount
+                                        }),
+                                        'warning'
+                                    );
+                                }
+                                
+                                if (res.errors && res.errors.length > 0) {
+                                    res.errors.forEach(error => {
+                                        showMessage(error, 'error');
+                                    });
+                                }
+                                
                                 handleClearFile();
                             })
                             .catch((err) => {
                                 console.error('上传失败', err);
-                                alert(t('products.uploadFailed'));
+                                showMessage(t('products.uploadFailed'), 'error');
                             });
                     }}
                 >

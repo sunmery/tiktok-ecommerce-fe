@@ -140,6 +140,23 @@ function AdminDashboard() {
               cardSx={{mt: 3}}
             />
           </Grid>
+          {/* 敏感词管理卡片 */}
+          <Grid xs={12} md={6}>
+            <DashboardCard
+              title={t('admin.sensitiveWords.title')}
+              items={[
+                t('admin.sensitiveWords.management'),
+                t('admin.sensitiveWords.configuration'),
+                t('admin.sensitiveWords.monitoring')
+              ]}
+              buttonText={t('admin.sensitiveWords.enter')}
+              icon={<ShoppingCartIcon/>}
+              onClick={() => navigate({to: '/admin/sensitiveWords'}).then(() => {
+                console.log(t('admin.log.enteredSensitiveWords'))
+              })}
+              cardSx={{mt: 3}}
+            />
+          </Grid>
         </Grid>
       )}
     </Box>

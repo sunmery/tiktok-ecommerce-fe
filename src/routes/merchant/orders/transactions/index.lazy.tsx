@@ -90,6 +90,7 @@ function TransactionsComponent() {
                 page: pagination.page,
                 pageSize: pagination.pageSize,
                 paymentStatus: statusFilter,
+                userType: 'MERCHANT'
             };
 
             const response = await balancerService.getTransactions(params);

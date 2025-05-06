@@ -251,11 +251,16 @@ function Products() {
                                         }
                                     }}
                                 >
-                                    <img
-                                        src={product.images[0].url}
-                                        loading="lazy"
-                                        alt={product.name}
-                                    />
+                                    {/* TODO */}
+                                    {
+                                        product.images.length >0 ?
+                                            <img
+                                                src={product.images[0].url}
+                                                loading="lazy"
+                                                alt={product.name}
+                                            />
+                                            : <></>
+                                    }
                                 </AspectRatio>
                             </CardOverflow>
 

@@ -93,9 +93,39 @@ export interface PerformanceReportResponse {
     }>;
 }
 
-/**
- * 管理员服务API
- */
+// 敏感词接口参数
+export interface SensitiveWord {
+  id?: number;
+  createdBy: string;
+  category: string;
+  word: string;
+  level: number;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// 获取敏感词请求参数
+export interface GetSensitiveWordsRequest {
+  page: number;
+  pageSize: number;
+}
+
+// 获取敏感词响应
+export interface GetSensitiveWordsResponse {
+  words: SensitiveWord[];
+}
+
+// 设置敏感词请求参数
+export interface SetSensitiveWordsRequest {
+  sensitiveWords: SensitiveWord[];
+}
+
+// 设置敏感词响应
+export interface SetSensitiveWordsResponse {
+  rows: number;
+}
+
 export const adminService = {
     /**
      * 获取平台销售数据
@@ -132,6 +162,34 @@ export const adminService = {
     getPerformanceReport: (request: PerformanceReportRequest) => {
         return fetchApi<PerformanceReportResponse>(`${BASE_URL}/v1/admin/performance`, {
             method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(request),
+        });
+    },
+
+    /**
+     * 获取敏感词列表
+     * GET /v1/admin/comments/sensitive-words
+     */
+    getSensitiveWords: (request: GetSensitiveWordsRequest) => {
+        return fetchApi<GetSensitiveWordsResponse>(`${BASE_URL}/v1/admin/comments/sensitive-words`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            params: request,
+        });
+    },
+
+    /**
+     * 设置敏感词
+     * PUT /v1/admin/comments/sensitive-words
+     */
+    setSensitiveWords: (request: SetSensitiveWordsRequest) => {
+        return fetchApi<SetSensitiveWordsResponse>(`${BASE_URL}/v1/admin/comments/sensitive-words`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },

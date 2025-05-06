@@ -47,6 +47,8 @@ export const getStatusText = (status: string | PaymentStatus) => {
     switch (status) {
         case 'NOT_PAID':
             return t('orders.status.notPaid')
+        case 'PENDING':
+            return t('orders.status.pending')
         case 'PROCESSING':
             return t('orders.status.processing')
         case 'PAID':
@@ -78,7 +80,7 @@ export const shippingStatus = (shippingStatus: string): string => {
         case ShippingStatus.ShippingCancelled:
             return t('merchant.orders.shippingCancelled')
         default:
-            return t('merchant.orders.shippingPending')
+            return t('merchant.orders.unknown')
     }
 }
 

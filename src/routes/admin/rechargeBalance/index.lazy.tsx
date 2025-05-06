@@ -54,7 +54,7 @@ function RechargeBalance() {
     const [userId, setUserId] = useState('')
     const [amount, setAmount] = useState<number>(0)
     const [currency, setCurrency] = useState('CNY')
-    const [paymentMethod, setPaymentMethod] = useState('CREDIT_CARD') // Note: This might be less relevant for initialization
+    const [paymentMethod, setPaymentMethod] = useState('BALANCER') // Note: This might be less relevant for initialization
     const [paymentAccount, setPaymentAccount] = useState('') // Note: This might be less relevant for initialization
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
@@ -140,7 +140,7 @@ function RechargeBalance() {
         mutationFn: async (initData: {
             userId: string;
             currency: string;
-            balancerType: string; // Payment Method acts as balancerType here
+            balanceType: string; // Payment Method acts as balanceType here
             accountDetails: Record<string, any>;
         }) => {
             if (userType === 'consumer') {
@@ -148,7 +148,7 @@ function RechargeBalance() {
                     userId: initData.userId,
                     currency: initData.currency,
                     initialBalance: INITIAL_BALANCE,
-                    balancerType: initData.balancerType,
+                    balanceType: initData.balanceType,
                     isDefault: true, // Assuming default for initialization
                     accountDetails: initData.accountDetails,
                 };
@@ -158,7 +158,7 @@ function RechargeBalance() {
                     merchantId: initData.userId, // Use userId as merchantId here
                     currency: initData.currency,
                     initialBalance: INITIAL_BALANCE,
-                    balancerType: initData.balancerType,
+                    balanceType: initData.balanceType,
                     isDefault: true, // Assuming default for initialization
                     accountDetails: initData.accountDetails,
                 };
@@ -257,7 +257,7 @@ function RechargeBalance() {
             const initRequest = {
                 userId,
                 currency,
-                balancerType: paymentMethod,
+                balanceType: paymentMethod,
                 accountDetails: {
                     account: paymentAccount,
                 }
@@ -422,7 +422,7 @@ function RechargeBalance() {
                                         value={paymentMethod}
                                         onChange={(_, value) => value && setPaymentMethod(value)}
                                     >
-                                        {/* Adjust options based on what balancerType expects */}
+                                        {/* Adjust options based on what balanceType expects */}
                                         <Option value="ALIPAY">支付宝</Option>
                                         <Option value="WECHAT">微信支付</Option>
                                         <Option value="BANK_CARD">银行卡</Option>

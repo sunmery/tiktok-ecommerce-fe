@@ -210,7 +210,7 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
         if (!selectedFile) return null;
 
         try {
-            const response = await fetch(`https://gw.localhost/v1/products/uploadfile`, {
+            const response = await fetch(`https://apikv.com/v1/products/uploadfile`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -347,6 +347,29 @@ export const ProductEditForm: React.FC<ProductEditFormProps> = ({
 
                                 <Box sx={{flexGrow: 1}}>
                                     <Box sx={{display: 'flex', flexDirection: 'column', gap: 1, mb: 2}}>
+                                        <FormControl>
+                                            <FormLabel>{t('products.imageUrl')}</FormLabel>
+                                            <Input
+                                                placeholder={t('products.enterImageUrl')}
+                                                value={imagePreview}
+                                                onChange={(e) => {
+                                                    setImagePreview(e.target.value);
+                                                    setFormData(prev => ({
+                                                        ...prev,
+                                                        picture: e.target.value,
+                                                        images: [{
+                                                            url: e.target.value,
+                                                            isPrimary: true,
+                                                            sortOrder: 0
+                                                        }]
+                                                    }));
+                                                }}
+                                                sx={{ mb: 2 }}
+                                            />
+                                        </FormControl>
+                                        <Typography level="body-sm" sx={{ mb: 1 }}>
+                                            {t('products.or')}
+                                        </Typography>
                                         <Button
                                             component="label"
                                             role={undefined}

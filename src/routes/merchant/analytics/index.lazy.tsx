@@ -2,7 +2,7 @@ import {createLazyFileRoute} from '@tanstack/react-router'
 import {useEffect, useRef, useState} from 'react'
 import {Box, Button, Card, CardContent, CircularProgress, Grid, Typography} from '@mui/joy'
 import * as echarts from 'echarts'
-import {Order} from '@/types/orders'
+import {MerchantOrder} from '@/types/orders'
 import {orderService} from '@/api/orderService'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {formatCurrency} from '@/utils/format'
@@ -63,12 +63,11 @@ export default function Analytics() {
     })
     const {t} = useTranslation()
 
-    // 使用 React Query 替换原有的数据加载逻辑
+    // 使用 React Query 获取数据
     const {data, isLoading, error, refetch} = useQuery({
         queryKey: ['analytics'],
         queryFn: async () => {
-            const response = await orderService.getOrder({
-                userId: '',
+            const response = await orderService.getMerchantOrders({
                 page: 1,
                 pageSize: 100
             })
@@ -79,11 +78,26 @@ export default function Analytics() {
         }
     })
 
+    // 当数据加载完成后处理数据
+    useEffect(() => {
+        if (!isLoading && data) {
+            processOrdersData(data)
+            setLoading(false)
+        }
+    }, [isLoading, data])
+
     // 处理数据加载错误
     useEffect(() => {
         if (error) {
-            const errorMessage = error instanceof Error ? error.message : t('analytics.load_sales_data_failed')
-            showMessage(errorMessage, 'error')
+            showMessage(error.message, 'error')
+            setLoading(false)
+        }
+    }, [error])
+
+    // 处理数据加载错误
+    useEffect(() => {
+        if (error) {
+            showMessage(error.message, 'error')
         }
     }, [error])
 
@@ -122,33 +136,7 @@ export default function Analytics() {
             if (charts.rankChart) charts.rankChart.dispose()
         }
     }, [charts])
-
-    const loadSalesData = async () => {
-        setLoading(true)
-        try {
-            console.log(t('analytics.loading_orders'))
-            // 获取订单数据
-            const response = await orderService.getOrder({
-                userId: '', // 留空，API会使用当前登录用户的ID
-                page: 1,
-                pageSize: 100 // 获取更多订单数据以提高分析准确性
-            })
-
-            console.log(t('analytics.orders_load_complete'), response)
-
-            if (response && response.orders) {
-                processOrdersData(response.orders)
-            } else {
-                console.error(t('analytics.no_orders_data'))
-                setLoading(false)
-            }
-        } catch (error) {
-            console.error(t('analytics.load_sales_data_failed'), error)
-            setLoading(false)
-        }
-    }
-
-    const processOrdersData = (orders: Order[]) => {
+    const processOrdersData = (orders: MerchantOrder[]) => {
         console.log(t('analytics.processing_orders'), orders.length)
         if (!orders || orders.length === 0) {
             console.warn(t('analytics.no_orders_data'))
@@ -164,8 +152,6 @@ export default function Analytics() {
             return
         }
 
-        console.log(t('analytics.order_status_example'), orders[0].paymentStatus)
-
         // 使用所有订单进行分析，不再过滤支付状态
         // 前端分析页面需要显示所有订单数据，包括未支付订单
         const allOrders = orders
@@ -178,19 +164,17 @@ export default function Analytics() {
             })
         })
 
-        // 获取货币类型（假设所有订单使用同一种货币）
-        const currency = orders[0]?.currency || 'CNY'
-
         // 计算总订单数和平均客单价
         const totalOrders = allOrders.length
         const averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0
 
         // 更新汇总数据
         setSummary({
+            currency: 'CNY', // TODO : 从订单数据中获取
             totalSales,
             totalOrders,
             averageOrderValue,
-            currency
+
         })
 
         // 按日期分组销售数据
@@ -487,7 +471,7 @@ export default function Analytics() {
                 <Button
                     variant="outlined"
                     color="primary"
-                    startDecorator={<RefreshIcon />}
+                    startDecorator={<RefreshIcon/>}
                     onClick={() => refetch()}
                     loading={isLoading}
                 >

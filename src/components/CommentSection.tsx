@@ -8,18 +8,9 @@ import {showMessage} from '@/utils/showMessage';
 import {useSnapshot} from 'valtio';
 import {formatDistanceToNow} from 'date-fns';
 import {zhCN} from 'date-fns/locale';
-import {filterSensitiveWords} from '@/utils/sensitiveWords';
 
-interface Comment {
-    id: number;
-    productId: string;
-    merchantId: string;
-    userId: string;
-    score: number;
-    content: string;
-    createdAt: string;
-    updatedAt: string;
-}
+import {commentService} from '@/api/comment';
+import {Comment} from '@/types/comment';
 
 interface CommentSectionProps {
     productId: string;
@@ -40,20 +31,17 @@ const CommentSection: React.FC<CommentSectionProps> = ({productId, merchantId, c
     // 获取评论列表
     const {data: commentsData, isLoading} = useQuery({
         queryKey: ['comments', productId, page],
-        queryFn: async () => {
-            const response = await fetch(`https://gw.localhost/v1/comments?productId=${productId}&merchantId=${merchantId}&page=${page}&pageSize=${pageSize}`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            if (!response.ok) throw new Error('Failed to fetch comments');
-            return response.json();
-        },
+        queryFn: () => commentService.getComments({
+            productId,
+            merchantId,
+            page,
+            pageSize
+        }),
     });
 
     // 提交评论
     const createCommentMutation = useMutation({
-        mutationFn: async () => {
+        mutationFn: () => {
             if (!userState.account.id) {
                 throw new Error('请先登录');
             }
@@ -63,29 +51,21 @@ const CommentSection: React.FC<CommentSectionProps> = ({productId, merchantId, c
             if (!comment.trim()) {
                 throw new Error('请输入评论内容');
             }
-
-            const response = await fetch('https://gw.localhost/v1/comments', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({
-                    productId,
-                    merchantId,
-                    userId: userState.account.id,
-                    score: rating,
-                    content: filterSensitiveWords(comment.trim()),
-                }),
+    
+            return commentService.createComment({
+                productId,
+                merchantId,
+                userId: userState.account.id,
+                score: rating,
+                content: comment.trim(),
             });
-
-            if (!response.ok) {
-                throw new Error('Failed to create comment');
-            }
-
-            return response.json();
         },
-        onSuccess: () => {
+        onSuccess: (response) => {
+            if (response.isSensitive) {
+                showMessage('评论包含敏感词，请修改后重试', 'error');
+                return;
+            }
+            
             queryClient.invalidateQueries({queryKey: ['comments', productId]}).then(() => {
                 console.log('评论列表已更新')
             })
@@ -196,14 +176,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({productId, merchantId, c
                                     </Box>
                                     <Rating readOnly value={comment.score}/>
                                     <Typography level="body-md" sx={{mt: 1}}>
-                                        {filterSensitiveWords(comment.content)}
+                                        {comment.content}
                                     </Typography>
                                 </CardContent>
                             </Card>
                         ))}
                     </Stack>
 
-                    {commentsData?.total > pageSize && (
+                    {commentsData.total > pageSize && (
                         <Box sx={{display: 'flex', justifyContent: 'center', mt: 2}}>
                             <Button
                                 variant="outlined"

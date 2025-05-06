@@ -27,6 +27,8 @@ import {Clear, FilterList, Refresh, Search} from '@mui/icons-material'
 import {useTranslation} from 'react-i18next'
 import PaginationBar from "@/components/PaginationBar";
 import {usePagination} from '@/hooks/usePagination'
+import {cartStore} from '@/store/cartStore.ts'
+import {showMessage} from '@/utils/showMessage'
 
 export const Route = createLazyFileRoute('/consumer/orders/')({
     component: ConsumerOrders,
@@ -125,6 +127,32 @@ function ConsumerOrders() {
         })
     }
 
+    // 处理支付订单
+    const handlePayOrder = (orderId: string) => {
+        // 这里可以实现支付逻辑或跳转到支付页面
+        console.log('支付订单:', orderId);
+        showMessage(t('consumer.orders.paymentInitiated'), 'info');
+    };
+
+    // 处理添加到购物车
+    const handleAddToCart = (items: any[]) => {
+        try {
+            items.forEach(item => {
+                cartStore.addItem(
+                    item.item.productId,
+                    item.item.name,
+                    item.merchantId,
+                    item.item.picture,
+                    item.item.quantity
+                );
+            });
+            showMessage(t('consumer.orders.addedToCart'), 'success');
+        } catch (error) {
+            console.error('添加到购物车失败:', error);
+            showMessage(t('consumer.orders.addToCartFailed'), 'error');
+        }
+    };
+
     return (
         <Box sx={{p: 2}}>
             <Breadcrumbs
@@ -206,26 +234,26 @@ function ConsumerOrders() {
             )}
 
             {isLoading ? (
-                <Box sx={{display: 'flex', justifyContent: 'center', p: 4}}>
-                    <CircularProgress/>
-                </Box>
+                <CircularProgress />
             ) : error ? (
-                <Alert color="danger" sx={{mb: 2}}>
-                    {t('consumer.orders.error')}
-                </Alert>
+                <Alert color="danger">{error.message}</Alert>
             ) : displayedOrders.length === 0 ? (
-                <Alert color="neutral" sx={{mb: 2}}>
-                    {t('consumer.orders.empty')}
-                </Alert>
+                <Alert color="neutral">{t('consumer.orders.noOrders')}</Alert>
             ) : (
                 <>
-                    <OrderList orders={displayedOrders}/>
+                    <OrderList 
+                        orders={displayedOrders} 
+                        showPaymentButton={true}
+                        showLogisticsButton={true}
+                        onPayOrder={handlePayOrder}
+                        onAddToCart={handleAddToCart}
+                    />
                     <Box sx={{mt: 2, display: 'flex', justifyContent: 'center'}}>
                         <PaginationBar
                             page={pagination.page}
                             pageSize={pagination.pageSize}
-                            totalCount={count}
-                            onPageChange={pagination.setPage}
+                            totalItems={count}
+                            // onPageChange={pagination.setPage}
                             onPageSizeChange={pagination.setPageSize}
                         />
                     </Box>

@@ -4,7 +4,7 @@ export interface CreateConsumerBalanceRequest {
     userId: string;
     currency: string;
     initialBalance: number;
-    balancerType: string;
+    balanceType: string;
     isDefault: boolean;
     accountDetails: Record<string, any>;
 }
@@ -19,7 +19,7 @@ export interface CreateMerchantBalanceRequest {
     merchantId: string;
     currency: string;
     initialBalance: number;
-    balancerType: string;
+    balanceType: string;
     isDefault: boolean;
     accountDetails: Record<string, any>;
 }
@@ -159,7 +159,7 @@ export interface GetTransactionsReply {
 const balancerService = {
     createConsumerBalance(request: CreateConsumerBalanceRequest): Promise<CreateConsumerBalanceReply> {
         const url = httpClient.replacePathParams(
-            `${import.meta.env.VITE_BALANCER_URL}consumers/{user_id}/balance`,
+            `${import.meta.env.VITE_BALANCER_URL}/consumers/{user_id}/balance`,
             {user_id: request.userId}
         );
         return httpClient.put<CreateConsumerBalanceReply>(url,

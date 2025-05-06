@@ -57,6 +57,9 @@ const ConsumerFavoritesIndexLazyImport = createFileRoute(
 )()
 const ConsumerBalancerIndexLazyImport = createFileRoute('/consumer/balancer/')()
 const AdminUsersIndexLazyImport = createFileRoute('/admin/users/')()
+const AdminSensitiveWordsIndexLazyImport = createFileRoute(
+  '/admin/sensitiveWords/',
+)()
 const AdminRechargeBalanceIndexLazyImport = createFileRoute(
   '/admin/rechargeBalance/',
 )()
@@ -309,6 +312,15 @@ const AdminUsersIndexLazyRoute = AdminUsersIndexLazyImport.update({
 } as any).lazy(() =>
   import('./routes/admin/users/index.lazy').then((d) => d.Route),
 )
+
+const AdminSensitiveWordsIndexLazyRoute =
+  AdminSensitiveWordsIndexLazyImport.update({
+    id: '/admin/sensitiveWords/',
+    path: '/admin/sensitiveWords/',
+    getParentRoute: () => rootRoute,
+  } as any).lazy(() =>
+    import('./routes/admin/sensitiveWords/index.lazy').then((d) => d.Route),
+  )
 
 const AdminRechargeBalanceIndexLazyRoute =
   AdminRechargeBalanceIndexLazyImport.update({
@@ -598,6 +610,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRechargeBalanceIndexLazyImport
       parentRoute: typeof rootRoute
     }
+    '/admin/sensitiveWords/': {
+      id: '/admin/sensitiveWords/'
+      path: '/admin/sensitiveWords'
+      fullPath: '/admin/sensitiveWords'
+      preLoaderRoute: typeof AdminSensitiveWordsIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/admin/users/': {
       id: '/admin/users/'
       path: '/admin/users'
@@ -735,6 +754,7 @@ export interface FileRoutesByFullPath {
   '/admin/ecommerce-map': typeof AdminEcommerceMapIndexLazyRoute
   '/admin/products': typeof AdminProductsIndexLazyRoute
   '/admin/rechargeBalance': typeof AdminRechargeBalanceIndexLazyRoute
+  '/admin/sensitiveWords': typeof AdminSensitiveWordsIndexLazyRoute
   '/admin/users': typeof AdminUsersIndexLazyRoute
   '/consumer/balancer': typeof ConsumerBalancerIndexLazyRoute
   '/consumer/favorites': typeof ConsumerFavoritesIndexLazyRoute
@@ -779,6 +799,7 @@ export interface FileRoutesByTo {
   '/admin/ecommerce-map': typeof AdminEcommerceMapIndexLazyRoute
   '/admin/products': typeof AdminProductsIndexLazyRoute
   '/admin/rechargeBalance': typeof AdminRechargeBalanceIndexLazyRoute
+  '/admin/sensitiveWords': typeof AdminSensitiveWordsIndexLazyRoute
   '/admin/users': typeof AdminUsersIndexLazyRoute
   '/consumer/balancer': typeof ConsumerBalancerIndexLazyRoute
   '/consumer/favorites': typeof ConsumerFavoritesIndexLazyRoute
@@ -824,6 +845,7 @@ export interface FileRoutesById {
   '/admin/ecommerce-map/': typeof AdminEcommerceMapIndexLazyRoute
   '/admin/products/': typeof AdminProductsIndexLazyRoute
   '/admin/rechargeBalance/': typeof AdminRechargeBalanceIndexLazyRoute
+  '/admin/sensitiveWords/': typeof AdminSensitiveWordsIndexLazyRoute
   '/admin/users/': typeof AdminUsersIndexLazyRoute
   '/consumer/balancer/': typeof ConsumerBalancerIndexLazyRoute
   '/consumer/favorites/': typeof ConsumerFavoritesIndexLazyRoute
@@ -870,6 +892,7 @@ export interface FileRouteTypes {
     | '/admin/ecommerce-map'
     | '/admin/products'
     | '/admin/rechargeBalance'
+    | '/admin/sensitiveWords'
     | '/admin/users'
     | '/consumer/balancer'
     | '/consumer/favorites'
@@ -913,6 +936,7 @@ export interface FileRouteTypes {
     | '/admin/ecommerce-map'
     | '/admin/products'
     | '/admin/rechargeBalance'
+    | '/admin/sensitiveWords'
     | '/admin/users'
     | '/consumer/balancer'
     | '/consumer/favorites'
@@ -956,6 +980,7 @@ export interface FileRouteTypes {
     | '/admin/ecommerce-map/'
     | '/admin/products/'
     | '/admin/rechargeBalance/'
+    | '/admin/sensitiveWords/'
     | '/admin/users/'
     | '/consumer/balancer/'
     | '/consumer/favorites/'
@@ -1001,6 +1026,7 @@ export interface RootRouteChildren {
   AdminEcommerceMapIndexLazyRoute: typeof AdminEcommerceMapIndexLazyRoute
   AdminProductsIndexLazyRoute: typeof AdminProductsIndexLazyRoute
   AdminRechargeBalanceIndexLazyRoute: typeof AdminRechargeBalanceIndexLazyRoute
+  AdminSensitiveWordsIndexLazyRoute: typeof AdminSensitiveWordsIndexLazyRoute
   AdminUsersIndexLazyRoute: typeof AdminUsersIndexLazyRoute
   ConsumerBalancerIndexLazyRoute: typeof ConsumerBalancerIndexLazyRoute
   ConsumerFavoritesIndexLazyRoute: typeof ConsumerFavoritesIndexLazyRoute
@@ -1045,6 +1071,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminEcommerceMapIndexLazyRoute: AdminEcommerceMapIndexLazyRoute,
   AdminProductsIndexLazyRoute: AdminProductsIndexLazyRoute,
   AdminRechargeBalanceIndexLazyRoute: AdminRechargeBalanceIndexLazyRoute,
+  AdminSensitiveWordsIndexLazyRoute: AdminSensitiveWordsIndexLazyRoute,
   AdminUsersIndexLazyRoute: AdminUsersIndexLazyRoute,
   ConsumerBalancerIndexLazyRoute: ConsumerBalancerIndexLazyRoute,
   ConsumerFavoritesIndexLazyRoute: ConsumerFavoritesIndexLazyRoute,
@@ -1099,6 +1126,7 @@ export const routeTree = rootRoute
         "/admin/ecommerce-map/",
         "/admin/products/",
         "/admin/rechargeBalance/",
+        "/admin/sensitiveWords/",
         "/admin/users/",
         "/consumer/balancer/",
         "/consumer/favorites/",
@@ -1193,6 +1221,9 @@ export const routeTree = rootRoute
     },
     "/admin/rechargeBalance/": {
       "filePath": "admin/rechargeBalance/index.lazy.tsx"
+    },
+    "/admin/sensitiveWords/": {
+      "filePath": "admin/sensitiveWords/index.lazy.tsx"
     },
     "/admin/users/": {
       "filePath": "admin/users/index.lazy.tsx"
