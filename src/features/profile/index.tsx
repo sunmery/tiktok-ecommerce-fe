@@ -1,4 +1,4 @@
-import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
+import { useNavigate} from '@tanstack/react-router'
 import {userService} from '@/api/userService'
 import type {Account} from '@/types/account'
 
@@ -6,8 +6,9 @@ import {Alert, Avatar, Box, Button, Card, CardContent, Divider, Grid, Option, Se
 import {setAccount, userStore} from '@/store/user'
 import {useSnapshot} from 'valtio/react'
 import {useQuery, useQueryClient} from '@tanstack/react-query'
-import Skeleton from '@/components/Skeleton'
 import {useTranslation} from 'react-i18next'
+import Skeleton from '@/shared/components/Skeleton'
+import { getSigninUrl, goToLink } from "@/features/auth/login/api.ts";
 
 /**
  *@returns JSXElement
@@ -23,7 +24,7 @@ export default function Profile() {
         queryKey: ['userinfo'],
         queryFn: async () => {
             if (!userService.isLoggedIn()) {
-                await navigate({to: '/login'})
+                await navigate({to: '/auth/login'})
                 return Promise.reject(t('error.notLoggedIn'))
             }
 
@@ -141,7 +142,7 @@ export default function Profile() {
                             size="lg"
                             color="primary"
                             variant="solid"
-                            onClick={() => userService.goToLink(userService.getSigninUrl())}
+                            onClick={() => goToLink(getSigninUrl())}
                         >
                             {t('profile.login')}
                         </Button>
@@ -233,7 +234,7 @@ export default function Profile() {
                                 <Button
                                     variant="outlined"
                                     color="primary"
-                                    onClick={() => navigate({to: '/addresses'}).then(() => {
+                                    onClick={() => navigate({to: '/consumer/addresses'}).then(() => {
                                         console.log(t('log.navigatedToAddresses'))
                                     })}
                                 >
@@ -242,7 +243,7 @@ export default function Profile() {
                                 <Button
                                     variant="outlined"
                                     color="primary"
-                                    onClick={() => navigate({to: '/credit_cards'}).then(() => {
+                                    onClick={() => navigate({to: '/consumer/creditCards'}).then(() => {
                                         console.log(t('log.navigatedToPaymentMethods'))
                                     })}
                                 >
@@ -331,7 +332,3 @@ export default function Profile() {
         </Box>
     );
 }
-
-export const Route = createLazyFileRoute('/profile/')({
-    component: () => <Profile/>,
-})

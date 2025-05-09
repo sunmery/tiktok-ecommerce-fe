@@ -1,29 +1,27 @@
-import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 
-import {useSnapshot} from 'valtio/react'
-import {userStore} from '@/store/user.ts'
-import {cartStore} from '@/store/cartStore.ts'
-import {useEffect, useState} from 'react'
+import { useSnapshot } from 'valtio/react'
+import { userStore } from '@/store/user.ts'
+import { cartStore } from '@/store/cartStore.ts'
+import { useEffect, useState } from 'react'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 
-import {Box, Button, Card, CardContent, CircularProgress, Divider, Grid, Table, Typography} from '@mui/joy'
-import {useAddresses} from '@/hooks/useUserAddress'
-import {useCreditCards} from '@/hooks/useCreditCard'
-import type {CartItem} from '@/types/cart'
-import type {Address} from '@/types/addresses'
-import type {CreditCard} from '@/types/creditCards'
-import {useTranslation} from 'react-i18next'
-import {showMessage} from "@/utils/showMessage";
+import { Box, Button, Card, CardContent, CircularProgress, Divider, Grid, Table, Typography } from '@mui/joy'
 
-export const Route = createLazyFileRoute('/checkout/')({
-    component: RouteComponent,
-})
+import type { CartItem } from '@/types/cart'
+
+import { useTranslation } from 'react-i18next'
+import { showMessage } from "@/utils/showMessage";
+import { CreditCard } from "@/features/dashboard/consumer/creditCard/type.ts";
+import { Address } from '../dashboard/consumer/address/type'
+import { useAddresses } from '../dashboard/consumer/address/hook'
+import { useCreditCards } from "@/features/dashboard/consumer/creditCard/hook.ts";
 
 /**
  * Checkout page component
  * @returns Element
  */
-function RouteComponent() {
+export default function Checkout() {
     const {t} = useTranslation()
     const navigate = useNavigate()
     const account = useSnapshot(userStore.account)
@@ -204,7 +202,7 @@ function RouteComponent() {
             return (
                 <Box sx={{textAlign: 'center', p: 3}}>
                     <Typography level="body-lg" sx={{mb: 2}}>{t('addresses.noAddresses')}</Typography>
-                    <Button onClick={() => navigate({to: '/addresses'})}>{t('addresses.addNew')}</Button>
+                    <Button onClick={() => navigate({to: '/consumer/addresses'})}>{t('addresses.addNew')}</Button>
                 </Box>
             )
         }
@@ -244,7 +242,7 @@ function RouteComponent() {
             return (
                 <Box sx={{textAlign: 'center', p: 3}}>
                     <Typography level="body-lg" sx={{mb: 2}}>{t('payment.noCards')}</Typography>
-                    <Button onClick={() => navigate({to: '/credit_cards'})}>{t('payment.addNew')}</Button>
+                    <Button onClick={() => navigate({to: '/consumer/creditCards'})}>{t('payment.addNew')}</Button>
                 </Box>
             )
         }
@@ -438,7 +436,7 @@ function RouteComponent() {
                                         mb: 2
                                     }}>
                                         <Typography level="h3">{t('checkout.shippingAddress')}</Typography>
-                                        <Button onClick={() => navigate({to: '/addresses'})}
+                                        <Button onClick={() => navigate({to: '/consumer/addresses'})}
                                                 size="sm">{t('addresses.manage')}</Button>
                                     </Box>
                                     <Divider sx={{my: 2}}/>
@@ -458,7 +456,7 @@ function RouteComponent() {
                                         mb: 2
                                     }}>
                                         <Typography level="h3">{t('checkout.paymentMethod')}</Typography>
-                                        <Button onClick={() => navigate({to: '/credit_cards'})}
+                                        <Button onClick={() => navigate({to: '/consumer/creditCards'})}
                                                 size="sm">{t('payment.manage')}</Button>
                                     </Box>
                                     <Divider sx={{my: 2}}/>

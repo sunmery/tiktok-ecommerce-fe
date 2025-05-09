@@ -1,35 +1,22 @@
-import {createFileRoute, useNavigate, useSearch} from '@tanstack/react-router'
-import {useQuery} from "@tanstack/react-query";
-import {productService} from "@/api/productService.ts";
-import {useSnapshot} from "valtio/react";
-import {Box, CardOverflow} from "@mui/joy";
+import { useNavigate, useSearch } from '@tanstack/react-router'
+import { useQuery } from "@tanstack/react-query";
+import { productService } from "@/api/productService.ts";
+import { useSnapshot } from "valtio/react";
+import { Box, CardOverflow } from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import Card from "@mui/joy/Card";
 import CardContent from "@mui/joy/CardContent";
 import Button from "@mui/joy/Button";
 import Breadcrumbs from '@/shared/components/Breadcrumbs';
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
 import Favorites from "@/components/Favorites";
-import {userService} from "@/api/userService.ts";
-import {userStore} from "@/store/user.ts";
+import { userService } from "@/api/userService.ts";
+import { userStore } from "@/store/user.ts";
 import AspectRatio from "@mui/joy/AspectRatio";
-import {showMessage} from "@/utils/showMessage";
+import { showMessage } from "@/utils/showMessage";
 import { cartStore } from "@/store/cartStore.ts";
 
-export const Route = createFileRoute('/products/')({
-    component: RouteComponent,
-    validateSearch: (search: Record<string, unknown>) => {
-        return {
-            query: search.query as string || ''
-        }
-    }
-})
-
-function RouteComponent() {
-    return <Products/>
-}
-
-function Products() {
+export default function Products() {
     const navigate = useNavigate()
     const search = useSearch({from: '/products/'})
     const page = 1
@@ -253,7 +240,7 @@ function Products() {
                                 >
                                     {/* TODO */}
                                     {
-                                        product.images.length >0 ?
+                                        product.images.length > 0 ?
                                             <img
                                                 src={product.images[0].url}
                                                 loading="lazy"

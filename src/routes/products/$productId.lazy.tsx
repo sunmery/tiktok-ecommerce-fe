@@ -1,4 +1,4 @@
-import {createLazyFileRoute, useParams} from '@tanstack/react-router'
+import { createLazyFileRoute, useParams } from '@tanstack/react-router'
 
 import {
     Alert,
@@ -14,15 +14,17 @@ import {
     Typography
 } from '@mui/joy'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
-import {cartStore} from '@/store/cartStore.ts'
-import {useProduct} from '@/hooks/useProduct'
-import {showMessage} from "@/utils/showMessage";
+import { cartStore } from '@/store/cartStore.ts'
+import { useProduct } from '@/hooks/useProduct'
+import { showMessage } from "@/utils/showMessage";
 import CommentSection from '@/components/CommentSection';
-import {useEffect, useState} from 'react';
-import {orderService} from '@/api/orderService';
-import {useSnapshot} from 'valtio/react';
-import {userStore} from '@/store/user.ts';
-import {PaymentStatus} from '@/types/orders'
+import { useEffect, useState } from 'react';
+
+import { useSnapshot } from 'valtio/react';
+import { userStore } from '@/store/user.ts';
+import { orderService } from "@/features/dashboard/consumer/orders/api.ts";
+import { PaymentStatus } from "@/types/status.ts";
+
 
 export const Route = createLazyFileRoute('/products/$productId')({component: ProductDetail});
 
@@ -53,7 +55,7 @@ export default function ProductDetail() {
             }
         }
     }
-    
+
     // 检查用户是否有已支付的订单，只有已支付订单的用户才能发表评论
     useEffect(() => {
         const checkUserOrders = async () => {
@@ -61,28 +63,28 @@ export default function ProductDetail() {
                 setCanComment(false)
                 return
             }
-            
+
             try {
                 setCheckingOrders(true)
                 const response = await orderService.getConsumerOrders({
                     page: 1,
                     pageSize: 50
                 })
-                
+
                 if (response && response.orders) {
                     // 检查用户是否有包含该商品且状态为已支付的订单
                     const hasPaidOrder = response.orders.some(order => {
                         // 检查订单是否已支付
                         const isPaid = order.paymentStatus === PaymentStatus.Paid
-                        
+
                         // 检查订单是否包含当前商品
-                        const hasProduct = order.items.some(item => 
+                        const hasProduct = order.items.some(item =>
                             item.item.productId === productId
                         )
-                        
+
                         return isPaid && hasProduct
                     })
-                    console.log("hasPaidOrder",hasPaidOrder)
+                    console.log("hasPaidOrder", hasPaidOrder)
                     setCanComment(hasPaidOrder)
                 }
             } catch (error) {
@@ -92,7 +94,7 @@ export default function ProductDetail() {
                 setCheckingOrders(false)
             }
         }
-        
+
         checkUserOrders()
     }, [account.id, productId])
 
@@ -197,7 +199,7 @@ export default function ProductDetail() {
                             <Divider sx={{my: 2}}/>
 
                             <Box sx={{display: 'flex', alignItems: 'center', gap: 2, mt: 3}}>
-                                <Typography>库存: {data.inventory.stock }</Typography>
+                                <Typography>库存: {data.inventory.stock}</Typography>
                             </Box>
 
                             <Button
@@ -218,10 +220,10 @@ export default function ProductDetail() {
 
             {/* 评论区域 */}
             <Grid xs={12}>
-                <CommentSection 
-                    productId={productId} 
-                    merchantId={merchantId} 
-                    canComment={canComment} 
+                <CommentSection
+                    productId={productId}
+                    merchantId={merchantId}
+                    canComment={canComment}
                     isCheckingOrders={checkingOrders}
                 />
             </Grid>

@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { CreateProductRequest, Product } from "@/features/products/types.ts";
-import { usePagination } from "@/hooks/usePagination.ts";
+
 import { productService } from "@/api/productService.ts";
 import { ProductStatus } from "@/types/status.ts";
 import {
@@ -11,9 +11,9 @@ import {
     Chip,
     CircularProgress,
     IconButton,
-    Link,
     Modal,
     Sheet,
+    Link,
     Snackbar,
     Table,
     Typography
@@ -31,6 +31,7 @@ import PaginationBar from "@/shared/components/PaginationBar.tsx";
 import { ProductEditForm } from "./components/ProductEditForm.tsx";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { merchantProductService } from "./api.ts";
+import { usePagination } from "../orders/hooks.ts";
 
 export default function MerchantProducts() {
     const {t} = useTranslation()
@@ -263,7 +264,7 @@ export default function MerchantProducts() {
                         startDecorator={<ImportExport/>}
                         variant="solid"
                         component={RouterLink}
-                        to={'/merchant/table'}
+                        to={'/merchant/products/bulkUploads'}
                     >
                         {t('common.importOrExport')}
                     </Link>
