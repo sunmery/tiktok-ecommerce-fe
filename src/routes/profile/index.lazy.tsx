@@ -6,7 +6,7 @@ import { Suspense } from "react";
 
 
 export const Route = createLazyFileRoute('/profile/')({
-    component: () => () => (
+    component: () => (
         <Suspense fallback={<CircularProgress/>}>
             <Profile/>
         </Suspense>

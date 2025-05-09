@@ -19,10 +19,5 @@ RUN pnpm build
 # 生产镜像阶段
 FROM ccr.ccs.tencentyun.com/sumery/nginx-http3:latest AS final
 
-COPY --from=builder /src/build /etc/nginx/html
+COPY --from=builder /src/dist /etc/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/nginx.conf
-
-ARG HTTP_PORT=80
-ARG HTTPS_PORT=443
-
-EXPOSE $HTTP_PORT $HTTPS_PORT/tcp $HTTPS_PORT/udp

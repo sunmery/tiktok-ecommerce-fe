@@ -5,6 +5,7 @@ import type {SigninReply} from '@/types/callback'
 import {showMessage} from "@/utils/showMessage";
 import {userService} from "@/api/userService.ts";
 import { t } from 'i18next';
+import { goToLink } from "@/features/auth/login/api.ts";
 
 export const Route = createLazyFileRoute('/callback/')({
     component: () => (
@@ -30,19 +31,19 @@ const saveToken = (res: Response) => {
 
         if (userInfo && userInfo.role) {
             if (userInfo.role === 'merchant') {
-                userService.goToLink('/merchant')
+                goToLink('/merchant')
             } else if (userInfo.role === 'admin') {
-                userService.goToLink('/admin')
+                goToLink('/admin')
             } else {
-                userService.goToLink('/profile')
+                goToLink('/profile')
             }
         } else {
             showMessage(t('auth.getRoleFailed'), 'error')
-            userService.goToLink('/')
+            goToLink('/')
         }
     }).catch(error => {
         console.error(t('auth.getUserInfoFailed'), error)
-        userService.goToLink('/profile')
+        goToLink('/profile')
     })
 
 }

@@ -3,6 +3,7 @@ import Box from '@mui/joy/Box';
 import {
     Avatar,
     Badge,
+    Button,
     GlobalStyles,
     IconButton,
     Input,
@@ -11,15 +12,39 @@ import {
     MenuItem,
     Sheet,
     Tooltip,
-    Typography
+    Typography,
+    useColorScheme
 } from '@mui/joy';
 import Person from '@mui/icons-material/Person';
 import SearchIcon from '@mui/icons-material/Search';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import HomeIcon from '@mui/icons-material/Home';
+import CategoryIcon from '@mui/icons-material/Category';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import NewReleasesIcon from '@mui/icons-material/NewReleases';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import MapIcon from '@mui/icons-material/Map';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import TableChartIcon from '@mui/icons-material/TableChart';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import BlockIcon from '@mui/icons-material/Block';
 import { useSnapshot } from 'valtio/react';
 import { setAccount, userStore } from '@/store/user.ts';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { log } from '@/core/conf/app';
 import { AppProvider, Navigation, Router } from '@toolpad/core/AppProvider';
@@ -27,180 +52,224 @@ import { AppProvider, Navigation, Router } from '@toolpad/core/AppProvider';
 import { CssVarsProvider } from '@mui/joy/styles';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { PageContainer } from '@toolpad/core/PageContainer';
+import MenuIcon from '@mui/icons-material/Menu';
 import { cartStore } from "@/store/cartStore.ts";
 import { userService } from "@/api/userService.ts";
 
-const NAVIGATION: Navigation = [
-    {
-        segment: 'auth',
-        title: 'Auth',
-        icon: <ShoppingCartIcon/>,
-        children: [
-            {
-                segment: 'login',
-                title: 'Login',
-                icon: <ShoppingCartIcon/>,
-            }, {
-                segment: 'logout',
-                title: 'Logout',
-                icon: <ShoppingCartIcon/>,
-            },
-        ]
-    },
-    {
-        segment: 'products',
-        title: 'Products',
-        icon: <ShoppingCartIcon/>,
-    },
-    {
-        segment: '新品上市',
-        title: '新品上市',
-        icon: <ShoppingCartIcon/>,
-    },
-    {
-        segment: '趋势',
-        title: '趋势',
-        icon: <ShoppingCartIcon/>,
-    },
-    {
-        segment: 'categories',
-        title: 'Categories',
-        icon: <ShoppingCartIcon/>,
-    },
-    {
-        segment: 'carts',
-        title: 'Cart',
-        icon: <ShoppingCartIcon/>,
-    },
-    {
-        segment: 'profile',
-        title: 'Dashboard',
-        icon: <Person/>,
-    },
-    {
-        segment: 'merchant',
-        title: 'MerchantDashboard',
-        icon: <Person/>,
-        children: [
-            {
-                segment: 'addresses',
-                title: 'addresses',
-                icon: <ShoppingCartIcon/>,
-            },
-            {
-                segment: 'analytics',
-                title: 'Analytics',
-                icon: <ShoppingCartIcon/>,
-            },
-            {
-                segment: 'inventory',
-                title: 'inventory',
-                icon: <ShoppingCartIcon/>,
-                children: [
-                    {
+// 定义导航项类型，扩展Navigation类型以包含权限控制
+interface NavigationItem {
+    segment: string;
+    title: string;
+    icon: React.ReactNode;
+    roles?: string[];
+    children?: NavigationItem[];
+}
+
+// 创建导航配置
+const createNavigation = (userRole: string): Navigation => {
+    // 基础导航项，所有用户可见
+    const baseNavItems: NavigationItem[] = [
+        {
+            segment: 'auth',
+            title: 'Auth',
+            icon: <Person/>,
+            children: [
+                {
+                    segment: 'login',
+                    title: 'Login',
+                    icon: <LoginIcon/>,
+                }, {
+                    segment: 'logout',
+                    title: 'Logout',
+                    icon: <LogoutIcon/>,
+                },
+            ]
+        },
+    ];
+    
+    // 商品相关导航项 - 对于消费者角色，这些会显示在顶部导航栏而不是侧边栏
+    const productNavItems: NavigationItem[] = [
+        {
+            segment: 'products',
+            title: 'Products',
+            icon: <StorefrontIcon/>,
+        },
+        {
+            segment: '新品上市',
+            title: '新品上市',
+            icon: <NewReleasesIcon/>,
+        },
+        {
+            segment: '趋势',
+            title: '趋势',
+            icon: <TrendingUpIcon/>,
+        },
+        {
+            segment: 'categories',
+            title: 'Categories',
+            icon: <CategoryIcon/>,
+        },
+        {
+            segment: 'carts',
+            title: 'Cart',
+            icon: <ShoppingCartIcon/>,
+        },
+    ];
+    
+    // 消费者特定导航项 - 直接展示用户相关功能，不再嵌套在consumer下
+    const consumerNavItems: NavigationItem[] = [
+        {
+            segment: 'profile',
+            title: 'Dashboard',
+            icon: <Person/>,
+        },
+        {
+            segment: 'consumer/addresses',
+            title: 'Addresses',
+            icon: <HomeIcon/>,
+        },
+        {
+            segment: 'consumer/creditCards',
+            title: 'CreditCards',
+            icon: <CreditCardIcon/>,
+        },
+        {
+            segment: 'consumer/favorites',
+            title: 'Favorites',
+            icon: <FavoriteIcon/>,
+        },
+        {
+            segment: 'consumer/map',
+            title: 'Map',
+            icon: <MapIcon/>,
+        },
+        {
+            segment: 'consumer/orders',
+            title: 'Orders',
+            icon: <ReceiptIcon/>,
+        },
+        {
+            segment: 'consumer/transactions',
+            title: 'Transactions',
+            icon: <PaymentsIcon/>,
+        },
+    ];
+    
+    // 商家特定导航项
+    const merchantNavItems: NavigationItem[] = [
+        {
+            segment: 'merchant',
+            title: 'MerchantDashboard',
+            icon: <StorefrontIcon/>,
+            roles: ['merchant'],
+            children: [
+                {
+                    segment: 'addresses',
+                    title: 'Addresses',
+                    icon: <HomeIcon/>,
+                },
+                {
+                    segment: 'analytics',
+                    title: 'Analytics',
+                    icon: <BarChartIcon/>,
+                },
+                {
+                    segment: 'inventory',
+                    title: 'Inventory',
+                    icon: <InventoryIcon/>,
+                    children: [
+                        {
                         segment: 'alerts',
-                        title: 'alerts',
-                        icon: <ShoppingCartIcon/>,
+                        title: 'Alerts',
+                        icon: <NotificationsIcon/>,
                     }, {
                         segment: 'monitoring',
-                        title: 'monitoring',
-                        icon: <ShoppingCartIcon/>,
+                        title: 'Monitoring',
+                        icon: <MonitorHeartIcon/>,
                     },
                 ]
             },
             {
                 segment: 'logistics',
-                title: 'logistics',
-                icon: <ShoppingCartIcon/>,
+                title: 'Logistics',
+                icon: <LocalShippingIcon/>,
             },
             {
                 segment: 'orders',
-                title: 'orders',
-                icon: <ShoppingCartIcon/>,
+                title: 'Orders',
+                icon: <ReceiptIcon/>,
             }, {
                 segment: 'products',
-                title: 'products',
-                icon: <ShoppingCartIcon/>,
+                title: 'Products',
+                icon: <StorefrontIcon/>,
                 children: [
                     {
                         segment: 'bulkUploads',
-                        title: 'bulkUploads',
-                        icon: <ShoppingCartIcon/>,
+                        title: 'Bulk Uploads',
+                        icon: <UploadFileIcon/>,
                     }
                 ]
             }, {
                 segment: 'table',
-                title: 'table',
-                icon: <ShoppingCartIcon/>,
+                title: 'Table',
+                icon: <TableChartIcon/>,
             },
         ]
-    },
-    {
-        segment: 'consumer',
-        title: 'ConsumerDashboard',
-        icon: <Person/>,
-        children: [
-            {
-                segment: 'addresses',
-                title: 'Addresses',
-                icon: <ShoppingCartIcon/>,
-            },
-            {
-                segment: 'creditCards',
-                title: 'CreditCards',
-                icon: <ShoppingCartIcon/>,
-            },
-            {
-                segment: 'favorites',
-                title: 'Favorites',
-                icon: <ShoppingCartIcon/>,
-            },
-            {
-                segment: 'map',
-                title: 'map',
-                icon: <ShoppingCartIcon/>,
-            },
-            {
-                segment: 'orders',
-                title: 'orders',
-                icon: <ShoppingCartIcon/>,
-            },
-            {
-                segment: 'transactions',
-                title: 'transactions',
-                icon: <ShoppingCartIcon/>,
-            },
-        ]
-    },
-    {
-        segment: 'admin',
-        title: 'AdminDashboard',
-        icon: <Person/>,
-        children: [
-            {
-                segment: 'products',
-                title: 'Products',
-                icon: <ShoppingCartIcon/>,
-            },
-            {
-                segment: 'analytics',
-                title: 'Analytics',
-                icon: <ShoppingCartIcon/>,
-            },
-            {
-                segment: 'rechargeBalance',
-                title: 'RechargeBalance',
-                icon: <ShoppingCartIcon/>,
-            },
-            {
-                segment: 'sensitiveWords',
-                title: 'SensitiveWords',
-                icon: <ShoppingCartIcon/>,
-            },
-        ]
-    },
+    }]
+    
+    // 管理员特定导航项
+    const adminNavItems: NavigationItem[] = [
+        {
+            segment: 'admin',
+            title: 'AdminDashboard',
+            icon: <AdminPanelSettingsIcon/>,
+            roles: ['admin'],
+            children: [
+                {
+                    segment: 'products',
+                    title: 'Products',
+                    icon: <StorefrontIcon/>,
+                },
+                {
+                    segment: 'analytics',
+                    title: 'Analytics',
+                    icon: <BarChartIcon/>,
+                },
+                {
+                    segment: 'rechargeBalance',
+                    title: 'Recharge Balance',
+                    icon: <AccountBalanceWalletIcon/>,
+                },
+                {
+                    segment: 'sensitiveWords',
+                    title: 'Sensitive Words',
+                    icon: <BlockIcon/>,
+                },
+            ]
+        },
+    ];
+    
+    // 根据用户角色过滤导航项
+    let navItems = [...baseNavItems];
+    
+    if (userRole === 'consumer') {
+        // 对于消费者，商品相关导航会显示在顶部导航栏，这里只添加用户相关导航
+        navItems = [...navItems, ...consumerNavItems];
+    } else {
+        // 对于非消费者角色，商品相关导航显示在侧边栏
+        navItems = [...navItems, ...productNavItems];
+        
+        if (userRole === 'merchant') {
+            navItems = [...navItems, ...merchantNavItems];
+        } else if (userRole === 'admin') {
+            navItems = [...navItems, ...adminNavItems];
+        }
+    }
+    
+    return navItems as Navigation;
+};
 
-];
+// 移除多余的空数组结束符
 
 function useTanstackRouter(): Router {
     const navigate = useNavigate();
@@ -241,10 +310,39 @@ export default function Template({children}: { children: React.ReactNode }) {
     const navigate = useNavigate();
     const {t} = useTranslation();
     const [searchQuery, setSearchQuery] = useState('');
-    // const theme = useTheme(); // Joy UI theme
+    const { mode } = useColorScheme();
     const router = useTanstackRouter();
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const userLoggedIn = userService.isLoggedIn() && user.account && user.account.id !== '';
+    
+    // 获取用户角色，默认为consumer
+    const userRole = useMemo(() => {
+        return user.account && user.account.role ? user.account.role : 'consumer';
+    }, [user.account]);
+    
+    // 根据用户角色创建导航配置
+    const navigation = useMemo(() => {
+        return createNavigation(userRole);
+    }, [userRole]);
+    
+    // 商品相关导航项 - 仅在用户为消费者时显示在顶部导航栏
+    const topNavItems = useMemo(() => {
+        if (userRole === 'consumer') {
+            return [
+                { to: '/products', label: t('nav.products'), icon: <StorefrontIcon /> },
+                { to: '/新品上市', label: t('nav.newArrivals'), icon: <NewReleasesIcon /> },
+                { to: '/趋势', label: t('nav.trends'), icon: <TrendingUpIcon /> },
+                { to: '/categories', label: t('nav.categories'), icon: <CategoryIcon /> },
+            ];
+        }
+        return [];
+    }, [userRole, t]);
+    
+    // 默认隐藏侧边栏
+    useEffect(() => {
+        setSidebarOpen(false);
+    }, []);
 
     const handleSearch = () => {
         if (searchQuery.trim()) {
@@ -276,17 +374,33 @@ export default function Template({children}: { children: React.ReactNode }) {
     const totalCartItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
     return (
-        <AppProvider navigation={NAVIGATION} router={router}>
+        <AppProvider navigation={navigation} router={router}>
             <CssVarsProvider>
-                <GlobalStyles styles={{body: {margin: 0}}}/>
+                <GlobalStyles styles={{
+                    body: {margin: 0},
+                    // 确保导航栏填满整个侧边栏
+                    '.MuiDrawer-root .MuiDrawer-paper': {
+                        height: '100vh',
+                        boxSizing: 'border-box',
+                    },
+                    // 确保导航项目样式在日间和夜间模式下都正常显示
+                    '.MuiListItemButton-root': {
+                        color: mode === 'dark' ? '#fff' : '#000',
+                    },
+                    '.MuiListItemIcon-root': {
+                        color: 'inherit',
+                    }
+                }}/>
                 <DashboardLayout
-                    navigation={NAVIGATION}
+                    navigation={navigation}
+                    drawerOpen={sidebarOpen}
+                    onDrawerOpenChange={setSidebarOpen}
                     appBarContent={(
                         <CustomHeader>
                             <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
                                 <Typography component={Link} to="/" level="title-lg"
                                             sx={{color: 'inherit', textDecoration: 'none'}}>
-                                    {t('nav.project')}
+                                    TT电商
                                 </Typography>
                                 <Input
                                     size="sm"
@@ -297,6 +411,24 @@ export default function Template({children}: { children: React.ReactNode }) {
                                     startDecorator={<SearchIcon/>}
                                     sx={{display: {xs: 'none', md: 'flex'}}}
                                 />
+                                {/* 消费者角色的顶部导航栏商品相关导航 */}
+                                {userRole === 'consumer' && (
+                                    <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
+                                        {topNavItems.map((item) => (
+                                            <Button
+                                                key={item.to}
+                                                component={Link}
+                                                to={item.to}
+                                                variant="plain"
+                                                color="neutral"
+                                                startDecorator={item.icon}
+                                                sx={{ color: 'inherit' }}
+                                            >
+                                                {item.label}
+                                            </Button>
+                                        ))}
+                                    </Box>
+                                )}
                             </Box>
                             <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
                                 <LanguageSwitcher/>
@@ -306,6 +438,15 @@ export default function Template({children}: { children: React.ReactNode }) {
                                         <ShoppingCartIcon/>
                                     </Badge>
                                 </IconButton>
+                                {/* 用户中心按钮 - 控制侧边栏显示 */}
+                                {userLoggedIn && (
+                                    <IconButton 
+                                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                                        sx={{color: 'inherit'}}
+                                    >
+                                        <MenuIcon />
+                                    </IconButton>
+                                )}
                                 {userLoggedIn ? (
                                     <Menu
                                         anchorEl={null} // This needs to be managed for Menu to work correctly
@@ -351,7 +492,11 @@ export default function Template({children}: { children: React.ReactNode }) {
                 >
                     <PageContainer sx={{
                         overflowY: 'auto',
-                        height: 'calc(100vh - 64px)'
+                        height: 'calc(100vh - 64px)',
+                        width: '100%',
+                        maxWidth: '100%',
+                        p: 2,
+                        boxSizing: 'border-box'
                     }}> {/* Adjust 64px based on actual header height */}
                         {children}
                     </PageContainer>
