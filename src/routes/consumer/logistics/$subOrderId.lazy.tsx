@@ -1,17 +1,19 @@
-import {createLazyFileRoute, useNavigate, useParams} from '@tanstack/react-router'
-import {Alert, Box, Button, Card, CardContent, CircularProgress, Divider, Grid, Stack, Typography} from '@mui/joy'
-import {useCallback, useEffect, useRef, useState} from 'react'
+import { createLazyFileRoute, useNavigate, useParams } from '@tanstack/react-router'
+import { Alert, Box, Button, Card, CardContent, CircularProgress, Divider, Grid, Stack, Typography } from '@mui/joy'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
-import {useTranslation} from 'react-i18next'
-import {ShippingStatus, ShippingUpdate, updateOrderShippingStatusReq} from '@/types/orders'
-import {orderService} from '@/api/orderService'
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
+import { ShippingStatus } from '@/types/status'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import LogisticsMap from '@/components/LogisticsMap'
-import {Coordinates} from '@/types/logisticsMap'
-import {showMessage} from '@/utils/showMessage'
-import {shippingStatus} from "@/utils/status.ts";
-import {getCoordinatesByAddress} from '@/utils/geocoding';
+import { Coordinates } from '@/types/logisticsMap'
+import { showMessage } from '@/utils/showMessage'
+import { shippingStatus } from "@/utils/status.ts";
+import { getCoordinatesByAddress } from '@/utils/geocoding';
+import { merchantOrderService } from "@/features/dashboard/merchant/orders/api.ts";
+import { orderService } from "@/features/dashboard/consumer/orders/api.ts";
+import { ShippingUpdate, updateOrderShippingStatusReq } from '@/features/dashboard/consumer/orders/type'
 
 export const Route = createLazyFileRoute('/consumer/logistics/$subOrderId')({
     component: ConsumerLogistics,
@@ -62,12 +64,12 @@ function ConsumerLogistics() {
             setTimeout(() => {
                 // 使相关的查询失效，以便重新获取最新数据
                 queryClient.invalidateQueries({queryKey: ['shippingInfo', subOrderId]});
-                showMessage(t('consumer.logistics.success.statusUpdated', { status: getShippingStatusText(variables.shippingStatus) }), 'success');
+                showMessage(t('consumer.logistics.success.statusUpdated', {status: getShippingStatusText(variables.shippingStatus)}), 'success');
             }, 1000); // 延迟1秒
         },
         onError: (error: Error, variables) => { // Ensure error type is correct
             console.error(`更新物流状态至 ${variables.shippingStatus} 失败:`, error);
-            showMessage(t('consumer.logistics.error.updateFailed', { message: error.message }), 'error');
+            showMessage(t('consumer.logistics.error.updateFailed', {message: error.message}), 'error');
         },
     });
 
@@ -82,7 +84,7 @@ function ConsumerLogistics() {
         },
         onError: (error: Error) => {
             console.error('确认收货失败:', error);
-            showMessage(t('consumer.logistics.error.confirmReceiptFailed', { message: error.message }), 'error');
+            showMessage(t('consumer.logistics.error.confirmReceiptFailed', {message: error.message}), 'error');
             setConfirmingReceipt(false);
         }
     });
@@ -95,8 +97,8 @@ function ConsumerLogistics() {
         }
     };
 
-    if (shippingError){
-        showMessage(t('consumer.logistics.error.fetchShippingInfo', { message: shippingError.message }), 'error'); // <-- 使用 t() 和插值
+    if (shippingError) {
+        showMessage(t('consumer.logistics.error.fetchShippingInfo', {message: shippingError.message}), 'error'); // <-- 使用 t() 和插值
     }
     // 地理编码逻辑 (依赖 shippingInfo)
     useEffect(() => {
@@ -113,7 +115,7 @@ function ConsumerLogistics() {
                     if ((!merchantAddr.city || !merchantAddr.country) && subOrderId) {
                         // 这里可以添加获取完整订单信息的逻辑
                         try {
-                            const orderResponse = await orderService.getMerchantOrders({
+                            const orderResponse = await merchantOrderService.getMerchantOrders({
                                 page: 1,
                                 pageSize: 50
                             });
@@ -163,7 +165,7 @@ function ConsumerLogistics() {
                 } catch (err) {
                     console.error('地理编码失败:', err);
                     const errorMsg = err instanceof Error ? err.message : '未知错误';
-                    setGeocodingError(t('consumer.logistics.error.geocodingFailedWithFallback', { errorMsg })); // <-- 使用 t() 和插值
+                    setGeocodingError(t('consumer.logistics.error.geocodingFailedWithFallback', {errorMsg})); // <-- 使用 t() 和插值
                     // showMessage(`无法获取地址坐标: ${errorMsg}`, 'error');
                     console.log(`无法获取地址坐标: ${errorMsg}`, 'error');
 
@@ -225,7 +227,7 @@ function ConsumerLogistics() {
                     queryClient.invalidateQueries({queryKey: ['shippingInfo', subOrderId]});
                     // 显示成功消息
                     console.log("物流状态已成功更新为已送达");
-                    showMessage(t('consumer.logistics.success.statusUpdated', { status: getShippingStatusText(ShippingStatus.ShippingDelivered) }),'success') // <-- 使用 t() 和插值
+                    showMessage(t('consumer.logistics.success.statusUpdated', {status: getShippingStatusText(ShippingStatus.ShippingDelivered)}), 'success') // <-- 使用 t() 和插值
                 }
             });
         } else {
@@ -270,7 +272,8 @@ function ConsumerLogistics() {
             return (
                 <Box sx={{display: 'flex', justifyContent: 'center', p: 2}}>
                     <CircularProgress/>
-                    {geocodingLoading && <Typography sx={{ml: 1}}>{t('consumer.logistics.loadingGeocoding')}</Typography>}
+                    {geocodingLoading &&
+                        <Typography sx={{ml: 1}}>{t('consumer.logistics.loadingGeocoding')}</Typography>}
                 </Box>
             );
         }
@@ -297,11 +300,16 @@ function ConsumerLogistics() {
                             <Divider sx={{my: 2}}/>
                             {shippingInfo ? (
                                 <Stack spacing={1}>
-                                    <Typography level="body-md">{t('consumer.logistics.shippingId')}: {shippingInfo.orderId}</Typography>
-                                    <Typography level="body-md">{t('consumer.logistics.orderSubId')}: {shippingInfo.subOrderId}</Typography>
-                                    <Typography level="body-md">{t('consumer.logistics.shippingStatus')}: {getShippingStatusText(shippingInfo.shippingStatus)}</Typography>
-                                    <Typography level="body-md">{t('consumer.logistics.trackingNumber')}: {shippingInfo.trackingNumber}</Typography>
-                                    <Typography level="body-md">{t('consumer.logistics.carrier')}: {shippingInfo.carrier}</Typography>
+                                    <Typography
+                                        level="body-md">{t('consumer.logistics.shippingId')}: {shippingInfo.orderId}</Typography>
+                                    <Typography
+                                        level="body-md">{t('consumer.logistics.orderSubId')}: {shippingInfo.subOrderId}</Typography>
+                                    <Typography
+                                        level="body-md">{t('consumer.logistics.shippingStatus')}: {getShippingStatusText(shippingInfo.shippingStatus)}</Typography>
+                                    <Typography
+                                        level="body-md">{t('consumer.logistics.trackingNumber')}: {shippingInfo.trackingNumber}</Typography>
+                                    <Typography
+                                        level="body-md">{t('consumer.logistics.carrier')}: {shippingInfo.carrier}</Typography>
                                     {shippingInfo.shippingAddress && (
                                         <Typography level="body-sm" color="neutral">
                                             {t('consumer.logistics.shippingAddress')}: {`${shippingInfo.shippingAddress.state || ''} ${shippingInfo.shippingAddress.city || ''} ${shippingInfo.shippingAddress.streetAddress || ''}`}
@@ -316,16 +324,16 @@ function ConsumerLogistics() {
                             ) : (
                                 <Typography>{t('consumer.logistics.noShippingInfo')}</Typography>
                             )}
-                            
+
                             {/* 添加确认收货按钮 */}
                             {shippingInfo && shippingInfo.shippingStatus === ShippingStatus.ShippingDelivered && (
-                                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
-                                    <Button 
-                                        color="success" 
-                                        variant="solid" 
+                                <Box sx={{mt: 3, display: 'flex', justifyContent: 'center'}}>
+                                    <Button
+                                        color="success"
+                                        variant="solid"
                                         onClick={handleConfirmReceipt}
                                         disabled={confirmingReceipt || confirmReceiptMutation.isPending}
-                                        startDecorator={confirmingReceipt && <CircularProgress size="sm" />}
+                                        startDecorator={confirmingReceipt && <CircularProgress size="sm"/>}
                                     >
                                         {confirmingReceipt ? t('consumer.logistics.confirming') : t('consumer.logistics.confirmReceipt')}
                                     </Button>
@@ -369,7 +377,8 @@ function ConsumerLogistics() {
                                     {shippingInfo.updates.map((update: ShippingUpdate, index: number) => (
                                         <Box key={index}>
                                             <Typography level="title-sm">{update.timestamp}</Typography>
-                                            <Typography level="body-md">{t('consumer.logistics.status')}: {update.status} - {update.location}</Typography>
+                                            <Typography
+                                                level="body-md">{t('consumer.logistics.status')}: {update.status} - {update.location}</Typography>
                                             <Typography level="body-md">{update.description}</Typography>
                                         </Box>
                                     ))}

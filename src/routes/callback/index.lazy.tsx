@@ -47,7 +47,6 @@ const saveToken = (res: Response) => {
 
 }
 
-// Verify token based on server response
 const verifyToken = (res: Response) => {
     console.log('isGetTokenSuccessful res:', res)
     const result = res as unknown as SigninReply

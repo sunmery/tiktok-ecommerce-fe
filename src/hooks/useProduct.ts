@@ -1,21 +1,21 @@
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
-import {api} from '@/api/config'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { api } from '@/api/config'
+
+import { productService } from '@/api/productService';
 import {
     AuditProductRequest,
     AuditRecordResponse,
     CreateProductRequest,
     CreateProductResponse,
-    Product,
-    SubmitAuditRequest,
-} from '@/types/products.ts'
-import {productService} from '@/api/productService';
-import {
     GetCategoryProductsRequest,
     ListProductsByCategoryRequest,
     ListRandomProductsRequest,
-    ProductStatus,
-    SearchProductRequest
-} from '@/types/products';
+    Product,
+    SearchProductRequest,
+    SubmitAuditRequest
+} from "@/features/products/types.ts";
+import { ProductStatus } from "@/types/status.ts";
+
 
 // 获取商品详情的hook
 export function useProduct(id: string, merchantId: string) {

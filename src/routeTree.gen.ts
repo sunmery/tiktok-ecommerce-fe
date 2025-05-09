@@ -16,28 +16,20 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as ProductsIndexImport } from './routes/products/index'
 import { Route as LogisticsIndexImport } from './routes/logistics/index'
 import { Route as ConsumerTransactionsIndexImport } from './routes/consumer/transactions/index'
-import { Route as MerchantInventoryMonitoringIndexImport } from './routes/merchant/inventory/monitoring/index'
-import { Route as MerchantInventoryAlertsIndexImport } from './routes/merchant/inventory/alerts/index'
 
 // Create Virtual Routes
 
 const IndexLazyImport = createFileRoute('/')()
 const ProfileIndexLazyImport = createFileRoute('/profile/')()
 const MerchantIndexLazyImport = createFileRoute('/merchant/')()
-const LogoutIndexLazyImport = createFileRoute('/logout/')()
-const LoginIndexLazyImport = createFileRoute('/login/')()
-const CreditcardsIndexLazyImport = createFileRoute('/credit_cards/')()
 const ConsumerIndexLazyImport = createFileRoute('/consumer/')()
 const CheckoutIndexLazyImport = createFileRoute('/checkout/')()
 const CategoriesIndexLazyImport = createFileRoute('/categories/')()
 const CartsIndexLazyImport = createFileRoute('/carts/')()
-const CardsIndexLazyImport = createFileRoute('/cards/')()
 const CallbackIndexLazyImport = createFileRoute('/callback/')()
 const AdminIndexLazyImport = createFileRoute('/admin/')()
-const AddressesIndexLazyImport = createFileRoute('/addresses/')()
 const ProductsProductIdLazyImport = createFileRoute('/products/$productId')()
 const LogisticsOrderIdLazyImport = createFileRoute('/logistics/$orderId')()
-const MerchantTableIndexLazyImport = createFileRoute('/merchant/table/')()
 const MerchantProductsIndexLazyImport = createFileRoute('/merchant/products/')()
 const MerchantOrdersIndexLazyImport = createFileRoute('/merchant/orders/')()
 const MerchantLogisticsIndexLazyImport = createFileRoute(
@@ -49,14 +41,22 @@ const MerchantInventoryIndexLazyImport = createFileRoute(
 const MerchantAnalyticsIndexLazyImport = createFileRoute(
   '/merchant/analytics/',
 )()
-const MerchantAddressIndexLazyImport = createFileRoute('/merchant/address/')()
+const MerchantAddressesIndexLazyImport = createFileRoute(
+  '/merchant/addresses/',
+)()
 const ConsumerOrdersIndexLazyImport = createFileRoute('/consumer/orders/')()
 const ConsumerMapIndexLazyImport = createFileRoute('/consumer/map/')()
 const ConsumerFavoritesIndexLazyImport = createFileRoute(
   '/consumer/favorites/',
 )()
-const ConsumerBalancerIndexLazyImport = createFileRoute('/consumer/balancer/')()
-const AdminUsersIndexLazyImport = createFileRoute('/admin/users/')()
+const ConsumerCreditCardsIndexLazyImport = createFileRoute(
+  '/consumer/creditCards/',
+)()
+const ConsumerAddressesIndexLazyImport = createFileRoute(
+  '/consumer/addresses/',
+)()
+const AuthLogoutIndexLazyImport = createFileRoute('/auth/logout/')()
+const AuthLoginIndexLazyImport = createFileRoute('/auth/login/')()
 const AdminSensitiveWordsIndexLazyImport = createFileRoute(
   '/admin/sensitiveWords/',
 )()
@@ -64,9 +64,6 @@ const AdminRechargeBalanceIndexLazyImport = createFileRoute(
   '/admin/rechargeBalance/',
 )()
 const AdminProductsIndexLazyImport = createFileRoute('/admin/products/')()
-const AdminEcommerceMapIndexLazyImport = createFileRoute(
-  '/admin/ecommerce-map/',
-)()
 const AdminAnalyticsIndexLazyImport = createFileRoute('/admin/analytics/')()
 const ProductsCategoryCategoryNameLazyImport = createFileRoute(
   '/products/category/$categoryName',
@@ -77,8 +74,17 @@ const ConsumerOrdersOrderIdLazyImport = createFileRoute(
 const ConsumerLogisticsSubOrderIdLazyImport = createFileRoute(
   '/consumer/logistics/$subOrderId',
 )()
+const MerchantProductsBulkUploadsIndexLazyImport = createFileRoute(
+  '/merchant/products/bulkUploads/',
+)()
 const MerchantOrdersTransactionsIndexLazyImport = createFileRoute(
   '/merchant/orders/transactions/',
+)()
+const MerchantInventoryMonitoringIndexLazyImport = createFileRoute(
+  '/merchant/inventory/monitoring/',
+)()
+const MerchantInventoryAlertsIndexLazyImport = createFileRoute(
+  '/merchant/inventory/alerts/',
 )()
 
 // Create/Update Routes
@@ -101,26 +107,6 @@ const MerchantIndexLazyRoute = MerchantIndexLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() =>
   import('./routes/merchant/index.lazy').then((d) => d.Route),
-)
-
-const LogoutIndexLazyRoute = LogoutIndexLazyImport.update({
-  id: '/logout/',
-  path: '/logout/',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/logout/index.lazy').then((d) => d.Route))
-
-const LoginIndexLazyRoute = LoginIndexLazyImport.update({
-  id: '/login/',
-  path: '/login/',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/login/index.lazy').then((d) => d.Route))
-
-const CreditcardsIndexLazyRoute = CreditcardsIndexLazyImport.update({
-  id: '/credit_cards/',
-  path: '/credit_cards/',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() =>
-  import('./routes/credit_cards/index.lazy').then((d) => d.Route),
 )
 
 const ConsumerIndexLazyRoute = ConsumerIndexLazyImport.update({
@@ -153,12 +139,6 @@ const CartsIndexLazyRoute = CartsIndexLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/carts/index.lazy').then((d) => d.Route))
 
-const CardsIndexLazyRoute = CardsIndexLazyImport.update({
-  id: '/cards/',
-  path: '/cards/',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/cards/index.lazy').then((d) => d.Route))
-
 const CallbackIndexLazyRoute = CallbackIndexLazyImport.update({
   id: '/callback/',
   path: '/callback/',
@@ -172,14 +152,6 @@ const AdminIndexLazyRoute = AdminIndexLazyImport.update({
   path: '/admin/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/admin/index.lazy').then((d) => d.Route))
-
-const AddressesIndexLazyRoute = AddressesIndexLazyImport.update({
-  id: '/addresses/',
-  path: '/addresses/',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() =>
-  import('./routes/addresses/index.lazy').then((d) => d.Route),
-)
 
 const ProductsIndexRoute = ProductsIndexImport.update({
   id: '/products/',
@@ -207,14 +179,6 @@ const LogisticsOrderIdLazyRoute = LogisticsOrderIdLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() =>
   import('./routes/logistics/$orderId.lazy').then((d) => d.Route),
-)
-
-const MerchantTableIndexLazyRoute = MerchantTableIndexLazyImport.update({
-  id: '/merchant/table/',
-  path: '/merchant/table/',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() =>
-  import('./routes/merchant/table/index.lazy').then((d) => d.Route),
 )
 
 const MerchantProductsIndexLazyRoute = MerchantProductsIndexLazyImport.update({
@@ -263,12 +227,14 @@ const MerchantAnalyticsIndexLazyRoute = MerchantAnalyticsIndexLazyImport.update(
   import('./routes/merchant/analytics/index.lazy').then((d) => d.Route),
 )
 
-const MerchantAddressIndexLazyRoute = MerchantAddressIndexLazyImport.update({
-  id: '/merchant/address/',
-  path: '/merchant/address/',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() =>
-  import('./routes/merchant/address/index.lazy').then((d) => d.Route),
+const MerchantAddressesIndexLazyRoute = MerchantAddressesIndexLazyImport.update(
+  {
+    id: '/merchant/addresses/',
+    path: '/merchant/addresses/',
+    getParentRoute: () => rootRoute,
+  } as any,
+).lazy(() =>
+  import('./routes/merchant/addresses/index.lazy').then((d) => d.Route),
 )
 
 const ConsumerOrdersIndexLazyRoute = ConsumerOrdersIndexLazyImport.update({
@@ -297,20 +263,39 @@ const ConsumerFavoritesIndexLazyRoute = ConsumerFavoritesIndexLazyImport.update(
   import('./routes/consumer/favorites/index.lazy').then((d) => d.Route),
 )
 
-const ConsumerBalancerIndexLazyRoute = ConsumerBalancerIndexLazyImport.update({
-  id: '/consumer/balancer/',
-  path: '/consumer/balancer/',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() =>
-  import('./routes/consumer/balancer/index.lazy').then((d) => d.Route),
+const ConsumerCreditCardsIndexLazyRoute =
+  ConsumerCreditCardsIndexLazyImport.update({
+    id: '/consumer/creditCards/',
+    path: '/consumer/creditCards/',
+    getParentRoute: () => rootRoute,
+  } as any).lazy(() =>
+    import('./routes/consumer/creditCards/index.lazy').then((d) => d.Route),
+  )
+
+const ConsumerAddressesIndexLazyRoute = ConsumerAddressesIndexLazyImport.update(
+  {
+    id: '/consumer/addresses/',
+    path: '/consumer/addresses/',
+    getParentRoute: () => rootRoute,
+  } as any,
+).lazy(() =>
+  import('./routes/consumer/addresses/index.lazy').then((d) => d.Route),
 )
 
-const AdminUsersIndexLazyRoute = AdminUsersIndexLazyImport.update({
-  id: '/admin/users/',
-  path: '/admin/users/',
+const AuthLogoutIndexLazyRoute = AuthLogoutIndexLazyImport.update({
+  id: '/auth/logout/',
+  path: '/auth/logout/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() =>
-  import('./routes/admin/users/index.lazy').then((d) => d.Route),
+  import('./routes/auth/logout/index.lazy').then((d) => d.Route),
+)
+
+const AuthLoginIndexLazyRoute = AuthLoginIndexLazyImport.update({
+  id: '/auth/login/',
+  path: '/auth/login/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/auth/login/index.lazy').then((d) => d.Route),
 )
 
 const AdminSensitiveWordsIndexLazyRoute =
@@ -337,16 +322,6 @@ const AdminProductsIndexLazyRoute = AdminProductsIndexLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() =>
   import('./routes/admin/products/index.lazy').then((d) => d.Route),
-)
-
-const AdminEcommerceMapIndexLazyRoute = AdminEcommerceMapIndexLazyImport.update(
-  {
-    id: '/admin/ecommerce-map/',
-    path: '/admin/ecommerce-map/',
-    getParentRoute: () => rootRoute,
-  } as any,
-).lazy(() =>
-  import('./routes/admin/ecommerce-map/index.lazy').then((d) => d.Route),
 )
 
 const AdminAnalyticsIndexLazyRoute = AdminAnalyticsIndexLazyImport.update({
@@ -391,6 +366,17 @@ const ConsumerLogisticsSubOrderIdLazyRoute =
     import('./routes/consumer/logistics/$subOrderId.lazy').then((d) => d.Route),
   )
 
+const MerchantProductsBulkUploadsIndexLazyRoute =
+  MerchantProductsBulkUploadsIndexLazyImport.update({
+    id: '/merchant/products/bulkUploads/',
+    path: '/merchant/products/bulkUploads/',
+    getParentRoute: () => rootRoute,
+  } as any).lazy(() =>
+    import('./routes/merchant/products/bulkUploads/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+
 const MerchantOrdersTransactionsIndexLazyRoute =
   MerchantOrdersTransactionsIndexLazyImport.update({
     id: '/merchant/orders/transactions/',
@@ -402,8 +388,8 @@ const MerchantOrdersTransactionsIndexLazyRoute =
     ),
   )
 
-const MerchantInventoryMonitoringIndexRoute =
-  MerchantInventoryMonitoringIndexImport.update({
+const MerchantInventoryMonitoringIndexLazyRoute =
+  MerchantInventoryMonitoringIndexLazyImport.update({
     id: '/merchant/inventory/monitoring/',
     path: '/merchant/inventory/monitoring/',
     getParentRoute: () => rootRoute,
@@ -413,8 +399,8 @@ const MerchantInventoryMonitoringIndexRoute =
     ),
   )
 
-const MerchantInventoryAlertsIndexRoute =
-  MerchantInventoryAlertsIndexImport.update({
+const MerchantInventoryAlertsIndexLazyRoute =
+  MerchantInventoryAlertsIndexLazyImport.update({
     id: '/merchant/inventory/alerts/',
     path: '/merchant/inventory/alerts/',
     getParentRoute: () => rootRoute,
@@ -463,13 +449,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsIndexImport
       parentRoute: typeof rootRoute
     }
-    '/addresses/': {
-      id: '/addresses/'
-      path: '/addresses'
-      fullPath: '/addresses'
-      preLoaderRoute: typeof AddressesIndexLazyImport
-      parentRoute: typeof rootRoute
-    }
     '/admin/': {
       id: '/admin/'
       path: '/admin'
@@ -482,13 +461,6 @@ declare module '@tanstack/react-router' {
       path: '/callback'
       fullPath: '/callback'
       preLoaderRoute: typeof CallbackIndexLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/cards/': {
-      id: '/cards/'
-      path: '/cards'
-      fullPath: '/cards'
-      preLoaderRoute: typeof CardsIndexLazyImport
       parentRoute: typeof rootRoute
     }
     '/carts/': {
@@ -517,27 +489,6 @@ declare module '@tanstack/react-router' {
       path: '/consumer'
       fullPath: '/consumer'
       preLoaderRoute: typeof ConsumerIndexLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/credit_cards/': {
-      id: '/credit_cards/'
-      path: '/credit_cards'
-      fullPath: '/credit_cards'
-      preLoaderRoute: typeof CreditcardsIndexLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/login/': {
-      id: '/login/'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginIndexLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/logout/': {
-      id: '/logout/'
-      path: '/logout'
-      fullPath: '/logout'
-      preLoaderRoute: typeof LogoutIndexLazyImport
       parentRoute: typeof rootRoute
     }
     '/merchant/': {
@@ -589,13 +540,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAnalyticsIndexLazyImport
       parentRoute: typeof rootRoute
     }
-    '/admin/ecommerce-map/': {
-      id: '/admin/ecommerce-map/'
-      path: '/admin/ecommerce-map'
-      fullPath: '/admin/ecommerce-map'
-      preLoaderRoute: typeof AdminEcommerceMapIndexLazyImport
-      parentRoute: typeof rootRoute
-    }
     '/admin/products/': {
       id: '/admin/products/'
       path: '/admin/products'
@@ -617,18 +561,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSensitiveWordsIndexLazyImport
       parentRoute: typeof rootRoute
     }
-    '/admin/users/': {
-      id: '/admin/users/'
-      path: '/admin/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersIndexLazyImport
+    '/auth/login/': {
+      id: '/auth/login/'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginIndexLazyImport
       parentRoute: typeof rootRoute
     }
-    '/consumer/balancer/': {
-      id: '/consumer/balancer/'
-      path: '/consumer/balancer'
-      fullPath: '/consumer/balancer'
-      preLoaderRoute: typeof ConsumerBalancerIndexLazyImport
+    '/auth/logout/': {
+      id: '/auth/logout/'
+      path: '/auth/logout'
+      fullPath: '/auth/logout'
+      preLoaderRoute: typeof AuthLogoutIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/consumer/addresses/': {
+      id: '/consumer/addresses/'
+      path: '/consumer/addresses'
+      fullPath: '/consumer/addresses'
+      preLoaderRoute: typeof ConsumerAddressesIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/consumer/creditCards/': {
+      id: '/consumer/creditCards/'
+      path: '/consumer/creditCards'
+      fullPath: '/consumer/creditCards'
+      preLoaderRoute: typeof ConsumerCreditCardsIndexLazyImport
       parentRoute: typeof rootRoute
     }
     '/consumer/favorites/': {
@@ -652,11 +610,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsumerOrdersIndexLazyImport
       parentRoute: typeof rootRoute
     }
-    '/merchant/address/': {
-      id: '/merchant/address/'
-      path: '/merchant/address'
-      fullPath: '/merchant/address'
-      preLoaderRoute: typeof MerchantAddressIndexLazyImport
+    '/merchant/addresses/': {
+      id: '/merchant/addresses/'
+      path: '/merchant/addresses'
+      fullPath: '/merchant/addresses'
+      preLoaderRoute: typeof MerchantAddressesIndexLazyImport
       parentRoute: typeof rootRoute
     }
     '/merchant/analytics/': {
@@ -694,25 +652,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MerchantProductsIndexLazyImport
       parentRoute: typeof rootRoute
     }
-    '/merchant/table/': {
-      id: '/merchant/table/'
-      path: '/merchant/table'
-      fullPath: '/merchant/table'
-      preLoaderRoute: typeof MerchantTableIndexLazyImport
-      parentRoute: typeof rootRoute
-    }
     '/merchant/inventory/alerts/': {
       id: '/merchant/inventory/alerts/'
       path: '/merchant/inventory/alerts'
       fullPath: '/merchant/inventory/alerts'
-      preLoaderRoute: typeof MerchantInventoryAlertsIndexImport
+      preLoaderRoute: typeof MerchantInventoryAlertsIndexLazyImport
       parentRoute: typeof rootRoute
     }
     '/merchant/inventory/monitoring/': {
       id: '/merchant/inventory/monitoring/'
       path: '/merchant/inventory/monitoring'
       fullPath: '/merchant/inventory/monitoring'
-      preLoaderRoute: typeof MerchantInventoryMonitoringIndexImport
+      preLoaderRoute: typeof MerchantInventoryMonitoringIndexLazyImport
       parentRoute: typeof rootRoute
     }
     '/merchant/orders/transactions/': {
@@ -720,6 +671,13 @@ declare module '@tanstack/react-router' {
       path: '/merchant/orders/transactions'
       fullPath: '/merchant/orders/transactions'
       preLoaderRoute: typeof MerchantOrdersTransactionsIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/merchant/products/bulkUploads/': {
+      id: '/merchant/products/bulkUploads/'
+      path: '/merchant/products/bulkUploads'
+      fullPath: '/merchant/products/bulkUploads'
+      preLoaderRoute: typeof MerchantProductsBulkUploadsIndexLazyImport
       parentRoute: typeof rootRoute
     }
   }
@@ -733,17 +691,12 @@ export interface FileRoutesByFullPath {
   '/products/$productId': typeof ProductsProductIdLazyRoute
   '/logistics': typeof LogisticsIndexRoute
   '/products': typeof ProductsIndexRoute
-  '/addresses': typeof AddressesIndexLazyRoute
   '/admin': typeof AdminIndexLazyRoute
   '/callback': typeof CallbackIndexLazyRoute
-  '/cards': typeof CardsIndexLazyRoute
   '/carts': typeof CartsIndexLazyRoute
   '/categories': typeof CategoriesIndexLazyRoute
   '/checkout': typeof CheckoutIndexLazyRoute
   '/consumer': typeof ConsumerIndexLazyRoute
-  '/credit_cards': typeof CreditcardsIndexLazyRoute
-  '/login': typeof LoginIndexLazyRoute
-  '/logout': typeof LogoutIndexLazyRoute
   '/merchant': typeof MerchantIndexLazyRoute
   '/profile': typeof ProfileIndexLazyRoute
   '/consumer/logistics/$subOrderId': typeof ConsumerLogisticsSubOrderIdLazyRoute
@@ -751,25 +704,26 @@ export interface FileRoutesByFullPath {
   '/products/category/$categoryName': typeof ProductsCategoryCategoryNameLazyRoute
   '/consumer/transactions': typeof ConsumerTransactionsIndexRoute
   '/admin/analytics': typeof AdminAnalyticsIndexLazyRoute
-  '/admin/ecommerce-map': typeof AdminEcommerceMapIndexLazyRoute
   '/admin/products': typeof AdminProductsIndexLazyRoute
   '/admin/rechargeBalance': typeof AdminRechargeBalanceIndexLazyRoute
   '/admin/sensitiveWords': typeof AdminSensitiveWordsIndexLazyRoute
-  '/admin/users': typeof AdminUsersIndexLazyRoute
-  '/consumer/balancer': typeof ConsumerBalancerIndexLazyRoute
+  '/auth/login': typeof AuthLoginIndexLazyRoute
+  '/auth/logout': typeof AuthLogoutIndexLazyRoute
+  '/consumer/addresses': typeof ConsumerAddressesIndexLazyRoute
+  '/consumer/creditCards': typeof ConsumerCreditCardsIndexLazyRoute
   '/consumer/favorites': typeof ConsumerFavoritesIndexLazyRoute
   '/consumer/map': typeof ConsumerMapIndexLazyRoute
   '/consumer/orders': typeof ConsumerOrdersIndexLazyRoute
-  '/merchant/address': typeof MerchantAddressIndexLazyRoute
+  '/merchant/addresses': typeof MerchantAddressesIndexLazyRoute
   '/merchant/analytics': typeof MerchantAnalyticsIndexLazyRoute
   '/merchant/inventory': typeof MerchantInventoryIndexLazyRoute
   '/merchant/logistics': typeof MerchantLogisticsIndexLazyRoute
   '/merchant/orders': typeof MerchantOrdersIndexLazyRoute
   '/merchant/products': typeof MerchantProductsIndexLazyRoute
-  '/merchant/table': typeof MerchantTableIndexLazyRoute
-  '/merchant/inventory/alerts': typeof MerchantInventoryAlertsIndexRoute
-  '/merchant/inventory/monitoring': typeof MerchantInventoryMonitoringIndexRoute
+  '/merchant/inventory/alerts': typeof MerchantInventoryAlertsIndexLazyRoute
+  '/merchant/inventory/monitoring': typeof MerchantInventoryMonitoringIndexLazyRoute
   '/merchant/orders/transactions': typeof MerchantOrdersTransactionsIndexLazyRoute
+  '/merchant/products/bulkUploads': typeof MerchantProductsBulkUploadsIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
@@ -778,17 +732,12 @@ export interface FileRoutesByTo {
   '/products/$productId': typeof ProductsProductIdLazyRoute
   '/logistics': typeof LogisticsIndexRoute
   '/products': typeof ProductsIndexRoute
-  '/addresses': typeof AddressesIndexLazyRoute
   '/admin': typeof AdminIndexLazyRoute
   '/callback': typeof CallbackIndexLazyRoute
-  '/cards': typeof CardsIndexLazyRoute
   '/carts': typeof CartsIndexLazyRoute
   '/categories': typeof CategoriesIndexLazyRoute
   '/checkout': typeof CheckoutIndexLazyRoute
   '/consumer': typeof ConsumerIndexLazyRoute
-  '/credit_cards': typeof CreditcardsIndexLazyRoute
-  '/login': typeof LoginIndexLazyRoute
-  '/logout': typeof LogoutIndexLazyRoute
   '/merchant': typeof MerchantIndexLazyRoute
   '/profile': typeof ProfileIndexLazyRoute
   '/consumer/logistics/$subOrderId': typeof ConsumerLogisticsSubOrderIdLazyRoute
@@ -796,25 +745,26 @@ export interface FileRoutesByTo {
   '/products/category/$categoryName': typeof ProductsCategoryCategoryNameLazyRoute
   '/consumer/transactions': typeof ConsumerTransactionsIndexRoute
   '/admin/analytics': typeof AdminAnalyticsIndexLazyRoute
-  '/admin/ecommerce-map': typeof AdminEcommerceMapIndexLazyRoute
   '/admin/products': typeof AdminProductsIndexLazyRoute
   '/admin/rechargeBalance': typeof AdminRechargeBalanceIndexLazyRoute
   '/admin/sensitiveWords': typeof AdminSensitiveWordsIndexLazyRoute
-  '/admin/users': typeof AdminUsersIndexLazyRoute
-  '/consumer/balancer': typeof ConsumerBalancerIndexLazyRoute
+  '/auth/login': typeof AuthLoginIndexLazyRoute
+  '/auth/logout': typeof AuthLogoutIndexLazyRoute
+  '/consumer/addresses': typeof ConsumerAddressesIndexLazyRoute
+  '/consumer/creditCards': typeof ConsumerCreditCardsIndexLazyRoute
   '/consumer/favorites': typeof ConsumerFavoritesIndexLazyRoute
   '/consumer/map': typeof ConsumerMapIndexLazyRoute
   '/consumer/orders': typeof ConsumerOrdersIndexLazyRoute
-  '/merchant/address': typeof MerchantAddressIndexLazyRoute
+  '/merchant/addresses': typeof MerchantAddressesIndexLazyRoute
   '/merchant/analytics': typeof MerchantAnalyticsIndexLazyRoute
   '/merchant/inventory': typeof MerchantInventoryIndexLazyRoute
   '/merchant/logistics': typeof MerchantLogisticsIndexLazyRoute
   '/merchant/orders': typeof MerchantOrdersIndexLazyRoute
   '/merchant/products': typeof MerchantProductsIndexLazyRoute
-  '/merchant/table': typeof MerchantTableIndexLazyRoute
-  '/merchant/inventory/alerts': typeof MerchantInventoryAlertsIndexRoute
-  '/merchant/inventory/monitoring': typeof MerchantInventoryMonitoringIndexRoute
+  '/merchant/inventory/alerts': typeof MerchantInventoryAlertsIndexLazyRoute
+  '/merchant/inventory/monitoring': typeof MerchantInventoryMonitoringIndexLazyRoute
   '/merchant/orders/transactions': typeof MerchantOrdersTransactionsIndexLazyRoute
+  '/merchant/products/bulkUploads': typeof MerchantProductsBulkUploadsIndexLazyRoute
 }
 
 export interface FileRoutesById {
@@ -824,17 +774,12 @@ export interface FileRoutesById {
   '/products/$productId': typeof ProductsProductIdLazyRoute
   '/logistics/': typeof LogisticsIndexRoute
   '/products/': typeof ProductsIndexRoute
-  '/addresses/': typeof AddressesIndexLazyRoute
   '/admin/': typeof AdminIndexLazyRoute
   '/callback/': typeof CallbackIndexLazyRoute
-  '/cards/': typeof CardsIndexLazyRoute
   '/carts/': typeof CartsIndexLazyRoute
   '/categories/': typeof CategoriesIndexLazyRoute
   '/checkout/': typeof CheckoutIndexLazyRoute
   '/consumer/': typeof ConsumerIndexLazyRoute
-  '/credit_cards/': typeof CreditcardsIndexLazyRoute
-  '/login/': typeof LoginIndexLazyRoute
-  '/logout/': typeof LogoutIndexLazyRoute
   '/merchant/': typeof MerchantIndexLazyRoute
   '/profile/': typeof ProfileIndexLazyRoute
   '/consumer/logistics/$subOrderId': typeof ConsumerLogisticsSubOrderIdLazyRoute
@@ -842,25 +787,26 @@ export interface FileRoutesById {
   '/products/category/$categoryName': typeof ProductsCategoryCategoryNameLazyRoute
   '/consumer/transactions/': typeof ConsumerTransactionsIndexRoute
   '/admin/analytics/': typeof AdminAnalyticsIndexLazyRoute
-  '/admin/ecommerce-map/': typeof AdminEcommerceMapIndexLazyRoute
   '/admin/products/': typeof AdminProductsIndexLazyRoute
   '/admin/rechargeBalance/': typeof AdminRechargeBalanceIndexLazyRoute
   '/admin/sensitiveWords/': typeof AdminSensitiveWordsIndexLazyRoute
-  '/admin/users/': typeof AdminUsersIndexLazyRoute
-  '/consumer/balancer/': typeof ConsumerBalancerIndexLazyRoute
+  '/auth/login/': typeof AuthLoginIndexLazyRoute
+  '/auth/logout/': typeof AuthLogoutIndexLazyRoute
+  '/consumer/addresses/': typeof ConsumerAddressesIndexLazyRoute
+  '/consumer/creditCards/': typeof ConsumerCreditCardsIndexLazyRoute
   '/consumer/favorites/': typeof ConsumerFavoritesIndexLazyRoute
   '/consumer/map/': typeof ConsumerMapIndexLazyRoute
   '/consumer/orders/': typeof ConsumerOrdersIndexLazyRoute
-  '/merchant/address/': typeof MerchantAddressIndexLazyRoute
+  '/merchant/addresses/': typeof MerchantAddressesIndexLazyRoute
   '/merchant/analytics/': typeof MerchantAnalyticsIndexLazyRoute
   '/merchant/inventory/': typeof MerchantInventoryIndexLazyRoute
   '/merchant/logistics/': typeof MerchantLogisticsIndexLazyRoute
   '/merchant/orders/': typeof MerchantOrdersIndexLazyRoute
   '/merchant/products/': typeof MerchantProductsIndexLazyRoute
-  '/merchant/table/': typeof MerchantTableIndexLazyRoute
-  '/merchant/inventory/alerts/': typeof MerchantInventoryAlertsIndexRoute
-  '/merchant/inventory/monitoring/': typeof MerchantInventoryMonitoringIndexRoute
+  '/merchant/inventory/alerts/': typeof MerchantInventoryAlertsIndexLazyRoute
+  '/merchant/inventory/monitoring/': typeof MerchantInventoryMonitoringIndexLazyRoute
   '/merchant/orders/transactions/': typeof MerchantOrdersTransactionsIndexLazyRoute
+  '/merchant/products/bulkUploads/': typeof MerchantProductsBulkUploadsIndexLazyRoute
 }
 
 export interface FileRouteTypes {
@@ -871,17 +817,12 @@ export interface FileRouteTypes {
     | '/products/$productId'
     | '/logistics'
     | '/products'
-    | '/addresses'
     | '/admin'
     | '/callback'
-    | '/cards'
     | '/carts'
     | '/categories'
     | '/checkout'
     | '/consumer'
-    | '/credit_cards'
-    | '/login'
-    | '/logout'
     | '/merchant'
     | '/profile'
     | '/consumer/logistics/$subOrderId'
@@ -889,25 +830,26 @@ export interface FileRouteTypes {
     | '/products/category/$categoryName'
     | '/consumer/transactions'
     | '/admin/analytics'
-    | '/admin/ecommerce-map'
     | '/admin/products'
     | '/admin/rechargeBalance'
     | '/admin/sensitiveWords'
-    | '/admin/users'
-    | '/consumer/balancer'
+    | '/auth/login'
+    | '/auth/logout'
+    | '/consumer/addresses'
+    | '/consumer/creditCards'
     | '/consumer/favorites'
     | '/consumer/map'
     | '/consumer/orders'
-    | '/merchant/address'
+    | '/merchant/addresses'
     | '/merchant/analytics'
     | '/merchant/inventory'
     | '/merchant/logistics'
     | '/merchant/orders'
     | '/merchant/products'
-    | '/merchant/table'
     | '/merchant/inventory/alerts'
     | '/merchant/inventory/monitoring'
     | '/merchant/orders/transactions'
+    | '/merchant/products/bulkUploads'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -915,17 +857,12 @@ export interface FileRouteTypes {
     | '/products/$productId'
     | '/logistics'
     | '/products'
-    | '/addresses'
     | '/admin'
     | '/callback'
-    | '/cards'
     | '/carts'
     | '/categories'
     | '/checkout'
     | '/consumer'
-    | '/credit_cards'
-    | '/login'
-    | '/logout'
     | '/merchant'
     | '/profile'
     | '/consumer/logistics/$subOrderId'
@@ -933,25 +870,26 @@ export interface FileRouteTypes {
     | '/products/category/$categoryName'
     | '/consumer/transactions'
     | '/admin/analytics'
-    | '/admin/ecommerce-map'
     | '/admin/products'
     | '/admin/rechargeBalance'
     | '/admin/sensitiveWords'
-    | '/admin/users'
-    | '/consumer/balancer'
+    | '/auth/login'
+    | '/auth/logout'
+    | '/consumer/addresses'
+    | '/consumer/creditCards'
     | '/consumer/favorites'
     | '/consumer/map'
     | '/consumer/orders'
-    | '/merchant/address'
+    | '/merchant/addresses'
     | '/merchant/analytics'
     | '/merchant/inventory'
     | '/merchant/logistics'
     | '/merchant/orders'
     | '/merchant/products'
-    | '/merchant/table'
     | '/merchant/inventory/alerts'
     | '/merchant/inventory/monitoring'
     | '/merchant/orders/transactions'
+    | '/merchant/products/bulkUploads'
   id:
     | '__root__'
     | '/'
@@ -959,17 +897,12 @@ export interface FileRouteTypes {
     | '/products/$productId'
     | '/logistics/'
     | '/products/'
-    | '/addresses/'
     | '/admin/'
     | '/callback/'
-    | '/cards/'
     | '/carts/'
     | '/categories/'
     | '/checkout/'
     | '/consumer/'
-    | '/credit_cards/'
-    | '/login/'
-    | '/logout/'
     | '/merchant/'
     | '/profile/'
     | '/consumer/logistics/$subOrderId'
@@ -977,25 +910,26 @@ export interface FileRouteTypes {
     | '/products/category/$categoryName'
     | '/consumer/transactions/'
     | '/admin/analytics/'
-    | '/admin/ecommerce-map/'
     | '/admin/products/'
     | '/admin/rechargeBalance/'
     | '/admin/sensitiveWords/'
-    | '/admin/users/'
-    | '/consumer/balancer/'
+    | '/auth/login/'
+    | '/auth/logout/'
+    | '/consumer/addresses/'
+    | '/consumer/creditCards/'
     | '/consumer/favorites/'
     | '/consumer/map/'
     | '/consumer/orders/'
-    | '/merchant/address/'
+    | '/merchant/addresses/'
     | '/merchant/analytics/'
     | '/merchant/inventory/'
     | '/merchant/logistics/'
     | '/merchant/orders/'
     | '/merchant/products/'
-    | '/merchant/table/'
     | '/merchant/inventory/alerts/'
     | '/merchant/inventory/monitoring/'
     | '/merchant/orders/transactions/'
+    | '/merchant/products/bulkUploads/'
   fileRoutesById: FileRoutesById
 }
 
@@ -1005,17 +939,12 @@ export interface RootRouteChildren {
   ProductsProductIdLazyRoute: typeof ProductsProductIdLazyRoute
   LogisticsIndexRoute: typeof LogisticsIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
-  AddressesIndexLazyRoute: typeof AddressesIndexLazyRoute
   AdminIndexLazyRoute: typeof AdminIndexLazyRoute
   CallbackIndexLazyRoute: typeof CallbackIndexLazyRoute
-  CardsIndexLazyRoute: typeof CardsIndexLazyRoute
   CartsIndexLazyRoute: typeof CartsIndexLazyRoute
   CategoriesIndexLazyRoute: typeof CategoriesIndexLazyRoute
   CheckoutIndexLazyRoute: typeof CheckoutIndexLazyRoute
   ConsumerIndexLazyRoute: typeof ConsumerIndexLazyRoute
-  CreditcardsIndexLazyRoute: typeof CreditcardsIndexLazyRoute
-  LoginIndexLazyRoute: typeof LoginIndexLazyRoute
-  LogoutIndexLazyRoute: typeof LogoutIndexLazyRoute
   MerchantIndexLazyRoute: typeof MerchantIndexLazyRoute
   ProfileIndexLazyRoute: typeof ProfileIndexLazyRoute
   ConsumerLogisticsSubOrderIdLazyRoute: typeof ConsumerLogisticsSubOrderIdLazyRoute
@@ -1023,25 +952,26 @@ export interface RootRouteChildren {
   ProductsCategoryCategoryNameLazyRoute: typeof ProductsCategoryCategoryNameLazyRoute
   ConsumerTransactionsIndexRoute: typeof ConsumerTransactionsIndexRoute
   AdminAnalyticsIndexLazyRoute: typeof AdminAnalyticsIndexLazyRoute
-  AdminEcommerceMapIndexLazyRoute: typeof AdminEcommerceMapIndexLazyRoute
   AdminProductsIndexLazyRoute: typeof AdminProductsIndexLazyRoute
   AdminRechargeBalanceIndexLazyRoute: typeof AdminRechargeBalanceIndexLazyRoute
   AdminSensitiveWordsIndexLazyRoute: typeof AdminSensitiveWordsIndexLazyRoute
-  AdminUsersIndexLazyRoute: typeof AdminUsersIndexLazyRoute
-  ConsumerBalancerIndexLazyRoute: typeof ConsumerBalancerIndexLazyRoute
+  AuthLoginIndexLazyRoute: typeof AuthLoginIndexLazyRoute
+  AuthLogoutIndexLazyRoute: typeof AuthLogoutIndexLazyRoute
+  ConsumerAddressesIndexLazyRoute: typeof ConsumerAddressesIndexLazyRoute
+  ConsumerCreditCardsIndexLazyRoute: typeof ConsumerCreditCardsIndexLazyRoute
   ConsumerFavoritesIndexLazyRoute: typeof ConsumerFavoritesIndexLazyRoute
   ConsumerMapIndexLazyRoute: typeof ConsumerMapIndexLazyRoute
   ConsumerOrdersIndexLazyRoute: typeof ConsumerOrdersIndexLazyRoute
-  MerchantAddressIndexLazyRoute: typeof MerchantAddressIndexLazyRoute
+  MerchantAddressesIndexLazyRoute: typeof MerchantAddressesIndexLazyRoute
   MerchantAnalyticsIndexLazyRoute: typeof MerchantAnalyticsIndexLazyRoute
   MerchantInventoryIndexLazyRoute: typeof MerchantInventoryIndexLazyRoute
   MerchantLogisticsIndexLazyRoute: typeof MerchantLogisticsIndexLazyRoute
   MerchantOrdersIndexLazyRoute: typeof MerchantOrdersIndexLazyRoute
   MerchantProductsIndexLazyRoute: typeof MerchantProductsIndexLazyRoute
-  MerchantTableIndexLazyRoute: typeof MerchantTableIndexLazyRoute
-  MerchantInventoryAlertsIndexRoute: typeof MerchantInventoryAlertsIndexRoute
-  MerchantInventoryMonitoringIndexRoute: typeof MerchantInventoryMonitoringIndexRoute
+  MerchantInventoryAlertsIndexLazyRoute: typeof MerchantInventoryAlertsIndexLazyRoute
+  MerchantInventoryMonitoringIndexLazyRoute: typeof MerchantInventoryMonitoringIndexLazyRoute
   MerchantOrdersTransactionsIndexLazyRoute: typeof MerchantOrdersTransactionsIndexLazyRoute
+  MerchantProductsBulkUploadsIndexLazyRoute: typeof MerchantProductsBulkUploadsIndexLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -1050,17 +980,12 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsProductIdLazyRoute: ProductsProductIdLazyRoute,
   LogisticsIndexRoute: LogisticsIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
-  AddressesIndexLazyRoute: AddressesIndexLazyRoute,
   AdminIndexLazyRoute: AdminIndexLazyRoute,
   CallbackIndexLazyRoute: CallbackIndexLazyRoute,
-  CardsIndexLazyRoute: CardsIndexLazyRoute,
   CartsIndexLazyRoute: CartsIndexLazyRoute,
   CategoriesIndexLazyRoute: CategoriesIndexLazyRoute,
   CheckoutIndexLazyRoute: CheckoutIndexLazyRoute,
   ConsumerIndexLazyRoute: ConsumerIndexLazyRoute,
-  CreditcardsIndexLazyRoute: CreditcardsIndexLazyRoute,
-  LoginIndexLazyRoute: LoginIndexLazyRoute,
-  LogoutIndexLazyRoute: LogoutIndexLazyRoute,
   MerchantIndexLazyRoute: MerchantIndexLazyRoute,
   ProfileIndexLazyRoute: ProfileIndexLazyRoute,
   ConsumerLogisticsSubOrderIdLazyRoute: ConsumerLogisticsSubOrderIdLazyRoute,
@@ -1068,26 +993,29 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsCategoryCategoryNameLazyRoute: ProductsCategoryCategoryNameLazyRoute,
   ConsumerTransactionsIndexRoute: ConsumerTransactionsIndexRoute,
   AdminAnalyticsIndexLazyRoute: AdminAnalyticsIndexLazyRoute,
-  AdminEcommerceMapIndexLazyRoute: AdminEcommerceMapIndexLazyRoute,
   AdminProductsIndexLazyRoute: AdminProductsIndexLazyRoute,
   AdminRechargeBalanceIndexLazyRoute: AdminRechargeBalanceIndexLazyRoute,
   AdminSensitiveWordsIndexLazyRoute: AdminSensitiveWordsIndexLazyRoute,
-  AdminUsersIndexLazyRoute: AdminUsersIndexLazyRoute,
-  ConsumerBalancerIndexLazyRoute: ConsumerBalancerIndexLazyRoute,
+  AuthLoginIndexLazyRoute: AuthLoginIndexLazyRoute,
+  AuthLogoutIndexLazyRoute: AuthLogoutIndexLazyRoute,
+  ConsumerAddressesIndexLazyRoute: ConsumerAddressesIndexLazyRoute,
+  ConsumerCreditCardsIndexLazyRoute: ConsumerCreditCardsIndexLazyRoute,
   ConsumerFavoritesIndexLazyRoute: ConsumerFavoritesIndexLazyRoute,
   ConsumerMapIndexLazyRoute: ConsumerMapIndexLazyRoute,
   ConsumerOrdersIndexLazyRoute: ConsumerOrdersIndexLazyRoute,
-  MerchantAddressIndexLazyRoute: MerchantAddressIndexLazyRoute,
+  MerchantAddressesIndexLazyRoute: MerchantAddressesIndexLazyRoute,
   MerchantAnalyticsIndexLazyRoute: MerchantAnalyticsIndexLazyRoute,
   MerchantInventoryIndexLazyRoute: MerchantInventoryIndexLazyRoute,
   MerchantLogisticsIndexLazyRoute: MerchantLogisticsIndexLazyRoute,
   MerchantOrdersIndexLazyRoute: MerchantOrdersIndexLazyRoute,
   MerchantProductsIndexLazyRoute: MerchantProductsIndexLazyRoute,
-  MerchantTableIndexLazyRoute: MerchantTableIndexLazyRoute,
-  MerchantInventoryAlertsIndexRoute: MerchantInventoryAlertsIndexRoute,
-  MerchantInventoryMonitoringIndexRoute: MerchantInventoryMonitoringIndexRoute,
+  MerchantInventoryAlertsIndexLazyRoute: MerchantInventoryAlertsIndexLazyRoute,
+  MerchantInventoryMonitoringIndexLazyRoute:
+    MerchantInventoryMonitoringIndexLazyRoute,
   MerchantOrdersTransactionsIndexLazyRoute:
     MerchantOrdersTransactionsIndexLazyRoute,
+  MerchantProductsBulkUploadsIndexLazyRoute:
+    MerchantProductsBulkUploadsIndexLazyRoute,
 }
 
 export const routeTree = rootRoute
@@ -1105,17 +1033,12 @@ export const routeTree = rootRoute
         "/products/$productId",
         "/logistics/",
         "/products/",
-        "/addresses/",
         "/admin/",
         "/callback/",
-        "/cards/",
         "/carts/",
         "/categories/",
         "/checkout/",
         "/consumer/",
-        "/credit_cards/",
-        "/login/",
-        "/logout/",
         "/merchant/",
         "/profile/",
         "/consumer/logistics/$subOrderId",
@@ -1123,25 +1046,26 @@ export const routeTree = rootRoute
         "/products/category/$categoryName",
         "/consumer/transactions/",
         "/admin/analytics/",
-        "/admin/ecommerce-map/",
         "/admin/products/",
         "/admin/rechargeBalance/",
         "/admin/sensitiveWords/",
-        "/admin/users/",
-        "/consumer/balancer/",
+        "/auth/login/",
+        "/auth/logout/",
+        "/consumer/addresses/",
+        "/consumer/creditCards/",
         "/consumer/favorites/",
         "/consumer/map/",
         "/consumer/orders/",
-        "/merchant/address/",
+        "/merchant/addresses/",
         "/merchant/analytics/",
         "/merchant/inventory/",
         "/merchant/logistics/",
         "/merchant/orders/",
         "/merchant/products/",
-        "/merchant/table/",
         "/merchant/inventory/alerts/",
         "/merchant/inventory/monitoring/",
-        "/merchant/orders/transactions/"
+        "/merchant/orders/transactions/",
+        "/merchant/products/bulkUploads/"
       ]
     },
     "/": {
@@ -1159,17 +1083,11 @@ export const routeTree = rootRoute
     "/products/": {
       "filePath": "products/index.tsx"
     },
-    "/addresses/": {
-      "filePath": "addresses/index.lazy.tsx"
-    },
     "/admin/": {
       "filePath": "admin/index.lazy.tsx"
     },
     "/callback/": {
       "filePath": "callback/index.lazy.tsx"
-    },
-    "/cards/": {
-      "filePath": "cards/index.lazy.tsx"
     },
     "/carts/": {
       "filePath": "carts/index.lazy.tsx"
@@ -1182,15 +1100,6 @@ export const routeTree = rootRoute
     },
     "/consumer/": {
       "filePath": "consumer/index.lazy.tsx"
-    },
-    "/credit_cards/": {
-      "filePath": "credit_cards/index.lazy.tsx"
-    },
-    "/login/": {
-      "filePath": "login/index.lazy.tsx"
-    },
-    "/logout/": {
-      "filePath": "logout/index.lazy.tsx"
     },
     "/merchant/": {
       "filePath": "merchant/index.lazy.tsx"
@@ -1213,9 +1122,6 @@ export const routeTree = rootRoute
     "/admin/analytics/": {
       "filePath": "admin/analytics/index.lazy.tsx"
     },
-    "/admin/ecommerce-map/": {
-      "filePath": "admin/ecommerce-map/index.lazy.tsx"
-    },
     "/admin/products/": {
       "filePath": "admin/products/index.lazy.tsx"
     },
@@ -1225,11 +1131,17 @@ export const routeTree = rootRoute
     "/admin/sensitiveWords/": {
       "filePath": "admin/sensitiveWords/index.lazy.tsx"
     },
-    "/admin/users/": {
-      "filePath": "admin/users/index.lazy.tsx"
+    "/auth/login/": {
+      "filePath": "auth/login/index.lazy.tsx"
     },
-    "/consumer/balancer/": {
-      "filePath": "consumer/balancer/index.lazy.tsx"
+    "/auth/logout/": {
+      "filePath": "auth/logout/index.lazy.tsx"
+    },
+    "/consumer/addresses/": {
+      "filePath": "consumer/addresses/index.lazy.tsx"
+    },
+    "/consumer/creditCards/": {
+      "filePath": "consumer/creditCards/index.lazy.tsx"
     },
     "/consumer/favorites/": {
       "filePath": "consumer/favorites/index.lazy.tsx"
@@ -1240,8 +1152,8 @@ export const routeTree = rootRoute
     "/consumer/orders/": {
       "filePath": "consumer/orders/index.lazy.tsx"
     },
-    "/merchant/address/": {
-      "filePath": "merchant/address/index.lazy.tsx"
+    "/merchant/addresses/": {
+      "filePath": "merchant/addresses/index.lazy.tsx"
     },
     "/merchant/analytics/": {
       "filePath": "merchant/analytics/index.lazy.tsx"
@@ -1258,17 +1170,17 @@ export const routeTree = rootRoute
     "/merchant/products/": {
       "filePath": "merchant/products/index.lazy.tsx"
     },
-    "/merchant/table/": {
-      "filePath": "merchant/table/index.lazy.tsx"
-    },
     "/merchant/inventory/alerts/": {
-      "filePath": "merchant/inventory/alerts/index.tsx"
+      "filePath": "merchant/inventory/alerts/index.lazy.tsx"
     },
     "/merchant/inventory/monitoring/": {
-      "filePath": "merchant/inventory/monitoring/index.tsx"
+      "filePath": "merchant/inventory/monitoring/index.lazy.tsx"
     },
     "/merchant/orders/transactions/": {
       "filePath": "merchant/orders/transactions/index.lazy.tsx"
+    },
+    "/merchant/products/bulkUploads/": {
+      "filePath": "merchant/products/bulkUploads/index.lazy.tsx"
     }
   }
 }

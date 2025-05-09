@@ -8,7 +8,7 @@ import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import {useTranslation} from 'react-i18next'
 import LogisticsMap from '@/components/LogisticsMap'
 import {Coordinates} from '@/types/logisticsMap'
-import {ShippingStatus} from '@/types/orders'
+import {ShippingStatus} from '@/types/status'
 
 export const Route = createLazyFileRoute('/consumer/map/')({
     component: ConsumerMapView,
@@ -34,13 +34,13 @@ function ConsumerMapView() {
     }, [account.role, navigate])
 
     // 模拟获取物流信息
-    useEffect(() => {
-        // 这里可以添加实际的API调用来获取物流信息
-        // 例如：fetchLogisticsInfo().then(data => {
-        //   setSellerPosition(data.sellerPosition);
-        //   setUserPosition(data.userPosition);
-        // }).catch(err => setError(err.message));
-    }, [])
+    // useEffect(() => {
+    //     // 这里可以添加实际的API调用来获取物流信息
+    //     // 例如：fetchLogisticsInfo().then(data => {
+    //     //   setSellerPosition(data.sellerPosition);
+    //     //   setUserPosition(data.userPosition);
+    //     // }).catch(err => setError(err.message));
+    // }, [])
 
     const handleDeliveryComplete = () => {
         console.log('配送完成')

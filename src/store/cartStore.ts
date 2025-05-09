@@ -1,6 +1,6 @@
-import {proxy, subscribe} from 'valtio'
 import type {CartItem} from '@/types/cart'
-import {cartService} from '@/api/cartService'
+import { proxy, subscribe } from 'valtio'
+import { cartService } from "@/features/cart/api.ts";
 
 // 定义购物车状态
 export interface CartState {

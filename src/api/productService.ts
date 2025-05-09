@@ -3,17 +3,15 @@
  * 基于proto文件定义实现的商品服务API
  */
 
-import {httpClient} from '@/utils/http-client';
-import {Empty} from '@/types/user';
+import { httpClient } from '@/utils/http-client';
+import { Empty } from '@/types/user';
 import {
-    AuditProductRequest,
     AuditRecord,
     CreateProductReply,
     CreateProductRequest,
     DeleteProductRequest,
-    GetCategoryProductsRequest, GetMerchantProductsReq,
+    GetCategoryProductsRequest,
     GetProductRequest,
-    GetProductStatusPending,
     ListProductsByCategoryRequest,
     ListRandomProductsRequest,
     Product,
@@ -21,8 +19,8 @@ import {
     Products,
     SearchProductRequest,
     SubmitAuditRequest,
-    UpdateProductRequest,
-} from '@/types/products';
+    UpdateProductRequest
+} from "@/features/products/types.ts";
 
 /**
  * 商品服务API
@@ -76,33 +74,6 @@ export const productService = {
     },
 
     /**
-     * 审核商品
-     * POST /v1/products/{productId}/audit
-     */
-    auditProduct: (request: AuditProductRequest) => {
-        const snakeCaseRequest = {
-            productId: request.productId,
-            merchantId: request.merchantId,
-            action: request.action,
-            reason: request.reason,
-            operatorId: request.operatorId
-        };
-        const url = httpClient.replacePathParams(`${import.meta.env.VITE_PRODUCERS_URL}/{product_id}/audit`, {
-            product_id: request.productId
-        });
-        return httpClient.post<AuditRecord>(url, snakeCaseRequest);
-    },
-    /**
-     * 获取待审核的商品列表
-     * GET /v1/products
-     */
-    getProductStatusPending: (request: GetProductStatusPending) => {
-        return httpClient.get<Products>(`${import.meta.env.VITE_PRODUCERS_URL}`, {
-            params: request
-        });
-    },
-
-    /**
      * 获取商品详情
      * GET /v1/products/{id}
      */
@@ -114,15 +85,6 @@ export const productService = {
         return httpClient.get<Product>(url);
     },
 
-    /**
-     * 获取商家商品列表
-     * GET /v1/merchants/products
-     */
-    getMerchantProducts: (params?: GetMerchantProductsReq) => {
-        return httpClient.get<Products>(`${import.meta.env.VITE_MERCHANTS_URL}/products`, {
-            params
-        });
-    },
 
     /**
      * 根据商品名称模糊查询

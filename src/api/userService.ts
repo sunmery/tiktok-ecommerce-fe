@@ -3,21 +3,16 @@
  * 基于proto文件定义实现的用户服务API
  */
 
-import {httpClient} from '@/utils/http-client';
+import { httpClient } from '@/utils/http-client';
 import {
-    CreateAddress,
     CreateCreditCard,
-    DeleteAddress,
-    DeleteAddressReply,
     DeleteCreditCard,
-    GetAddresses,
-    GetAddressesReply,
     GetCreditCard,
     ListCreditCards,
-    UpdateAddress,
-    UpdateCreditCard, UpdateFavoritesRequest,
-    Users
+    UpdateCreditCard,
+    UpdateFavoritesRequest
 } from '@/types/user';
+
 import {
     CardsReply,
     CreditCard,
@@ -25,21 +20,11 @@ import {
     GetCreditCardReply,
     GetCreditCardRequest,
     ListCreditCardsReply
-} from '@/types/creditCards';
-import {Address, DeleteAddressRequest} from '@/types/addresses'
-import {EditUserForm} from "@/types/admin.ts";
-
-import SDK from 'casdoor-js-sdk'
-import {CASDOOR_CONF} from '@/core/conf/casdoor.ts'
-import {Products} from "@/types/products.ts";
+} from "@/features/dashboard/consumer/creditCard/type.ts";
+import { Products } from "@/features/products/types.ts";
 
 // 服务端的URL, 非casdoor的地址
 export const userServer: string = import.meta.env.VITE_USERS_URL
-
-// 读取配置
-export const CASDOOR_SDK = new SDK(CASDOOR_CONF)
-
-
 /**
  * 用户服务API
  */
@@ -74,107 +59,6 @@ export const userService = {
     getFavorites: (page: number, pageSize: number) => {
         return httpClient.get<Products>(`${import.meta.env.VITE_USERS_URL}/favorites`, {
             params: {page, pageSize},
-        });
-    },
-
-    /**
-     * 获取用户列表
-     * GET ${import.meta.env.VITE_USERS_URL}
-     */
-    listUsers: () => {
-        return httpClient.get<Users>(`${import.meta.env.VITE_USERS_URL}`);
-    },
-
-    /**
-     * 更新用户信息
-     * POST ${import.meta.env.VITE_USERS_URL}/{user_id}
-     */
-    updateUser: (userId: string, userData: EditUserForm) => {
-        return httpClient.post<{ status: string, code: number }>(`${import.meta.env.VITE_USERS_URL}/${userId}`, {
-            userId,
-            owner: userData.owner || '',
-            name: userData.name,
-            avatar: userData.avatar || '',
-            email: userData.email,
-            displayName: userData.displayName || userData.name,
-            signupApplication: userData.signupApplication || '',
-        });
-    },
-
-    /**
-     * 删除用户
-     * POST ${import.meta.env.VITE_USERS_URL}
-     */
-    deleteUser: (userId: string, owner: string, name: string) => {
-        return httpClient.post<{ status: string, code: number }>(`${import.meta.env.VITE_USERS_URL}`, {
-            userId,
-            owner,
-            name
-        });
-    },
-
-    /**
-     * 创建用户地址
-     * POST ${import.meta.env.VITE_USERS_URL}/address
-     */
-    createAddress: (address: Address) => {
-        return httpClient.post<Address>(`${import.meta.env.VITE_USERS_URL}/${CreateAddress}`, {
-            id: address.id,
-            userId: address.userId,
-            streetAddress: address.streetAddress,
-            city: address.city,
-            state: address.state,
-            country: address.country,
-            zipCode: address.zipCode
-        });
-    },
-
-    /**
-     * 更新用户地址
-     * PATCH ${import.meta.env.VITE_USERS_URL}/address
-     */
-    updateAddress: (address: Address) => {
-        const token = localStorage.getItem('token');
-        return httpClient.patch<Address>(`${import.meta.env.VITE_USERS_URL}/${UpdateAddress}`, {
-            id: address.id,
-            userId: address.userId,
-            streetAddress: address.streetAddress,
-            city: address.city,
-            state: address.state,
-            country: address.country,
-            zipCode: address.zipCode
-        }, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-    },
-
-    /**
-     * 删除用户地址
-     * DELETE ${import.meta.env.VITE_USERS_URL}/address
-     */
-    deleteAddress: (request: DeleteAddressRequest) => {
-        return httpClient.delete<DeleteAddressReply>(`${import.meta.env.VITE_USERS_URL}/${DeleteAddress}`, {
-            params: {
-                addressesId: request.addressesId,
-                userId: request.userId
-            }
-        });
-    },
-
-    /**
-     * 获取用户地址列表
-     * GET ${import.meta.env.VITE_USERS_URL}/addresses
-     */
-    getAddresses: () => {
-        const token = localStorage.getItem('token');
-        return httpClient.get<GetAddressesReply>(`${import.meta.env.VITE_USERS_URL}/${GetAddresses}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
         });
     },
 
@@ -226,10 +110,7 @@ export const userService = {
         });
     },
 
-    // 获取登录接口的URL
-    getSigninUrl: () => {
-        return CASDOOR_SDK.getSigninUrl()
-    },
+
     // 设置token
     setToken: (token: string) => {
         localStorage.setItem('token', token)
@@ -239,21 +120,7 @@ export const userService = {
         const token = localStorage.getItem('token')
         return token !== null && token.length > 0
     },
-    // 使用React Router进行导航，避免页面刷新
-    goToLink: (link: string) => {
-        // 检查是否在React Router环境中
-        if (typeof window !== 'undefined' && window.__TANSTACK_ROUTER_DEVTOOLS_GLOBAL_HANDLE) {
-            // 使用React Router的导航API
-            const router = window.__TANSTACK_ROUTER_DEVTOOLS_GLOBAL_HANDLE.router;
-            if (router) {
-                router.navigate({to: link, replace: true});
-                return;
-            }
-        }
 
-        // 如果不在React Router环境中，则使用传统方式
-        window.location.replace(link);
-    },
     // 获取用户信息
     getUserinfo: async () => {
         try {

@@ -1,15 +1,15 @@
-import {createLazyFileRoute, Link} from '@tanstack/react-router'
-import {Box, Card, CardContent, Divider, Stack, } from '@mui/material'
+import { createLazyFileRoute, Link } from '@tanstack/react-router'
+import { Box, Card, CardContent, Divider, Stack, } from '@mui/material'
 import AspectRatio from '@mui/joy/AspectRatio'
 import Grid from '@mui/joy/Grid'
 import Typography from '@mui/joy/Typography'
-import {useTranslation} from 'react-i18next'
-import {useState} from 'react'
-import {useSearchProducts} from '@/hooks/useProduct'
+import { useTranslation } from 'react-i18next'
+import { useState } from 'react'
+import { useSearchProducts } from '@/hooks/useProduct'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
-import {Product} from "@/types/products.ts";
+import { Product } from "@/features/products/types.ts";
 
-import {useCategories} from "@/hooks/useCategory.ts";
+import { useCategories } from "@/hooks/useCategory.ts";
 import HotCategories from "@/components/HotCategories.tsx";
 
 export const Route = createLazyFileRoute('/')({
@@ -33,7 +33,7 @@ function Home() {
         return (
             <Box sx={{
                 p: 2,
-                maxWidth: '1200px',
+                // maxWidth: '1200px',
                 mx: 'auto',
                 display: 'flex',
                 justifyContent: 'center',

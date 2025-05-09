@@ -5,7 +5,7 @@ import {Clear, Search, SearchTwoTone} from "@mui/icons-material";
 import {useState} from "react";
 import {useTranslation} from "react-i18next";
 
-import {Product} from "@/types/products.ts";
+import {Product} from "@/features/products/types.ts";
 import {useQuery} from "@tanstack/react-query";
 import {userService} from '@/api/userService';
 import Favorites from "@/components/Favorites";

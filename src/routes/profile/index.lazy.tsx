@@ -6,8 +6,8 @@ import {Alert, Avatar, Box, Button, Card, CardContent, Divider, Grid, Option, Se
 import {setAccount, userStore} from '@/store/user'
 import {useSnapshot} from 'valtio/react'
 import {useQuery, useQueryClient} from '@tanstack/react-query'
-import Skeleton from '@/components/Skeleton'
 import {useTranslation} from 'react-i18next'
+import Skeleton from '@/shared/components/Skeleton'
 
 /**
  *@returns JSXElement

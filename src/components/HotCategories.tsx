@@ -1,11 +1,23 @@
-import React, {useEffect, useState} from 'react';
-import {AspectRatio, Box, Button, Card, CardContent, CircularProgress, Grid, Modal, Sheet, Typography} from '@mui/joy';
-import {Category} from '@/types/category';
-import {categoryService} from '@/api/categoryService';
-import {Link, useNavigate} from '@tanstack/react-router';
+import React, { useEffect, useState } from 'react';
+import {
+    AspectRatio,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CircularProgress,
+    Grid,
+    Modal,
+    Sheet,
+    Typography
+} from '@mui/joy';
+import { Category } from '@/types/category';
+import { categoryService } from '@/api/categoryService';
+import { Link, useNavigate } from '@tanstack/react-router';
 import CategoryNavigator from '@/components/CategoryNavigator';
-import {useCategoryWithChildrenProducts} from '@/hooks/useProduct';
-import {Product, ProductStatus} from '@/types/products';
+import { useCategoryWithChildrenProducts } from '@/hooks/useProduct';
+import { ProductStatus } from "@/types/status.ts";
+import { Product } from '@/features/products/types';
 
 interface HotCategoriesProps {
     // 定制顶部标题

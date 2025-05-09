@@ -3,14 +3,8 @@
  * 基于proto文件生成的TypeScript类型
  */
 
-import {Address} from "@/types/addresses";
 
-// API路径常量
-export const CreateAddress = 'address';
-export const UpdateAddress = 'address';
-export const DeleteAddress = 'address';
-export const GetAddresses = 'addresses';
-export const ListAddresses = 'addresses';
+
 export const ListCreditCards = 'credit_cards';
 export const CreateCreditCard = 'credit_cards';
 export const UpdateCreditCard = 'credit_cards';
@@ -21,10 +15,6 @@ export const GetCreditCard = 'credit_cards';
 export interface Empty {
 }
 
-// 获取地址列表响应
-export interface GetAddressesReply {
-    addresses: Address[];
-}
 
 // 删除地址响应
 export interface DeleteAddressReply {

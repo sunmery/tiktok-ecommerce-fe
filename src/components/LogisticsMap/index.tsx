@@ -4,7 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {Coordinates} from '@/types/logisticsMap';
 import {showMessage} from "@/utils/showMessage";
-import {PaymentStatus, ShippingStatus} from "@/types/orders.ts";
+import {PaymentStatus, ShippingStatus} from "@/types/status.ts";
 import {shippingStatus as getShippingStatusText} from "@/utils/status.ts";
 import {useTranslation} from 'react-i18next';
 

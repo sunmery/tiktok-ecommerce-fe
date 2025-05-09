@@ -1,6 +1,6 @@
 import i18n from 'i18next';
-import {initReactI18next} from 'react-i18next';
-import {isDevelopment, log, warn} from '@/core/conf/app';
+import { initReactI18next } from 'react-i18next';
+import { isDevelopment, log, warn } from '@/core/conf/app';
 
 // 从localStorage获取默认语言，如果没有则使用中文
 const getDefaultLanguage = (): string => {
@@ -2405,7 +2405,9 @@ const resources = {
             'consumer.orders.filter.placeholder': '请输入订单号、商品名称等',
 
             'transaction.error.fetch': '获取交易数据失败',
-
+            'nav.switchToBuyer': '切换到消费者中心',
+            'common.logout': '退出登录',
+            'common.login': '登录',
             'analytics.overview': '概览',
             'analytics.period': '周期',
             'analytics.daily': '每日',

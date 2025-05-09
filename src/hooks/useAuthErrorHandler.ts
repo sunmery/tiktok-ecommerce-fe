@@ -22,7 +22,7 @@ export const useAuthErrorHandler = (redirectPath = '/') => {
             // 清除token
             localStorage.removeItem('token');
             // 重定向到登录页
-            navigate({to: '/login'});
+            navigate({to: '/auth/login'});
             return;
         }
 
