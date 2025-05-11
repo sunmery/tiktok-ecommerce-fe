@@ -55,6 +55,8 @@ import { PageContainer } from '@toolpad/core/PageContainer';
 import MenuIcon from '@mui/icons-material/Menu';
 import { cartStore } from "@/store/cartStore.ts";
 import { userService } from "@/api/userService.ts";
+import theme from "@/core/conf/theme";
+import { templateTheme } from "@/core/conf/theme/theme.ts";
 
 // 定义导航项类型，扩展Navigation类型以包含权限控制
 interface NavigationItem {
@@ -374,7 +376,7 @@ export default function Template({children}: { children: React.ReactNode }) {
     const totalCartItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
     return (
-        <AppProvider navigation={navigation} router={router}>
+        <AppProvider navigation={navigation} router={router} theme={templateTheme}>
             <CssVarsProvider>
                 <GlobalStyles styles={{
                     body: {margin: 0},
@@ -497,7 +499,7 @@ export default function Template({children}: { children: React.ReactNode }) {
                         maxWidth: '100%',
                         p: 2,
                         boxSizing: 'border-box'
-                    }}> {/* Adjust 64px based on actual header height */}
+                    }}>
                         {children}
                     </PageContainer>
                 </DashboardLayout>

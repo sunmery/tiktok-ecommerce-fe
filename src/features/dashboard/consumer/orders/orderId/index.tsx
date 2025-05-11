@@ -1,301 +1,266 @@
-import { useSnapshot } from "valtio/react";
-import { userStore } from "@/store/user.ts";
-import { useNavigate, useParams } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { showMessage } from "@/utils/showMessage.ts";
-import { useTranslation } from "react-i18next";
-import { Alert, Box, Button, Card, CardContent, Chip, Divider, Grid, Stack, Typography } from "@mui/joy";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import Breadcrumbs from "@/shared/components/Breadcrumbs";
-import { getStatusColor, getStatusText, shippingStatus } from "@/utils/status.ts";
-import { formatCurrency } from "@/utils/format.ts";
-import { ConsumerOrder } from "../type.ts";
-import { orderService } from "../api.ts";
-import Skeleton from "@/shared/components/Skeleton/index.tsx";
+import { useNavigate, useParams } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
+import { Box, Button, Card, CardContent, Container, Divider, Grid, IconButton, Table, Typography } from '@mui/joy';
+import { useTranslation } from 'react-i18next';
+import { ArrowBack, Delete, Edit } from '@mui/icons-material';
+import { orderService } from "@/features/dashboard/consumer/orders/api.ts";
 
 export default function ConsumerOrderDetail() {
-    const {account} = useSnapshot(userStore)
-    const navigate = useNavigate()
-    const {orderId} = useParams({from: '/consumer/orders/$orderId'})
-    const [order, setOrder] = useState<ConsumerOrder | null>(null)
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState('')
+    const {orderId} = useParams({from: '/consumer/orders/$orderId'});
+    const {t} = useTranslation();
+    const navigate = useNavigate();
 
+    const {data: order, isLoading, error} = useQuery({
+        queryKey: ['order', orderId],
+        queryFn: () => orderService.getOrderDetail(orderId),
+    });
 
-    // 检查用户是否为消费者，如果不是则重定向到首页
-    useEffect(() => {
-        if (account.role !== 'consumer') {
-            navigate({to: '/'}).then(() => {
-                console.log('非消费者用户，已重定向到首页')
-            })
-        }
-    }, [account.role, navigate])
-
-    // 获取订单详情
-    useEffect(() => {
-        const fetchOrderDetail = async () => {
-            if (!orderId) return
-
-            setLoading(true)
-            setError('')
-            try {
-                // 调用API获取订单列表
-                const response = await orderService.getConsumerOrders({
-                    page: 1,
-                    pageSize: 50,
-                    userId: account.id
-                })
-
-                // 查找指定ID的订单
-                if (response && response.orders) {
-                    // 找到所有具有相同orderId的子订单
-                    const foundOrders = response.orders.filter(o => o.orderId === orderId)
-                    if (foundOrders.length > 0) {
-                        // 合并所有子订单的信息
-                        const mergedOrder = {
-                            ...foundOrders[0], // 使用第一个订单的基本信息
-                            items: foundOrders.flatMap(order => order.items.map(item => ({
-                                ...item,
-                                subOrderId: order.subOrderId, // 将子订单ID添加到每个商品项
-                                shippingStatus: order.shippingStatus // 将配送状态添加到每个商品项
-                            })))
-                        }
-                        setOrder(mergedOrder)
-                    } else {
-                        setError(t('consumer.order.notFound'))
-                        setError(t('consumer.order.fetchFailed'))
-                        setError(t('consumer.order.error.fetchDetailRetry'))
-                    }
-                } else {
-                    setError('获取订单信息失败')
-                }
-            } catch (err) {
-                console.error('获取订单详情失败:', err)
-                setError('获取订单详情失败，请稍后重试')
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        if (orderId) {
-            fetchOrderDetail().then(() => {
-                console.log("订单详情获取完成")
-            }).catch(e => {
-                console.error("获取订单详情失败", e)
-                showMessage("获取订单详情失败", 'error')
-            })
-        }
-    }, [orderId])
-
-
-    // 计算订单总金额
-    const calculateTotal = (order: ConsumerOrder) => {
-        return order.items.reduce((total, item) => {
-            console.log("计算商品cost", item.cost)
-            console.log("计算商品总价total", total + (item.cost || 0))
-            return total + (item.cost || 0)
-        }, 0)
+    if (isLoading) {
+        return (
+            <Container maxWidth="lg" sx={{py: 4}}>
+                <Typography level="body-lg">{t('orders.loading')}</Typography>
+            </Container>
+        );
     }
 
-    const {t} = useTranslation();
+    if (error || !order) {
+        return (
+            <Container maxWidth="lg" sx={{py: 4}}>
+                <Typography level="body-lg" color="danger">
+                    {t('orders.error')}: {error instanceof Error ? error.message : t('orders.unknownError')}
+                </Typography>
+            </Container>
+        );
+    }
+
+    // 模拟订单详情数据
+    const mockOrder = {
+        id: orderId,
+        email: 'buyer@email.co',
+        name: 'John Doe',
+        schedule: 'Repeat every month on last Friday',
+        orderDate: '2023-11-24',
+        nextDeliveryDate: '2023-12-24',
+        shippingMethod: 'International Express',
+        paymentMethod: 'Credit Card',
+        shippingAddress: '4517 Washington Ave. Manchester, Kentucky 39495',
+        paymentAddress: '4517 Washington Ave. Manchester, Kentucky 39495',
+        total: 1318.54,
+        items: [
+            {
+                id: '001',
+                name: 'Air stone Cylinder Small 1.4IN X 1.7IN',
+                quantity: 100,
+                price: 100.00,
+                image: 'https://via.placeholder.com/100'
+            },
+            {
+                id: '001',
+                name: 'Air stone Cylinder Small 1.4IN X 1.7IN',
+                quantity: 100,
+                price: 100.00,
+                image: 'https://via.placeholder.com/100'
+            },
+            {
+                id: '001',
+                name: 'Air stone Cylinder Small 1.4IN X 1.7IN',
+                quantity: 100,
+                price: 100.00,
+                image: 'https://via.placeholder.com/100'
+            }
+        ]
+    };
 
     return (
-        <Box sx={{p: 2, maxWidth: 1200, margin: '0 auto'}}>
-            <Button
-                startDecorator={<ArrowBackIcon/>}
-                variant="plain"
-                onClick={() => navigate({to: '/consumer/orders'}).then(() => {
-                    console.log('已返回消费者订单列表页面')
-                })}
-                sx={{mb: 2}}
-            >
-                {t('consumer.order.backToList')}
-            </Button>
+        <Container maxWidth="lg" sx={{py: 4}}>
+            <Box sx={{display: 'flex', alignItems: 'center', mb: 4}}>
+                <IconButton
+                    variant="plain"
+                    color="neutral"
+                    sx={{mr: 1}}
+                    onClick={() => navigate({to: '/consumer/orders'})}
+                >
+                    <ArrowBack/>
+                </IconButton>
+                <Typography level="h2" component="h1">
+                    {t('orders.orderNo')} {orderId}
+                </Typography>
+            </Box>
 
-            {/* 面包屑导航 */}
-            <Breadcrumbs
-                pathMap={{
-                    'consumer': t('consumer.dashboard.title'),
-                    'orders': t('consumer.orders.title'),
-                    [orderId || '']: t('consumer.order.details')
-                }}
-            />
+            <Card variant="outlined" sx={{mb: 4}}>
+                <CardContent>
+                    <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
+                        <Typography level="title-lg">
+                            {t('orders.details')}
+                        </Typography>
+                        <Box>
+                            <IconButton color="primary" sx={{mr: 1}}>
+                                <Edit/>
+                            </IconButton>
+                            <IconButton color="danger">
+                                <Delete/>
+                            </IconButton>
+                        </Box>
+                    </Box>
 
-            <Typography level="h2" sx={{mb: 3}}>{t('consumer.order.details')}</Typography>
-
-            {loading ? (
-                <Skeleton variant="order"/>
-            ) : error ? (
-                <Alert color="danger" sx={{mb: 2}}>{error}</Alert>
-            ) : !order ? (
-                <Alert color="warning" sx={{mb: 2}}>{t('consumer.order.notFound')}</Alert>
-            ) : (
-                <>
                     <Grid container spacing={3}>
-                        {/* 订单基本信息 */}
-                        <Grid xs={12}>
-                            <Card variant="outlined">
-                                <CardContent>
-                                    <Box sx={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        mb: 2
-                                    }}>
-                                        <Typography
-                                            level="title-lg">{t('consumer.order.orderId')}: {order.orderId}</Typography>
-                                        <Chip
-                                            variant="soft"
-                                            size="md"
-                                            color={getStatusColor(order.paymentStatus)}
-                                        >
-                                            {getStatusText(order.paymentStatus)}
-                                        </Chip>
-                                    </Box>
-                                    <Divider sx={{my: 2}}/>
-                                    <Grid container spacing={2}>
-                                        <Grid xs={12} md={6}>
-                                            <Typography
-                                                level="body-md">{t('consumer.order.createdTime')}: {order.createdAt}</Typography>
-                                            <Typography
-                                                level="body-md">{t('consumer.order.userId')}: {order.userId}</Typography>
-                                            <Typography
-                                                level="body-md">{t('consumer.order.contactEmail')}: {order.email}</Typography>
-                                        </Grid>
-                                        <Grid xs={12} md={6}>
-                                            <Typography level="title-sm"
-                                                        sx={{mb: 1}}>{t('consumer.order.shippingAddress')}:</Typography>
-                                            <Typography level="body-md">
-                                                {order.address.streetAddress || t('consumer.order.noAddress')},
-                                                {order.address.city || ''},
-                                                {order.address.state || ''},
-                                                {order.address.country || ''},
-                                                {order.address.zipCode || ''}
-                                            </Typography>
-                                        </Grid>
-                                    </Grid>
-                                </CardContent>
-                            </Card>
+                        <Grid xs={12} md={6}>
+                            <Table>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <Typography level="title-sm">{t('orders.account')}</Typography>
+                                    </td>
+                                    <td>
+                                        <Typography level="body-md">{mockOrder.email}</Typography>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <Typography level="title-sm">{t('orders.name')}</Typography>
+                                    </td>
+                                    <td>
+                                        <Typography level="body-md">{mockOrder.name}</Typography>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <Typography level="title-sm">{t('orders.schedule')}</Typography>
+                                    </td>
+                                    <td>
+                                        <Typography level="body-md">{mockOrder.schedule}</Typography>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <Typography level="title-sm">{t('orders.orderDate')}</Typography>
+                                    </td>
+                                    <td>
+                                        <Typography level="body-md">{mockOrder.orderDate}</Typography>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <Typography level="title-sm">{t('orders.nextDeliveryDate')}</Typography>
+                                    </td>
+                                    <td>
+                                        <Typography level="body-md">{mockOrder.nextDeliveryDate}</Typography>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </Table>
                         </Grid>
-
-                        {/* 订单商品列表 */}
-                        <Grid xs={12}>
-                            <Card variant="outlined">
-                                <CardContent>
-                                    <Typography level="title-lg" sx={{mb: 2}}>{t('orders.productOverview')}</Typography>
-                                    <Divider sx={{my: 2}}/>
-
-                                    {order.items.map((item, index) => (
-                                        <Box key={index} sx={{mb: 2}}>
-                                            <Grid container spacing={2} alignItems="center">
-                                                <Grid xs={2} sm={1}>
-                                                    {item.item.picture && (
-                                                        <Box
-                                                            component="img"
-                                                            src={item.item.picture}
-                                                            alt={item.item.name || t('orders.product')}
-                                                            sx={{width: '100%', maxWidth: 60, borderRadius: 'sm'}}
-                                                        />
-                                                    )}
-                                                </Grid>
-                                                <Grid xs={6} sm={7}>
-                                                    <Typography level="title-sm">
-                                                        {item.item.name || `${item.item.productId.substring(0, 8)}`}
-                                                    </Typography>
-                                                    <Typography level="body-sm" color="neutral">
-                                                        {t('orders.unitPrice')}: {formatCurrency(item.cost / item.item.quantity, order.currency)}
-                                                    </Typography>
-
-                                                    <Typography level="body-sm" color="neutral">
-                                                        商家ID: {item.item.merchantId}
-                                                    </Typography>
-
-                                                    <Typography level="body-sm" color="neutral">
-                                                        子订单号: {item.subOrderId || '暂无'}
-                                                    </Typography>
-
-                                                    <Typography level="body-sm" color="neutral">
-                                                        配送状态: {shippingStatus(item.shippingStatus)}
-                                                    </Typography>
-
-                                                </Grid>
-                                                <Grid xs={2} sm={2} sx={{textAlign: 'center'}}>
-                                                    <Typography level="body-md">x {item.item.quantity}</Typography>
-                                                </Grid>
-                                                <Grid xs={2} sm={2} sx={{textAlign: 'right'}}>
-                                                    <Stack spacing={1}>
-                                                        <Typography level="body-md">
-                                                            {formatCurrency(item.cost, order.currency)}
-                                                        </Typography>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outlined"
-                                                            color="primary"
-                                                            onClick={() => {
-                                                                if (!item.subOrderId) {
-                                                                    showMessage('该订单没有子订单信息，无法查询物流', 'warning');
-                                                                    return;
-                                                                }
-                                                                navigate({ to: `/consumer/logistics/${item.subOrderId}` });
-                                                            }}
-                                                        >
-                                                            查看物流
-                                                        </Button>
-                                                    </Stack>
-                                                </Grid>
-                                            </Grid>
-                                            {index < order.items.length - 1 && <Divider sx={{my: 2}}/>}
-                                        </Box>
-                                    ))}
-
-                                    <Divider sx={{my: 2}}/>
-                                    <Box sx={{display: 'flex', justifyContent: 'flex-end'}}>
-                                        <Typography level="title-lg">
-                                            {t('orders.total')}: {formatCurrency(calculateTotal(order), order.currency)}
-                                        </Typography>
-                                    </Box>
-                                </CardContent>
-                            </Card>
+                        <Grid xs={12} md={6}>
+                            <Table>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <Typography level="title-sm">{t('orders.shippingMethod')}</Typography>
+                                    </td>
+                                    <td>
+                                        <Typography level="body-md">{mockOrder.shippingMethod}</Typography>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <Typography level="title-sm">{t('orders.paymentMethod')}</Typography>
+                                    </td>
+                                    <td>
+                                        <Typography level="body-md">{mockOrder.paymentMethod}</Typography>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <Typography level="title-sm">{t('orders.shippingAddress')}</Typography>
+                                    </td>
+                                    <td>
+                                        <Typography level="body-md">{mockOrder.shippingAddress}</Typography>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <Typography level="title-sm">{t('orders.paymentAddress')}</Typography>
+                                    </td>
+                                    <td>
+                                        <Typography level="body-md">{mockOrder.paymentAddress}</Typography>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </Table>
                         </Grid>
-
-                        {/* 确认收货按钮 */}
-                        {order.shippingStatus === 'DELIVERED' && (
-                            <Grid xs={12}>
-                                <Card variant="outlined">
-                                    <CardContent>
-                                        <Box sx={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center'
-                                        }}>
-                                            <Typography level="title-md">商品已送达，请确认收货</Typography>
-                                            <Button
-                                                color="success"
-                                                variant="solid"
-                                                onClick={async () => {
-                                                    try {
-                                                        await orderService.confirmReceived(order.orderId);
-                                                        showMessage('确认收货成功', 'success');
-                                                        // 刷新订单详情
-                                                        window.location.reload();
-                                                    } catch (error) {
-                                                        console.error('确认收货失败:', error);
-                                                        showMessage('确认收货失败', 'error');
-                                                    }
-                                                }}
-                                            >
-                                                确认收货
-                                            </Button>
-                                        </Box>
-                                    </CardContent>
-                                </Card>
-                            </Grid>
-                        )}
                     </Grid>
-                </>
-            )}
+                </CardContent>
+            </Card>
 
+            {/* 订单商品列表 */}
+            <Typography level="title-lg" sx={{mt: 4, mb: 2}}>
+                {t('orders.items')}
+            </Typography>
 
-        </Box>
+            {mockOrder.items.map((item, index) => (
+                <Card key={index} variant="outlined" sx={{mb: 2}}>
+                    <CardContent>
+                        <Grid container spacing={2} alignItems="center">
+                            <Grid xs={12} sm={2} md={1}>
+                                <Box
+                                    component="img"
+                                    src={item.image}
+                                    alt={item.name}
+                                    sx={{width: '100%', aspectRatio: '1/1', objectFit: 'contain', borderRadius: '4px'}}
+                                />
+                            </Grid>
+                            <Grid xs={12} sm={6} md={7}>
+                                <Typography level="title-md">
+                                    {item.name}
+                                </Typography>
+                                <Typography level="body-sm" color="neutral">
+                                    SKU: {item.id}
+                                </Typography>
+                                <Box sx={{display: 'flex', mt: 1}}>
+                                    <Typography level="body-sm" color="neutral" sx={{mr: 1}}>
+                                        {t('orders.unit')}: {item.quantity}
+                                    </Typography>
+                                    <Typography level="body-sm" color="neutral">
+                                        {t('orders.unitPrice')}: ${item.price.toFixed(2)}
+                                    </Typography>
+                                </Box>
+                            </Grid>
+                            <Grid xs={12} sm={4} md={4} sx={{textAlign: 'right'}}>
+                                <Typography level="title-lg" fontWeight="bold">
+                                    ${(item.price * item.quantity).toFixed(2)}
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                    </CardContent>
+                </Card>
+            ))}
+
+            {/* 订单总计 */}
+            <Card variant="outlined">
+                <CardContent>
+                    <Typography level="title-lg" sx={{mb: 2}}>
+                        {t('orders.orderTotal')}
+                    </Typography>
+                    <Divider sx={{my: 2}}/>
+                    <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 1}}>
+                        <Typography level="title-md">
+                            {t('orders.total')}:
+                        </Typography>
+                        <Typography level="title-md" fontWeight="bold">
+                            ${mockOrder.total.toFixed(2)}
+                        </Typography>
+                    </Box>
+                </CardContent>
+            </Card>
+
+            <Box sx={{display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 2}}>
+                <Button variant="outlined" color="neutral">
+                    {t('orders.printOrder')}
+                </Button>
+                <Button variant="solid" color="primary">
+                    {t('orders.reorder')}
+                </Button>
+            </Box>
+        </Container>
     )
 }

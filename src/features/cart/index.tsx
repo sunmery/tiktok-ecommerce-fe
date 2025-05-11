@@ -2,8 +2,9 @@ import {useTranslation} from "react-i18next";
 import {useState} from "react";
 import {useNavigate} from "@tanstack/react-router";
 import {useCart} from "./hook.ts";
-import {Box, Button, Card, IconButton, Input, Table, Typography} from "@mui/joy";
-import {Add, CheckBox, CheckBoxOutlineBlank, FavoriteBorder, Remove, ShoppingCart} from "@mui/icons-material";
+import {Box, Button, Card, IconButton, Input, Grid, Typography, Divider, Chip, CardContent} from "@mui/joy";
+import {Add,  Delete,  Remove, ShoppingCart} from "@mui/icons-material";
+import { Container } from "@mui/material";
 
 /**
  *@returns JSXElement
@@ -21,10 +22,6 @@ export default function Cart() {
         updateQuantity: apiUpdateQuantity,
         clearCart: apiClearCart,
         getSelectedTotalPrice,
-        toggleItemSelection,
-        selectAllItems,
-        unselectAllItems,
-        isAllSelected,
         getSelectedItemsCount,
         syncWithBackend
     } = useCart()
@@ -129,178 +126,220 @@ export default function Cart() {
     }
 
     return (
-        <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
-            {/* 删除了面包屑导航 */}
-
-            <Typography level="h2" sx={{mb: 3}}>{t('cart.title')}</Typography>
+        <Container maxWidth="lg" sx={{py: 4}}>
+            <Typography level="h2" component="h1" sx={{mb: 4}}>
+                {t('cart.title')}
+            </Typography>
+            
             {error && (
                 <Typography color="danger" sx={{mb: 2}}>
                     {error}
                 </Typography>
             )}
+            
             {cartItems && cartItems.length > 0 ? (
-                <Box>
-                    <Card variant="outlined" sx={{mb: 3}}>
-                        <Table>
-                            <thead>
-                            <tr>
-                                <th style={{width: '5%'}}>
-                                    <IconButton
-                                        size="sm"
-                                        onClick={() => isAllSelected() ? unselectAllItems() : selectAllItems()}
-                                    >
-                                        {isAllSelected() ? <CheckBox/> : <CheckBoxOutlineBlank/>}
-                                    </IconButton>
-                                </th>
-                                <th style={{width: '25%'}}>{t('cart.table.productInfo')}</th>
-                                <th style={{width: '15%'}}>{t('cart.table.unitPrice')}</th>
-                                <th style={{width: '20%'}}>{t('cart.table.quantity')}</th>
-                                <th style={{width: '15%'}}>{t('cart.table.subtotal')}</th>
-                                <th style={{width: '20%'}}>{t('cart.table.actions')}</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {cartItems.map((item) => (
-                                <tr key={item.productId}>
-                                    <td>
-                                        <IconButton
-                                            size="sm"
-                                            onClick={() => toggleItemSelection(item.productId)}
-                                        >
-                                            {item.selected ? <CheckBox/> : <CheckBoxOutlineBlank/>}
-                                        </IconButton>
-                                    </td>
-                                    <td>
-                                        <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
+                <Grid container spacing={4}>
+                    <Grid xs={12} md={8}>
+                        <Typography level="title-lg" sx={{mb: 2}}>
+                            {t('cart.products')}
+                        </Typography>
+                        
+                        {cartItems.map((item) => (
+                            <Card key={item.productId} variant="outlined" sx={{mb: 2, overflow: 'visible'}}>
+                                <CardContent>
+                                    <Grid container spacing={2} alignItems="center">
+                                        <Grid xs={12} sm={2}>
                                             <Box
                                                 component="img"
                                                 src={item.picture}
                                                 alt={item.name}
-                                                width={80}
-                                                height={80}
-                                                sx={{objectFit: 'cover', borderRadius: 'sm'}}
+                                                sx={{
+                                                    width: '100%',
+                                                    aspectRatio: '1/1',
+                                                    objectFit: 'contain',
+                                                    borderRadius: 'sm'
+                                                }}
                                             />
+                                        </Grid>
+                                        <Grid xs={12} sm={4}>
                                             <Box>
-                                                <Typography level="title-md">{item.name}</Typography>
-                                                {/*{item && item.categories.length > 0 && (*/}
-                                                {/*    <Box*/}
-                                                {/*        sx={{display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap'}}>*/}
-                                                {/*        {item.categories.map((category, index) => (*/}
-                                                {/*            <Chip*/}
-                                                {/*                key={index}*/}
-                                                {/*                size="sm"*/}
-                                                {/*                variant="soft"*/}
-                                                {/*                color="primary"*/}
-                                                {/*            >*/}
-                                                {/*                {category}*/}
-                                                {/*            </Chip>*/}
-                                                {/*        ))}*/}
-                                                {/*    </Box>*/}
-                                                {/*)}*/}
+                                                <Typography level="title-md" sx={{mb: 1}}>
+                                                    {item.name}
+                                                </Typography>
+                                                <Typography level="body-sm" color="neutral">
+                                                    {t('cart.table.sku')}: {item.productId}
+                                                </Typography>
+                                                <Typography level="body-sm" color="success">
+                                                    {t('cart.table.availability')}: 1000 {t('cart.table.inStock')}
+                                                </Typography>
+                                                <Button 
+                                                    variant="plain" 
+                                                    color="danger" 
+                                                    size="sm"
+                                                    onClick={() => removeItem(item.productId, item.merchantId)}
+                                                    sx={{mt: 1, p: 0}}
+                                                >
+                                                    {t('cart.actions.remove')}
+                                                </Button>
                                             </Box>
-                                        </Box>
-                                    </td>
-                                    <td>
-                                        <Typography level="title-md">¥{(item.price || 0).toFixed(2)}</Typography>
-                                    </td>
-                                    <td>
-                                        <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
-                                            <IconButton
-                                                size="sm"
-                                                variant="outlined"
-                                                color="neutral"
-                                                onClick={() => updateQuantity(item.productId, -1)}
-                                            >
-                                                <Remove/>
-                                            </IconButton>
-                                            <Input
-                                                value={item.quantity}
-                                                variant="outlined"
-                                                size="sm"
-                                                sx={{width: '60px', textAlign: 'center'}}
-                                                onChange={(e) => {
-                                                    const value = Math.max(1, parseInt(e.target.value) || 1);
-                                                    apiUpdateQuantity({itemId: item.productId, quantity: value});
-                                                }}
-                                                onBlur={(e) => {
-                                                    const value = Math.max(1, parseInt(e.target.value) || 1);
-                                                    apiUpdateQuantity({itemId: item.productId, quantity: value});
-                                                }}
-                                                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                                                    if (e.key === 'Enter') {
-                                                        const value = Math.max(1, parseInt((e.target as HTMLInputElement).value) || 1);
+                                        </Grid>
+                                        <Grid xs={12} sm={2}>
+                                            <Typography level="title-md">
+                                                ¥{(item.price || 0).toFixed(2)}
+                                            </Typography>
+                                        </Grid>
+                                        <Grid xs={12} sm={2}>
+                                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                                <IconButton
+                                                    size="sm"
+                                                    variant="outlined"
+                                                    color="neutral"
+                                                    onClick={() => updateQuantity(item.productId, -1)}
+                                                >
+                                                    <Remove/>
+                                                </IconButton>
+                                                <Input
+                                                    value={item.quantity}
+                                                    variant="outlined"
+                                                    size="sm"
+                                                    sx={{width: '40px', textAlign: 'center'}}
+                                                    onChange={(e) => {
+                                                        const value = Math.max(1, parseInt(e.target.value) || 1);
                                                         apiUpdateQuantity({itemId: item.productId, quantity: value});
-                                                    }
-                                                }}
-                                            />
-                                            <IconButton
-                                                size="sm"
-                                                variant="outlined"
-                                                color="neutral"
-                                                onClick={() => updateQuantity(item.productId, 1)}
-                                            >
-                                                <Add/>
-                                            </IconButton>
-                                        </Box>
-                                    </td>
-                                    <td>
-                                        <Typography level="title-md" color="primary">
-                                            ¥{getItemSubtotal((item.price || 0), (item.quantity || 0)).toFixed(2)}
-                                        </Typography>
-                                    </td>
-                                    <td>
-                                        <Button
-                                            variant="soft"
-                                            color="danger"
-                                            onClick={() => {
-                                                console.log("item.productId, item.merchantId", item.productId, item.merchantId)
-                                                removeItem(item.productId, item.merchantId)
-                                            }}
-                                        >
-                                            {t('cart.button.remove')}
-                                        </Button>
-                                    </td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </Table>
-                    </Card>
-
-                    <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
-                        <Button
-                            variant="outlined"
-                            color="danger"
-                            onClick={handleClearCart}
-                            startDecorator={<FavoriteBorder/>}
-                        >
-                            {t('cart.button.clearCart')}
-                        </Button>
-                        <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
-                            <Typography level="h4">
-                                {t('cart.total')}: ¥{getSelectedTotalPrice().toFixed(2)}
-                            </Typography>
-                            <Typography level="body-sm" sx={{ml: 1}}>
-                                {t('cart.selectedItems', {count: getSelectedItemsCount()})}
-                            </Typography>
+                                                    }}
+                                                    onBlur={(e) => {
+                                                        const value = Math.max(1, parseInt(e.target.value) || 1);
+                                                        apiUpdateQuantity({itemId: item.productId, quantity: value});
+                                                    }}
+                                                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                                                        if (e.key === 'Enter') {
+                                                            const value = Math.max(1, parseInt((e.target as HTMLInputElement).value) || 1);
+                                                            apiUpdateQuantity({itemId: item.productId, quantity: value});
+                                                        }
+                                                    }}
+                                                />
+                                                <IconButton
+                                                    size="sm"
+                                                    variant="outlined"
+                                                    color="neutral"
+                                                    onClick={() => updateQuantity(item.productId, 1)}
+                                                >
+                                                    <Add/>
+                                                </IconButton>
+                                            </Box>
+                                        </Grid>
+                                        <Grid xs={12} sm={2}>
+                                            <Typography level="title-md" color="primary" fontWeight="bold">
+                                                ¥{getItemSubtotal((item.price || 0), (item.quantity || 0)).toFixed(2)}
+                                            </Typography>
+                                        </Grid>
+                                    </Grid>
+                                </CardContent>
+                            </Card>
+                        ))}
+                        
+                        <Box sx={{display: 'flex', justifyContent: 'space-between', mt: 3}}>
                             <Button
-                                size="lg"
-                                color="primary"
-                                variant="solid"
-                                startDecorator={<ShoppingCart/>}
-                                onClick={handleCheckout}
-                                disabled={!cartItems || cartItems.length === 0 || getSelectedItemsCount() === 0}
+                                variant="outlined"
+                                color="neutral"
+                                onClick={() => navigate({to: '/'})}
                             >
-                                {t('cart.button.checkout')}
+                                {t('cart.actions.backToShop')}
+                            </Button>
+                            
+                            <Button
+                                variant="outlined"
+                                color="danger"
+                                onClick={handleClearCart}
+                                startDecorator={<Delete />}
+                            >
+                                {t('cart.actions.clearCart')}
                             </Button>
                         </Box>
-                    </Box>
-                </Box>
+                    </Grid>
+                    
+                    <Grid xs={12} md={4}>
+                        <Card variant="outlined">
+                            <CardContent>
+                                <Typography level="title-lg" sx={{mb: 2}}>
+                                    {t('cart.summary.cartTotal')}
+                                </Typography>
+                                
+                                <Box sx={{mb: 3}}>
+                                    <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 1}}>
+                                        <Typography level="body-md">
+                                            {t('cart.summary.total')}
+                                        </Typography>
+                                        <Typography level="title-md" fontWeight="bold">
+                                            ¥{getSelectedTotalPrice().toFixed(2)}
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                                
+                                <Divider sx={{my: 2}} />
+                                
+                                <Box sx={{mb: 3}}>
+                                    <Typography level="body-sm" color="neutral" sx={{mb: 2}}>
+                                        {t('cart.summary.deliveryInfo')}
+                                    </Typography>
+                                    
+                                    <Typography level="body-sm" color="neutral" sx={{mb: 2}}>
+                                        Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s.
+                                    </Typography>
+                                    
+                                    <Box sx={{mb: 2}}>
+                                        <Chip size="sm" variant="outlined">
+                                            {t('cart.summary.selectDate')}
+                                        </Chip>
+                                    </Box>
+                                </Box>
+                                
+                                <Box sx={{mb: 2}}>
+                                    <Typography level="title-sm" sx={{mb: 1}}>
+                                        {t('cart.summary.scheduleOrder')}
+                                    </Typography>
+                                    
+                                    <Button 
+                                        variant="soft" 
+                                        color="primary" 
+                                        fullWidth 
+                                        sx={{mb: 1}}
+                                    >
+                                        {t('cart.summary.recurringOrder')}
+                                    </Button>
+                                </Box>
+                                
+                                <Button
+                                    variant="solid"
+                                    color="primary"
+                                    size="lg"
+                                    fullWidth
+                                    onClick={handleCheckout}
+                                    disabled={getSelectedItemsCount() === 0 || loading}
+                                >
+                                    {loading ? t('cart.actions.processing') : t('cart.actions.proceedOrder')}
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                </Grid>
             ) : (
                 <Card variant="outlined" sx={{p: 4, textAlign: 'center'}}>
-                    <Typography level="h3" sx={{mb: 2}}>{t('cart.empty')}</Typography>
-                    <Typography sx={{mb: 3}}>{t('cart.goShopping')}</Typography>
+                    <ShoppingCart sx={{fontSize: 60, mb: 2, color: 'neutral.400'}}/>
+                    <Typography level="h4" sx={{mb: 2}}>
+                        {t('cart.empty.title')}
+                    </Typography>
+                    <Typography sx={{mb: 3}}>
+                        {t('cart.empty.message')}
+                    </Typography>
+                    <Button
+                        variant="solid"
+                        color="primary"
+                        onClick={() => navigate({to: '/'})}>
+                        {t('cart.empty.continueShopping')}
+                    </Button>
                 </Card>
             )}
-        </Box>
+        </Container>
     )
 }

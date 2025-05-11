@@ -33,6 +33,7 @@ import {
     white
 } from './colors';
 import type {PaletteRange} from "@mui/joy";
+import { createTheme } from '@mui/material/styles';
 
 // 扩充主题的界面以包含新的调色板
 declare module '@mui/joy/styles' {
@@ -260,6 +261,139 @@ const theme = extendTheme({
         },
         h4: {
             fontWeight: 600,
+        },
+    },
+});
+
+export const templateTheme = createTheme({
+    cssVariables: {
+        colorSchemeSelector: 'data-toolpad-color-scheme',
+    },
+    colorSchemes: {
+        light: {
+            palette: {
+                // 主色 - 使用克莱因蓝
+                primary: {
+                    50: kleinBlueLighter,
+                    100: kleinBlueLight,
+                    200: kleinBlue,
+                    300: kleinBlue,
+                    400: kleinBlue,
+                    500: kleinBlue,
+                    600: kleinBlue,
+                    700: kleinBlueDark,
+                    800: kleinBlueDark,
+                    900: kleinBlueDarker,
+                },
+                // 次要色 - 使用蒂芙尼蓝
+                // Credit:
+                // https://github.com/tailwindlabs/tailwindcss/blob/master/src/public/colors.js
+                secondary: {
+                    50: tiffanyBlueLighter,
+                    100: tiffanyBlueLight,
+                    200: tiffanyBlue,
+                    300: tiffanyBlue,
+                    400: tiffanyBlue,
+                    500: tiffanyBlue,
+                    600: tiffanyBlue,
+                    700: tiffanyBlueDark,
+                    800: tiffanyBlueDark,
+                    900: tiffanyBlueDarker,
+                },
+                // 成功状态 - 使用马尔斯绿
+                success: {
+                    50: marsGreenLighter,
+                    100: marsGreenLight,
+                    200: marsGreen,
+                    300: marsGreen,
+                    400: marsGreen,
+                    500: marsGreen,
+                    600: marsGreen,
+                    700: marsGreenDark,
+                    800: marsGreenDark,
+                    900: marsGreenDarker,
+                },
+                // 警告状态 - 使用申布伦黄
+                warning: {
+                    50: schoenbrunnYellowLighter,
+                    100: schoenbrunnYellowLight,
+                    200: schoenbrunnYellow,
+                    300: schoenbrunnYellow,
+                    400: schoenbrunnYellow,
+                    500: schoenbrunnYellow,
+                    600: schoenbrunnYellow,
+                    700: schoenbrunnYellowDark,
+                    800: schoenbrunnYellowDark,
+                    900: schoenbrunnYellowDarker,
+                },
+
+            },
+        },
+        dark: {
+            palette: {
+                // 主色 - 使用克莱因蓝
+                primary: {
+                    50: kleinBlueDarker,
+                    100: kleinBlueDark,
+                    200: kleinBlue,
+                    300: kleinBlue,
+                    400: kleinBlue,
+                    500: kleinBlue,
+                    600: kleinBlueLight,
+                    700: kleinBlueLight,
+                    800: kleinBlueLighter,
+                    900: kleinBlueLighter,
+                },
+                // 次要色 - 使用蒂芙尼蓝
+                secondary: {
+                    50: tiffanyBlueDarker,
+                    100: tiffanyBlueDark,
+                    200: tiffanyBlue,
+                    300: tiffanyBlue,
+                    400: tiffanyBlue,
+                    500: tiffanyBlue,
+                    600: tiffanyBlueLight,
+                    700: tiffanyBlueLight,
+                    800: tiffanyBlueLighter,
+                    900: tiffanyBlueLighter,
+                },
+                // 成功状态 - 使用马尔斯绿
+                success: {
+                    50: marsGreenDarker,
+                    100: marsGreenDark,
+                    200: marsGreen,
+                    300: marsGreen,
+                    400: marsGreen,
+                    500: marsGreen,
+                    600: marsGreenLight,
+                    700: marsGreenLight,
+                    800: marsGreenLighter,
+                    900: marsGreenLighter,
+                },
+                // 警告状态 - 使用申布伦黄
+                warning: {
+                    50: schoenbrunnYellowDarker,
+                    100: schoenbrunnYellowDark,
+                    200: schoenbrunnYellow,
+                    300: schoenbrunnYellow,
+                    400: schoenbrunnYellow,
+                    500: schoenbrunnYellow,
+                    600: schoenbrunnYellowLight,
+                    700: schoenbrunnYellowLight,
+                    800: schoenbrunnYellowLighter,
+                    900: schoenbrunnYellowLighter,
+                },
+
+            },
+        },
+    },
+    breakpoints: {
+        values: {
+            xs: 0,
+            sm: 600,
+            md: 600,
+            lg: 1200,
+            xl: 1536,
         },
     },
 });
