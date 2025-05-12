@@ -1,19 +1,6 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import Box from '@mui/joy/Box';
-import {
-    Avatar,
-    Badge,
-    Button,
-    IconButton,
-    Input,
-    Menu,
-    MenuButton,
-    MenuItem,
-    Sheet,
-    Tooltip,
-    Typography,
-    useColorScheme
-} from '@mui/joy';
+import { Chip, TextField } from '@mui/material';
+import { Badge, Box, Button, IconButton, Stack, Tooltip, Typography, useColorScheme } from '@mui/joy';
 import Person from '@mui/icons-material/Person';
 import SearchIcon from '@mui/icons-material/Search';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -30,9 +17,7 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import MapIcon from '@mui/icons-material/Map';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-
-import LoginIcon from '@mui/icons-material/Login';
-import LogoutIcon from '@mui/icons-material/Logout';
+import CloudCircleIcon from '@mui/icons-material/CloudCircle';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
@@ -41,26 +26,35 @@ import TableChartIcon from '@mui/icons-material/TableChart';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import BlockIcon from '@mui/icons-material/Block';
 import { useSnapshot } from 'valtio/react';
-import { setAccount, userStore } from '@/store/user.ts';
+import { userStore } from '@/store/user.ts';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-import { useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, Fragment, MouseEvent, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { log } from '@/core/conf/app';
-import { AppProvider, Navigation, Router } from '@toolpad/core/AppProvider';
 
+import { AppProvider, Navigation, Router, type Session } from '@toolpad/core/AppProvider';
 import { CssVarsProvider } from '@mui/joy/styles';
-import { DashboardLayout } from '@toolpad/core/DashboardLayout';
-import { PageContainer } from '@toolpad/core/PageContainer';
+import { DashboardLayout, ThemeSwitcher } from '@toolpad/core/DashboardLayout';
 import MenuIcon from '@mui/icons-material/Menu';
 import { cartStore } from "@/store/cartStore.ts";
 import { userService } from "@/api/userService.ts";
 import { createTheme } from "@mui/material/styles";
 
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+
+import Popover from '@mui/material/Popover';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+
+import SettingsIcon from '@mui/icons-material/Settings';
+import SidebarFooterAccount from "@/shared/components/layouts/SidebarFooterAccount.tsx";
+
 // 定义导航项类型，扩展Navigation类型以包含权限控制
 interface NavigationItem {
     segment: string;
     title: string;
-    icon: React.ReactNode;
+    icon: ReactNode;
     roles?: string[];
     children?: NavigationItem[];
 }
@@ -68,24 +62,7 @@ interface NavigationItem {
 // 创建导航配置
 const createNavigation = (userRole: string): Navigation => {
     // 基础导航项，所有用户可见
-    const baseNavItems: NavigationItem[] = [
-        {
-            segment: 'auth',
-            title: 'Auth',
-            icon: <Person/>,
-            children: [
-                {
-                    segment: 'login',
-                    title: 'Login',
-                    icon: <LoginIcon/>,
-                }, {
-                    segment: 'logout',
-                    title: 'Logout',
-                    icon: <LogoutIcon/>,
-                },
-            ]
-        },
-    ];
+    const baseNavItems: NavigationItem[] = [];
 
     // 商品相关导航项 - 对于消费者角色，这些会显示在顶部导航栏而不是侧边栏
     const productNavItems: NavigationItem[] = [
@@ -269,8 +246,6 @@ const createNavigation = (userRole: string): Navigation => {
     return navItems as Navigation;
 };
 
-// 移除多余的空数组结束符
-
 function useTanstackRouter(): Router {
     const navigate = useNavigate();
     return {
@@ -280,35 +255,11 @@ function useTanstackRouter(): Router {
     };
 }
 
-const CustomHeader = ({children}: any) => {
-    return (
-        <Sheet
-            variant="solid"
-            color="primary"
-            invertedColors
-            sx={{
-                p: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                borderBottom: '1px solid',
-                borderColor: 'divider',
-                bgcolor: 'background.surface',
-                position: 'sticky',
-                top: 0,
-                zIndex: 1100,
-                backgroundColor: 'yellow',
-            }}
-        >
-            {children}
-        </Sheet>
-    );
-};
 const demoTheme = createTheme({
-    colorSchemes: {light: true, dark: true},
     cssVariables: {
-        colorSchemeSelector: 'class',
+        colorSchemeSelector: 'data-toolpad-color-scheme',
     },
+    colorSchemes: {light: true, dark: true},
     breakpoints: {
         values: {
             xs: 0,
@@ -319,198 +270,262 @@ const demoTheme = createTheme({
         },
     },
 });
-export default function Template({children}: { children: React.ReactNode }) {
-    const cart = useSnapshot(cartStore);
+export default function Template({children}: { children: ReactNode }) {
     const user = useSnapshot(userStore);
     const navigate = useNavigate();
     const {t} = useTranslation();
-    const [searchQuery, setSearchQuery] = useState('');
-    const {mode} = useColorScheme();
-    const router = useTanstackRouter();
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [hideNavigation, setHideNavigation] = useState(false);
-
-    const userLoggedIn = userService.isLoggedIn() && user.account && user.account.id !== '';
-
     // 获取用户角色，默认为consumer
     const userRole = useMemo(() => {
         return user.account && user.account.role ? user.account.role : 'consumer';
     }, [user.account]);
-
     // 根据用户角色创建导航配置
     const navigation = useMemo(() => {
         return createNavigation(userRole);
     }, [userRole]);
+
+    const {mode} = useColorScheme();
+    const router = useTanstackRouter();
+
+    const [session, setSession] = useState<Session | null>(null);
+
+    const userLoggedIn = userService.isLoggedIn() && user.account && user.account.id !== '';
+
+    useEffect(() => {
+        if (userLoggedIn) {
+            setSession({
+                user: {
+                    name: user.account?.name,
+                    email: user.account?.email,
+                    image: user.account?.avatar,
+                }
+            });
+        }
+    }, [userLoggedIn, user.account]);
+
+    const authentication = useMemo(() => {
+        return {
+            signIn: () => {
+                setSession(session);
+                navigate({to: '/auth/login'}).then(() => {
+                }).catch((err) => {
+                    console.error(err);
+                });
+            },
+            signOut: () => {
+                setSession(null);
+                navigate({to: '/auth/logout'}).then(() => {
+                }).catch((err) => {
+                    console.error(err);
+                });
+            },
+        };
+    }, []);
+
+    const cart = useSnapshot(cartStore);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
 
     // 商品相关导航项 - 仅在用户为消费者时显示在顶部导航栏
     const topNavItems = useMemo(() => {
         if (userRole === 'consumer') {
             return [
                 {to: '/products', label: t('nav.products'), icon: <StorefrontIcon/>},
-                {to: '/新品上市', label: t('nav.newArrivals'), icon: <NewReleasesIcon/>},
-                {to: '/趋势', label: t('nav.trends'), icon: <TrendingUpIcon/>},
+                {to: '/newArrivals', label: t('nav.newArrivals'), icon: <NewReleasesIcon/>},
+                {to: '/trends', label: t('nav.trends'), icon: <TrendingUpIcon/>},
                 {to: '/categories', label: t('nav.categories'), icon: <CategoryIcon/>},
             ];
         }
         return [];
     }, [userRole, t]);
+    const totalCartItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
     // 默认隐藏侧边栏
     useEffect(() => {
         setSidebarOpen(false);
     }, []);
 
-    const handleSearch = () => {
-        if (searchQuery.trim()) {
-            navigate({to: '/products', search: {query: searchQuery}}).then(() => {
-                // callback
-            });
-        }
-    };
-
-    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            handleSearch();
-        }
-    };
-
-    const handleRoleChange = (newRole: string) => {
-        if (user.account && user.account.owner) {
-            setAccount({
-                ...user.account,
-                role: newRole,
-            });
-            const targetRoute = newRole === 'merchant' ? '/merchant' : newRole === 'admin' ? '/admin' : '/profile';
-            navigate({to: targetRoute}).then(() => {
-                log(`用户角色:${newRole}, 已跳转到对应路由`);
-            });
-        }
-    };
-
-    const totalCartItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
-
     return (
         <AppProvider
+            authentication={authentication}
+            session={session}
             navigation={navigation}
             router={router}
             theme={demoTheme}
             branding={{
-                logo: <img src="https://mui.com/static/logo.png" alt="MUI logo"/>,
+                logo: <img src="https://mui.com/static/logo.png" alt="logo"/>,
                 title: t('common.title')
             }}
         >
             <CssVarsProvider defaultMode={mode}>
                 <DashboardLayout
-                    hideNavigation={hideNavigation} // 是否隐藏导航栏
+                    hideNavigation={sidebarOpen} // 是否隐藏导航栏
                     defaultSidebarCollapsed
                     navigation={navigation}
                     drawerOpen={sidebarOpen}
                     onDrawerOpenChange={setSidebarOpen}
-                    appBarContent={(
-                        <CustomHeader>
-                            <Box sx={{display: 'flex', alignItems: 'center', gap: 2,backgroundColor: 'yellow',}}>
-                                <Typography component={Link} to="/" level="title-lg"
-                                            sx={{color: 'inherit', textDecoration: 'none'}}>
-                                    TT电商
-                                </Typography>
-                                <Input
-                                    size="sm"
-                                    placeholder={t('nav.search')}
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    onKeyPress={handleKeyPress}
-                                    startDecorator={<SearchIcon/>}
-                                    sx={{display: {xs: 'none', md: 'flex'}}}
-                                />
-                                {/* 消费者角色的顶部导航栏商品相关导航 */}
-                                {userRole === 'consumer' && (
-                                    <Box sx={{display: {xs: 'none', md: 'flex'}, gap: 1}}>
-                                        {topNavItems.map((item) => (
-                                            <Button
-                                                key={item.to}
-                                                component={Link}
-                                                to={item.to}
-                                                variant="plain"
-                                                color="neutral"
-                                                startDecorator={item.icon}
-                                                sx={{color: 'inherit'}}
-                                            >
-                                                {item.label}
-                                            </Button>
-                                        ))}
-                                    </Box>
-                                )}
-                            </Box>
-                            <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
-                                <LanguageSwitcher/>
-                                <IconButton component={Link} to="/cart" aria-label={t('nav.cart')}
-                                            sx={{color: 'inherit'}}>
-                                    <Badge badgeContent={totalCartItems} color="danger">
-                                        <ShoppingCartIcon/>
-                                    </Badge>
-                                </IconButton>
-                                {/* 用户中心按钮 - 控制侧边栏显示 */}
-                                {userLoggedIn && (
-                                    <IconButton
-                                        onClick={() => setSidebarOpen(!sidebarOpen)}
-                                        sx={{color: 'inherit'}}
-                                    >
-                                        <MenuIcon/>
-                                    </IconButton>
-                                )}
-                                {userLoggedIn ? (
-                                    <Menu
-                                        anchorEl={null} // This needs to be managed for Menu to work correctly
-                                        open={false} // This needs to be managed for Menu to work correctly
-                                    >
-                                        <MenuButton
-                                            slots={{root: IconButton}}
-                                            slotProps={{
-                                                root: {
-                                                    variant: 'plain',
-                                                    color: 'neutral',
-                                                    sx: {color: 'inherit'}
-                                                }
-                                            }}
+                    slots={{
+                        appTitle: () => (<Stack direction="row" alignItems="center" spacing={2}>
+                            <Typography
+                                component={Link}
+                                to="/"
+                                level="title-lg"
+                                sx={{
+                                    color: 'inherit',
+                                    textDecoration: 'none'
+                                }}>
+                                {t('common.title')}
+                            </Typography>
+                            <CloudCircleIcon fontSize="large" color="primary"/>
+                            <Chip size="small" label="BETA" color="info"/>
+
+                            {/* 消费者角色的顶部导航栏商品相关导航 */}
+                            {userRole === 'consumer' && (
+                                <Box sx={{display: {xs: 'none', md: 'flex'}, gap: 1}}>
+                                    {topNavItems.map((item) => (
+                                        <Button
+                                            key={item.to}
+                                            component={Link}
+                                            to={item.to}
+                                            variant="plain"
+                                            color="neutral"
+                                            startDecorator={item.icon}
+                                            sx={{color: 'inherit'}}
                                         >
-                                            <Avatar src={user.account.avatar || undefined} size="sm">
-                                                {!user.account.avatar && <Person/>}
-                                            </Avatar>
-                                        </MenuButton>
-                                        <MenuItem
-                                            onClick={() => navigate({to: '/profile'})}>{t('nav.profile')}</MenuItem>
-                                        {user.account.owner && (
-                                            <MenuItem
-                                                onClick={() => handleRoleChange(user.account.role === 'consumer' ? 'merchant' : 'consumer')}>
-                                                {user.account.role === 'consumer' ? t('nav.switchToSeller') : t('nav.switchToBuyer')}
-                                            </MenuItem>
-                                        )}
-                                        <MenuItem onClick={() => {
-                                            userService.logout();
-                                            navigate({to: '/auth/login'});
-                                        }}>{t('nav.logout')}</MenuItem>
-                                    </Menu>
-                                ) : (
-                                    <Tooltip title={t('nav.login')} variant="outlined">
-                                        <IconButton component={Link} to="/login" sx={{color: 'inherit'}}>
-                                            <Person/>
-                                        </IconButton>
-                                    </Tooltip>
-                                )}
-                            </Box>
-                        </CustomHeader>
-                    )}
+                                            {item.label}
+                                        </Button>
+                                    ))}
+                                </Box>
+                            )}
+                            <LanguageSwitcher/>
+                            <CustomThemeSwitcher/>
+                            <IconButton component={Link} to="/carts" aria-label={t('nav.cart')}
+                                        sx={{color: 'inherit'}}>
+                                <Badge badgeContent={totalCartItems} color="danger">
+                                    <ShoppingCartIcon/>
+                                </Badge>
+                            </IconButton>
+                            {/* 用户中心按钮 - 控制侧边栏显示 */}
+                            {userLoggedIn && (
+                                <IconButton
+                                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                                    sx={{color: 'inherit'}}
+                                >
+                                    <MenuIcon/>
+                                </IconButton>
+                            )}
+                        </Stack>),
+                        toolbarActions: ToolbarActionsSearch,
+                        toolbarAccount: () => null, sidebarFooter: SidebarFooterAccount
+                    }}
                 >
                     <Box sx={{
-                        width:'100vw',
+                        width: '100vw',
                         flex: 1,
                         border: 0,
                         backgroundColor: 'red',
                     }}>
+
                         {children}
                     </Box>
                 </DashboardLayout>
             </CssVarsProvider>
         </AppProvider>
+    );
+}
+
+function ToolbarActionsSearch() {
+    return (
+        <Stack direction="row">
+            <Tooltip title="Search" enterDelay={1000}>
+                <div>
+                    <IconButton
+                        type="button"
+                        aria-label="search"
+                        sx={{
+                            display: {xs: 'inline', md: 'none'},
+                        }}
+                    >
+                        <SearchIcon/>
+                    </IconButton>
+                </div>
+            </Tooltip>
+            <TextField
+                label="Search"
+                variant="outlined"
+                size="small"
+                slotProps={{
+                    input: {
+                        endAdornment: (
+                            <IconButton type="button" aria-label="search">
+                                <SearchIcon/>
+                            </IconButton>
+                        ),
+                        sx: {pr: 0.5},
+                    },
+                }}
+                sx={{display: {xs: 'none', md: 'inline-block'}, mr: 1}}
+            />
+            <ThemeSwitcher/>
+        </Stack>
+    );
+}
+
+function CustomThemeSwitcher() {
+    const {setMode} = useColorScheme();
+
+    const handleThemeChange = useCallback(
+        (event: ChangeEvent<HTMLInputElement>) => {
+            setMode(event.target.value as 'light' | 'dark' | 'system');
+        },
+        [setMode],
+    );
+
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
+
+    const toggleMenu = useCallback(
+        (event: MouseEvent<HTMLElement>) => {
+            setMenuAnchorEl(isMenuOpen ? null : event.currentTarget);
+            setIsMenuOpen((previousIsMenuOpen) => !previousIsMenuOpen);
+        },
+        [isMenuOpen],
+    );
+
+    return (
+        <Fragment>
+            <Tooltip title="Settings" enterDelay={1000}>
+                <div>
+                    <IconButton type="button" aria-label="settings" onClick={toggleMenu}>
+                        <SettingsIcon/>
+                    </IconButton>
+                </div>
+            </Tooltip>
+            <Popover
+                open={isMenuOpen}
+                anchorEl={menuAnchorEl}
+                onClose={toggleMenu}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                }}
+                disableAutoFocus
+            >
+                <Box sx={{p: 2}}>
+                    <FormControl>
+                        <FormLabel id="custom-theme-switcher-label">Theme</FormLabel>
+                        <RadioGroup
+                            aria-labelledby="custom-theme-switcher-label"
+                            defaultValue="system"
+                            name="custom-theme-switcher"
+                            onChange={handleThemeChange}
+                        >
+                            <FormControlLabel value="light" control={<Radio/>} label="Light"/>
+                            <FormControlLabel value="system" control={<Radio/>} label="System"/>
+                            <FormControlLabel value="dark" control={<Radio/>} label="Dark"/>
+                        </RadioGroup>
+                    </FormControl>
+                </Box>
+            </Popover>
+        </Fragment>
     );
 }
