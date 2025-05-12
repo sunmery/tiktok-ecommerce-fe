@@ -210,6 +210,7 @@ const resources = {
             'logistics.thankYou': 'Thank you for your purchase. We hope you are satisfied with our service.',
 
             'admin.rechargeBalance.userBalancerInfo': 'User Balance Information',
+            'common.title': 'TT Ecommerce',
             'common.clear': 'Clear',
             'common.all': 'All',
             'common.reset': 'Reset',
@@ -623,7 +624,6 @@ const resources = {
             'home.copyright': '© 2025 Go-based E-commerce Microservices with RBAC',
             'product.loading': '加载中...',
             'product.not_found': '未找到商品',
-            'product.add_to_cart': '加入购物车',
             'product.out_of_stock': '暂时缺货',
 
             // 购物车
@@ -1535,6 +1535,7 @@ const resources = {
             'merchant.log.navigatedToAddress': '已导航至地址管理页面',
 
             // 通用
+            'common.title': 'TT电商',
             'common.cancel': '取消',
             'common.refresh': '刷新',
             'common.close': '关闭',

@@ -15,20 +15,25 @@ import { userStore } from "@/store/user.ts";
 import AspectRatio from "@mui/joy/AspectRatio";
 import { showMessage } from "@/utils/showMessage";
 import { cartStore } from "@/store/cartStore.ts";
+import { useState } from "react";
+import PaginationBar from "@/shared/components/PaginationBar.tsx";
 
 export default function Products() {
     const navigate = useNavigate()
-    const search = useSearch({from: '/products/'})
-    const page = 1
-    const pageSize = 200
+    // 检查当前路由，如果是在首页，则不使用 useSearch
+    const isHomePage = window.location.pathname === '/'
+    const search = isHomePage ? {query: ''} : useSearch({from: '/products/'})
+
+    // 使用状态管理分页参数
+    const [page, setPage] = useState(1)
+    const [pageSize, setPageSize] = useState(20)
     const status = 2
-    const snapshot = useSnapshot(cartStore)
     const accountStore = useSnapshot(userStore)
     const {t} = useTranslation();
 
     // 使用React Query获取商品列表
     const {data, isError, isLoading} = useQuery({
-        queryKey: ['products', page, pageSize, status],
+        queryKey: ['products', page, pageSize, status, search.query],
         queryFn: async () => {
             // 如果有搜索关键词，则调用搜索API
             if (search.query) {
@@ -43,8 +48,18 @@ export default function Products() {
         retry: 1, // 失败后重试一次
     });
 
+    // 处理分页变化
+    const handlePageChange = (_event: React.SyntheticEvent, value: number) => {
+        setPage(value);
+        // 滚动到页面顶部
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
+
     const {data: favoriteProduct, isError: favoriteError, isLoading: favoriteLoading} = useQuery({
-        queryKey: ['favoriteProduct'],
+        queryKey: ['favoriteProduct', page, pageSize],
         queryFn: async () => {
             const res = await userService.getFavorites(page, pageSize)
             return res.items
@@ -171,9 +186,9 @@ export default function Products() {
 
     if (data) {
         return (
-            <Box sx={{p: 2, maxWidth: '1200px', mx: 'auto'}}>
+            <Box sx={{p: 2}}>
                 {/* 面包屑导航 */}
-                <Breadcrumbs pathMap={{'products': t('allProducts')}}/>
+                {!isHomePage && <Breadcrumbs pathMap={{'products': t('allProducts')}}/>}
 
                 {/* 根据是否有搜索词显示不同标题 */}
                 {search.query ? (
@@ -226,7 +241,7 @@ export default function Products() {
                                 <AspectRatio
                                     ratio="1"
                                     sx={{
-                                        minHeight: '200px',
+                                        minHeight: '100px',
                                         '& img': {
                                             objectFit: 'contain',
                                             width: '100%',
@@ -238,7 +253,6 @@ export default function Products() {
                                         }
                                     }}
                                 >
-                                    {/* TODO */}
                                     {
                                         product.images.length > 0 ?
                                             <img
@@ -347,8 +361,8 @@ export default function Products() {
                                         </Typography>
                                     </Box>
                                     <Button
-                                        variant="solid"
-                                        size="sm"
+                                        variant="plain"
+                                        size="md"
                                         color="primary"
                                         onClick={(e) => {
                                             e.preventDefault();
@@ -357,10 +371,13 @@ export default function Products() {
                                                 product.name,
                                                 product.merchantId,
                                                 // product.price
-                                            ).then(r => {
-                                                console.log("addToCartHandler", r)
+                                            ).then(() => {
+                                               showMessage(t('productAdded'),'success')
                                             }).catch(e => {
-                                                console.error("addToCartHandler", e)
+                                                showMessage(e,'error')
+                                                console.error("addToCartHandler", product.id,
+                                                    product.name,
+                                                    product.merchantId, e)
                                             })
                                         }}
                                         sx={{
@@ -376,10 +393,21 @@ export default function Products() {
                         </Card>
                     ))}
                 </Box>
-                <Typography level="body-lg">
-                    {t('cartTotal')}: {snapshot.items.length} {t('cartItems')}
-                </Typography>
+                {/* 添加分页控件 */}
+                <Box sx={{display: 'flex', justifyContent: 'center', mt: 4}}>
+                    <PaginationBar
+                        page={page}
+                        pageSize={pageSize}
+                        totalItems={displayData.length}
+                        totalPages={Math.ceil(displayData.length / pageSize)}
+                        onPageChange={handlePageChange}
+                        onPageSizeChange={setPageSize}
+                        showPageSizeSelector={true}
+                        showTotalItems={true}
+                        size="sm"
+                    />
+                </Box>
             </Box>
-        );
+        )
     }
 }

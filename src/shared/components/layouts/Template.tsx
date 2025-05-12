@@ -4,7 +4,6 @@ import {
     Avatar,
     Badge,
     Button,
-    GlobalStyles,
     IconButton,
     Input,
     Menu,
@@ -44,7 +43,7 @@ import BlockIcon from '@mui/icons-material/Block';
 import { useSnapshot } from 'valtio/react';
 import { setAccount, userStore } from '@/store/user.ts';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-import { useState, useMemo, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { log } from '@/core/conf/app';
 import { AppProvider, Navigation, Router } from '@toolpad/core/AppProvider';
@@ -55,8 +54,7 @@ import { PageContainer } from '@toolpad/core/PageContainer';
 import MenuIcon from '@mui/icons-material/Menu';
 import { cartStore } from "@/store/cartStore.ts";
 import { userService } from "@/api/userService.ts";
-import theme from "@/core/conf/theme";
-import { templateTheme } from "@/core/conf/theme/theme.ts";
+import { createTheme } from "@mui/material/styles";
 
 // 定义导航项类型，扩展Navigation类型以包含权限控制
 interface NavigationItem {
@@ -88,7 +86,7 @@ const createNavigation = (userRole: string): Navigation => {
             ]
         },
     ];
-    
+
     // 商品相关导航项 - 对于消费者角色，这些会显示在顶部导航栏而不是侧边栏
     const productNavItems: NavigationItem[] = [
         {
@@ -117,7 +115,7 @@ const createNavigation = (userRole: string): Navigation => {
             icon: <ShoppingCartIcon/>,
         },
     ];
-    
+
     // 消费者特定导航项 - 直接展示用户相关功能，不再嵌套在consumer下
     const consumerNavItems: NavigationItem[] = [
         {
@@ -156,7 +154,7 @@ const createNavigation = (userRole: string): Navigation => {
             icon: <PaymentsIcon/>,
         },
     ];
-    
+
     // 商家特定导航项
     const merchantNavItems: NavigationItem[] = [
         {
@@ -181,44 +179,44 @@ const createNavigation = (userRole: string): Navigation => {
                     icon: <InventoryIcon/>,
                     children: [
                         {
-                        segment: 'alerts',
-                        title: 'Alerts',
-                        icon: <NotificationsIcon/>,
-                    }, {
-                        segment: 'monitoring',
-                        title: 'Monitoring',
-                        icon: <MonitorHeartIcon/>,
-                    },
-                ]
-            },
-            {
-                segment: 'logistics',
-                title: 'Logistics',
-                icon: <LocalShippingIcon/>,
-            },
-            {
-                segment: 'orders',
-                title: 'Orders',
-                icon: <ReceiptIcon/>,
-            }, {
-                segment: 'products',
-                title: 'Products',
-                icon: <StorefrontIcon/>,
-                children: [
-                    {
-                        segment: 'bulkUploads',
-                        title: 'Bulk Uploads',
-                        icon: <UploadFileIcon/>,
-                    }
-                ]
-            }, {
-                segment: 'table',
-                title: 'Table',
-                icon: <TableChartIcon/>,
-            },
-        ]
-    }]
-    
+                            segment: 'alerts',
+                            title: 'Alerts',
+                            icon: <NotificationsIcon/>,
+                        }, {
+                            segment: 'monitoring',
+                            title: 'Monitoring',
+                            icon: <MonitorHeartIcon/>,
+                        },
+                    ]
+                },
+                {
+                    segment: 'logistics',
+                    title: 'Logistics',
+                    icon: <LocalShippingIcon/>,
+                },
+                {
+                    segment: 'orders',
+                    title: 'Orders',
+                    icon: <ReceiptIcon/>,
+                }, {
+                    segment: 'products',
+                    title: 'Products',
+                    icon: <StorefrontIcon/>,
+                    children: [
+                        {
+                            segment: 'bulkUploads',
+                            title: 'Bulk Uploads',
+                            icon: <UploadFileIcon/>,
+                        }
+                    ]
+                }, {
+                    segment: 'table',
+                    title: 'Table',
+                    icon: <TableChartIcon/>,
+                },
+            ]
+        }]
+
     // 管理员特定导航项
     const adminNavItems: NavigationItem[] = [
         {
@@ -250,24 +248,24 @@ const createNavigation = (userRole: string): Navigation => {
             ]
         },
     ];
-    
+
     // 根据用户角色过滤导航项
     let navItems = [...baseNavItems];
-    
+
     if (userRole === 'consumer') {
         // 对于消费者，商品相关导航会显示在顶部导航栏，这里只添加用户相关导航
         navItems = [...navItems, ...consumerNavItems];
     } else {
         // 对于非消费者角色，商品相关导航显示在侧边栏
         navItems = [...navItems, ...productNavItems];
-        
+
         if (userRole === 'merchant') {
             navItems = [...navItems, ...merchantNavItems];
         } else if (userRole === 'admin') {
             navItems = [...navItems, ...adminNavItems];
         }
     }
-    
+
     return navItems as Navigation;
 };
 
@@ -299,48 +297,64 @@ const CustomHeader = ({children}: any) => {
                 position: 'sticky',
                 top: 0,
                 zIndex: 1100,
+                backgroundColor: 'yellow',
             }}
         >
             {children}
         </Sheet>
     );
 };
-
+const demoTheme = createTheme({
+    colorSchemes: {light: true, dark: true},
+    cssVariables: {
+        colorSchemeSelector: 'class',
+    },
+    breakpoints: {
+        values: {
+            xs: 0,
+            sm: 600,
+            md: 600,
+            lg: 1200,
+            xl: 1536,
+        },
+    },
+});
 export default function Template({children}: { children: React.ReactNode }) {
     const cart = useSnapshot(cartStore);
     const user = useSnapshot(userStore);
     const navigate = useNavigate();
     const {t} = useTranslation();
     const [searchQuery, setSearchQuery] = useState('');
-    const { mode } = useColorScheme();
+    const {mode} = useColorScheme();
     const router = useTanstackRouter();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [hideNavigation, setHideNavigation] = useState(false);
 
     const userLoggedIn = userService.isLoggedIn() && user.account && user.account.id !== '';
-    
+
     // 获取用户角色，默认为consumer
     const userRole = useMemo(() => {
         return user.account && user.account.role ? user.account.role : 'consumer';
     }, [user.account]);
-    
+
     // 根据用户角色创建导航配置
     const navigation = useMemo(() => {
         return createNavigation(userRole);
     }, [userRole]);
-    
+
     // 商品相关导航项 - 仅在用户为消费者时显示在顶部导航栏
     const topNavItems = useMemo(() => {
         if (userRole === 'consumer') {
             return [
-                { to: '/products', label: t('nav.products'), icon: <StorefrontIcon /> },
-                { to: '/新品上市', label: t('nav.newArrivals'), icon: <NewReleasesIcon /> },
-                { to: '/趋势', label: t('nav.trends'), icon: <TrendingUpIcon /> },
-                { to: '/categories', label: t('nav.categories'), icon: <CategoryIcon /> },
+                {to: '/products', label: t('nav.products'), icon: <StorefrontIcon/>},
+                {to: '/新品上市', label: t('nav.newArrivals'), icon: <NewReleasesIcon/>},
+                {to: '/趋势', label: t('nav.trends'), icon: <TrendingUpIcon/>},
+                {to: '/categories', label: t('nav.categories'), icon: <CategoryIcon/>},
             ];
         }
         return [];
     }, [userRole, t]);
-    
+
     // 默认隐藏侧边栏
     useEffect(() => {
         setSidebarOpen(false);
@@ -376,30 +390,25 @@ export default function Template({children}: { children: React.ReactNode }) {
     const totalCartItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
     return (
-        <AppProvider navigation={navigation} router={router} theme={templateTheme}>
-            <CssVarsProvider>
-                <GlobalStyles styles={{
-                    body: {margin: 0},
-                    // 确保导航栏填满整个侧边栏
-                    '.MuiDrawer-root .MuiDrawer-paper': {
-                        height: '100vh',
-                        boxSizing: 'border-box',
-                    },
-                    // 确保导航项目样式在日间和夜间模式下都正常显示
-                    '.MuiListItemButton-root': {
-                        color: mode === 'dark' ? '#fff' : '#000',
-                    },
-                    '.MuiListItemIcon-root': {
-                        color: 'inherit',
-                    }
-                }}/>
+        <AppProvider
+            navigation={navigation}
+            router={router}
+            theme={demoTheme}
+            branding={{
+                logo: <img src="https://mui.com/static/logo.png" alt="MUI logo"/>,
+                title: t('common.title')
+            }}
+        >
+            <CssVarsProvider defaultMode={mode}>
                 <DashboardLayout
+                    hideNavigation={hideNavigation} // 是否隐藏导航栏
+                    defaultSidebarCollapsed
                     navigation={navigation}
                     drawerOpen={sidebarOpen}
                     onDrawerOpenChange={setSidebarOpen}
                     appBarContent={(
                         <CustomHeader>
-                            <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
+                            <Box sx={{display: 'flex', alignItems: 'center', gap: 2,backgroundColor: 'yellow',}}>
                                 <Typography component={Link} to="/" level="title-lg"
                                             sx={{color: 'inherit', textDecoration: 'none'}}>
                                     TT电商
@@ -415,7 +424,7 @@ export default function Template({children}: { children: React.ReactNode }) {
                                 />
                                 {/* 消费者角色的顶部导航栏商品相关导航 */}
                                 {userRole === 'consumer' && (
-                                    <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
+                                    <Box sx={{display: {xs: 'none', md: 'flex'}, gap: 1}}>
                                         {topNavItems.map((item) => (
                                             <Button
                                                 key={item.to}
@@ -424,7 +433,7 @@ export default function Template({children}: { children: React.ReactNode }) {
                                                 variant="plain"
                                                 color="neutral"
                                                 startDecorator={item.icon}
-                                                sx={{ color: 'inherit' }}
+                                                sx={{color: 'inherit'}}
                                             >
                                                 {item.label}
                                             </Button>
@@ -442,11 +451,11 @@ export default function Template({children}: { children: React.ReactNode }) {
                                 </IconButton>
                                 {/* 用户中心按钮 - 控制侧边栏显示 */}
                                 {userLoggedIn && (
-                                    <IconButton 
+                                    <IconButton
                                         onClick={() => setSidebarOpen(!sidebarOpen)}
                                         sx={{color: 'inherit'}}
                                     >
-                                        <MenuIcon />
+                                        <MenuIcon/>
                                     </IconButton>
                                 )}
                                 {userLoggedIn ? (
@@ -492,16 +501,14 @@ export default function Template({children}: { children: React.ReactNode }) {
                         </CustomHeader>
                     )}
                 >
-                    <PageContainer sx={{
-                        overflowY: 'auto',
-                        height: 'calc(100vh - 64px)',
-                        width: '100%',
-                        maxWidth: '100%',
-                        p: 2,
-                        boxSizing: 'border-box'
+                    <Box sx={{
+                        width:'100vw',
+                        flex: 1,
+                        border: 0,
+                        backgroundColor: 'red',
                     }}>
                         {children}
-                    </PageContainer>
+                    </Box>
                 </DashboardLayout>
             </CssVarsProvider>
         </AppProvider>

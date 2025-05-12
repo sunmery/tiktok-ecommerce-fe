@@ -6,6 +6,8 @@ import Skeleton from '@/shared/components/Skeleton'
 import {useEffect, useState} from 'react'
 import {productService} from '@/api/productService'
 import {useCategories} from '@/hooks/useCategory'
+import { showMessage } from "@/utils/showMessage.ts";
+import { t } from "i18next";
 
 export const Route = createLazyFileRoute('/products/category/$categoryName')({
     component: CategoryProducts
@@ -67,6 +69,7 @@ function CategoryProducts() {
     ) => {
         // 确保productId不为空
         if (!id || id.trim() === '') {
+            showMessage('添加商品失败: 商品ID不能为空','error')
             console.error('添加商品失败: 商品ID不能为空');
             return;
         }
@@ -79,6 +82,7 @@ function CategoryProducts() {
             images && images.length > 0 ? images[0] : '',
             quantity
         )
+        showMessage(t('productAdded'),'success')
     }
 
     return (
@@ -198,7 +202,7 @@ function CategoryProducts() {
                                             [product.category?.categoryName]
                                         )}
                                     >
-                                        加入购物车
+                                        {t('consumer.orders.addToCart')}
                                     </Button>
                                 </Box>
                             </CardContent>

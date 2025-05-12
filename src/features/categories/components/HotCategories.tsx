@@ -97,28 +97,28 @@ const HotCategories: React.FC<HotCategoriesProps> = ({
         });
     };
 
-    // 类别图片映射
-    const getCategoryImage = (categoryName: string) => {
-        const categoryImages: { [key: string]: string } = {
-            '手机': 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9',
-            '电脑': 'https://images.unsplash.com/photo-1498049794561-7780e7231661',
-            '电器': 'https://images.unsplash.com/photo-1556911220-bff31c812dba',
-            '服饰': 'https://images.unsplash.com/photo-1560243563-062bfc001d68',
-            '美妆': 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da',
-            '运动': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b',
-            '智能手机': 'https://images.unsplash.com/photo-1546054454-aa26e2b734c7',
-            '男装': 'https://images.unsplash.com/photo-1617137968427-85924c800a22',
-            '女装': 'https://images.unsplash.com/photo-1551232864-3f0890e580d9',
-            '童装': 'https://images.unsplash.com/photo-1519238263530-99bdd11df2ea',
-            '化妆品': 'https://images.unsplash.com/photo-1596462502278-27bfdc403348',
-            '运动服': 'https://images.unsplash.com/photo-1562183241-840b8af0721e',
-            '运动鞋': 'https://images.unsplash.com/photo-1562183241-b937e95585b6',
-            '冰箱': 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5',
-            '笔记本': 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853'
-        };
-
-        return categoryImages[categoryName] || 'https://via.placeholder.com/300';
-    };
+    // // 类别图片映射
+    // const getCategoryImage = (categoryName: string) => {
+    //     const categoryImages: { [key: string]: string } = {
+    //         '手机': 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9',
+    //         '电脑': 'https://images.unsplash.com/photo-1498049794561-7780e7231661',
+    //         '电器': 'https://images.unsplash.com/photo-1556911220-bff31c812dba',
+    //         '服饰': 'https://images.unsplash.com/photo-1560243563-062bfc001d68',
+    //         '美妆': 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da',
+    //         '运动': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b',
+    //         '智能手机': 'https://images.unsplash.com/photo-1546054454-aa26e2b734c7',
+    //         '男装': 'https://images.unsplash.com/photo-1617137968427-85924c800a22',
+    //         '女装': 'https://images.unsplash.com/photo-1551232864-3f0890e580d9',
+    //         '童装': 'https://images.unsplash.com/photo-1519238263530-99bdd11df2ea',
+    //         '化妆品': 'https://images.unsplash.com/photo-1596462502278-27bfdc403348',
+    //         '运动服': 'https://images.unsplash.com/photo-1562183241-840b8af0721e',
+    //         '运动鞋': 'https://images.unsplash.com/photo-1562183241-b937e95585b6',
+    //         '冰箱': 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5',
+    //         '笔记本': 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853'
+    //     };
+    //
+    //     return categoryImages[categoryName] || 'https://via.placeholder.com/300';
+    // };
 
     if (loading) {
         return (
@@ -275,27 +275,31 @@ const HotCategories: React.FC<HotCategoriesProps> = ({
 
             <Grid container spacing={2}>
                 {categories.map((category) => (
-                    <Grid key={category.id} xs={6} sm={4} md={3} lg={2}>
+                    <Grid key={category.id} xs={6} sm={4} md={3} lg={2}
+                          onClick={() => handleCategoryClick(category)}
+                    >
                         <Card
-                            variant="outlined"
+                            variant="plain"
                             sx={{
                                 cursor: 'pointer',
+                                backgroundColor:'rgb(232, 234, 233)',
                                 transition: 'transform 0.2s, box-shadow 0.2s',
+                                borderRadius:'12px',
                                 '&:hover': {
                                     transform: 'translateY(-4px)',
                                     boxShadow: 'md',
                                 }
                             }}
-                            onClick={() => handleCategoryClick(category)}
+
                         >
-                            <AspectRatio ratio="1/1">
-                                <img
-                                    src={getCategoryImage(category.name)}
-                                    alt={category.name}
-                                    style={{objectFit: 'cover'}}
-                                />
-                            </AspectRatio>
-                            <CardContent>
+                            {/*<AspectRatio ratio="1/1">*/}
+                            {/*    <img*/}
+                            {/*        src={getCategoryImage(category.name)}*/}
+                            {/*        alt={category.name}*/}
+                            {/*        style={{objectFit: 'cover'}}*/}
+                            {/*    />*/}
+                            {/*</AspectRatio>*/}
+                            {/*<CardContent>*/}
                                 <Typography
                                     level="title-md"
                                     sx={{
@@ -305,16 +309,16 @@ const HotCategories: React.FC<HotCategoriesProps> = ({
                                 >
                                     {category.name}
                                 </Typography>
-                                <Typography
-                                    level="body-sm"
-                                    sx={{
-                                        textAlign: 'center',
-                                        color: 'text.tertiary'
-                                    }}
-                                >
-                                    {category.isLeaf ? '热销商品' : `${category.level}级分类`}
-                                </Typography>
-                            </CardContent>
+                                {/*<Typography*/}
+                                {/*    level="body-sm"*/}
+                                {/*    sx={{*/}
+                                {/*        textAlign: 'center',*/}
+                                {/*        color: 'text.tertiary'*/}
+                                {/*    }}*/}
+                                {/*>*/}
+                                {/*    {category.isLeaf ? '热销商品' : `${category.level}级分类`}*/}
+                                {/*</Typography>*/}
+                            {/*</CardContent>*/}
                         </Card>
                     </Grid>
                 ))}
