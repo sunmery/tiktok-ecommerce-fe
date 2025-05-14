@@ -41,3 +41,25 @@ export interface CreateCommentRequest {
 export interface CreateCommentResponse {
   isSensitive: boolean; 
 }
+
+// 更新评论请求参数
+export interface UpdateCommentRequest {
+  commentId: number;
+  userId: string;
+  score: number;
+  content: string;
+}
+
+// 更新评论响应
+export interface UpdateCommentResponse extends Comment {}
+
+// 删除评论请求参数
+export interface DeleteCommentRequest {
+  commentId: number;
+  userId: string;
+}
+
+// 删除评论响应
+export interface DeleteCommentResponse {
+  success: boolean;
+}

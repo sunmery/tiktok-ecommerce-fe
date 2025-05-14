@@ -41,7 +41,7 @@ export default function RechargeBalance() {
     const [userId, setUserId] = useState('')
     const [amount, setAmount] = useState<number>(0)
     const [currency, setCurrency] = useState('CNY')
-    const [paymentMethod, setPaymentMethod] = useState('BALANCER') // Note: This might be less relevant for initialization
+    const [paymentMethod, setPaymentMethod] = useState('BALANCE') // Note: This might be less relevant for initialization
     const [paymentAccount, setPaymentAccount] = useState('') // Note: This might be less relevant for initialization
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
@@ -52,14 +52,10 @@ export default function RechargeBalance() {
 
     const INITIAL_BALANCE = 1000; // Default initial balance
 
-    // 检查用户是否为管理员，如果不是则重定向到首页
     useEffect(() => {
-        if (account.role !== 'admin') {
-            navigate({to: '/'}).then(() => {
-                console.log('非管理员用户，已重定向到首页')
-            })
-        }
-    }, [account.role, navigate])
+        console.log("account",account.id)
+        setUserId(account.id)
+    }, [account, navigate])
 
     // 获取用户余额信息
     const {
@@ -184,16 +180,16 @@ export default function RechargeBalance() {
             return
         }
 
-        if (!paymentAccount) {
-            setError('请输入支付账号')
-            return
-        }
+        // if (!paymentAccount) {
+        //     setError('请输入支付账号')
+        //     return
+        // }
 
-        // 验证支付账号格式
-        if (paymentMethod === 'ALIPAY' && !paymentAccount.includes('@')) {
-            setError('请输入有效的支付宝账号（需包含@）')
-            return
-        }
+        // // 验证支付账号格式
+        // if (paymentMethod === 'ALIPAY' && !paymentAccount.includes('@')) {
+        //     setError('请输入有效的支付宝账号（需包含@）')
+        //     return
+        // }
 
         if (mode === 'recharge') {
             // 充值模式特定验证
@@ -375,11 +371,10 @@ export default function RechargeBalance() {
                                     <FormControl required>
                                         <FormLabel>{t('admin.rechargeBalance.amount')}</FormLabel>
                                         <Input
-                                            type="number"
                                             value={amount || ''}
                                             onChange={(e) => setAmount(Number(e.target.value))}
                                             placeholder="请输入充值金额"
-                                            slotProps={{input: {min: 0.01, step: 0.01}}} // Ensure positive amount
+                                            slotProps={{input: {min: 0.01}}} // Ensure positive amount
                                         />
                                     </FormControl>
                                 )}
@@ -414,19 +409,19 @@ export default function RechargeBalance() {
                                         <Option value="WECHAT">微信支付</Option>
                                         <Option value="BANK_CARD">银行卡</Option>
                                         <Option value="CREDIT_CARD">信用卡</Option> {/* Added Credit Card */}
-                                        <Option value="BALANCER">余额 (内部)</Option>
+                                        <Option value="BALANCE">余额 (内部)</Option>
                                     </Select>
                                 </FormControl>
 
-                                <FormControl required>
-                                    {/* Label might need adjustment based on mode */}
-                                    <FormLabel>{mode === 'recharge' ? t('admin.rechargeBalance.paymentAccount') : '账户标识'}</FormLabel>
-                                    <Input
-                                        value={paymentAccount}
-                                        onChange={(e) => setPaymentAccount(e.target.value)}
-                                        placeholder={mode === 'recharge' ? "请输入支付账号" : "请输入账户标识 (如卡号)"}
-                                    />
-                                </FormControl>
+                                {/*<FormControl required>*/}
+                                {/*    /!* Label might need adjustment based on mode *!/*/}
+                                {/*    <FormLabel>{mode === 'recharge' ? t('admin.rechargeBalance.paymentAccount') : '账户标识'}</FormLabel>*/}
+                                {/*    <Input*/}
+                                {/*        value={paymentAccount}*/}
+                                {/*        onChange={(e) => setPaymentAccount(e.target.value)}*/}
+                                {/*        placeholder={mode === 'recharge' ? "请输入支付账号" : "请输入账户标识 (如卡号)"}*/}
+                                {/*    />*/}
+                                {/*</FormControl>*/}
 
                                 <Button
                                     color="primary"

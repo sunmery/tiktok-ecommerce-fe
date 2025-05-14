@@ -1,6 +1,7 @@
 import type {CartItem} from '@/types/cart'
 import { proxy, subscribe } from 'valtio'
 import { cartService } from "@/features/cart/api.ts";
+import { showMessage } from "@/utils/showMessage";
 
 // 定义购物车状态
 export interface CartState {
@@ -94,16 +95,30 @@ export const cartStore: CartState = proxy<CartState>({
         if (itemIndex === -1) return
 
         const removedItem = cartStore.items[itemIndex]
+        // 先从本地购物车中移除商品
         cartStore.items = cartStore.items.filter(item => item.productId !== productId)
 
         try {
             await cartService.removeCartItem({productId: productId, merchantId: removedItem.merchantId})
             cartStore.lastError = null
+            // 不在这里添加提示，因为这会导致在购物车页面显示两次提示
+            // 我们将在调用此方法的地方添加提示
         } catch (error) {
             console.error('从购物车移除商品失败:', error)
-            // 恢复商品
+            
+            // 检查错误信息是否包含"no rows in result set"
+            const errorMessage = error instanceof Error ? error.message : String(error)
+            if (errorMessage.includes('no rows in result set')) {
+                console.log('商品在后端不存在，但已从本地购物车移除')
+                cartStore.lastError = null
+                // 不恢复商品，因为后端不存在该商品
+                return
+            }
+            
+            // 其他类型的错误，恢复商品到本地购物车
             cartStore.items.splice(itemIndex, 0, removedItem)
             cartStore.lastError = '移除商品失败，请稍后重试'
+            showMessage('移除商品失败，请稍后重试', 'error')
             throw error
         }
     },
@@ -155,6 +170,8 @@ export const cartStore: CartState = proxy<CartState>({
     clearCart() {
         cartStore.items = []
         localStorage.removeItem('cart')
+        // 不在这里添加提示，因为这会导致在购物车页面显示两次提示
+        // 我们将在调用此方法的地方添加提示
     },
     getTotalItems() {
         return cartStore.items.reduce((total, item) => total + item.quantity, 0)

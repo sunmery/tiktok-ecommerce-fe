@@ -259,7 +259,11 @@ const demoTheme = createTheme({
     cssVariables: {
         colorSchemeSelector: 'data-toolpad-color-scheme',
     },
-    colorSchemes: {light: true, dark: true},
+    colorSchemes: {
+        light: true,
+        dark: true,
+
+    },
     breakpoints: {
         values: {
             xs: 0,
@@ -422,7 +426,6 @@ export default function Template({children}: { children: ReactNode }) {
                         width: '100vw',
                         flex: 1,
                         border: 0,
-                        backgroundColor: 'red',
                     }}>
 
                         {children}

@@ -11,6 +11,7 @@ import { scan } from "react-scan";
 import AlertProvider from "@/core/providers/AlertProvider";
 import { createTheme, THEME_ID as MATERIAL_THEME_ID, ThemeProvider, } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+// import theme from "@/core/conf/theme";
 
 const materialTheme = createTheme();
 

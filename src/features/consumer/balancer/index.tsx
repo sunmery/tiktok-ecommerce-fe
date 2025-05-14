@@ -1,4 +1,4 @@
-import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import {
     Box,
     Button,
@@ -12,14 +12,13 @@ import {
     Tabs,
     Typography
 } from '@mui/joy'
-import {useQuery} from '@tanstack/react-query'
-import {useEffect, useRef, useState} from 'react'
-import {useSnapshot} from 'valtio/react'
-import {userStore} from '@/store/user.ts'
-import {useTranslation} from 'react-i18next'
-import {Add, MoreHoriz, Send} from '@mui/icons-material'
+import { useQuery } from '@tanstack/react-query'
+import { useEffect, useRef, useState } from 'react'
+import { useSnapshot } from 'valtio/react'
+import { userStore } from '@/store/user.ts'
+import { useTranslation } from 'react-i18next'
+import { Add, MoreHoriz, Send } from '@mui/icons-material'
 import * as echarts from 'echarts'
-import balancerService from '@/api/balancer'
 
 // 账户类型图标
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
@@ -27,33 +26,17 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import PaymentIcon from '@mui/icons-material/Payment'
 import CreditCardIcon from '@mui/icons-material/CreditCard'
 
-// 交易类型图标
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
-import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn'
-import MoneyOffIcon from '@mui/icons-material/MoneyOff'
-
-export const Route = createLazyFileRoute('/consumer/balancer/')({
-    component: BalanceComponent,
-})
+import { balancerService } from "@/features/dashboard/admin/rechargeBalance/api.ts";
 
 // 账户类型图标映射
 const accountTypeIcons = {
-    'ALIPAY': <PaymentIcon/>,
-    'WECHAT': <AccountBalanceWalletIcon/>,
-    'BALANCER': <AccountBalanceIcon/>,
-    'BANK_CARD': <CreditCardIcon/>
+    // 'ALIPAY': <PaymentIcon/>,
+    // 'WECHAT': <AccountBalanceWalletIcon/>,
+    'BALANCE': <AccountBalanceIcon/>,
+    // 'BANK_CARD': <CreditCardIcon/>
 }
 
-// 交易类型图标映射
-const transactionTypeIcons = {
-    'RECHARGE': <AddCircleOutlineIcon/>,
-    'PAYMENT': <ShoppingCartIcon/>,
-    'REFUND': <AssignmentReturnIcon/>,
-    'WITHDRAW': <MoneyOffIcon/>
-}
-
-function BalanceComponent() {
+export default function Balance() {
     const {t} = useTranslation()
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
@@ -69,139 +52,116 @@ function BalanceComponent() {
     })
 
     // 模拟账户数据 - 实际项目中应该从API获取
-    const accounts = [
-        {type: 'ALIPAY', balance:0},
-        {type: 'WECHAT', balance:0},
-        {type: 'BALANCER', balance: balanceData?.available || 0},
-        {type: 'BANK_CARD', balance:0},
-    ]
+    const balance = {type: 'BALANCE', balance: balanceData?.available || 0}
 
-    // 模拟交易数据 - 实际项目中应该从API获取
-    const transactions = [
-        {id: 1, name: 'RECHARGE', amount: 123.34, time: '6:11 pm'},
-        {id: 2, name: 'PAYMENT', amount: 8.34, time: '4:44 pm'},
-        {id: 3, name: 'REFUND', amount: 28.34, time: '3:21 pm'},
-        {id: 4, name: 'WITHDRAW', amount: 28.34, time: '3:21 pm'}
-    ]
-
-    // 模拟图表数据 - 实际项目中应该从API获取
-    const chartData = [
-        {month: '1月', value: 1000},
-        {month: '2月', value: 400},
-        {month: '3月', value: 350},
-        {month: '4月', value: 500},
-        {month: '5月', value: 450},
-        {month: '6月', value: 400},
-        {month: '7月', value: balanceData?.available || 470}
-    ]
 
     // 检查用户是否为消费者，如果不是则重定向到首页
-    useEffect(() => {
-        if (account.role !== 'consumer') {
-            navigate({to: '/'}).then(() => {
-                console.log('非消费者用户，已重定向到首页')
-            })
-        }
-    }, [account.role, navigate])
+    // useEffect(() => {
+    //     if (account.role !== 'consumer') {
+    //         navigate({to: '/'}).then(() => {
+    //             console.log('非消费者用户，已重定向到首页')
+    //         })
+    //     }
+    // }, [account.role, navigate])
 
     // 初始化和更新图表
-    useEffect(() => {
-        if (!chartRef.current) return
-
-        // 如果图表实例已存在，销毁它
-        if (chart) {
-            chart.dispose()
-        }
-
-        // 创建新的图表实例
-        const newChart = echarts.init(chartRef.current)
-        setChart(newChart)
-
-        // 设置图表选项
-        newChart.setOption({
-            tooltip: {
-                trigger: 'axis',
-                formatter: '{b}: {c} 元'
-            },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                top: '3%',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'category',
-                boundaryGap: false,
-                data: chartData.map(item => item.month),
-                axisLine: {
-                    lineStyle: {
-                        color: '#ccc'
-                    }
-                },
-                axisLabel: {
-                    color: '#666'
-                }
-            },
-            yAxis: {
-                type: 'value',
-                axisLine: {
-                    show: false
-                },
-                axisTick: {
-                    show: false
-                },
-                splitLine: {
-                    lineStyle: {
-                        color: '#eee'
-                    }
-                },
-                axisLabel: {
-                    color: '#666'
-                }
-            },
-            series: [
-                {
-                    name: '余额',
-                    type: 'line',
-                    smooth: true,
-                    symbol: 'circle',
-                    symbolSize: 8,
-                    itemStyle: {
-                        color: '#00e6c9'
-                    },
-                    lineStyle: {
-                        width: 3,
-                        color: '#00e6c9'
-                    },
-                    areaStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            {
-                                offset: 0,
-                                color: 'rgba(0, 230, 201, 0.3)'
-                            },
-                            {
-                                offset: 1,
-                                color: 'rgba(0, 230, 201, 0)'
-                            }
-                        ])
-                    },
-                    data: chartData.map(item => item.value)
-                }
-            ]
-        })
-
-        // 处理窗口大小变化
-        const handleResize = () => {
-            newChart.resize()
-        }
-        window.addEventListener('resize', handleResize)
-
-        return () => {
-            window.removeEventListener('resize', handleResize)
-            newChart.dispose()
-        }
-    }, [chartData, chart])
+    // useEffect(() => {
+    //     if (!chartRef.current) return
+    //
+    //     // 如果图表实例已存在，销毁它
+    //     if (chart) {
+    //         chart.dispose()
+    //     }
+    //
+    //     // 创建新的图表实例
+    //     const newChart = echarts.init(chartRef.current)
+    //     setChart(newChart)
+    //
+    //     // 设置图表选项
+    //     newChart.setOption({
+    //         tooltip: {
+    //             trigger: 'axis',
+    //             formatter: '{b}: {c} 元'
+    //         },
+    //         grid: {
+    //             left: '3%',
+    //             right: '4%',
+    //             bottom: '3%',
+    //             top: '3%',
+    //             containLabel: true
+    //         },
+    //         xAxis: {
+    //             type: 'category',
+    //             boundaryGap: false,
+    //             data: chartData.map(item => item.month),
+    //             axisLine: {
+    //                 lineStyle: {
+    //                     color: '#ccc'
+    //                 }
+    //             },
+    //             axisLabel: {
+    //                 color: '#666'
+    //             }
+    //         },
+    //         yAxis: {
+    //             type: 'value',
+    //             axisLine: {
+    //                 show: false
+    //             },
+    //             axisTick: {
+    //                 show: false
+    //             },
+    //             splitLine: {
+    //                 lineStyle: {
+    //                     color: '#eee'
+    //                 }
+    //             },
+    //             axisLabel: {
+    //                 color: '#666'
+    //             }
+    //         },
+    //         series: [
+    //             {
+    //                 name: '余额',
+    //                 type: 'line',
+    //                 smooth: true,
+    //                 symbol: 'circle',
+    //                 symbolSize: 8,
+    //                 itemStyle: {
+    //                     color: '#00e6c9'
+    //                 },
+    //                 lineStyle: {
+    //                     width: 3,
+    //                     color: '#00e6c9'
+    //                 },
+    //                 areaStyle: {
+    //                     color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+    //                         {
+    //                             offset: 0,
+    //                             color: 'rgba(0, 230, 201, 0.3)'
+    //                         },
+    //                         {
+    //                             offset: 1,
+    //                             color: 'rgba(0, 230, 201, 0)'
+    //                         }
+    //                     ])
+    //                 },
+    //                 data: chartData.map(item => item.value)
+    //             }
+    //         ]
+    //     })
+    //
+    //     // 处理窗口大小变化
+    //     const handleResize = () => {
+    //         newChart.resize()
+    //     }
+    //     window.addEventListener('resize', handleResize)
+    //
+    //     return () => {
+    //         window.removeEventListener('resize', handleResize)
+    //         newChart.dispose()
+    //     }
+    // }, [chartData, chart])
 
     // 格式化金额显示
     const formatCurrency = (amount: number, currency: string = 'CNY') => {
@@ -241,26 +201,26 @@ function BalanceComponent() {
     }
 
     // 渲染账户列表
-    const renderAccountsList = () => (
-        <List>
-            {accounts.map((account, index) => (
-                <ListItem key={index}>
-                    <ListItemDecorator sx={{color: 'primary.main'}}>
-                        {accountTypeIcons[account.type]}
-                    </ListItemDecorator>
-                    <ListItemContent>
-                        <Typography>{t(`consumer.balance.${account.type.toLowerCase()}`)}</Typography>
-                        {account.note && (
-                            <Typography level="body-xs" color="neutral">
-                                {t('consumer.balance.upTo')} {account.note}
-                            </Typography>
-                        )}
-                    </ListItemContent>
-                    <Typography>{formatCurrency(account.balance, balanceData?.currency)}</Typography>
-                </ListItem>
-            ))}
-        </List>
-    )
+    // const renderAccountsList = () => (
+    //     <List>
+    //         {accounts.map((account, index) => (
+    //             <ListItem key={index}>
+    //                 <ListItemDecorator sx={{color: 'primary.main'}}>
+    //                     {accountTypeIcons[account.type]}
+    //                 </ListItemDecorator>
+    //                 <ListItemContent>
+    //                     <Typography>{t(`consumer.balance.${account.type.toLowerCase()}`)}</Typography>
+    //                     {account.note && (
+    //                         <Typography level="body-xs" color="neutral">
+    //                             {t('consumer.balance.upTo')} {account.note}
+    //                         </Typography>
+    //                     )}
+    //                 </ListItemContent>
+    //                 <Typography>{formatCurrency(account.balance, balanceData?.currency)}</Typography>
+    //             </ListItem>
+    //         ))}
+    //     </List>
+    // )
 
     // // 渲染交易列表
     // const renderTransactionsList = () => (
@@ -372,7 +332,10 @@ function BalanceComponent() {
                     {/*{renderActionButtons()}*/}
 
                     {/* 账户列表 */}
-                    {renderAccountsList()}
+                    {/*{renderAccountsList()}*/}
+                    {/*<Typography level="body-xs" color="neutral">*/}
+                    {/*    {t('consumer.balance.upTo')} {balance.balance}*/}
+                    {/*</Typography>*/}
 
                     {/* 交易列表 */}
                     {/*{renderTransactionsList()}*/}

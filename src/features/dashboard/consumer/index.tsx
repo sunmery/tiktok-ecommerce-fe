@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from "react-i18next"
 import { orderService } from "@/features/dashboard/consumer/orders/api.ts";
 import { Order } from './orders/type'
+import Skeleton from "@/shared/components/Skeleton";
 
 /**
  * 消费者仪表板组件

@@ -7,6 +7,12 @@ export enum ProductStatus {
     PRODUCT_STATUS_SOLD_OUT = 4   // 下架
 }
 
+export enum PaymentMethod  {
+    PaymentMethodAliPay = 'ALIPAY',
+    PaymentMethodBankCard = 'BANK_CARD',
+    PaymentMethodBalance = 'BALANCE',
+}
+
 // 支付状态枚举
 export enum PaymentStatus {
     NotPaid = 'NOT_PAID',

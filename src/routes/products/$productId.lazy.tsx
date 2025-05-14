@@ -42,7 +42,7 @@ export default function ProductDetail() {
         if (data) {
             try {
                 const imageUrl = data.images[0].url ? data.images[0].url : '';
-
+                console.log("imageUrl",imageUrl)
                 cartStore.addItem(
                     data.id as string,
                     data.name as string,

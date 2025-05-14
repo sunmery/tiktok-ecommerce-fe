@@ -72,7 +72,7 @@ export default function Products() {
         id: string,
         name: string,
         merchantId: string,
-        // price: number,
+        picture: string,
     ) => {
         // 确保productId不为空
         if (!id || id.trim() === '') {
@@ -81,7 +81,7 @@ export default function Products() {
         }
 
         // 修正参数顺序：productId, name, merchantId, picture, quantity
-        cartStore.addItem(id, name, merchantId, '', 1) // 固定添加1个商品到购物车
+        cartStore.addItem(id, name, merchantId, picture, 1) // 固定添加1个商品到购物车
         // 固定添加1个商品到购物车
     }
 
@@ -370,14 +370,14 @@ export default function Products() {
                                                 product.id,
                                                 product.name,
                                                 product.merchantId,
-                                                // product.price
+                                                product.picture,
                                             ).then(() => {
                                                showMessage(t('productAdded'),'success')
                                             }).catch(e => {
                                                 showMessage(e,'error')
                                                 console.error("addToCartHandler", product.id,
                                                     product.name,
-                                                    product.merchantId, e)
+                                                    product.merchantId, product.picture, e)
                                             })
                                         }}
                                         sx={{

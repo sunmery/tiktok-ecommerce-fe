@@ -1,4 +1,4 @@
-import {PaymentStatus, ShippingStatus} from "@/types/status.ts";
+import { PaymentMethod, PaymentStatus, ShippingStatus } from "@/types/status.ts";
 import {ProductStatus} from "@/types/status.ts";
 import {DefaultColorPalette} from "@mui/joy/styles/types";
 import {t} from "i18next";
@@ -120,13 +120,11 @@ export const transactionType = (type: string): string => {
 
 export const paymentMethod = (method: string): string => {
     switch (method) {
-        case 'ALIPAY':
+        case PaymentMethod.PaymentMethodAliPay:
             return t('payment.method.ALIPAY')
-        case 'WECHAT':
-            return t('payment.method.WECHAT')
-        case 'BALANCER':
-            return t('payment.method.BALANCER')
-        case 'BANK_CARD':
+        case PaymentMethod.PaymentMethodBalance:
+            return t('payment.method.BALANCE')
+        case PaymentMethod.PaymentMethodBankCard:
             return t('payment.method.BANK_CARD')
         default:
             return t('common.unknown')

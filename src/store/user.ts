@@ -18,6 +18,7 @@ const initialUser: Account = savedUser
         name: "",
         avatar: "",
         email: "",
+        phone: "",
         id: "",
         role: "",
         isDeleted: false,

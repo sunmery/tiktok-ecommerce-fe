@@ -9,6 +9,7 @@ import DashboardCard from "@/components/DashboardCard";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import Skeleton from "@/shared/components/Skeleton";
 
 export default function AdminDashboard() {
     const { t } = useTranslation()
