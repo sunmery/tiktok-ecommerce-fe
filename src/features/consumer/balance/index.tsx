@@ -1,48 +1,17 @@
 import { useNavigate } from '@tanstack/react-router'
-import {
-    Box,
-    Button,
-    IconButton,
-    List,
-    ListItem,
-    ListItemContent,
-    ListItemDecorator,
-    Tab,
-    TabList,
-    Tabs,
-    Typography
-} from '@mui/joy'
+import { Box, IconButton, Typography } from '@mui/joy'
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useRef, useState } from 'react'
-import { useSnapshot } from 'valtio/react'
-import { userStore } from '@/store/user.ts'
-import { useTranslation } from 'react-i18next'
-import { Add, MoreHoriz, Send } from '@mui/icons-material'
-import * as echarts from 'echarts'
 
-// 账户类型图标
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
-import PaymentIcon from '@mui/icons-material/Payment'
-import CreditCardIcon from '@mui/icons-material/CreditCard'
+
+import { useTranslation } from 'react-i18next'
 
 import { balancerService } from "@/features/dashboard/admin/rechargeBalance/api.ts";
 
-// 账户类型图标映射
-const accountTypeIcons = {
-    // 'ALIPAY': <PaymentIcon/>,
-    // 'WECHAT': <AccountBalanceWalletIcon/>,
-    'BALANCE': <AccountBalanceIcon/>,
-    // 'BANK_CARD': <CreditCardIcon/>
-}
-
 export default function Balance() {
     const {t} = useTranslation()
-    const {account} = useSnapshot(userStore)
+
     const navigate = useNavigate()
-    const [timeRange, setTimeRange] = useState('month')
-    const chartRef = useRef<HTMLDivElement>(null)
-    const [chart, setChart] = useState<echarts.ECharts | null>(null)
+
 
     // 使用React Query获取余额数据
     const {data: balanceData, isLoading} = useQuery({
@@ -50,9 +19,6 @@ export default function Balance() {
         queryFn: () => balancerService.getUserBalance({currency: 'CNY'}),
         staleTime: 5 * 60 * 1000 // 5分钟缓存
     })
-
-    // 模拟账户数据 - 实际项目中应该从API获取
-    const balance = {type: 'BALANCE', balance: balanceData?.available || 0}
 
 
     // 检查用户是否为消费者，如果不是则重定向到首页
@@ -169,36 +135,6 @@ export default function Balance() {
         return `${currencySymbol}${amount.toFixed(2)}`
     }
 
-    // 渲染时间范围选择器
-    const renderTimeRangeTabs = () => (
-        <Tabs
-            value={timeRange}
-            onChange={(_, value) => setTimeRange(value)}
-            sx={{
-                bgcolor: 'background.level1',
-                borderRadius: 'lg',
-                p: 0.5,
-                mb: 3
-            }}
-        >
-            <TabList>
-                <Tab value="day">{t('consumer.balance.day')}</Tab>
-                <Tab value="week">{t('consumer.balance.week')}</Tab>
-                <Tab value="month">{t('consumer.balance.month')}</Tab>
-            </TabList>
-        </Tabs>
-    )
-
-    // 渲染余额图表
-    const renderBalanceChart = () => (
-        <Box sx={{height: 200, mt: 2, mb: 4}}>
-            <div ref={chartRef} style={{width: '100%', height: '100%'}}></div>
-        </Box>
-    )
-
-    const handleRechargeBalance = () => {
-
-    }
 
     // 渲染账户列表
     // const renderAccountsList = () => (
@@ -256,31 +192,6 @@ export default function Balance() {
     //     </>
     // )
 
-    // 渲染操作按钮
-    const renderActionButtons = () => (
-        <Box sx={{display: 'flex', gap: 2, mt: 3}}>
-            <Button
-                variant="soft"
-                color="primary"
-                startDecorator={<Add/>}
-                sx={{flex: 1, borderRadius: 'xl'}}
-                onClick={handleRechargeBalance}
-            >
-                {t('consumer.balance.add')}
-            </Button>
-            <Button
-                variant="soft"
-                color="primary"
-                startDecorator={<Send/>}
-                sx={{flex: 1, borderRadius: 'xl'}}
-            >
-                {t('consumer.balance.transfer')}
-            </Button>
-            <IconButton variant="soft" color="neutral" sx={{borderRadius: 'xl'}}>
-                <MoreHoriz/>
-            </IconButton>
-        </Box>
-    )
 
     return (
         <Box sx={{p: 2, maxWidth: '800px', mx: 'auto'}}>
@@ -311,11 +222,11 @@ export default function Balance() {
                         <Typography level="h1" sx={{fontSize: '2.5rem', my: 1}}>
                             {formatCurrency(balanceData?.available || 0, balanceData?.currency)}
                         </Typography>
-                        {balanceData?.frozen > 0 && (
-                            <Typography level="body-sm" color="warning">
-                                {t('consumer.balance.frozen')}: {formatCurrency(balanceData.frozen, balanceData.currency)}
-                            </Typography>
-                        )}
+                        {/*{balanceData.frozen > 0 && (*/}
+                        {/*    <Typography level="body-sm" color="warning">*/}
+                        {/*        {t('consumer.balance.frozen')}: {formatCurrency(balanceData.frozen, balanceData.currency)}*/}
+                        {/*    </Typography>*/}
+                        {/*)}*/}
                         {/*<Typography*/}
                         {/*    level="body-sm"*/}
                         {/*    color="success"*/}

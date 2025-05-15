@@ -129,7 +129,7 @@ export interface CancelFreezeRequest {
 }
 
 export interface GetTransactionsRequest {
-    userId: string;
+    userId?: string;
     currency: string;
     page: number;
     userType: string;

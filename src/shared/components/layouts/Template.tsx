@@ -1,5 +1,5 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import { Chip, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 import { Badge, Box, Button, IconButton, Stack, Tooltip, Typography, useColorScheme } from '@mui/joy';
 import Person from '@mui/icons-material/Person';
 import SearchIcon from '@mui/icons-material/Search';
@@ -10,19 +10,14 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import MapIcon from '@mui/icons-material/Map';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import CloudCircleIcon from '@mui/icons-material/CloudCircle';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-import TableChartIcon from '@mui/icons-material/TableChart';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import BlockIcon from '@mui/icons-material/Block';
 import { useSnapshot } from 'valtio/react';
@@ -30,7 +25,7 @@ import { userStore } from '@/store/user.ts';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { ChangeEvent, Fragment, MouseEvent, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
+import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import { AppProvider, Navigation, Router, type Session } from '@toolpad/core/AppProvider';
 import { CssVarsProvider } from '@mui/joy/styles';
 import { DashboardLayout, ThemeSwitcher } from '@toolpad/core/DashboardLayout';
@@ -49,6 +44,7 @@ import RadioGroup from '@mui/material/RadioGroup';
 
 import SettingsIcon from '@mui/icons-material/Settings';
 import SidebarFooterAccount from "@/shared/components/layouts/SidebarFooterAccount.tsx";
+import { t } from "i18next";
 
 // 定义导航项类型，扩展Navigation类型以包含权限控制
 interface NavigationItem {
@@ -90,139 +86,130 @@ const createNavigation = (userRole: string): Navigation => {
             segment: 'carts',
             title: 'Cart',
             icon: <ShoppingCartIcon/>,
-        },
+        }
     ];
 
-    // 消费者特定导航项 - 直接展示用户相关功能，不再嵌套在consumer下
+    // 消费者特定导航项
     const consumerNavItems: NavigationItem[] = [
         {
             segment: 'profile',
-            title: 'Dashboard',
+            title: t('consumer.profile'),
             icon: <Person/>,
         },
         {
             segment: 'consumer/addresses',
-            title: 'Addresses',
+            title: t('consumer.addresses'),
             icon: <HomeIcon/>,
         },
         {
             segment: 'consumer/creditCards',
-            title: 'CreditCards',
+            title: t('payment.title'),
             icon: <CreditCardIcon/>,
         },
         {
             segment: 'consumer/favorites',
-            title: 'Favorites',
+            title: t('consumer.favorites.title'),
             icon: <FavoriteIcon/>,
         },
         {
             segment: 'consumer/map',
-            title: 'Map',
+            title: t('consumer.logistics.mapTitle'),
             icon: <MapIcon/>,
         },
         {
             segment: 'consumer/orders',
-            title: 'Orders',
+            title: t('orders'),
             icon: <ReceiptIcon/>,
         },
         {
             segment: 'consumer/transactions',
-            title: 'Transactions',
+            title: t('consumer.transactions.title'),
             icon: <PaymentsIcon/>,
+        },
+        {
+            segment: 'consumer/balance',
+            title: t('consumer.balancer.title'),
+            icon: <AccountBalanceWalletIcon/>,
         },
     ];
 
-    // 商家特定导航项
+    // 商家特定导航项 - 铺平结构
     const merchantNavItems: NavigationItem[] = [
         {
-            segment: 'merchant',
-            title: 'MerchantDashboard',
+            segment: 'merchant/products',
+            title: t('productsManage'),
             icon: <StorefrontIcon/>,
             roles: ['merchant'],
-            children: [
-                {
-                    segment: 'addresses',
-                    title: 'Addresses',
-                    icon: <HomeIcon/>,
-                },
-                {
-                    segment: 'analytics',
-                    title: 'Analytics',
-                    icon: <BarChartIcon/>,
-                },
-                {
-                    segment: 'inventory',
-                    title: 'Inventory',
-                    icon: <InventoryIcon/>,
-                    children: [
-                        {
-                            segment: 'alerts',
-                            title: 'Alerts',
-                            icon: <NotificationsIcon/>,
-                        }, {
-                            segment: 'monitoring',
-                            title: 'Monitoring',
-                            icon: <MonitorHeartIcon/>,
-                        },
-                    ]
-                },
-                {
-                    segment: 'logistics',
-                    title: 'Logistics',
-                    icon: <LocalShippingIcon/>,
-                },
-                {
-                    segment: 'orders',
-                    title: 'Orders',
-                    icon: <ReceiptIcon/>,
-                }, {
-                    segment: 'products',
-                    title: 'Products',
-                    icon: <StorefrontIcon/>,
-                    children: [
-                        {
-                            segment: 'bulkUploads',
-                            title: 'Bulk Uploads',
-                            icon: <UploadFileIcon/>,
-                        }
-                    ]
-                }, {
-                    segment: 'table',
-                    title: 'Table',
-                    icon: <TableChartIcon/>,
-                },
-            ]
-        }]
+        },
+        {
+            segment: 'merchant/orders',
+            title: t('ordersManage'),
+            icon: <ReceiptIcon/>,
+            roles: ['merchant'],
+        },
+        {
+            segment: 'merchant/inventory',
+            title: t('inventory.title'),
+            icon: <InventoryIcon/>,
+            roles: ['merchant'],
+        },
+        {
+            segment: 'merchant/addresses',
+            title: t('merchant.addresses.title'),
+            icon: <HomeIcon/>,
+            roles: ['merchant'],
+        },
+        {
+            segment: 'merchant/inventory/alerts',
+            title: t('inventory.alerts'),
+            icon: <NotificationsIcon/>,
+            roles: ['merchant'],
+        },
+        {
+            segment: 'merchant/inventory/monitoring',
+            title: t('inventory.monitoring'),
+            icon: <MonitorHeartIcon/>,
+            roles: ['merchant'],
+        },
+        {
+            segment: 'merchant/analytics',
+            title: t('analytics.title'),
+            icon: <BarChartIcon/>,
+            roles: ['merchant'],
+        },
+        {
+            segment: 'merchant/orders/transactions',
+            title: t('consumer.transactions.title'),
+            icon: <SyncAltIcon/>,
+            roles: ['merchant'],
+        },
+    ];
 
-    // 管理员特定导航项
+    // 管理员特定导航项 - 铺平结构
     const adminNavItems: NavigationItem[] = [
         {
-            segment: 'admin',
-            title: 'AdminDashboard',
-            icon: <AdminPanelSettingsIcon/>,
+            segment: 'admin/products',
+            title: 'Products',
+            icon: <StorefrontIcon/>,
             roles: ['admin'],
-            children: [
-                {
-                    segment: 'products',
-                    title: 'Products',
-                    icon: <StorefrontIcon/>,
-                },
-                {
-                    segment: 'analytics',
-                    title: 'Analytics',
-                    icon: <BarChartIcon/>,
-                },
-                {
-                    segment: 'rechargeBalance',
-                    title: 'Recharge Balance',
-                    icon: <AccountBalanceWalletIcon/>,
-                },
-                {
-                    segment: 'sensitiveWords',
-                    title: 'Sensitive Words',
-                    icon: <BlockIcon/>,
-                },
-            ]
+        },
+        {
+            segment: 'admin/analytics',
+            title: 'Analytics',
+            icon: <BarChartIcon/>,
+            roles: ['admin'],
+        },
+        {
+            segment: 'admin/rechargeBalance',
+            title: 'Recharge Balance',
+            icon: <AccountBalanceWalletIcon/>,
+            roles: ['admin'],
+        },
+        {
+            segment: 'admin/sensitiveWords',
+            title: 'Sensitive Words',
+            icon: <BlockIcon/>,
+            roles: ['admin'],
         },
     ];
 
@@ -237,9 +224,9 @@ const createNavigation = (userRole: string): Navigation => {
         navItems = [...navItems, ...productNavItems];
 
         if (userRole === 'merchant') {
-            navItems = [...navItems, ...merchantNavItems];
+            navItems = [...merchantNavItems];
         } else if (userRole === 'admin') {
-            navItems = [...navItems, ...adminNavItems];
+            navItems = [...adminNavItems];
         }
     }
 
@@ -379,8 +366,8 @@ export default function Template({children}: { children: ReactNode }) {
                                 }}>
                                 {t('common.title')}
                             </Typography>
-                            <CloudCircleIcon fontSize="large" color="primary"/>
-                            <Chip size="small" label="BETA" color="info"/>
+                            {/*<CloudCircleIcon fontSize="large" color="primary"/>*/}
+                            {/*<Chip size="small" label="BETA" color="info"/>*/}
 
                             {/* 消费者角色的顶部导航栏商品相关导航 */}
                             {userRole === 'consumer' && (
@@ -423,7 +410,7 @@ export default function Template({children}: { children: ReactNode }) {
                     }}
                 >
                     <Box sx={{
-                        width: '100vw',
+                        width: '95vw',
                         flex: 1,
                         border: 0,
                     }}>

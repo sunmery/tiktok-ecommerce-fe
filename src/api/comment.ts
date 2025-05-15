@@ -10,7 +10,6 @@ import {
   GetCommentsRequest,
   GetCommentsResponse,
   UpdateCommentRequest,
-  UpdateCommentResponse,
   DeleteCommentRequest,
   DeleteCommentResponse,
   Comment

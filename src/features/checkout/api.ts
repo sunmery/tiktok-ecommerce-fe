@@ -10,6 +10,7 @@ interface CheckoutRequest {
   addressId: number
   creditCardId?: number
   paymentMethod: string
+
   selectedItems?: any[]
 }
 

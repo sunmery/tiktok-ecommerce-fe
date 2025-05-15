@@ -41,6 +41,7 @@ const resources = {
             'admin.sensitiveWords.add': 'Add Word',
             'admin.sensitiveWords.edit': 'Edit Word',
             'admin.sensitiveWords.id': 'ID',
+            'consumer.profile': 'My Profile',
             'admin.sensitiveWords.word': 'Word',
             'admin.sensitiveWords.category': 'Category',
             'admin.sensitiveWords.level': 'Level',
@@ -95,6 +96,7 @@ const resources = {
             'products.enterImageUrl': "Enter ImageUrl",
             'products.or': "Or",
             'consumer.logistics.confirmReceipt': 'Confirm Receipt',
+
             'admin.dashboard': {
                 title: 'Admin Dashboard',
                 userManagement: 'User Management',
@@ -738,9 +740,13 @@ const resources = {
             'nav.register': 'Register',
             'nav.project': 'T-Commerce',
             'nav.search': 'Search products',
+            'checkout.currency': 'Currency',
             'nav.menu': 'Menu',
             'nav.language': 'Language',
             'nav.switchRole': 'Switch Role',
+            'consumer.logistics.success.receiptConfirmed ': 'Receipt confirmed',
+            'consumer.logistics.confirming': 'Confirming',
+            'merchant.address.default': 'Default Address',
 
             // Auth related
             'auth.loginSuccess': 'Login successful',
@@ -756,6 +762,7 @@ const resources = {
             // 个人中心
             'profile.avatar': 'Avatar',
             'profile.addresses': 'Shipping Addresses',
+            'consumer.addresses': 'Addresses',
             'profile.payment': 'Payment Methods',
 
             // 操作
@@ -1063,6 +1070,7 @@ const resources = {
             'orders.updateSuccess': 'Order updated successfully',
             'orders.viewOrder': 'View Order',
             'log.fileUploadSuccess': 'File uploaded successfully',
+            'consumer.logistics.success.receiptConfirmed': 'Receipt confirmed',
             'log.permanentUrl': 'Permanent access URL:',
 
             // 消费者中心
@@ -1075,6 +1083,7 @@ const resources = {
 
             // 地址管理
             'addresses.title': 'Shipping Addresses',
+            'merchant.addresses.title': 'Addresses Manage',
             'addresses.addNew': 'Add New Address',
             'addresses.edit': 'Edit Address',
             'addresses.delete': 'Delete Address',
@@ -1240,6 +1249,10 @@ const resources = {
 
             // 销售分析
             'analytics.title': 'Sales Analytics',
+            'products.createSuccess': 'Product created successfully',
+            'products.createFailed': 'Failed to create product',
+            'products.editSuccess': 'Product updated successfully',
+            'products.editFailed': 'Failed to update product',
             'analytics.overview': 'Overview',
             'analytics.period': 'Period',
             'analytics.daily': 'Daily',
@@ -1418,7 +1431,7 @@ const resources = {
             // 商品状态
             'products.status.draft': 'Draft',
             'products.status.pending': 'Pending Review',
-            'products.status.approved': 'Approved',
+            'products.status.approved': 'Normality',
             'products.status.rejected': 'Rejected',
             'products.status.soldOut': 'Sold Out',
             'products.status.unknown': 'Unknown Status ({{status}})',
@@ -1561,7 +1574,8 @@ const resources = {
             'merchant.transactionFeatures.exportData': '导出数据',
             'merchant.viewTransactions': '查看交易',
             'merchant.log.navigatedToAddress': '已导航至地址管理页面',
-
+            'consumer.logistics.success.receiptConfirmed ': '已确认收货',
+            'consumer.logistics.confirming': '正在确认收货',
             // 通用
             'common.title': 'TT电商',
             'common.cancel': '取消',
@@ -1759,6 +1773,8 @@ const resources = {
             'home.alipayTestEnv': '支付宝沙箱环境',
             'home.followMe': '关注作者',
             'home.wechatPublic': '微信公众号',
+            'merchant.address.default': '默认地址',
+            'consumer.logistics.success.receiptConfirmed': '已确认收货',
             'home.juejin': '掘金主页',
             'home.blog': '技术博客',
             'home.copyright': '© 2025 基于领域驱动设计的全栈电商系统',
@@ -1826,6 +1842,7 @@ const resources = {
             'checkout.redirectToOrders': '跳转到订单页面',
 
             // 订单
+            'consumer.addresses': '地址管理',
             'orderHistory': '订单历史',
             'orderId': '订单号',
             'orderDate': '下单日期',
@@ -1926,6 +1943,7 @@ const resources = {
             'productStock': '库存',
             'uploadImage': '上传图片',
             'lowStock': '库存不足',
+            'products.createSuccess': '商品创建成功',
             'stockNormal': '库存正常',
             'setStockAlert': '设置库存警告',
             'threshold': '阈值',
@@ -1988,6 +2006,7 @@ const resources = {
             'admin.users.delete.confirm': '您确定要删除用户 "{{username}}" 吗？此操作不可撤销。',
             'admin.users.delete.cancel': '取消',
             'admin.users.delete.confirm_button': '删除',
+            'consumer.profile': '个人中心',
             'admin.users.merchant_approval.title': '商家申请审批',
             'admin.users.merchant_approval.application_id': '申请ID',
             'admin.users.merchant_approval.business_name': '商家名称',
@@ -2090,6 +2109,7 @@ const resources = {
 
             // 个人资料页面
             'profile.welcome': '欢迎访问',
+            'merchant.addresses.title': '地址管理',
             'profile.loginPrompt': '请登录以获取更多功能',
             'profile.noNickname': '未设置昵称',
             'profile.role': '角色',
@@ -2107,6 +2127,7 @@ const resources = {
             'profile.notLoggedIn': '您尚未登录',
             'profile.login': '登录',
             'profile.email': '邮箱',
+            'checkout.currency': '货币类型',
             'profile.phone': '手机号',
             'profile.accountId': '账号ID',
             'profile.createdTime': '创建时间',
@@ -2214,6 +2235,7 @@ const resources = {
             'consumer.orders.filter.allStatuses': '所有状态',
             'consumer.orders.filter.clear': '清除筛选',
             'consumer.orders.filter.apply': '应用筛选',
+            'inventory.alerts': '库存警报',
             'consumer.orders.error': '加载订单失败',
             'consumer.orders.empty': '暂无订单',
             'status.notPaid': '未支付',
@@ -2577,7 +2599,7 @@ const resources = {
             // 商品状态
             'products.status.draft': '草稿状态',
             'products.status.pending': '待审核',
-            'products.status.approved': '审核通过',
+            'products.status.approved': '正常',
             'products.status.rejected': '审核驳回',
             'products.status.soldOut': '下架',
             'products.status.unknown': '未知状态({{status}})',

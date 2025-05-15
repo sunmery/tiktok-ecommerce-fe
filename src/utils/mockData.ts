@@ -2,8 +2,9 @@
  * 模拟商品数据
  * 用于前端开发和测试
  */
+import { Product } from "@/features/products/types.ts";
+import { ProductStatus } from "@/types/status";
 
-import {Product, ProductStatus} from '@/types/products';
 
 // 所有商品的模拟数据
 export const mockProducts: Product[] = [

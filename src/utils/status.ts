@@ -120,11 +120,11 @@ export const transactionType = (type: string): string => {
 
 export const paymentMethod = (method: string): string => {
     switch (method) {
-        case PaymentMethod.PaymentMethodAliPay:
+        case PaymentMethod.AliPay:
             return t('payment.method.ALIPAY')
-        case PaymentMethod.PaymentMethodBalance:
+        case PaymentMethod.Balance:
             return t('payment.method.BALANCE')
-        case PaymentMethod.PaymentMethodBankCard:
+        case PaymentMethod.BankCard:
             return t('payment.method.BANK_CARD')
         default:
             return t('common.unknown')

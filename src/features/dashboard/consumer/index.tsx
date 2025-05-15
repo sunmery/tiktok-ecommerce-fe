@@ -80,7 +80,7 @@ export default function ConsumerDashboard() {
                                         <ListItem>
                                             <Button
                                                 variant="plain"
-                                                onClick={() => navigate({to: '/consumer/balancer'}).then(() => {
+                                                onClick={() => navigate({to: '/consumer/balance'}).then(() => {
                                                     console.log('已跳转到余额页面')
                                                 })}
                                                 sx={{width: '100%', justifyContent: 'flex-start'}}

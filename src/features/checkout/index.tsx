@@ -8,7 +8,18 @@ import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import { useQuery } from '@tanstack/react-query'
 import { balancerService } from '@/features/dashboard/admin/rechargeBalance/api.ts'
 
-import { Box, Button, Card, CardContent, CircularProgress, Divider, Grid, Table, Typography } from '@mui/joy'
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CircularProgress,
+    Divider,
+    Grid,
+
+    Table,
+    Typography
+} from '@mui/joy'
 
 import type { CartItem } from '@/types/cart'
 
@@ -18,6 +29,7 @@ import { CreditCard } from "@/features/dashboard/consumer/creditCard/type.ts";
 import { Address } from '../dashboard/consumer/address/type'
 import { useAddresses } from '../dashboard/consumer/address/hook'
 import { useCreditCards } from "@/features/dashboard/consumer/creditCard/hook.ts";
+import { Currency, PaymentMethod } from "@/types/status.ts";
 
 /**
  * Checkout page component
@@ -35,15 +47,15 @@ export default function Checkout() {
     const [creditCards, setCreditCards] = useState<CreditCard[]>([])
     const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
     const [selectedCard, setSelectedCard] = useState<CreditCard | null>(null)
-    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('credit_card')
-    const [userBalance, setUserBalance] = useState<number>(0)
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>(PaymentMethod.Balance)
+
 
     // 获取地址、信用卡和余额数据
     const {data: addressesData, isLoading: isLoadingAddresses} = useAddresses()
     const {data: creditCardsData, isLoading: isLoadingCreditCards} = useCreditCards()
     const {data: balanceData, isLoading: isLoadingBalance} = useQuery({
         queryKey: ['userBalance'],
-        queryFn: () => balancerService.getUserBalance({currency: 'CNY'})
+        queryFn: () => balancerService.getUserBalance({currency: Currency.CNY})
     })
 
     // 从本地存储加载选择的商品
@@ -126,7 +138,7 @@ export default function Checkout() {
             return
         }
 
-        if (selectedPaymentMethod === 'balance' && (balanceData?.available || 0) < getSelectedItemsTotalPrice()) {
+        if (selectedPaymentMethod === PaymentMethod.Balance && (balanceData?.available || 0) < getSelectedItemsTotalPrice()) {
             showMessage(t('checkout.insufficientBalance'), 'error')
             return
         }
@@ -141,47 +153,48 @@ export default function Checkout() {
                 firstname: account?.firstName || '',
                 lastname: account?.lastName || '',
                 email: account.email,
+
                 addressId: selectedAddressId,
                 creditCardId: selectedPaymentMethod === 'credit_card' ? selectedCardId : undefined,
                 paymentMethod: selectedPaymentMethod,
                 selectedItems: selectedItems // 添加选中的商品到请求中
             })
-            .then((data) => {
-                console.log('结账成功:', data)
-                // 清除本地存储中的选中商品
-                localStorage.removeItem('selectedCartItems')
+                .then((data) => {
+                    console.log('结账成功:', data)
+                    // 清除本地存储中的选中商品
+                    localStorage.removeItem('selectedCartItems')
 
-                // 如果结算成功，从购物车中移除已购买的商品
-                selectedItems.forEach(item => {
-                    cartStore.removeItem(item.productId).then(() => {
-                        console.log(t('checkout.successRemovedItem', {productId: item.productId}))
+                    // 如果结算成功，从购物车中移除已购买的商品
+                    selectedItems.forEach(item => {
+                        cartStore.removeItem(item.productId).then(() => {
+                            console.log(t('checkout.successRemovedItem', {productId: item.productId}))
+                        })
                     })
-                })
 
-                // 显示成功消息
-                showMessage(t('checkout.success'), 'success')
-                
-                // 如果是余额支付，不需要跳转到支付页面，直接跳转到订单页面
-                if (selectedPaymentMethod === 'balance') {
-                    navigate({to: '/consumer/orders'}).then(() => {
-                        console.log(t('checkout.redirectToOrders'))
-                    })
-                } else {
-                    // 对于支付宝支付，跳转到支付页面
-                    if (data.paymentUrl) {
-                        window.open(data.paymentUrl, '_blank')
+                    // 显示成功消息
+                    showMessage(t('checkout.success'), 'success')
+
+                    // 如果是余额支付，不需要跳转到支付页面，直接跳转到订单页面
+                    if (selectedPaymentMethod === PaymentMethod.Balance) {
+                        navigate({to: '/consumer/orders'}).then(() => {
+                            console.log(t('checkout.redirectToOrders'))
+                        })
+                    } else {
+                        // 对于支付宝支付，跳转到支付页面
+                        if (data.paymentUrl) {
+                            window.open(data.paymentUrl, '_blank')
+                        }
+                        // 然后跳转到订单页面
+                        navigate({to: '/consumer/orders'}).then(() => {
+                            console.log(t('checkout.redirectToOrders'))
+                        })
                     }
-                    // 然后跳转到订单页面
-                    navigate({to: '/consumer/orders'}).then(() => {
-                        console.log(t('checkout.redirectToOrders'))
-                    })
-                }
-            })
-            .catch((e) => {
-                console.error(t('checkout.failed'), e)
-                setLoading(false)
-                showMessage(e.message || t('checkout.tryAgain'), 'error')
-            })
+                })
+                .catch((e) => {
+                    console.error(t('checkout.failed'), e)
+                    setLoading(false)
+                    showMessage(e.message || t('checkout.tryAgain'), 'error')
+                })
         })
     }
 
@@ -259,15 +272,15 @@ export default function Checkout() {
                     {/* 余额支付 */}
                     <Grid xs={8} md={6}>
                         <Card
-                            variant={selectedPaymentMethod === 'balance' ? "solid" : "outlined"}
-                            color={selectedPaymentMethod === 'balance' ? "primary" : "neutral"}
+                            variant={selectedPaymentMethod === PaymentMethod.Balance ? "solid" : "outlined"}
+                            color={selectedPaymentMethod === PaymentMethod.Balance ? "primary" : "neutral"}
                             sx={{
                                 cursor: 'pointer',
                                 '&:hover': {
                                     borderColor: 'primary.300'
                                 }
                             }}
-                            onClick={() => setSelectedPaymentMethod('balance')}
+                            onClick={() => setSelectedPaymentMethod(PaymentMethod.Balance)}
                         >
                             <CardContent>
                                 <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 2}}>

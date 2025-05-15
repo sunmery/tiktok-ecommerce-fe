@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import Balance from "@/features/consumer/balancer";
+import Balance from "@/features/consumer/balance";
 
 export const Route = createFileRoute('/consumer/balance/')({
   component: RouteComponent,
