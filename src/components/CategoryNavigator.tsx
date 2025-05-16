@@ -2,6 +2,9 @@ import {FC, useEffect, useState} from 'react';
 import {Box, Breadcrumbs, Chip, List, ListItem, ListItemButton, Typography} from '@mui/joy';
 import {Category} from '@/types/category';
 import {categoryService} from '@/api/categoryService';
+import Button from "@mui/joy/Button";
+import { showMessage } from "@/utils/showMessage.ts";
+import { t } from "i18next";
 
 interface CategoryNavigatorProps {
     initialRootId?: string; // 初始根分类ID，默认为1（根分类）
@@ -156,6 +159,35 @@ const CategoryNavigator: FC<CategoryNavigatorProps> = ({
                                     {category.isLeaf &&
                                         <Chip size="sm" variant="soft" color="success" sx={{ml: 1}}>叶子</Chip>}
                                 </Typography>
+                                {/*<Button*/}
+                                {/*    variant="plain"*/}
+                                {/*    size="md"*/}
+                                {/*    color="primary"*/}
+                                {/*    onClick={(e) => {*/}
+                                {/*        e.preventDefault();*/}
+                                {/*        addToCartHandler(*/}
+                                {/*            product.id,*/}
+                                {/*            product.name,*/}
+                                {/*            product.merchantId,*/}
+                                {/*            product.images[0].url,*/}
+                                {/*        ).then(() => {*/}
+                                {/*            console.log("addToCartHandler picture", product.images[0].url,)*/}
+                                {/*            showMessage(t('productAdded'),'success')*/}
+                                {/*        }).catch(e => {*/}
+                                {/*            showMessage(e,'error')*/}
+                                {/*            console.error("addToCartHandler", product.id,*/}
+                                {/*                product.name,*/}
+                                {/*                product.merchantId, product.picture, e)*/}
+                                {/*        })*/}
+                                {/*    }}*/}
+                                {/*    sx={{*/}
+                                {/*        minWidth: 100,*/}
+                                {/*        boxShadow: 'sm'*/}
+                                {/*    }}*/}
+                                {/*    disabled={(product.inventory?.stock || product.quantity || 0) <= 0}*/}
+                                {/*>*/}
+                                {/*    {(product.inventory?.stock || product.quantity || 0) > 0 ? t('addToCart') : t('outOfStock')}*/}
+                                {/*</Button>*/}
                             </ListItemButton>
                         </ListItem>
                     ))

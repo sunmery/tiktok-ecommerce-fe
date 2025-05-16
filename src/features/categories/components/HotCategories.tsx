@@ -13,11 +13,14 @@ import {
 } from '@mui/joy';
 import { Category } from '@/types/category';
 import { categoryService } from '@/api/categoryService';
-import { Link, useNavigate } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import CategoryNavigator from '@/components/CategoryNavigator';
 import { useCategoryWithChildrenProducts } from '@/hooks/useProduct';
 import { ProductStatus } from "@/types/status.ts";
 import { Product } from '@/features/products/types';
+import { showMessage } from '@/utils/showMessage';
+import { t } from "i18next";
+import { cartStore } from "@/store/cartStore.ts";
 
 interface HotCategoriesProps {
     // 定制顶部标题
@@ -92,10 +95,27 @@ const HotCategories: React.FC<HotCategoriesProps> = ({
 
     // 当点击商品时
     const handleProductClick = (product: Product) => {
-        navigate({to: `/products/${product.id}`}).then(() => {
-            console.log('点击商品')
+        navigate({to: `/products/${product.id}?merchantId=${product.merchantId}`}).then(() => {
+            console.log('02')
         });
     };
+
+    const addToCartHandler = async (
+        id: string,
+        name: string,
+        merchantId: string,
+        picture: string,
+    ) => {
+        // 确保productId不为空
+        if (!id || id.trim() === '') {
+            console.error('添加商品失败: 商品ID不能为空');
+            return;
+        }
+        console.log('添加商品到购物车:', picture, name, merchantId, id)
+        // 修正参数顺序：productId, name, merchantId, picture, quantity
+        cartStore.addItem(id, name, merchantId, picture, 1) // 固定添加1个商品到购物车
+        // 固定添加1个商品到购物车
+    }
 
     // // 类别图片映射
     // const getCategoryImage = (categoryName: string) => {
@@ -159,13 +179,13 @@ const HotCategories: React.FC<HotCategoriesProps> = ({
                             {selectedCategory.name}
                         </Typography>
                     </Box>
-                    <Button
-                        variant="plain"
-                        component={Link}
-                        to={`/categories/${selectedCategory.id}`}
-                    >
-                        查看全部
-                    </Button>
+                    {/*<Button*/}
+                    {/*    variant="plain"*/}
+                    {/*    component={Link}*/}
+                    {/*    to={`/categories/${selectedCategory.id}`}*/}
+                    {/*>*/}
+                    {/*    查看全部*/}
+                    {/*</Button>*/}
                 </Box>
 
                 {isProductsLoading ? (
@@ -197,9 +217,8 @@ const HotCategories: React.FC<HotCategoriesProps> = ({
                                         display: 'flex',
                                         flexDirection: 'column'
                                     }}
-                                    onClick={() => handleProductClick(product)}
                                 >
-                                    <AspectRatio ratio="1/1">
+                                    <AspectRatio ratio="1/1" onClick={() => handleProductClick(product)}>
                                         <img
                                             src={product.images && product.images.length > 0 ? product.images[0].url : 'https://via.placeholder.com/300'}
                                             alt={product.name}
@@ -243,10 +262,43 @@ const HotCategories: React.FC<HotCategoriesProps> = ({
                                             <Typography level="title-lg" color="primary">
                                                 ¥{product.price.toFixed(2)}
                                             </Typography>
-                                            <Typography level="body-sm" color="neutral">
-                                                库存: {product.inventory?.stock || 0}
-                                            </Typography>
+
+                                            <Button
+                                                variant="plain"
+                                                size="md"
+                                                color="primary"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    addToCartHandler(
+                                                        product.id,
+                                                        product.name,
+                                                        product.merchantId,
+                                                        product.images[0].url,
+                                                    ).then(() => {
+                                                        console.log("addToCartHandler merchantId", product)
+                                                        showMessage(t('productAdded'), 'success')
+                                                    }).catch(e => {
+                                                        showMessage(e, 'error')
+                                                        console.error("addToCartHandler", product.id,
+                                                            product.name,
+                                                            product.merchantId, product.picture, e)
+                                                    })
+                                                }}
+                                                sx={{
+                                                    minWidth: 100,
+                                                    boxShadow: 'sm'
+                                                }}
+                                                disabled={(product.inventory?.stock || product.quantity || 0) <= 0}
+                                            >
+                                                {(product.inventory?.stock || product.quantity || 0) > 0 ? t('addToCart') : t('outOfStock')}
+                                            </Button>
                                         </Box>
+
+
+                                        <Typography level="body-sm" color="neutral">
+                                            {t('stock')}: {product.inventory?.stock || 0}
+                                        </Typography>
+
                                     </CardContent>
                                 </Card>
                             </Grid>
@@ -260,18 +312,18 @@ const HotCategories: React.FC<HotCategoriesProps> = ({
     // 显示分类列表
     return (
         <Box sx={{my: 4}}>
-            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
-                <Typography level="h2" component="h2">
-                    {title}
-                </Typography>
-                <Button
-                    variant="plain"
-                    component={Link}
-                    to="/categories"
-                >
-                    查看全部
-                </Button>
-            </Box>
+            {/*<Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>*/}
+            {/*    <Typography level="h2" component="h2">*/}
+            {/*        {title}*/}
+            {/*    </Typography>*/}
+            {/*    <Button*/}
+            {/*        variant="plain"*/}
+            {/*        component={Link}*/}
+            {/*        to="/categories"*/}
+            {/*    >*/}
+            {/*        查看全部*/}
+            {/*    </Button>*/}
+            {/*</Box>*/}
 
             <Grid container spacing={2}>
                 {categories.map((category) => (
@@ -282,9 +334,9 @@ const HotCategories: React.FC<HotCategoriesProps> = ({
                             variant="plain"
                             sx={{
                                 cursor: 'pointer',
-                                backgroundColor:'rgb(232, 234, 233)',
+                                backgroundColor: '#fafcfe',
                                 transition: 'transform 0.2s, box-shadow 0.2s',
-                                borderRadius:'12px',
+                                borderRadius: '12px',
                                 '&:hover': {
                                     transform: 'translateY(-4px)',
                                     boxShadow: 'md',
@@ -294,30 +346,30 @@ const HotCategories: React.FC<HotCategoriesProps> = ({
                         >
                             {/*<AspectRatio ratio="1/1">*/}
                             {/*    <img*/}
-                            {/*        src={getCategoryImage(category.name)}*/}
+                            {/*        src={category.name}*/}
                             {/*        alt={category.name}*/}
                             {/*        style={{objectFit: 'cover'}}*/}
                             {/*    />*/}
                             {/*</AspectRatio>*/}
                             {/*<CardContent>*/}
-                                <Typography
-                                    level="title-md"
-                                    sx={{
-                                        textAlign: 'center',
-                                        fontWeight: 'bold'
-                                    }}
-                                >
-                                    {category.name}
-                                </Typography>
-                                {/*<Typography*/}
-                                {/*    level="body-sm"*/}
-                                {/*    sx={{*/}
-                                {/*        textAlign: 'center',*/}
-                                {/*        color: 'text.tertiary'*/}
-                                {/*    }}*/}
-                                {/*>*/}
-                                {/*    {category.isLeaf ? '热销商品' : `${category.level}级分类`}*/}
-                                {/*</Typography>*/}
+                            <Typography
+                                level="title-md"
+                                sx={{
+                                    textAlign: 'center',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                {category.name}
+                            </Typography>
+                            {/*<Typography*/}
+                            {/*    level="body-sm"*/}
+                            {/*    sx={{*/}
+                            {/*        textAlign: 'center',*/}
+                            {/*        color: 'text.tertiary'*/}
+                            {/*    }}*/}
+                            {/*>*/}
+                            {/*    {category.isLeaf ? '热销商品' : `${category.level}级分类`}*/}
+                            {/*</Typography>*/}
                             {/*</CardContent>*/}
                         </Card>
                     </Grid>

@@ -208,7 +208,7 @@ export default function Products() {
                 <Box
                     sx={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
                     }}
                 >
                     {displayData.map((product, index: number) => (
@@ -216,9 +216,10 @@ export default function Products() {
                             key={product.name + index}
                             sx={{
                                 width: '100%',
-                                maxWidth: 320,
+                                maxWidth: 250,
                                 position: 'relative',
                                 m: 1,
+
                                 transition: 'all 0.3s ease',
                                 cursor: 'pointer',
                                 display: 'flex',
@@ -240,11 +241,11 @@ export default function Products() {
                                 <AspectRatio
                                     ratio="1"
                                     sx={{
-                                        minHeight: '100px',
+                                        // minHeight: '50px',
+                                        // height: '50px',
                                         '& img': {
                                             objectFit: 'contain',
                                             width: '100%',
-                                            height: '100%',
                                             transition: 'transform 0.3s ease',
                                             '&:hover': {
                                                 transform: 'scale(1.05)'
@@ -264,7 +265,7 @@ export default function Products() {
                                 </AspectRatio>
                             </CardOverflow>
 
-                            <CardContent sx={{flex: 1, display: 'flex', flexDirection: 'column', gap: 1, p: 2}}>
+                            <CardContent sx={{flex: 1, display: 'flex', flexDirection: 'column', gap: 1}}>
                                 <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
                                     <Typography level="title-lg" sx={{
                                         fontSize: 'md',
@@ -319,7 +320,7 @@ export default function Products() {
                                     display: '-webkit-box',
                                     WebkitLineClamp: 2,
                                     WebkitBoxOrient: 'vertical',
-                                    minHeight: '2.5em',
+                                    minHeight: '1em',
                                     mb: 1
                                 }}>
                                     {product.description || t('noDescription')}

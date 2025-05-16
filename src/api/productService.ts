@@ -165,7 +165,7 @@ export const productService = {
             productId: request.id,
             merchantId: request.merchantId
         };
-        const url = httpClient.replacePathParams(`${import.meta.env.VITE_PRODUCERS_URL}`, {
+        const url = httpClient.replacePathParams(`${import.meta.env.VITE_PRODUCERS_URL}/{productId}`, {
             productId: request.id,
             merchantId: request.merchantId,
         });
