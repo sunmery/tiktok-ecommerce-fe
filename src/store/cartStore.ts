@@ -218,6 +218,7 @@ export const cartStore: CartState = proxy<CartState>({
             return {
                 productId: item.productId,
                 merchantId: item.merchantId,
+                picture: item.picture,
                 productIdType: typeof item.productId,
                 productIdLength: item.productId ? item.productId.length : 0,
                 merchantIdLength: item.merchantId ? item.merchantId.length : 0
@@ -242,7 +243,9 @@ export const cartStore: CartState = proxy<CartState>({
             console.log('处理后端购物车商品:', {
                 productId: backendItem.productId,
                 merchantId: backendItem.merchantId,
-                name: backendItem.name
+                name: backendItem.name,
+                price: backendItem.price,
+                picture: backendItem.picture,
             });
 
             const localItem = cartStore.items.find(item => item.productId === backendItem.productId)
@@ -253,7 +256,8 @@ export const cartStore: CartState = proxy<CartState>({
                 // 更新价格信息
                 localItem.price = backendItem.price || localItem.price
                 // 更新图片信息
-                localItem.picture = backendItem.picture || localItem.picture
+                console.log('更新图片信息:',localItem,backendItem)
+                localItem.picture = localItem.picture || backendItem.picture
             } else {
                 // 如果后端商品包含完整信息，直接添加到本地
                 if (backendItem.name && backendItem.picture) {

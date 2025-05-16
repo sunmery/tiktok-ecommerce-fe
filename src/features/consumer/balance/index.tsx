@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
 import { balancerService } from "@/features/dashboard/admin/rechargeBalance/api.ts";
+import { Refresh } from '@mui/icons-material';
 
 export default function Balance() {
     const {t} = useTranslation()
@@ -14,12 +15,16 @@ export default function Balance() {
 
 
     // 使用React Query获取余额数据
-    const {data: balanceData, isLoading} = useQuery({
+    const {data: balanceData, isLoading, refetch,isFetching} = useQuery({
         queryKey: ['userBalance'],
         queryFn: () => balancerService.getUserBalance({currency: 'CNY'}),
         staleTime: 5 * 60 * 1000 // 5分钟缓存
     })
-
+    const handleRefresh = () => {
+        refetch().then(() => {
+            console.log('订单列表已刷新')
+        })
+    }
 
     // 检查用户是否为消费者，如果不是则重定向到首页
     // useEffect(() => {
@@ -214,6 +219,10 @@ export default function Balance() {
                     {/* 时间范围选择器 */}
                     {/*{renderTimeRangeTabs()}*/}
 
+                    <IconButton onClick={handleRefresh} variant="outlined" disabled={isFetching}>
+                        <Refresh/>
+                    </IconButton>
+
                     {/* 总余额显示 */}
                     <Box sx={{textAlign: 'center', mb: 2}}>
                         <Typography level="body-sm" color="neutral">
@@ -251,7 +260,10 @@ export default function Balance() {
                     {/* 交易列表 */}
                     {/*{renderTransactionsList()}*/}
                 </>
+
+
             )}
+
         </Box>
     )
 }

@@ -196,24 +196,6 @@ export default function Transactions() {
                                                             <Typography level="body-sm">
                                                                 {t('consumer.transactions.fields.createdAt')}: {format(new Date(transaction.createdAt), 'yyyy-MM-dd HH:mm:ss')}
                                                             </Typography>
-                                                            <Typography level="body-sm">
-                                                                {t('consumer.transactions.fields.updatedAt')}: {format(new Date(transaction.updatedAt), 'yyyy-MM-dd HH:mm:ss')}
-                                                            </Typography>
-                                                            {transaction.paymentExtra ? (
-                                                                <Typography level="body-sm" sx={{ wordBreak: 'break-all' }}>
-                                                                    {t('consumer.transactions.fields.paymentExtra')}:
-                                                                    {transaction.paymentExtra.external_transaction_id > 0 && (
-                                                                        <span>{t('consumer.transactions.fields.externalId')}: {transaction.paymentExtra.external_transaction_id}</span>
-                                                                    )}
-                                                                    {transaction.paymentExtra.idempotency_key && (
-                                                                        <span>{t('consumer.transactions.fields.idempotencyKey')}: {transaction.paymentExtra.idempotency_key}</span>
-                                                                    )}
-                                                                </Typography>
-                                                            ) : (
-                                                                <Typography level="body-sm" color="neutral">
-                                                                    {t('consumer.transactions.noPaymentExtra')}
-                                                                </Typography>
-                                                            )}
                                                         </Stack>
                                                     </Grid>
                                                 </Grid>

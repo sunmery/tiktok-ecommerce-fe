@@ -23,7 +23,6 @@ export default function Products() {
     // 检查当前路由，如果是在首页，则不使用 useSearch
     const isHomePage = window.location.pathname === '/'
     const search = isHomePage ? {query: ''} : useSearch({from: '/products/'})
-
     // 使用状态管理分页参数
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(20)
@@ -79,7 +78,7 @@ export default function Products() {
             console.error('添加商品失败: 商品ID不能为空');
             return;
         }
-
+        console.log('添加商品到购物车:', picture, name, merchantId, id)
         // 修正参数顺序：productId, name, merchantId, picture, quantity
         cartStore.addItem(id, name, merchantId, picture, 1) // 固定添加1个商品到购物车
         // 固定添加1个商品到购物车
@@ -370,8 +369,9 @@ export default function Products() {
                                                 product.id,
                                                 product.name,
                                                 product.merchantId,
-                                                product.picture,
+                                                product.images[0].url,
                                             ).then(() => {
+                                                console.log("addToCartHandler picture", product.images[0].url,)
                                                showMessage(t('productAdded'),'success')
                                             }).catch(e => {
                                                 showMessage(e,'error')

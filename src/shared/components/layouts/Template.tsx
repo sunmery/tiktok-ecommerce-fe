@@ -42,7 +42,7 @@ import Popover from '@mui/material/Popover';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 
-import SettingsIcon from '@mui/icons-material/Settings';
+// import SettingsIcon from '@mui/icons-material/Settings';
 import SidebarFooterAccount from "@/shared/components/layouts/SidebarFooterAccount.tsx";
 import { t } from "i18next";
 
@@ -64,24 +64,24 @@ const createNavigation = (userRole: string): Navigation => {
     const productNavItems: NavigationItem[] = [
         {
             segment: 'products',
-            title: 'Products',
+            title: t('orders.product'),
             icon: <StorefrontIcon/>,
         },
         {
-            segment: '新品上市',
+            segment: 'newArrivals',
             title: '新品上市',
             icon: <NewReleasesIcon/>,
         },
         {
-            segment: '趋势',
-            title: '趋势',
+            segment: 'trends',
+            title: 'trend',
             icon: <TrendingUpIcon/>,
         },
-        {
-            segment: 'categories',
-            title: 'Categories',
-            icon: <CategoryIcon/>,
-        },
+        // {
+        //     segment: 'categories',
+        //     title: 'Categories',
+        //     icon: <CategoryIcon/>,
+        // },
         {
             segment: 'carts',
             title: 'Cart',
@@ -111,11 +111,11 @@ const createNavigation = (userRole: string): Navigation => {
             title: t('consumer.favorites.title'),
             icon: <FavoriteIcon/>,
         },
-        {
-            segment: 'consumer/map',
-            title: t('consumer.logistics.mapTitle'),
-            icon: <MapIcon/>,
-        },
+        // {
+        //     segment: 'consumer/map',
+        //     title: t('consumer.logistics.mapTitle'),
+        //     icon: <MapIcon/>,
+        // },
         {
             segment: 'consumer/orders',
             title: t('orders'),
@@ -323,7 +323,7 @@ export default function Template({children}: { children: ReactNode }) {
                 {to: '/products', label: t('nav.products'), icon: <StorefrontIcon/>},
                 {to: '/newArrivals', label: t('nav.newArrivals'), icon: <NewReleasesIcon/>},
                 {to: '/trends', label: t('nav.trends'), icon: <TrendingUpIcon/>},
-                {to: '/categories', label: t('nav.categories'), icon: <CategoryIcon/>},
+                // {to: '/categories', label: t('nav.categories'), icon: <CategoryIcon/>},
             ];
         }
         return [];
@@ -483,13 +483,13 @@ function CustomThemeSwitcher() {
 
     return (
         <Fragment>
-            <Tooltip title="Settings" enterDelay={1000}>
-                <div>
-                    <IconButton type="button" aria-label="settings" onClick={toggleMenu}>
-                        <SettingsIcon/>
-                    </IconButton>
-                </div>
-            </Tooltip>
+            {/*<Tooltip title="Settings" enterDelay={1000}>*/}
+            {/*    <div>*/}
+            {/*        <IconButton type="button" aria-label="settings" onClick={toggleMenu}>*/}
+            {/*            <SettingsIcon/>*/}
+            {/*        </IconButton>*/}
+            {/*    </div>*/}
+            {/*</Tooltip>*/}
             <Popover
                 open={isMenuOpen}
                 anchorEl={menuAnchorEl}

@@ -39,6 +39,9 @@ const MerchantLogisticsIndexLazyImport = createFileRoute(
 const MerchantInventoryIndexLazyImport = createFileRoute(
   '/merchant/inventory/',
 )()
+const MerchantCategoriesIndexLazyImport = createFileRoute(
+  '/merchant/categories/',
+)()
 const MerchantAnalyticsIndexLazyImport = createFileRoute(
   '/merchant/analytics/',
 )()
@@ -217,6 +220,15 @@ const MerchantInventoryIndexLazyRoute = MerchantInventoryIndexLazyImport.update(
 ).lazy(() =>
   import('./routes/merchant/inventory/index.lazy').then((d) => d.Route),
 )
+
+const MerchantCategoriesIndexLazyRoute =
+  MerchantCategoriesIndexLazyImport.update({
+    id: '/merchant/categories/',
+    path: '/merchant/categories/',
+    getParentRoute: () => rootRoute,
+  } as any).lazy(() =>
+    import('./routes/merchant/categories/index.lazy').then((d) => d.Route),
+  )
 
 const MerchantAnalyticsIndexLazyRoute = MerchantAnalyticsIndexLazyImport.update(
   {
@@ -638,6 +650,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MerchantAnalyticsIndexLazyImport
       parentRoute: typeof rootRoute
     }
+    '/merchant/categories/': {
+      id: '/merchant/categories/'
+      path: '/merchant/categories'
+      fullPath: '/merchant/categories'
+      preLoaderRoute: typeof MerchantCategoriesIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/merchant/inventory/': {
       id: '/merchant/inventory/'
       path: '/merchant/inventory'
@@ -731,6 +750,7 @@ export interface FileRoutesByFullPath {
   '/consumer/orders': typeof ConsumerOrdersIndexLazyRoute
   '/merchant/addresses': typeof MerchantAddressesIndexLazyRoute
   '/merchant/analytics': typeof MerchantAnalyticsIndexLazyRoute
+  '/merchant/categories': typeof MerchantCategoriesIndexLazyRoute
   '/merchant/inventory': typeof MerchantInventoryIndexLazyRoute
   '/merchant/logistics': typeof MerchantLogisticsIndexLazyRoute
   '/merchant/orders': typeof MerchantOrdersIndexLazyRoute
@@ -773,6 +793,7 @@ export interface FileRoutesByTo {
   '/consumer/orders': typeof ConsumerOrdersIndexLazyRoute
   '/merchant/addresses': typeof MerchantAddressesIndexLazyRoute
   '/merchant/analytics': typeof MerchantAnalyticsIndexLazyRoute
+  '/merchant/categories': typeof MerchantCategoriesIndexLazyRoute
   '/merchant/inventory': typeof MerchantInventoryIndexLazyRoute
   '/merchant/logistics': typeof MerchantLogisticsIndexLazyRoute
   '/merchant/orders': typeof MerchantOrdersIndexLazyRoute
@@ -816,6 +837,7 @@ export interface FileRoutesById {
   '/consumer/orders/': typeof ConsumerOrdersIndexLazyRoute
   '/merchant/addresses/': typeof MerchantAddressesIndexLazyRoute
   '/merchant/analytics/': typeof MerchantAnalyticsIndexLazyRoute
+  '/merchant/categories/': typeof MerchantCategoriesIndexLazyRoute
   '/merchant/inventory/': typeof MerchantInventoryIndexLazyRoute
   '/merchant/logistics/': typeof MerchantLogisticsIndexLazyRoute
   '/merchant/orders/': typeof MerchantOrdersIndexLazyRoute
@@ -860,6 +882,7 @@ export interface FileRouteTypes {
     | '/consumer/orders'
     | '/merchant/addresses'
     | '/merchant/analytics'
+    | '/merchant/categories'
     | '/merchant/inventory'
     | '/merchant/logistics'
     | '/merchant/orders'
@@ -901,6 +924,7 @@ export interface FileRouteTypes {
     | '/consumer/orders'
     | '/merchant/addresses'
     | '/merchant/analytics'
+    | '/merchant/categories'
     | '/merchant/inventory'
     | '/merchant/logistics'
     | '/merchant/orders'
@@ -942,6 +966,7 @@ export interface FileRouteTypes {
     | '/consumer/orders/'
     | '/merchant/addresses/'
     | '/merchant/analytics/'
+    | '/merchant/categories/'
     | '/merchant/inventory/'
     | '/merchant/logistics/'
     | '/merchant/orders/'
@@ -985,6 +1010,7 @@ export interface RootRouteChildren {
   ConsumerOrdersIndexLazyRoute: typeof ConsumerOrdersIndexLazyRoute
   MerchantAddressesIndexLazyRoute: typeof MerchantAddressesIndexLazyRoute
   MerchantAnalyticsIndexLazyRoute: typeof MerchantAnalyticsIndexLazyRoute
+  MerchantCategoriesIndexLazyRoute: typeof MerchantCategoriesIndexLazyRoute
   MerchantInventoryIndexLazyRoute: typeof MerchantInventoryIndexLazyRoute
   MerchantLogisticsIndexLazyRoute: typeof MerchantLogisticsIndexLazyRoute
   MerchantOrdersIndexLazyRoute: typeof MerchantOrdersIndexLazyRoute
@@ -1027,6 +1053,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConsumerOrdersIndexLazyRoute: ConsumerOrdersIndexLazyRoute,
   MerchantAddressesIndexLazyRoute: MerchantAddressesIndexLazyRoute,
   MerchantAnalyticsIndexLazyRoute: MerchantAnalyticsIndexLazyRoute,
+  MerchantCategoriesIndexLazyRoute: MerchantCategoriesIndexLazyRoute,
   MerchantInventoryIndexLazyRoute: MerchantInventoryIndexLazyRoute,
   MerchantLogisticsIndexLazyRoute: MerchantLogisticsIndexLazyRoute,
   MerchantOrdersIndexLazyRoute: MerchantOrdersIndexLazyRoute,
@@ -1081,6 +1108,7 @@ export const routeTree = rootRoute
         "/consumer/orders/",
         "/merchant/addresses/",
         "/merchant/analytics/",
+        "/merchant/categories/",
         "/merchant/inventory/",
         "/merchant/logistics/",
         "/merchant/orders/",
@@ -1183,6 +1211,9 @@ export const routeTree = rootRoute
     },
     "/merchant/analytics/": {
       "filePath": "merchant/analytics/index.lazy.tsx"
+    },
+    "/merchant/categories/": {
+      "filePath": "merchant/categories/index.lazy.tsx"
     },
     "/merchant/inventory/": {
       "filePath": "merchant/inventory/index.lazy.tsx"

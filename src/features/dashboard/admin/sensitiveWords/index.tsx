@@ -28,9 +28,10 @@ import {
     TablePagination,
     TableRow,
     TextField,
-    Typography
+    Typography,
+    Stack
 } from "@mui/material";
-import {Add as AddIcon, Edit as EditIcon} from "@mui/icons-material";
+import {Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon} from "@mui/icons-material";
 
 export default function Page() {
     const { t } = useTranslation();
@@ -45,6 +46,11 @@ export default function Page() {
         severity: 'success' as 'success' | 'error'
     });
 
+    const [deleteDialog, setDeleteDialog] = useState({
+        open: false,
+        wordId: null as number | null
+    });
+
     // 获取敏感词列表
     const { data, isLoading, error } = useQuery({
         queryKey: ['sensitiveWords', page, rowsPerPage],
@@ -54,8 +60,8 @@ export default function Page() {
         })
     });
 
-    // 添加/更新敏感词
-    const mutation = useMutation({
+    // 添加敏感词
+    const addMutation = useMutation({
         mutationFn: (words: SensitiveWord[]) =>
             sensitiveWordService.setSensitiveWords({ sensitiveWords: words }),
         onSuccess: () => {
@@ -64,7 +70,7 @@ export default function Page() {
             })
             setSnackbar({
                 open: true,
-                message: '敏感词保存成功！',
+                message: '敏感词添加成功！',
                 severity: 'success'
             });
             handleCloseDialog();
@@ -72,7 +78,31 @@ export default function Page() {
         onError: (error) => {
             setSnackbar({
                 open: true,
-                message: `保存失败: ${error instanceof Error ? error.message : '未知错误'}`,
+                message: `添加失败: ${error instanceof Error ? error.message : '未知错误'}`,
+                severity: 'error'
+            });
+        }
+    });
+
+    // 更新敏感词
+    const updateMutation = useMutation({
+        mutationFn: (word: SensitiveWord) =>
+            sensitiveWordService.updateSensitiveWord(word.id!, word),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['sensitiveWords'] }).then(() => {
+                console.log('invalidateQueries sensitiveWords')
+            })
+            setSnackbar({
+                open: true,
+                message: '敏感词更新成功！',
+                severity: 'success'
+            });
+            handleCloseDialog();
+        },
+        onError: (error) => {
+            setSnackbar({
+                open: true,
+                message: `更新失败: ${error instanceof Error ? error.message : '未知错误'}`,
                 severity: 'error'
             });
         }
@@ -108,12 +138,63 @@ export default function Page() {
 
     const handleSaveWord = () => {
         if (editingWord && editingWord.word.trim() !== '') {
-            mutation.mutate([editingWord]);
+            if (editingWord.id) {
+                updateMutation.mutate(editingWord);
+            } else {
+                addMutation.mutate([editingWord]);
+            }
         }
     };
 
     const handleCloseSnackbar = () => {
         setSnackbar({ ...snackbar, open: false });
+    };
+
+    // 打开删除确认对话框
+    const handleOpenDeleteDialog = (wordId: number) => {
+        setDeleteDialog({
+            open: true,
+            wordId
+        });
+    };
+
+    // 关闭删除确认对话框
+    const handleCloseDeleteDialog = () => {
+        setDeleteDialog({
+            open: false,
+            wordId: null
+        });
+    };
+
+    // 删除敏感词
+    const deleteMutation = useMutation({
+        mutationFn: (id: number) => sensitiveWordService.deleteSensitiveWord(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['sensitiveWords'] }).then(() => {
+                console.log('invalidateQueries sensitiveWords after delete')
+            });
+            setSnackbar({
+                open: true,
+                message: '敏感词删除成功！',
+                severity: 'success'
+            });
+            handleCloseDeleteDialog();
+        },
+        onError: (error) => {
+            setSnackbar({
+                open: true,
+                message: `删除失败: ${error instanceof Error ? error.message : '未知错误'}`,
+                severity: 'error'
+            });
+            handleCloseDeleteDialog();
+        }
+    });
+
+    // 确认删除敏感词
+    const handleConfirmDelete = () => {
+        if (deleteDialog.wordId !== null) {
+            deleteMutation.mutate(deleteDialog.wordId);
+        }
     };
 
     // 敏感级别对应的颜色
@@ -200,13 +281,22 @@ export default function Page() {
                                             {word.createdAt ? new Date(word.createdAt).toLocaleString() : '-'}
                                         </TableCell>
                                         <TableCell>
-                                            <IconButton
-                                                size="small"
-                                                color="primary"
-                                                onClick={() => handleOpenDialog(word)}
-                                            >
-                                                <EditIcon />
-                                            </IconButton>
+                                            <Stack direction="row" spacing={1}>
+                                                <IconButton
+                                                    size="small"
+                                                    color="primary"
+                                                    onClick={() => handleOpenDialog(word)}
+                                                >
+                                                    <EditIcon />
+                                                </IconButton>
+                                                <IconButton
+                                                    size="small"
+                                                    color="error"
+                                                    onClick={() => handleOpenDeleteDialog(word.id!)}
+                                                >
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </Stack>
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -276,9 +366,9 @@ export default function Page() {
                     <Button
                         onClick={handleSaveWord}
                         variant="contained"
-                        disabled={!editingWord || editingWord.word.trim() === '' || mutation.isPending}
+                        disabled={!editingWord || editingWord.word.trim() === '' || addMutation.isPending || updateMutation.isPending}
                     >
-                        {mutation.isPending ? t('common.saving') : t('common.save')}
+                        {(addMutation.isPending || updateMutation.isPending) ? t('common.saving') : t('common.save')}
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -293,6 +383,35 @@ export default function Page() {
                     {snackbar.message}
                 </Alert>
             </Snackbar>
+
+            {/* 删除确认对话框 */}
+            <Dialog
+                open={deleteDialog.open}
+                onClose={handleCloseDeleteDialog}
+                aria-labelledby="delete-dialog-title"
+            >
+                <DialogTitle id="delete-dialog-title">
+                    {t('admin.sensitiveWords.deleteConfirmTitle')}
+                </DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        {t('admin.sensitiveWords.deleteConfirmContent')}
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDeleteDialog}>
+                        {t('common.cancel')}
+                    </Button>
+                    <Button
+                        onClick={handleConfirmDelete}
+                        color="error"
+                        variant="contained"
+                        disabled={deleteMutation.isPending}
+                    >
+                        {deleteMutation.isPending ? t('common.deleting') : t('common.delete')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }

@@ -172,7 +172,7 @@ const resources = {
             'transaction.type.payment': 'Payment Type',
             'transaction.type.recharge': 'Recharge',
             'transaction.paymentMethod.alipay': 'Alipay',
-            'transaction.paymentMethod.balancer': 'Balancer',
+            'transaction.paymentMethod.balancer': 'Balance',
             'transaction.paymentMethod.bank_card': 'BankCard',
             'transaction.type.PAYMENT': 'Payment',
             'transaction.type.REFUND': 'Refund',
@@ -340,7 +340,6 @@ const resources = {
             'inventory.monitoring.auto_refresh_failed': 'Failed to auto refresh data',
             'inventory.monitoring.initial_load_failed': 'Failed to load initial data',
             // 库存警报
-            'inventory.alerts.title': 'Stock Alerts',
             'inventory.alerts.refresh': 'Refresh',
             'inventory.alerts.current_config': 'Current Alert Configuration',
             'inventory.alerts.product_name': 'Product Name',
@@ -519,6 +518,7 @@ const resources = {
             'admin.users.table.created_time': 'Created Time',
             'admin.users.table.actions': 'Actions',
             'admin.users.pending_approval': 'Pending Approval',
+            'success.rechargeSuccess': 'Recharge Success',
             'admin.users.approve_application': 'Approve Application',
             'admin.users.edit.title': 'Edit User',
             'admin.users.edit.username': 'Username',
@@ -557,6 +557,7 @@ const resources = {
             'consumer.order.details': 'Order Details',
             'consumer.order.notFound': 'Order not found',
             'consumer.order.orderId': 'Order ID',
+            'common.rowsPerPage':'Rows per page',
             'consumer.order.createdTime': 'Created Time',
             'consumer.order.userId': 'User ID',
             'consumer.order.contactEmail': 'Contact Email',
@@ -581,6 +582,8 @@ const resources = {
             'consumer.favorites.viewProducts': 'View Products',
             'consumer.favorites.manage': 'Manage Favorites',
             'consumer.favorites.priceAlert': 'Price Alerts',
+            'admin.sensitiveWords.deleteConfirmContent': 'Are you sure you want to delete the word "{{word}}" from the sensitive word list? This action cannot be undone.',
+
 
             'consumer.orders.viewFavorites': 'View favorites',
 
@@ -848,12 +851,13 @@ const resources = {
             'confirm': 'Confirm',
             'update': 'Update',
             'delete': 'Delete',
+            'consumer.backToDashboard': 'Back to dashboard',
 
             // 商家面板
             'dashboard': 'Dashboard',
             'analytics': 'Analytics',
             'favorites.introduce': 'Find your saved items and get ready to order them.',
-            'favorites.title': 'favorites.title',
+            'favorites.title': 'Favorites',
             'transaction.empty': 'Transaction empty',
             // 商家分析页面
             'merchant.analytics.title': 'Analytics',
@@ -1387,7 +1391,7 @@ const resources = {
             'ecommerceMap.legend': 'Legend',
             'ecommerceMap.exportData': 'Export Data',
             'merchant.address.noAddresses': 'No addresses available',
-            'consumer.balancer.title': 'balancer',
+            'consumer.balancer.title': 'balance',
             'merchant.orders.trackingNumber': 'Tracking Number',
             'merchant.orders.enterTrackingNumber': 'Enter tracking number',
             'merchant.orders.carrier': 'Carrier',
@@ -1455,7 +1459,7 @@ const resources = {
             'products.table.stock': 'Stock',
             'products.table.status': 'Status',
             'products.table.createdTime': 'Created Time',
-            'nav.newArrivals': 'New　arrivals',
+            'nav.newArrivals': 'New arrivals',
             'products.table.actions': 'Actions',
 
             'consumer.balance.total': 'Total Balance',
@@ -1976,8 +1980,11 @@ const resources = {
             'admin.log.enteredProductManagement': '已进入商品管理页面',
             'transaction.empty': '没有交易记录',
             'merchant.orders.status.processing': '处理中',
+            'admin.sensitiveWords.deleteConfirmTitle': '删除敏感词',
+            'admin.sensitiveWords.deleteConfirmContent': '确定要删除这个敏感词吗？此操作不可撤销。',
             // 用户管理
             'consumer.balance.total': '总余额',
+            'consumer.backToDashboard': '返回消费者首页',
             'consumer.balance.alipay': '支付宝余额',
             'consumer.balance.wechat': '微信余额',
             'consumer.balance.balancer': '平台余额',
@@ -2235,7 +2242,7 @@ const resources = {
             'consumer.orders.filter.allStatuses': '所有状态',
             'consumer.orders.filter.clear': '清除筛选',
             'consumer.orders.filter.apply': '应用筛选',
-            'inventory.alerts': '库存警报',
+
             'consumer.orders.error': '加载订单失败',
             'consumer.orders.empty': '暂无订单',
             'status.notPaid': '未支付',
@@ -2972,6 +2979,8 @@ const resources = {
             'admin.users.refresh': '刷新用户列表',
             'admin.users.refreshing': '正在刷新用户列表...',
             'admin.users.loading': '正在加载用户数据...',
+            'success.rechargeSuccess': '充值成功',
+            'common.rowsPerPage': '每页显示',
 
             "inventory.adjustmentMode": "调整模式",
             'inventory.refreshSuccess': '库存调整成功',
