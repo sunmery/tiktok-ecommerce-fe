@@ -34,3 +34,8 @@ export interface SetSensitiveWordsRequest {
 export interface SetSensitiveWordsResponse {
   rows: number;
 }
+
+// 删除敏感词响应
+export interface DeleteSensitiveWordResponse {
+  success: boolean;
+}

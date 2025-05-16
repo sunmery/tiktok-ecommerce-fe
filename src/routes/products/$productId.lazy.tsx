@@ -24,6 +24,7 @@ import { useSnapshot } from 'valtio/react';
 import { userStore } from '@/store/user.ts';
 import { orderService } from "@/features/dashboard/consumer/orders/api.ts";
 import { PaymentStatus } from "@/types/status.ts";
+import { t } from "i18next";
 
 
 export const Route = createLazyFileRoute('/products/$productId')({component: ProductDetail});
@@ -41,7 +42,7 @@ export default function ProductDetail() {
         if (data) {
             try {
                 const imageUrl = data.images[0].url ? data.images[0].url : '';
-
+                console.log("imageUrl",imageUrl)
                 cartStore.addItem(
                     data.id as string,
                     data.name as string,
@@ -49,6 +50,7 @@ export default function ProductDetail() {
                     imageUrl,
                     1
                 );
+                showMessage(t('productAdded'),'success')
             } catch (error) {
                 console.error('添加到购物车失败:', error);
                 showMessage('添加到购物车失败，请稍后重试', 'error');
@@ -211,7 +213,7 @@ export default function ProductDetail() {
                                 onClick={addToCartHandler}
                                 disabled={(data.inventory?.stock || data.quantity || 0) <= 0}
                             >
-                                {(data.inventory.stock) > 0 ? '加入购物车' : '暂时缺货'}
+                                {(data.inventory.stock) > 0 ? t('consumer.orders.addToCart') : '暂时缺货'}
                             </Button>
                         </CardContent>
                     </Card>

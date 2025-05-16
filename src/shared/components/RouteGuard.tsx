@@ -32,7 +32,7 @@ const routePermissions: Record<string, string[]> = {
   '/merchant/analytics': ['merchant'],
   '/merchant/inventory': ['merchant'],
   '/merchant/logistics': ['merchant'],
-  '/merchant/orders': ['merchant'],
+  // '/merchant/orders': ['merchant'],
   '/merchant/products': ['merchant'],
   
   // 管理员特定路由

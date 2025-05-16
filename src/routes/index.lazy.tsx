@@ -10,7 +10,10 @@ import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import { Product } from "@/features/products/types.ts";
 
 import { useCategories } from "@/hooks/useCategory.ts";
-import HotCategories from "@/components/HotCategories.tsx";
+import Products from "@/features/products";
+import HotCategories from "@/features/categories/components/HotCategories.tsx";
+import CategoryNavigator from "@/features/categories/components/CategoryNavigator.tsx";
+import { Category } from '@/types/category'
 
 export const Route = createLazyFileRoute('/')({
     component: Home,
@@ -133,7 +136,7 @@ function Home() {
                     <>
                         {/* 商品分类导航 */}
                         <HotCategories title={t('home.hotCategories')} limit={10} maxLevel={1}/>
-
+                        <Products/>
                         {/* 页面底部 */}
                         <Box sx={{mt: 8, pt: 4, borderTop: '1px solid', borderColor: 'divider'}}>
                             <Grid container spacing={4}>

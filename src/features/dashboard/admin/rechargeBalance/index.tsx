@@ -1,28 +1,38 @@
-import {useTranslation} from "react-i18next";
-import {useSnapshot} from "valtio/react";
-import {userStore} from "@/store/user.ts";
-import {useNavigate} from "@tanstack/react-router";
-import {useEffect, useState} from "react";
-import {useMutation, useQuery} from "@tanstack/react-query";
-import  {
-    BalanceReply, CreateConsumerBalanceRequest, CreateMerchantBalanceRequest,
-    GetBalanceRequest, GetTransactionsRequest,
+import { useTranslation } from "react-i18next";
+import { useSnapshot } from "valtio/react";
+import { userStore } from "@/store/user.ts";
+import { useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+    BalanceReply,
+    CreateConsumerBalanceRequest,
+    CreateMerchantBalanceRequest,
+    GetBalanceRequest,
+    GetTransactionsRequest,
     OperationMode,
     RechargeBalanceRequest,
     RechargeMerchantBalanceRequest
 } from "./type.ts";
-import {showMessage} from "@/utils/showMessage.ts";
-import {v4 as uuidv4} from "uuid";
-import {PaymentStatus} from "@/types/status.ts";
+import { showMessage } from "@/utils/showMessage.ts";
+import { v4 as uuidv4 } from "uuid";
+import { PaymentStatus } from "@/types/status.ts";
 import {
     Alert,
+    Avatar,
     Box,
     Button,
     Card,
-    CardContent, CircularProgress,
+    CardContent,
+    CircularProgress,
     Divider,
-    FormControl, FormLabel,
-    Grid, IconButton, Input, Option, Select,
+    FormControl,
+    FormLabel,
+    Grid,
+    IconButton,
+    Input,
+    Option,
+    Select,
     Stack,
     Tab,
     TabList,
@@ -33,6 +43,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { balancerService } from "@/features/dashboard/admin/rechargeBalance/api.ts";
+import { userService } from "@/api/userService.ts";
+import { Account } from "@/types/account.ts";
 
 export default function RechargeBalance() {
     const {t} = useTranslation()
@@ -41,7 +53,7 @@ export default function RechargeBalance() {
     const [userId, setUserId] = useState('')
     const [amount, setAmount] = useState<number>(0)
     const [currency, setCurrency] = useState('CNY')
-    const [paymentMethod, setPaymentMethod] = useState('BALANCER') // Note: This might be less relevant for initialization
+    const [paymentMethod, setPaymentMethod] = useState('BALANCE') // Note: This might be less relevant for initialization
     const [paymentAccount, setPaymentAccount] = useState('') // Note: This might be less relevant for initialization
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
@@ -49,17 +61,14 @@ export default function RechargeBalance() {
     const [pageSize] = useState(10)
     const [userType, setUserType] = useState<'consumer' | 'merchant'>('consumer')
     const [mode, setMode] = useState<OperationMode>('recharge'); // Add mode state
+    const [users, setUsers] = useState<Account[]>([])
 
     const INITIAL_BALANCE = 1000; // Default initial balance
 
-    // 检查用户是否为管理员，如果不是则重定向到首页
     useEffect(() => {
-        if (account.role !== 'admin') {
-            navigate({to: '/'}).then(() => {
-                console.log('非管理员用户，已重定向到首页')
-            })
-        }
-    }, [account.role, navigate])
+        console.log("account", account.id)
+        setUserId(account.id)
+    }, [account, navigate])
 
     // 获取用户余额信息
     const {
@@ -100,7 +109,7 @@ export default function RechargeBalance() {
             }
         },
         onSuccess: (data) => {
-            setSuccess(`充值成功！交易ID: ${data.transactionId}, 新版本号: ${data.newVersion}`)
+            setSuccess(`充值成功！交易ID: ${data.transactionId}`)
             refetchBalance().then(() => {
                 console.log('余额信息已刷新')
                 showMessage(t('success.rechargeSuccess'), 'success')
@@ -173,27 +182,28 @@ export default function RechargeBalance() {
         setSuccess(null)
 
         // 表单验证
-        if (!userId) {
-            setError(userType === 'consumer' ? '请输入用户ID' : '请输入商家ID')
-            return
-        }
+        // if (!userId) {
+        //     setError(userType === 'consumer' ? '请输入用户ID' : '请输入商家ID')
+        //     return
+        // }
 
         // 验证用户ID长度
         if (userId.length !== 36) {
+            console.log('userId length', userId.length)
             setError('ID必须是36位UUID格式字符串')
             return
         }
 
-        if (!paymentAccount) {
-            setError('请输入支付账号')
-            return
-        }
+        // if (!paymentAccount) {
+        //     setError('请输入支付账号')
+        //     return
+        // }
 
-        // 验证支付账号格式
-        if (paymentMethod === 'ALIPAY' && !paymentAccount.includes('@')) {
-            setError('请输入有效的支付宝账号（需包含@）')
-            return
-        }
+        // // 验证支付账号格式
+        // if (paymentMethod === 'ALIPAY' && !paymentAccount.includes('@')) {
+        //     setError('请输入有效的支付宝账号（需包含@）')
+        //     return
+        // }
 
         if (mode === 'recharge') {
             // 充值模式特定验证
@@ -284,6 +294,13 @@ export default function RechargeBalance() {
         enabled: !!userId && !!currency
     });
 
+    useEffect(() => {
+        userService.getUsers().then(async (res) => {
+            console.log('res', await res)
+            const users = await res
+            setUsers(users.users as Account)
+        })
+    }, [account.id]);
     return (
         <Box sx={{p: 2}}>
             <Button
@@ -335,39 +352,66 @@ export default function RechargeBalance() {
                                 </Alert>
                             )}
 
+
                             <Stack spacing={2}>
-                                <FormControl required>
-                                    <FormLabel>{t('admin.rechargeBalance.userType')}</FormLabel>
-                                    <Select
-                                        value={userType}
-                                        onChange={(_, value) => {
-                                            if (value) {
-                                                setUserType(value);
-                                                setUserId(''); // Reset userId when type changes
-                                                setError(null);
-                                                setSuccess(null);
-                                            }
-                                        }}
-                                    >
-                                        <Option value="consumer">消费者</Option>
-                                        <Option value="merchant">商家</Option>
-                                    </Select>
-                                </FormControl>
+                                {/*<FormControl required>*/}
+                                {/*    <FormLabel>{t('admin.rechargeBalance.userType')}</FormLabel>*/}
+                                {/*    <Select*/}
+                                {/*        value={userType}*/}
+                                {/*        onChange={(_, value) => {*/}
+                                {/*            if (value) {*/}
+                                {/*                setUserType(value);*/}
+                                {/*                setUserId(''); // Reset userId when type changes*/}
+                                {/*                setError(null);*/}
+                                {/*                setSuccess(null);*/}
+                                {/*            }*/}
+                                {/*        }}*/}
+                                {/*    >*/}
+                                {/*        <Option value="consumer">消费者</Option>*/}
+                                {/*        <Option value="merchant">商家</Option>*/}
+                                {/*    </Select>*/}
+                                {/*</FormControl>*/}
 
                                 <FormControl required>
                                     <FormLabel>{userType === 'consumer' ? t('admin.rechargeBalance.userId') : t('admin.rechargeBalance.merchantId')}</FormLabel>
-                                    <Input
-                                        value={userId}
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            if (value.length <= 36) {
-                                                setUserId(value);
+                                    <Box
+
+                                    >
+                                        <Select
+                                            onChange={(_, userId: string) => {
+                                                console.log('userId', userId)
+                                                setUserId(userId)
+
+                                            }}
+                                        >
+                                            {users.length > 0 ? users.map((user) => (
+                                                <Option key={user.id}
+                                                        value={user.id}
+
+                                                >
+                                                    <Avatar size="sm" src={user.avatar}/>
+                                                    {user.role}-
+                                                    {user.name}
+                                                </Option>
+                                            )) : <Option value="">
+                                                暂无用户
+                                            </Option>
                                             }
-                                        }}
-                                        placeholder={userType === 'consumer' ? "请输入36位用户ID (UUID格式)" : "请输入36位商家ID (UUID格式)"}
-                                        error={userId.length > 0 && userId.length !== 36}
-                                        helperText={userId.length > 0 && userId.length !== 36 ? "ID必须是36位UUID格式字符串" : "提示：可以从用户管理页面复制ID"}
-                                    />
+                                        </Select>
+                                        {/*<Input*/}
+                                        {/*    value={userId}*/}
+                                        {/*    onChange={(e) => {*/}
+                                        {/*        const value = e.target.value;*/}
+                                        {/*        if (value.length <= 36) {*/}
+                                        {/*            setUserId(value);*/}
+                                        {/*        }*/}
+                                        {/*    }}*/}
+                                        {/*    placeholder={userType === 'consumer' ? "请输入36位用户ID (UUID格式)" : "请输入36位商家ID (UUID格式)"}*/}
+                                        {/*    error={userId.length > 0 && userId.length !== 36}*/}
+                                        {/*    helperText={userId.length > 0 && userId.length !== 36 ? "ID必须是36位UUID格式字符串" : "提示：可以从用户管理页面复制ID"}*/}
+                                        {/*/>*/}
+                                    </Box>
+
                                 </FormControl>
 
                                 {/* Conditional Amount Field */}
@@ -375,11 +419,10 @@ export default function RechargeBalance() {
                                     <FormControl required>
                                         <FormLabel>{t('admin.rechargeBalance.amount')}</FormLabel>
                                         <Input
-                                            type="number"
                                             value={amount || ''}
                                             onChange={(e) => setAmount(Number(e.target.value))}
                                             placeholder="请输入充值金额"
-                                            slotProps={{input: {min: 0.01, step: 0.01}}} // Ensure positive amount
+                                            slotProps={{input: {min: 0.01}}} // Ensure positive amount
                                         />
                                     </FormControl>
                                 )}
@@ -402,31 +445,31 @@ export default function RechargeBalance() {
                                     </Select>
                                 </FormControl>
 
-                                <FormControl required>
-                                    {/* Label might need adjustment based on mode */}
-                                    <FormLabel>{mode === 'recharge' ? t('admin.rechargeBalance.paymentMethod') : '账户类型'}</FormLabel>
-                                    <Select
-                                        value={paymentMethod}
-                                        onChange={(_, value) => value && setPaymentMethod(value)}
-                                    >
-                                        {/* Adjust options based on what balanceType expects */}
-                                        <Option value="ALIPAY">支付宝</Option>
-                                        <Option value="WECHAT">微信支付</Option>
-                                        <Option value="BANK_CARD">银行卡</Option>
-                                        <Option value="CREDIT_CARD">信用卡</Option> {/* Added Credit Card */}
-                                        <Option value="BALANCER">余额 (内部)</Option>
-                                    </Select>
-                                </FormControl>
+                                {/*<FormControl required>*/}
+                                {/*    /!* Label might need adjustment based on mode *!/*/}
+                                {/*    <FormLabel>{mode === 'recharge' ? t('admin.rechargeBalance.paymentMethod') : '账户类型'}</FormLabel>*/}
+                                {/*    <Select*/}
+                                {/*        value={paymentMethod}*/}
+                                {/*        onChange={(_, value) => value && setPaymentMethod(value)}*/}
+                                {/*    >*/}
+                                {/*        /!* Adjust options based on what balanceType expects *!/*/}
+                                {/*        <Option value="ALIPAY">支付宝</Option>*/}
+                                {/*        <Option value="WECHAT">微信支付</Option>*/}
+                                {/*        <Option value="BANK_CARD">银行卡</Option>*/}
+                                {/*        <Option value="CREDIT_CARD">信用卡</Option> /!* Added Credit Card *!/*/}
+                                {/*        <Option value="BALANCE">余额 (内部)</Option>*/}
+                                {/*    </Select>*/}
+                                {/*</FormControl>*/}
 
-                                <FormControl required>
-                                    {/* Label might need adjustment based on mode */}
-                                    <FormLabel>{mode === 'recharge' ? t('admin.rechargeBalance.paymentAccount') : '账户标识'}</FormLabel>
-                                    <Input
-                                        value={paymentAccount}
-                                        onChange={(e) => setPaymentAccount(e.target.value)}
-                                        placeholder={mode === 'recharge' ? "请输入支付账号" : "请输入账户标识 (如卡号)"}
-                                    />
-                                </FormControl>
+                                {/*<FormControl required>*/}
+                                {/*    /!* Label might need adjustment based on mode *!/*/}
+                                {/*    <FormLabel>{mode === 'recharge' ? t('admin.rechargeBalance.paymentAccount') : '账户标识'}</FormLabel>*/}
+                                {/*    <Input*/}
+                                {/*        value={paymentAccount}*/}
+                                {/*        onChange={(e) => setPaymentAccount(e.target.value)}*/}
+                                {/*        placeholder={mode === 'recharge' ? "请输入支付账号" : "请输入账户标识 (如卡号)"}*/}
+                                {/*    />*/}
+                                {/*</FormControl>*/}
 
                                 <Button
                                     color="primary"
@@ -453,7 +496,7 @@ export default function RechargeBalance() {
                                         variant="plain"
                                         color="neutral"
                                         onClick={() => {
-                                            refetchBalance().then(()=>{
+                                            refetchBalance().then(() => {
                                                 showMessage('刷新余额完成', 'info')
                                             })
                                             transactionsQuery().then(() => {
@@ -462,7 +505,7 @@ export default function RechargeBalance() {
                                         }}
                                         sx={{ml: 1}}
                                     >
-                                        <RefreshIcon />
+                                        <RefreshIcon/>
                                     </IconButton>
                                 </Box>
                             </Typography>
@@ -490,12 +533,7 @@ export default function RechargeBalance() {
                                             {balanceData.frozen} {balanceData.currency}
                                         </Typography>
                                     </Box>
-                                    <Box>
-                                        <Typography level="body-sm">版本号:</Typography>
-                                        <Typography level="body-md">
-                                            {balanceData.version}
-                                        </Typography>
-                                    </Box>
+
                                 </Stack>
                             ) : (
                                 <Alert color="warning" sx={{mb: 2}}>

@@ -6,6 +6,18 @@ export enum ProductStatus {
     PRODUCT_STATUS_REJECTED = 3,  // 审核驳回
     PRODUCT_STATUS_SOLD_OUT = 4   // 下架
 }
+export enum Currency {
+    USD = 'USD',
+    CNY = 'CNY',
+    JPY = 'JPY',
+    EUR = 'EUR',
+}
+
+export enum PaymentMethod  {
+    AliPay = 'ALIPAY',
+    BankCard = 'BANK_CARD',
+    Balance = 'BALANCE',
+}
 
 // 支付状态枚举
 export enum PaymentStatus {

@@ -41,6 +41,7 @@ const resources = {
             'admin.sensitiveWords.add': 'Add Word',
             'admin.sensitiveWords.edit': 'Edit Word',
             'admin.sensitiveWords.id': 'ID',
+            'consumer.profile': 'My Profile',
             'admin.sensitiveWords.word': 'Word',
             'admin.sensitiveWords.category': 'Category',
             'admin.sensitiveWords.level': 'Level',
@@ -95,6 +96,7 @@ const resources = {
             'products.enterImageUrl': "Enter ImageUrl",
             'products.or': "Or",
             'consumer.logistics.confirmReceipt': 'Confirm Receipt',
+
             'admin.dashboard': {
                 title: 'Admin Dashboard',
                 userManagement: 'User Management',
@@ -170,7 +172,7 @@ const resources = {
             'transaction.type.payment': 'Payment Type',
             'transaction.type.recharge': 'Recharge',
             'transaction.paymentMethod.alipay': 'Alipay',
-            'transaction.paymentMethod.balancer': 'Balancer',
+            'transaction.paymentMethod.balancer': 'Balance',
             'transaction.paymentMethod.bank_card': 'BankCard',
             'transaction.type.PAYMENT': 'Payment',
             'transaction.type.REFUND': 'Refund',
@@ -181,7 +183,7 @@ const resources = {
             'transaction.table.toMerchant': 'To Merchant',
             'payment.method.ALIPAY': 'Alipay',
             'payment.method.WECHAT': 'WeChat Pay',
-            'payment.method.BALANCER': 'Balance',
+            'payment.method.BALANCE': 'Balance',
             'payment.method.BANK_CARD': 'Bank Card',
             'merchant.transactions.search': 'Search',
             'merchant.transactions.refresh': 'Refresh',
@@ -210,6 +212,7 @@ const resources = {
             'logistics.thankYou': 'Thank you for your purchase. We hope you are satisfied with our service.',
 
             'admin.rechargeBalance.userBalancerInfo': 'User Balance Information',
+            'common.title': 'TT Ecommerce',
             'common.clear': 'Clear',
             'common.all': 'All',
             'common.reset': 'Reset',
@@ -337,7 +340,6 @@ const resources = {
             'inventory.monitoring.auto_refresh_failed': 'Failed to auto refresh data',
             'inventory.monitoring.initial_load_failed': 'Failed to load initial data',
             // 库存警报
-            'inventory.alerts.title': 'Stock Alerts',
             'inventory.alerts.refresh': 'Refresh',
             'inventory.alerts.current_config': 'Current Alert Configuration',
             'inventory.alerts.product_name': 'Product Name',
@@ -516,6 +518,7 @@ const resources = {
             'admin.users.table.created_time': 'Created Time',
             'admin.users.table.actions': 'Actions',
             'admin.users.pending_approval': 'Pending Approval',
+            'success.rechargeSuccess': 'Recharge Success',
             'admin.users.approve_application': 'Approve Application',
             'admin.users.edit.title': 'Edit User',
             'admin.users.edit.username': 'Username',
@@ -554,6 +557,7 @@ const resources = {
             'consumer.order.details': 'Order Details',
             'consumer.order.notFound': 'Order not found',
             'consumer.order.orderId': 'Order ID',
+            'common.rowsPerPage':'Rows per page',
             'consumer.order.createdTime': 'Created Time',
             'consumer.order.userId': 'User ID',
             'consumer.order.contactEmail': 'Contact Email',
@@ -578,6 +582,8 @@ const resources = {
             'consumer.favorites.viewProducts': 'View Products',
             'consumer.favorites.manage': 'Manage Favorites',
             'consumer.favorites.priceAlert': 'Price Alerts',
+            'admin.sensitiveWords.deleteConfirmContent': 'Are you sure you want to delete the word "{{word}}" from the sensitive word list? This action cannot be undone.',
+
 
             'consumer.orders.viewFavorites': 'View favorites',
 
@@ -620,10 +626,9 @@ const resources = {
             'home.wechatPublic': 'WeChat Official Account',
             'home.juejin': 'Juejin Blog',
             'home.blog': 'Technical Blog',
-            'home.copyright': '© 2025 Go-based E-commerce Microservices with RBAC',
+            'home.copyright': '© 2025 A full-stack e-commerce system based on domain-driven design',
             'product.loading': '加载中...',
             'product.not_found': '未找到商品',
-            'product.add_to_cart': '加入购物车',
             'product.out_of_stock': '暂时缺货',
 
             // 购物车
@@ -738,9 +743,13 @@ const resources = {
             'nav.register': 'Register',
             'nav.project': 'T-Commerce',
             'nav.search': 'Search products',
+            'checkout.currency': 'Currency',
             'nav.menu': 'Menu',
             'nav.language': 'Language',
             'nav.switchRole': 'Switch Role',
+            'consumer.logistics.success.receiptConfirmed ': 'Receipt confirmed',
+            'consumer.logistics.confirming': 'Confirming',
+            'merchant.address.default': 'Default Address',
 
             // Auth related
             'auth.loginSuccess': 'Login successful',
@@ -756,6 +765,7 @@ const resources = {
             // 个人中心
             'profile.avatar': 'Avatar',
             'profile.addresses': 'Shipping Addresses',
+            'consumer.addresses': 'Addresses',
             'profile.payment': 'Payment Methods',
 
             // 操作
@@ -841,12 +851,13 @@ const resources = {
             'confirm': 'Confirm',
             'update': 'Update',
             'delete': 'Delete',
+            'consumer.backToDashboard': 'Back to dashboard',
 
             // 商家面板
             'dashboard': 'Dashboard',
             'analytics': 'Analytics',
             'favorites.introduce': 'Find your saved items and get ready to order them.',
-            'favorites.title': 'favorites.title',
+            'favorites.title': 'Favorites',
             'transaction.empty': 'Transaction empty',
             // 商家分析页面
             'merchant.analytics.title': 'Analytics',
@@ -990,6 +1001,7 @@ const resources = {
             'profile.notLoggedIn': 'You are not logged in',
             'profile.login': 'Login',
             'profile.email': 'Email',
+            'profile.phone': 'Phone',
             'profile.accountId': 'Account ID',
             'profile.createdTime': 'Created Time',
             'profile.consumerFeatures': 'Consumer Features',
@@ -1062,6 +1074,7 @@ const resources = {
             'orders.updateSuccess': 'Order updated successfully',
             'orders.viewOrder': 'View Order',
             'log.fileUploadSuccess': 'File uploaded successfully',
+            'consumer.logistics.success.receiptConfirmed': 'Receipt confirmed',
             'log.permanentUrl': 'Permanent access URL:',
 
             // 消费者中心
@@ -1074,6 +1087,7 @@ const resources = {
 
             // 地址管理
             'addresses.title': 'Shipping Addresses',
+            'merchant.addresses.title': 'Addresses Manage',
             'addresses.addNew': 'Add New Address',
             'addresses.edit': 'Edit Address',
             'addresses.delete': 'Delete Address',
@@ -1162,6 +1176,23 @@ const resources = {
             'products.uploadImage': 'Upload Image',
             'products.publish': 'Publish',
             'products.unpublish': 'Unpublish',
+            'cart.actions.remove': 'Remove',
+            'cart.table.id': 'Product ID',
+            'payment.method.balance': 'Balance',
+            'payment.method.creditCard': 'Credit Card',
+            'payment.method.wechat': 'WeChat',
+            'payment.method.alipay': 'Alipay',
+            'payment.alipayDesc': 'Alipay　Desc',
+            'payment.availableBalance:': 'Available　balance',
+            'nav.trends':'Trends',
+            'nav.categories': 'Categories',
+            'cart.summary.total': 'Total',
+            'cart.products': 'Cart　products',
+            'cart.empty.title': 'Cart empty',
+            'cart.empty.message': 'empty',
+            'cart.actions.backToShop': 'Back to Shop',
+            'cart.actions.clearCart': 'Clear　Cart',
+            'cart.empty.continueShopping': 'Continue　Shopping',
             'products.delete': 'Delete',
             'products.uploadTitle': 'Upload Product Image',
             'products.selectImage': 'Select Image',
@@ -1172,6 +1203,12 @@ const resources = {
             'products.addAttribute': 'Add attribute',
             'products.save': 'Save',
             'products.saveSuccess': 'Product saved successfully',
+            'cart.table.availability': 'Availability',
+            'cart.table.inStock': 'in stock',
+            'cart.summary.deliveryDescription': 'Our standard delivery service covers nationwide with free shipping on orders over ¥99. Usually arrives within 3-5 business days.',
+            'cart.summary.selectDate': 'Select Delivery Date',
+            'cart.summary.scheduleOrder': 'Schedule Delivery',
+            'cart.summary.recurringOrder': 'Set Recurring Order',
 
             'products.deleteSuccess': 'Product deleted successfully',
             'products.publishSuccess': 'Product submitted for review',
@@ -1216,6 +1253,10 @@ const resources = {
 
             // 销售分析
             'analytics.title': 'Sales Analytics',
+            'products.createSuccess': 'Product created successfully',
+            'products.createFailed': 'Failed to create product',
+            'products.editSuccess': 'Product updated successfully',
+            'products.editFailed': 'Failed to update product',
             'analytics.overview': 'Overview',
             'analytics.period': 'Period',
             'analytics.daily': 'Daily',
@@ -1350,7 +1391,7 @@ const resources = {
             'ecommerceMap.legend': 'Legend',
             'ecommerceMap.exportData': 'Export Data',
             'merchant.address.noAddresses': 'No addresses available',
-            'consumer.balancer.title': 'balancer',
+            'consumer.balancer.title': 'balance',
             'merchant.orders.trackingNumber': 'Tracking Number',
             'merchant.orders.enterTrackingNumber': 'Enter tracking number',
             'merchant.orders.carrier': 'Carrier',
@@ -1358,6 +1399,9 @@ const resources = {
             'merchant.orders.estimatedDelivery': 'Estimated Delivery',
             'merchant.orders.shippingFee': 'Shipping Fee',
 
+            'consumer.balance.frozen': 'Frozen balance',
+            'consumer.balance.available': 'Available balance',
+            'consumer.balance.upTo': 'Up to ',
             'consumer.balancer.view': 'View balancer',
             'consumer.transactions.title': 'Transaction Records',
             'consumer.transactions.view': 'View',
@@ -1391,7 +1435,7 @@ const resources = {
             // 商品状态
             'products.status.draft': 'Draft',
             'products.status.pending': 'Pending Review',
-            'products.status.approved': 'Approved',
+            'products.status.approved': 'Normality',
             'products.status.rejected': 'Rejected',
             'products.status.soldOut': 'Sold Out',
             'products.status.unknown': 'Unknown Status ({{status}})',
@@ -1415,6 +1459,7 @@ const resources = {
             'products.table.stock': 'Stock',
             'products.table.status': 'Status',
             'products.table.createdTime': 'Created Time',
+            'nav.newArrivals': 'New arrivals',
             'products.table.actions': 'Actions',
 
             'consumer.balance.total': 'Total Balance',
@@ -1533,8 +1578,10 @@ const resources = {
             'merchant.transactionFeatures.exportData': '导出数据',
             'merchant.viewTransactions': '查看交易',
             'merchant.log.navigatedToAddress': '已导航至地址管理页面',
-
+            'consumer.logistics.success.receiptConfirmed ': '已确认收货',
+            'consumer.logistics.confirming': '正在确认收货',
             // 通用
+            'common.title': 'TT电商',
             'common.cancel': '取消',
             'common.refresh': '刷新',
             'common.close': '关闭',
@@ -1730,9 +1777,11 @@ const resources = {
             'home.alipayTestEnv': '支付宝沙箱环境',
             'home.followMe': '关注作者',
             'home.wechatPublic': '微信公众号',
+            'merchant.address.default': '默认地址',
+            'consumer.logistics.success.receiptConfirmed': '已确认收货',
             'home.juejin': '掘金主页',
             'home.blog': '技术博客',
-            'home.copyright': '© 2025 基于Go语言技术栈和RBAC权限控制实现的领域驱动电商微服务',
+            'home.copyright': '© 2025 基于领域驱动设计的全栈电商系统',
             'product.loading': 'Loading...',
             'product.not_found': 'Product not found',
             'product.add_to_cart': 'Add to cart',
@@ -1797,6 +1846,7 @@ const resources = {
             'checkout.redirectToOrders': '跳转到订单页面',
 
             // 订单
+            'consumer.addresses': '地址管理',
             'orderHistory': '订单历史',
             'orderId': '订单号',
             'orderDate': '下单日期',
@@ -1897,6 +1947,7 @@ const resources = {
             'productStock': '库存',
             'uploadImage': '上传图片',
             'lowStock': '库存不足',
+            'products.createSuccess': '商品创建成功',
             'stockNormal': '库存正常',
             'setStockAlert': '设置库存警告',
             'threshold': '阈值',
@@ -1929,8 +1980,11 @@ const resources = {
             'admin.log.enteredProductManagement': '已进入商品管理页面',
             'transaction.empty': '没有交易记录',
             'merchant.orders.status.processing': '处理中',
+            'admin.sensitiveWords.deleteConfirmTitle': '删除敏感词',
+            'admin.sensitiveWords.deleteConfirmContent': '确定要删除这个敏感词吗？此操作不可撤销。',
             // 用户管理
             'consumer.balance.total': '总余额',
+            'consumer.backToDashboard': '返回消费者首页',
             'consumer.balance.alipay': '支付宝余额',
             'consumer.balance.wechat': '微信余额',
             'consumer.balance.balancer': '平台余额',
@@ -1959,6 +2013,7 @@ const resources = {
             'admin.users.delete.confirm': '您确定要删除用户 "{{username}}" 吗？此操作不可撤销。',
             'admin.users.delete.cancel': '取消',
             'admin.users.delete.confirm_button': '删除',
+            'consumer.profile': '个人中心',
             'admin.users.merchant_approval.title': '商家申请审批',
             'admin.users.merchant_approval.application_id': '申请ID',
             'admin.users.merchant_approval.business_name': '商家名称',
@@ -2024,22 +2079,44 @@ const resources = {
             'merchant.address.add': '添加地址',
             'merchant.address.setAsDefault': '设为默认',
             'merchant.address.remarks': '备注',
-
+            'payment.method.balance': '余额',
+            'payment.method.creditCard': '银行卡',
+            'payment.method.wechat': '微信',
+            'payment.method.alipay': '支付宝',
+            'payment.alipayDesc': '支付宝余额支付',
+            'payment.availableBalance': '可用余额',
             // 成功消息
             'productAdded': '商品已添加到购物车',
             'productRemoved': '商品已从购物车移除',
             'cartUpdated': '购物车已更新',
             'orderPlaced': '订单已成功提交',
-
+            'cart.products': '购物车商品',
+            'cart.empty.title': '购物车为空',
+            'cart.empty.message': '您的购物车中还没有商品，快去选购吧！',
+            'cart.empty.continueShopping': '去购物',
+            'cart.actions.remove': '移除',
+            'cart.summary.total': '总价',
+            'cart.table.id': '商品ID',
+            'cart.actions.backToShop': '继续购物',
+            'cart.actions.clearCart': '清空购物车',
+            'consumer.balance.frozen': '冻结金额',
+            'consumer.balance.available': '可用余额',
             // 其他通用文本
             'loading': '加载中...',
             'noDescription': '暂无描述',
             'results': ' 个结果',
             'refresh': '刷新',
             'cartTotal': '购物车总计',
+            'cart.table.availability': '库存状态',
+            'cart.table.inStock': '件可用',
+            'cart.summary.deliveryDescription': '我们的标准配送服务覆盖全国，订单满99元免运费。通常会在3-5个工作日内送达，具体时间视地区而定。',
+            'cart.summary.selectDate': '选择配送日期',
+            'cart.summary.scheduleOrder': '计划配送',
+            'cart.summary.recurringOrder': '设置定期配送',
 
             // 个人资料页面
             'profile.welcome': '欢迎访问',
+            'merchant.addresses.title': '地址管理',
             'profile.loginPrompt': '请登录以获取更多功能',
             'profile.noNickname': '未设置昵称',
             'profile.role': '角色',
@@ -2057,11 +2134,14 @@ const resources = {
             'profile.notLoggedIn': '您尚未登录',
             'profile.login': '登录',
             'profile.email': '邮箱',
+            'checkout.currency': '货币类型',
+            'profile.phone': '手机号',
             'profile.accountId': '账号ID',
             'profile.createdTime': '创建时间',
             'profile.consumerFeatures': '消费者功能',
             'profile.merchantFeatures': '商家功能',
             'profile.adminFeatures': '管理员功能',
+
 
             // 日志消息
             'log.switchedToMerchant': '已切换到商家角色',
@@ -2146,6 +2226,9 @@ const resources = {
             'payment.monthPlaceholder': '月份',
             'payment.yearPlaceholder': '年份',
             'payment.cvvPlaceholder': '请输入安全码',
+            'nav.trends':'流行',
+            'nav.categories': '分类',
+            'nav.newArrivals': '新品',
             'payment.manage': '管理支付方式',
             'merchant.logistics.shippingStatus': '物流状态',
             'consumer.order.error.fetchDetailFailed': '获取订单详情失败',
@@ -2159,6 +2242,7 @@ const resources = {
             'consumer.orders.filter.allStatuses': '所有状态',
             'consumer.orders.filter.clear': '清除筛选',
             'consumer.orders.filter.apply': '应用筛选',
+
             'consumer.orders.error': '加载订单失败',
             'consumer.orders.empty': '暂无订单',
             'status.notPaid': '未支付',
@@ -2325,7 +2409,7 @@ const resources = {
             'merchant.orders.status.cancelled': '已取消',
             'merchant.orders.status.notPaid': '未支付',
             'merchant.orders.status.failed': '支付失败',
-
+            'consumer.balance.upTo': '余额上限',
             // 库存管理
             'inventory.overview': '库存概览',
             'inventory.alerts': '库存警报',
@@ -2522,7 +2606,7 @@ const resources = {
             // 商品状态
             'products.status.draft': '草稿状态',
             'products.status.pending': '待审核',
-            'products.status.approved': '审核通过',
+            'products.status.approved': '正常',
             'products.status.rejected': '审核驳回',
             'products.status.soldOut': '下架',
             'products.status.unknown': '未知状态({{status}})',
@@ -2774,7 +2858,7 @@ const resources = {
             'transaction.status.cancelled': '已取消',
             'payment.method.ALIPAY': '支付宝',
             'payment.method.WECHAT': '微信支付',
-            'payment.method.BALANCER': '余额',
+            'payment.method.BALANCE': '余额',
             'payment.method.BANK_CARD': '银行卡',
             'admin.rechargeBalance': {
                 backToDashboard: '返回管理员仪表板',
@@ -2895,6 +2979,8 @@ const resources = {
             'admin.users.refresh': '刷新用户列表',
             'admin.users.refreshing': '正在刷新用户列表...',
             'admin.users.loading': '正在加载用户数据...',
+            'success.rechargeSuccess': '充值成功',
+            'common.rowsPerPage': '每页显示',
 
             "inventory.adjustmentMode": "调整模式",
             'inventory.refreshSuccess': '库存调整成功',

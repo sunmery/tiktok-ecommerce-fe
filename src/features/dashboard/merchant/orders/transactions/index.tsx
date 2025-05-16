@@ -53,22 +53,22 @@ export default function MerchantTransactions() {
         initialPageSize: 10,
     })
 
-    // 检查用户权限
-    useEffect(() => {
-        if (account && Object.keys(account).length > 0) {
-            if (account.role !== 'merchant') {
-                showMessage('权限不足：只有商家可以访问交易流水', 'error')
-                navigate({to: '/'}).then(() => {
-                    console.log(t('log.redirectedNonMerchant'))
-                })
-            }
-        }
-
-        loadTransactions().catch(error => {
-            console.error('加载交易记录失败:', error)
-            showMessage(t('transaction.error.loadFailed'), 'error')
-        })
-    }, [account, navigate, t, pagination.page, pagination.pageSize])
+    // // 检查用户权限
+    // useEffect(() => {
+    //     if (account && Object.keys(account).length > 0) {
+    //         if (account.role !== 'merchant') {
+    //             showMessage('权限不足：只有商家可以访问交易流水', 'error')
+    //             navigate({to: '/'}).then(() => {
+    //                 console.log(t('log.redirectedNonMerchant'))
+    //             })
+    //         }
+    //     }
+    //
+    //     loadTransactions().catch(error => {
+    //         console.error('加载交易记录失败:', error)
+    //         showMessage(t('transaction.error.loadFailed'), 'error')
+    //     })
+    // }, [account, navigate, t, pagination.page, pagination.pageSize])
 
     // 加载交易记录
     // 在 loadTransactions 函数中修改分页数据处理
@@ -77,7 +77,7 @@ export default function MerchantTransactions() {
             setLoading(true);
 
             const params: GetTransactionsRequest = {
-                userId: account.id,
+                userId: "",
                 currency: currency,
                 page: pagination.page,
                 pageSize: pagination.pageSize,

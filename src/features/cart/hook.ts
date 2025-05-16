@@ -57,9 +57,28 @@ export const useCart = () => {
     const removeItemMutation = useMutation({
         mutationFn: ({productId, merchantId}: { productId: string, merchantId: string }) => {
             // 先更新本地购物车
-            cartStore.removeItem(productId).then(r => r)
-            // 然后调用API更新后端
-            return removeFromCart(productId, merchantId)
+            return cartStore.removeItem(productId)
+                .catch(error => {
+                    // 检查错误信息是否包含"no rows in result set"
+                    const errorMessage = error instanceof Error ? error.message : String(error)
+                    if (errorMessage.includes('no rows in result set')) {
+                        console.log('商品在后端不存在，但已从本地购物车移除')
+                        // 不抛出异常，让UI认为操作成功
+                        return
+                    }
+                    // 其他错误则继续抛出
+                    throw error
+                })
+                .then(() => {
+                    // 尝试调用API更新后端，但不等待结果
+                    try {
+                        removeFromCart(productId, merchantId).catch(e => {
+                            console.log('后端删除失败，但本地已删除:', e)
+                        })
+                    } catch (e) {
+                        console.log('调用removeFromCart异常，但本地已删除:', e)
+                    }
+                })
         },
         onSuccess: () => {
             return queryClient.invalidateQueries({queryKey: ['cart']})

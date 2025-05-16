@@ -8,7 +8,11 @@ import {
   CreateCommentRequest,
   CreateCommentResponse,
   GetCommentsRequest,
-  GetCommentsResponse
+  GetCommentsResponse,
+  UpdateCommentRequest,
+  DeleteCommentRequest,
+  DeleteCommentResponse,
+  Comment
 } from '@/types/comment';
 
 /**
@@ -53,6 +57,45 @@ export const commentService = {
       {
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
+  },
+  
+  /**
+   * 更新评论
+   * PUT /v1/comments/{comment_id}
+   */
+  updateComment: (request: UpdateCommentRequest) => {
+    return httpClient.put<Comment>(
+      `${import.meta.env.VITE_COMMENT_URL}/${request.commentId}`,
+      {
+        userId: request.userId,
+        score: request.score,
+        content: request.content
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
+  },
+  
+  /**
+   * 删除评论
+   * DELETE /v1/comments/{comment_id}
+   */
+  deleteComment: (request: DeleteCommentRequest) => {
+    return httpClient.delete<DeleteCommentResponse>(
+      `${import.meta.env.VITE_COMMENT_URL}/${request.commentId}`,
+      {
+        params: {
+          userId: request.userId
+        },
+        headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       }

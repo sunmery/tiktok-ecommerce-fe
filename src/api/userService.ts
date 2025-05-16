@@ -157,5 +157,8 @@ export const userService = {
     logout: () => {
         localStorage.removeItem('token')
         sessionStorage.removeItem('token')
+    },
+    getUsers:()=>{
+        return httpClient.get(`${import.meta.env.VITE_USERS_URL}`)
     }
 };

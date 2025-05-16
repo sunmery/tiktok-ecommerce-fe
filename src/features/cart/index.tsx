@@ -2,9 +2,10 @@ import {useTranslation} from "react-i18next";
 import {useState} from "react";
 import {useNavigate} from "@tanstack/react-router";
 import {useCart} from "./hook.ts";
-import {Box, Button, Card, IconButton, Input, Grid, Typography, Divider, Chip, CardContent} from "@mui/joy";
+import {Box, Button, Card, IconButton, Input, Grid, Typography, Divider, CardContent, Modal, ModalDialog, ModalClose} from "@mui/joy";
 import {Add,  Delete,  Remove, ShoppingCart} from "@mui/icons-material";
 import { Container } from "@mui/material";
+import { showMessage } from "@/utils/showMessage";
 
 /**
  *@returns JSXElement
@@ -14,6 +15,8 @@ export default function Cart() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const navigate = useNavigate()
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+    const [itemToDelete, setItemToDelete] = useState<{productId: string, merchantId: string, name: string} | null>(null)
 
     const {
         cartItems,
@@ -29,9 +32,31 @@ export default function Cart() {
     const removeItem = (productId: string, merchantId: string) => {
         try {
             apiRemoveItem({productId, merchantId})
+            showMessage(t('cart.success.itemRemoved', '商品已成功从购物车中移除'), 'success')
         } catch (err) {
             setError(t('cart.error.removeItemFailed'))
         }
+    }
+    
+    // 打开删除确认对话框
+    const openDeleteConfirm = (productId: string, merchantId: string, name: string) => {
+        setItemToDelete({productId, merchantId, name})
+        setDeleteConfirmOpen(true)
+    }
+    
+    // 确认删除商品
+    const confirmDelete = () => {
+        if (itemToDelete) {
+            removeItem(itemToDelete.productId, itemToDelete.merchantId)
+            setDeleteConfirmOpen(false)
+            setItemToDelete(null)
+        }
+    }
+    
+    // 取消删除
+    const cancelDelete = () => {
+        setDeleteConfirmOpen(false)
+        setItemToDelete(null)
     }
 
     const updateQuantity = (id: string, change: number) => {
@@ -50,15 +75,33 @@ export default function Cart() {
         }
     }
 
+    const [clearCartConfirmOpen, setClearCartConfirmOpen] = useState(false)
+    
     const handleClearCart = () => {
         try {
             apiClearCart()
+            showMessage(t('cart.success.cartCleared', '购物车已清空'), 'success')
         } catch (err) {
             setError(t('cart.error.clearCartFailed'))
         }
     }
+    
+    // 打开清空购物车确认对话框
+    const openClearCartConfirm = () => {
+        setClearCartConfirmOpen(true)
+    }
+    
+    // 确认清空购物车
+    const confirmClearCart = () => {
+        handleClearCart()
+        setClearCartConfirmOpen(false)
+    }
+    
+    // 取消清空购物车
+    const cancelClearCart = () => {
+        setClearCartConfirmOpen(false)
+    }
 
-    // 计算商品小计
     const getItemSubtotal = (price: number, quantity: number) => {
         return price * quantity
     }
@@ -137,6 +180,38 @@ export default function Cart() {
                 </Typography>
             )}
             
+            {/* 删除确认对话框 */}
+            <Modal open={deleteConfirmOpen} onClose={cancelDelete}>
+                <ModalDialog
+                    variant="outlined"
+                    role="alertdialog"
+                    aria-labelledby="delete-confirmation-title"
+                    aria-describedby="delete-confirmation-description"
+                >
+                    <ModalClose onClick={cancelDelete} />
+                    <Typography
+                        id="delete-confirmation-title"
+                        component="h2"
+                        level="title-lg"
+                        startDecorator={<Delete />}
+                        sx={{ mb: 2 }}
+                    >
+                        {t('cart.deleteConfirmation.title', '确认删除')}
+                    </Typography>
+                    <Typography id="delete-confirmation-description" textColor="text.tertiary" mb={3}>
+                        {t('cart.deleteConfirmation.message', `您确定要从购物车中移除 "${itemToDelete?.name}" 吗？`)}
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                        <Button variant="plain" color="neutral" onClick={cancelDelete}>
+                            {t('cart.deleteConfirmation.cancel', '取消')}
+                        </Button>
+                        <Button variant="solid" color="danger" onClick={confirmDelete}>
+                            {t('cart.deleteConfirmation.confirm', '确认删除')}
+                        </Button>
+                    </Box>
+                </ModalDialog>
+            </Modal>
+            
             {cartItems && cartItems.length > 0 ? (
                 <Grid container spacing={4}>
                     <Grid xs={12} md={8}>
@@ -166,27 +241,19 @@ export default function Cart() {
                                                 <Typography level="title-md" sx={{mb: 1}}>
                                                     {item.name}
                                                 </Typography>
-                                                <Typography level="body-sm" color="neutral">
-                                                    {t('cart.table.sku')}: {item.productId}
-                                                </Typography>
-                                                <Typography level="body-sm" color="success">
-                                                    {t('cart.table.availability')}: 1000 {t('cart.table.inStock')}
+                                                <Typography level="title-md" color="primary" fontWeight="bold">
+                                                    ¥{getItemSubtotal((item.price || 0), (item.quantity || 0)).toFixed(2)}
                                                 </Typography>
                                                 <Button 
                                                     variant="plain" 
                                                     color="danger" 
                                                     size="sm"
-                                                    onClick={() => removeItem(item.productId, item.merchantId)}
+                                                    onClick={() => openDeleteConfirm(item.productId, item.merchantId, item.name)}
                                                     sx={{mt: 1, p: 0}}
                                                 >
                                                     {t('cart.actions.remove')}
                                                 </Button>
                                             </Box>
-                                        </Grid>
-                                        <Grid xs={12} sm={2}>
-                                            <Typography level="title-md">
-                                                ¥{(item.price || 0).toFixed(2)}
-                                            </Typography>
                                         </Grid>
                                         <Grid xs={12} sm={2}>
                                             <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
@@ -228,15 +295,42 @@ export default function Cart() {
                                                 </IconButton>
                                             </Box>
                                         </Grid>
-                                        <Grid xs={12} sm={2}>
-                                            <Typography level="title-md" color="primary" fontWeight="bold">
-                                                ¥{getItemSubtotal((item.price || 0), (item.quantity || 0)).toFixed(2)}
-                                            </Typography>
-                                        </Grid>
                                     </Grid>
                                 </CardContent>
                             </Card>
                         ))}
+                        
+                        {/* 清空购物车确认对话框 */}
+                        <Modal open={clearCartConfirmOpen} onClose={cancelClearCart}>
+                            <ModalDialog
+                                variant="outlined"
+                                role="alertdialog"
+                                aria-labelledby="clear-cart-confirmation-title"
+                                aria-describedby="clear-cart-confirmation-description"
+                            >
+                                <ModalClose onClick={cancelClearCart} />
+                                <Typography
+                                    id="clear-cart-confirmation-title"
+                                    component="h2"
+                                    level="title-lg"
+                                    startDecorator={<Delete />}
+                                    sx={{ mb: 2 }}
+                                >
+                                    {t('cart.clearCartConfirmation.title', '确认清空购物车')}
+                                </Typography>
+                                <Typography id="clear-cart-confirmation-description" textColor="text.tertiary" mb={3}>
+                                    {t('cart.clearCartConfirmation.message', '您确定要清空购物车吗？此操作无法撤销。')}
+                                </Typography>
+                                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                                    <Button variant="plain" color="neutral" onClick={cancelClearCart}>
+                                        {t('cart.clearCartConfirmation.cancel', '取消')}
+                                    </Button>
+                                    <Button variant="solid" color="danger" onClick={confirmClearCart}>
+                                        {t('cart.clearCartConfirmation.confirm', '确认清空')}
+                                    </Button>
+                                </Box>
+                            </ModalDialog>
+                        </Modal>
                         
                         <Box sx={{display: 'flex', justifyContent: 'space-between', mt: 3}}>
                             <Button
@@ -250,7 +344,7 @@ export default function Cart() {
                             <Button
                                 variant="outlined"
                                 color="danger"
-                                onClick={handleClearCart}
+                                onClick={openClearCartConfirm}
                                 startDecorator={<Delete />}
                             >
                                 {t('cart.actions.clearCart')}
@@ -261,10 +355,6 @@ export default function Cart() {
                     <Grid xs={12} md={4}>
                         <Card variant="outlined">
                             <CardContent>
-                                <Typography level="title-lg" sx={{mb: 2}}>
-                                    {t('cart.summary.cartTotal')}
-                                </Typography>
-                                
                                 <Box sx={{mb: 3}}>
                                     <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 1}}>
                                         <Typography level="body-md">
@@ -277,38 +367,7 @@ export default function Cart() {
                                 </Box>
                                 
                                 <Divider sx={{my: 2}} />
-                                
-                                <Box sx={{mb: 3}}>
-                                    <Typography level="body-sm" color="neutral" sx={{mb: 2}}>
-                                        {t('cart.summary.deliveryInfo')}
-                                    </Typography>
-                                    
-                                    <Typography level="body-sm" color="neutral" sx={{mb: 2}}>
-                                        Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s.
-                                    </Typography>
-                                    
-                                    <Box sx={{mb: 2}}>
-                                        <Chip size="sm" variant="outlined">
-                                            {t('cart.summary.selectDate')}
-                                        </Chip>
-                                    </Box>
-                                </Box>
-                                
-                                <Box sx={{mb: 2}}>
-                                    <Typography level="title-sm" sx={{mb: 1}}>
-                                        {t('cart.summary.scheduleOrder')}
-                                    </Typography>
-                                    
-                                    <Button 
-                                        variant="soft" 
-                                        color="primary" 
-                                        fullWidth 
-                                        sx={{mb: 1}}
-                                    >
-                                        {t('cart.summary.recurringOrder')}
-                                    </Button>
-                                </Box>
-                                
+
                                 <Button
                                     variant="solid"
                                     color="primary"
@@ -317,7 +376,7 @@ export default function Cart() {
                                     onClick={handleCheckout}
                                     disabled={getSelectedItemsCount() === 0 || loading}
                                 >
-                                    {loading ? t('cart.actions.processing') : t('cart.actions.proceedOrder')}
+                                    {loading ? t('cart.actions.processing') : '立即下单'}
                                 </Button>
                             </CardContent>
                         </Card>

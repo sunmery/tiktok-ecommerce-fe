@@ -2,10 +2,10 @@ import { useNavigate} from '@tanstack/react-router'
 import {userService} from '@/api/userService'
 import type {Account} from '@/types/account'
 
-import {Alert, Avatar, Box, Button, Card, CardContent, Divider, Grid, Option, Select, Stack, Typography} from '@mui/joy'
+import {Alert, Avatar, Box, Button, Card, CardContent, Divider, Grid, Stack, Typography} from '@mui/joy'
 import {setAccount, userStore} from '@/store/user'
 import {useSnapshot} from 'valtio/react'
-import {useQuery, useQueryClient} from '@tanstack/react-query'
+import {useQuery} from '@tanstack/react-query'
 import {useTranslation} from 'react-i18next'
 import Skeleton from '@/shared/components/Skeleton'
 import { getSigninUrl, goToLink } from "@/features/auth/login/api.ts";
@@ -17,7 +17,6 @@ export default function Profile() {
     const {t} = useTranslation()
     const {account} = useSnapshot(userStore)
     const navigate = useNavigate()
-    const queryClient = useQueryClient()
 
     // 使用useQuery获取用户信息
     const {error: queryError, isLoading} = useQuery({
@@ -47,6 +46,7 @@ export default function Profile() {
                 email: res.email,
                 name: res.name,
                 owner: res.owner,
+                phone: res.phone,
             })
             return res
         },
@@ -57,68 +57,6 @@ export default function Profile() {
     // 辅助函数：判断 account 是否为空或默认状态
     const isAccountEmpty = (account: Account): boolean => {
         return !account || Object.values(account).every((value) => value === '')
-    }
-
-    // 角色切换处理函数
-    const handleRoleChange = (newRole: string) => {
-        if (account) {
-            // 更新用户状态中的角色
-            setAccount({
-                ...account,
-                role: newRole,
-            })
-
-            // 根据新角色导航到相应页面
-            switch (newRole) {
-                case 'merchant':
-                    navigate({to: '/merchant'}).then(() => {
-                        console.log(t('log.switchedToMerchant'))
-                    })
-                    break
-                case 'admin':
-                    navigate({to: '/admin'}).then(() => {
-                        console.log(t('log.switchedToAdmin'))
-                    })
-                    break
-                case 'consumer':
-                    navigate({to: '/profile'}).then(() => {
-                        console.log(t('log.switchedToConsumer'))
-                    })
-                    break
-                default:
-                    navigate({to: '/profile'}).then(() => {
-                        console.log(t('log.switchedToGuest'))
-                    })
-            }
-        }
-    }
-
-    // 退出登录处理函数
-    const handleLogout = () => {
-        // 清除token和会话信息
-        userService.logout()
-
-        // 清空 React Query 缓存
-        queryClient.clear()
-
-        // 重置账户状态
-        setAccount({
-            createdTime: '',
-            displayName: '',
-            isDeleted: false,
-            role: '',
-            updatedTime: '',
-            id: '',
-            avatar: '',
-            email: '',
-            name: '',
-            owner: '',
-        })
-
-        // 导航到首页
-        navigate({to: '/'}).then(() => {
-            console.log(t('log.loggedOut'))
-        })
     }
 
     return (
@@ -167,6 +105,9 @@ export default function Profile() {
                                     <Typography level="body-md" sx={{mt: 1}}>
                                         {t('profile.email')}: {account.email}
                                     </Typography>
+                                    <Typography level="body-md" sx={{mt: 1}}>
+                                        {t('profile.phone')}: {account.phone}
+                                    </Typography>
                                     <Typography level="body-md">
                                         {t('profile.accountId')}: {account.id}
                                     </Typography>
@@ -201,132 +142,10 @@ export default function Profile() {
                                     })()}
                                     </Typography>
                                 </Box>
-                                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
-                                    <Typography level="body-md">
-                                        {t('profile.switchRole')}:
-                                    </Typography>
-                                    <Select
-                                        value={account.role || 'guest'}
-                                        onChange={(_, value) => handleRoleChange(value as string)}
-                                        sx={{minWidth: 150}}
-                                    >
-                                        {(account.role === null || account.role === '') &&
-                                            <Option value="guest">{t('roles.guest')}</Option>
-                                        }
-                                        <Option value="consumer">{t('roles.consumer')}</Option>
-                                        <Option value="merchant">{t('roles.merchant')}</Option>
-                                        <Option value="admin">{t('roles.admin')}</Option>
-                                    </Select>
-                                </Box>
                             </Box>
-
                         </CardContent>
                     </Card>
 
-                    <Card variant="outlined">
-                        <CardContent>
-                            <Typography level="h4" sx={{mb: 2}}>
-                                {t('profile.accountManagement')}
-                            </Typography>
-                            <Divider sx={{my: 2}}/>
-                            <Stack spacing={2}>
-                                {/* 通用功能区 - 所有用户都显示 */}
-                                <Button
-                                    variant="outlined"
-                                    color="primary"
-                                    onClick={() => navigate({to: '/consumer/addresses'}).then(() => {
-                                        console.log(t('log.navigatedToAddresses'))
-                                    })}
-                                >
-                                    {t('profile.shippingAddresses')}
-                                </Button>
-                                <Button
-                                    variant="outlined"
-                                    color="primary"
-                                    onClick={() => navigate({to: '/consumer/creditCards'}).then(() => {
-                                        console.log(t('log.navigatedToPaymentMethods'))
-                                    })}
-                                >
-                                    {t('profile.paymentMethods')}
-                                </Button>
-
-                                {/* 根据用户角色显示不同功能区 */}
-                                {account.role === 'consumer' && (
-                                    <>
-                                        <Divider>{t('profile.consumerFeatures')}</Divider>
-                                        {/*<Button*/}
-                                        {/*    variant="outlined"*/}
-                                        {/*    color="primary"*/}
-                                        {/*    onClick={() => navigate({to: '/consumer/orders'}).then(() => {*/}
-                                        {/*        console.log(t('log.navigatedToOrderHistory'))*/}
-                                        {/*    })}*/}
-                                        {/*>*/}
-                                        {/*    {t('profile.orderHistory')}*/}
-                                        {/*</Button>*/}
-                                        {/*<Button*/}
-                                        {/*    variant="outlined"*/}
-                                        {/*    color="primary"*/}
-                                        {/*    onClick={() => navigate({to: '/consumer/orders'}).then(() => {*/}
-                                        {/*        console.log(t('log.navigatedToMyOrders'))*/}
-                                        {/*    })}*/}
-                                        {/*>*/}
-                                        {/*    {t('profile.myOrders')}*/}
-                                        {/*</Button>*/}
-                                        <Button
-                                            variant="outlined"
-                                            color="primary"
-                                            onClick={() => navigate({to: '/consumer'}).then(() => {
-                                                console.log(t('log.navigatedToConsumerCenter'))
-                                            })}
-                                        >
-                                            {t('profile.consumerCenter')}
-                                        </Button>
-                                    </>
-                                )}
-
-                                {account.role === 'merchant' && (
-                                    <>
-                                        <Divider>{t('profile.merchantFeatures')}</Divider>
-                                        <Button
-                                            variant="outlined"
-                                            color="primary"
-                                            onClick={() => navigate({to: '/merchant'}).then(() => {
-                                                console.log(t('log.navigatedToMerchantCenter'))
-                                            })}
-                                        >
-                                            {t('profile.merchantCenter')}
-                                        </Button>
-                                    </>
-                                )}
-
-                                {account.role === 'admin' && (
-                                    <>
-                                        <Divider>{t('profile.adminFeatures')}</Divider>
-                                        <Button
-                                            variant="outlined"
-                                            color="primary"
-                                            onClick={() => navigate({to: '/admin'}).then(() => {
-                                                console.log(t('log.navigatedToAdminPanel'))
-                                            })}
-                                        >
-                                            {t('profile.adminPanel')}
-                                        </Button>
-                                    </>
-                                )}
-
-                                <Divider/>
-
-                                {/* 退出登录按钮 */}
-                                <Button
-                                    variant="solid"
-                                    color="danger"
-                                    onClick={handleLogout}
-                                >
-                                    {t('logout')}
-                                </Button>
-                            </Stack>
-                        </CardContent>
-                    </Card>
                 </Stack>
             )}
         </Box>

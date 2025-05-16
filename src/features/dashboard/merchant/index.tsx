@@ -67,220 +67,221 @@ export default function MerchantDashboard() {
                     </Grid>
                 </Grid>
             ) : (
-                <Grid container spacing={3}>
-                    <Grid xs={12} md={6}>
-                        <Card variant="outlined" sx={{height: '100%'}}>
-                            <CardContent>
-                                <Typography level="h3">{t('merchant.productManagement')}</Typography>
-                                <Divider sx={{my: 2}}/>
-                                <List>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.productFeatures.addEditDelete')}</ListItem>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.productFeatures.uploadImages')}</ListItem>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.productFeatures.setPriceStock')}</ListItem>
-                                    </ListItem>
-                                </List>
-                                <Button
-                                    variant="solid"
-                                    color="primary"
-                                    startDecorator={<AddIcon/>}
-                                    onClick={() => navigate({to: '/merchant/products'}).then(() => {
-                                        console.log(t('merchant.log.navigatedToProducts'))
-                                    })}
-                                    fullWidth
-                                    sx={{mt: 2}}
-                                >
-                                    {t('merchant.manageProducts')}
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-
-                    <Grid xs={12} md={6}>
-                        <Card variant="outlined" sx={{height: '100%'}}>
-                            <CardContent>
-                                <Typography level="h3">{t('merchant.orderManagement')}</Typography>
-                                <Divider sx={{my: 2}}/>
-                                <List>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.orderFeatures.viewAll')}</ListItem>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.orderFeatures.processStatus')}</ListItem>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.orderFeatures.orderDetails')}</ListItem>
-                                    </ListItem>
-                                </List>
-                                <Button
-                                    variant="solid"
-                                    color="primary"
-                                    startDecorator={<AddIcon/>}
-                                    onClick={() => navigate({to: '/merchant/orders'}).then(() => {
-                                        console.log(t('merchant.log.navigatedToOrders'))
-                                    })}
-                                    fullWidth
-                                    sx={{mt: 2}}
-                                >
-                                    {t('merchant.manageOrders')}
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                    <Grid xs={12} md={6}>
-                        <Card variant="outlined" sx={{height: '100%'}}>
-                            <CardContent>
-                                <Typography level="h3">{t('merchant.addressTitle')}</Typography>
-                                <Divider sx={{my: 2}}/>
-                                <List>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.addAddress')}</ListItem>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.editAddress')}</ListItem>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.addressList')}</ListItem>
-                                    </ListItem>
-                                </List>
-                                <Button
-                                    variant="solid"
-                                    color="primary"
-                                    startDecorator={<AddIcon/>}
-                                    onClick={() => navigate({to: '/merchant/addresses'}).then(() => {
-                                        console.log(t('merchant.log.navigatedToAddress'))
-                                    })}
-                                    fullWidth
-                                    sx={{mt: 2}}
-                                >
-                                    {t('merchant.manageAddress')}
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-
-                    <Grid xs={12} md={6}>
-                        <Card variant="outlined" sx={{height: '100%'}}>
-                            <CardContent>
-                                <Typography level="h3">{t('merchant.inventoryManagement')}</Typography>
-                                <Divider sx={{my: 2}}/>
-                                <List>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.inventoryFeatures.monitor')}</ListItem>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.inventoryFeatures.alerts')}</ListItem>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.inventoryFeatures.adjustments')}</ListItem>
-                                    </ListItem>
-                                </List>
-                                <Box sx={{display: 'flex', gap: 1, mt: 2}}>
-                                    <Button
-                                        variant="solid"
-                                        color="primary"
-                                        startDecorator={<InventoryIcon/>}
-                                        onClick={() => navigate({to: '/merchant/inventory'}).then(() => {
-                                            console.log(t('merchant.log.navigatedToInventory'))
-                                        })}
-                                        fullWidth
-                                    >
-                                        {t('merchant.adjustInventory')}
-                                    </Button>
-                                </Box>
-                                <Box sx={{display: 'flex', gap: 1, mt: 1}}>
-                                    <Button
-                                        variant="outlined"
-                                        color="primary"
-                                        onClick={() => navigate({to: '/merchant/inventory/monitoring'}).then(() => {
-                                            console.log(t('merchant.log.navigatedToInventoryMonitoring'))
-                                        })}
-                                        fullWidth
-                                    >
-                                        {t('merchant.realTimeMonitoring')}
-                                    </Button>
-                                    <Button
-                                        variant="outlined"
-                                        color="warning"
-                                        onClick={() => navigate({to: '/merchant/inventory/alerts'}).then(() => {
-                                            console.log(t('merchant.log.navigatedToInventoryAlerts'))
-                                        })}
-                                        fullWidth
-                                    >
-                                        {t('merchant.alertSettings')}
-                                    </Button>
-                                </Box>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-
-                    <Grid xs={12} md={6} sx={{mt: 2}}>
-                        <Card variant="outlined" sx={{height: '100%'}}>
-                            <CardContent>
-                                <Typography level="h3">{t('merchant.salesReports')}</Typography>
-                                <Divider sx={{my: 2}}/>
-                                <List>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.reportFeatures.generateReports')}</ListItem>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.reportFeatures.trends')}</ListItem>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.reportFeatures.strategies')}</ListItem>
-                                    </ListItem>
-                                </List>
-                                <Button
-                                    variant="solid"
-                                    color="primary"
-                                    startDecorator={<BarChartIcon/>}
-                                    onClick={() => navigate({to: '/merchant/analytics'}).then(() => {
-                                        console.log(t('merchant.log.navigatedToAnalytics'))
-                                    })}
-                                    fullWidth
-                                    sx={{mt: 2}}
-                                >
-                                    {t('merchant.viewReports')}
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                    <Grid xs={12} md={6} mt={2}>
-                        <Card variant="outlined" sx={{height: '100%'}}>
-                            <CardContent>
-                                <Typography level="h3">{t('merchant.orderTransactions')}</Typography>
-                                <Divider sx={{my: 2}}/>
-                                <List>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.transactionFeatures.viewAll')}</ListItem>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.transactionFeatures.trackPayments')}</ListItem>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItem>{t('merchant.transactionFeatures.exportData')}</ListItem>
-                                    </ListItem>
-                                </List>
-                                <Button
-                                    variant="solid"
-                                    color="primary"
-                                    startDecorator={<ReceiptLongIcon/>}
-                                    onClick={() => navigate({to: '/merchant/orders/transactions'}).then(() => {
-                                        console.log(t('merchant.log.navigatedToTransactions'))
-                                    })}
-                                    fullWidth
-                                    sx={{mt: 2}}
-                                >
-                                    {t('merchant.viewTransactions')}
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                </Grid>
+                <>欢迎您，商家{account.name},请点击侧栏功能进行管理</>
+        //         <Grid container spacing={3}>
+        //     <Grid xs={12} md={6}>
+        //         <Card variant="outlined" sx={{height: '100%'}}>
+        //             <CardContent>
+        //                 <Typography level="h3">{t('merchant.productManagement')}</Typography>
+        //                 <Divider sx={{my: 2}}/>
+        //                 <List>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.productFeatures.addEditDelete')}</ListItem>
+        //                     </ListItem>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.productFeatures.uploadImages')}</ListItem>
+        //                     </ListItem>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.productFeatures.setPriceStock')}</ListItem>
+        //                     </ListItem>
+        //                 </List>
+        //                 <Button
+        //                     variant="solid"
+        //                     color="primary"
+        //                     startDecorator={<AddIcon/>}
+        //                     onClick={() => navigate({to: '/merchant/products'}).then(() => {
+        //                         console.log(t('merchant.log.navigatedToProducts'))
+        //                     })}
+        //                     fullWidth
+        //                     sx={{mt: 2}}
+        //                 >
+        //                     {t('merchant.manageProducts')}
+        //                 </Button>
+        //             </CardContent>
+        //         </Card>
+        //     </Grid>
+        //
+        //     <Grid xs={12} md={6}>
+        //         <Card variant="outlined" sx={{height: '100%'}}>
+        //             <CardContent>
+        //                 <Typography level="h3">{t('merchant.orderManagement')}</Typography>
+        //                 <Divider sx={{my: 2}}/>
+        //                 <List>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.orderFeatures.viewAll')}</ListItem>
+        //                     </ListItem>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.orderFeatures.processStatus')}</ListItem>
+        //                     </ListItem>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.orderFeatures.orderDetails')}</ListItem>
+        //                     </ListItem>
+        //                 </List>
+        //                 <Button
+        //                     variant="solid"
+        //                     color="primary"
+        //                     startDecorator={<AddIcon/>}
+        //                     onClick={() => navigate({to: '/merchant/orders'}).then(() => {
+        //                         console.log(t('merchant.log.navigatedToOrders'))
+        //                     })}
+        //                     fullWidth
+        //                     sx={{mt: 2}}
+        //                 >
+        //                     {t('merchant.manageOrders')}
+        //                 </Button>
+        //             </CardContent>
+        //         </Card>
+        //     </Grid>
+        //     <Grid xs={12} md={6}>
+        //         <Card variant="outlined" sx={{height: '100%'}}>
+        //             <CardContent>
+        //                 <Typography level="h3">{t('merchant.addressTitle')}</Typography>
+        //                 <Divider sx={{my: 2}}/>
+        //                 <List>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.addAddress')}</ListItem>
+        //                     </ListItem>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.editAddress')}</ListItem>
+        //                     </ListItem>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.addressList')}</ListItem>
+        //                     </ListItem>
+        //                 </List>
+        //                 <Button
+        //                     variant="solid"
+        //                     color="primary"
+        //                     startDecorator={<AddIcon/>}
+        //                     onClick={() => navigate({to: '/merchant/addresses'}).then(() => {
+        //                         console.log(t('merchant.log.navigatedToAddress'))
+        //                     })}
+        //                     fullWidth
+        //                     sx={{mt: 2}}
+        //                 >
+        //                     {t('merchant.manageAddress')}
+        //                 </Button>
+        //             </CardContent>
+        //         </Card>
+        //     </Grid>
+        //
+        //     <Grid xs={12} md={6}>
+        //         <Card variant="outlined" sx={{height: '100%'}}>
+        //             <CardContent>
+        //                 <Typography level="h3">{t('merchant.inventoryManagement')}</Typography>
+        //                 <Divider sx={{my: 2}}/>
+        //                 <List>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.inventoryFeatures.monitor')}</ListItem>
+        //                     </ListItem>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.inventoryFeatures.alerts')}</ListItem>
+        //                     </ListItem>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.inventoryFeatures.adjustments')}</ListItem>
+        //                     </ListItem>
+        //                 </List>
+        //                 <Box sx={{display: 'flex', gap: 1, mt: 2}}>
+        //                     <Button
+        //                         variant="solid"
+        //                         color="primary"
+        //                         startDecorator={<InventoryIcon/>}
+        //                         onClick={() => navigate({to: '/merchant/inventory'}).then(() => {
+        //                             console.log(t('merchant.log.navigatedToInventory'))
+        //                         })}
+        //                         fullWidth
+        //                     >
+        //                         {t('merchant.adjustInventory')}
+        //                     </Button>
+        //                 </Box>
+        //                 <Box sx={{display: 'flex', gap: 1, mt: 1}}>
+        //                     <Button
+        //                         variant="outlined"
+        //                         color="primary"
+        //                         onClick={() => navigate({to: '/merchant/inventory/monitoring'}).then(() => {
+        //                             console.log(t('merchant.log.navigatedToInventoryMonitoring'))
+        //                         })}
+        //                         fullWidth
+        //                     >
+        //                         {t('merchant.realTimeMonitoring')}
+        //                     </Button>
+        //                     <Button
+        //                         variant="outlined"
+        //                         color="warning"
+        //                         onClick={() => navigate({to: '/merchant/inventory/alerts'}).then(() => {
+        //                             console.log(t('merchant.log.navigatedToInventoryAlerts'))
+        //                         })}
+        //                         fullWidth
+        //                     >
+        //                         {t('merchant.alertSettings')}
+        //                     </Button>
+        //                 </Box>
+        //             </CardContent>
+        //         </Card>
+        //     </Grid>
+        //
+        //     <Grid xs={12} md={6} sx={{mt: 2}}>
+        //         <Card variant="outlined" sx={{height: '100%'}}>
+        //             <CardContent>
+        //                 <Typography level="h3">{t('merchant.salesReports')}</Typography>
+        //                 <Divider sx={{my: 2}}/>
+        //                 <List>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.reportFeatures.generateReports')}</ListItem>
+        //                     </ListItem>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.reportFeatures.trends')}</ListItem>
+        //                     </ListItem>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.reportFeatures.strategies')}</ListItem>
+        //                     </ListItem>
+        //                 </List>
+        //                 <Button
+        //                     variant="solid"
+        //                     color="primary"
+        //                     startDecorator={<BarChartIcon/>}
+        //                     onClick={() => navigate({to: '/merchant/analytics'}).then(() => {
+        //                         console.log(t('merchant.log.navigatedToAnalytics'))
+        //                     })}
+        //                     fullWidth
+        //                     sx={{mt: 2}}
+        //                 >
+        //                     {t('merchant.viewReports')}
+        //                 </Button>
+        //             </CardContent>
+        //         </Card>
+        //     </Grid>
+        //     <Grid xs={12} md={6} mt={2}>
+        //         <Card variant="outlined" sx={{height: '100%'}}>
+        //             <CardContent>
+        //                 <Typography level="h3">{t('merchant.orderTransactions')}</Typography>
+        //                 <Divider sx={{my: 2}}/>
+        //                 <List>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.transactionFeatures.viewAll')}</ListItem>
+        //                     </ListItem>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.transactionFeatures.trackPayments')}</ListItem>
+        //                     </ListItem>
+        //                     <ListItem>
+        //                         <ListItem>{t('merchant.transactionFeatures.exportData')}</ListItem>
+        //                     </ListItem>
+        //                 </List>
+        //                 <Button
+        //                     variant="solid"
+        //                     color="primary"
+        //                     startDecorator={<ReceiptLongIcon/>}
+        //                     onClick={() => navigate({to: '/merchant/orders/transactions'}).then(() => {
+        //                         console.log(t('merchant.log.navigatedToTransactions'))
+        //                     })}
+        //                     fullWidth
+        //                     sx={{mt: 2}}
+        //                 >
+        //                     {t('merchant.viewTransactions')}
+        //                 </Button>
+        //             </CardContent>
+        //         </Card>
+        //     </Grid>
+        // </Grid>
             )}
         </Box>
     )

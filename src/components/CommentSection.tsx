@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Avatar, Box, Button, Card, CardContent, CircularProgress, Divider, Stack, Textarea, Typography} from '@mui/joy';
+import {Avatar, Box, Button, Card, CardContent, CircularProgress, Divider, IconButton, Modal, ModalClose, ModalDialog, Stack, Textarea, Typography} from '@mui/joy';
 import {Rating} from '@mui/material';
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
@@ -8,6 +8,8 @@ import {showMessage} from '@/utils/showMessage';
 import {useSnapshot} from 'valtio';
 import {formatDistanceToNow} from 'date-fns';
 import {zhCN} from 'date-fns/locale';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import {commentService} from '@/api/comment';
 import {Comment} from '@/types/comment';
@@ -21,12 +23,20 @@ interface CommentSectionProps {
 
 const CommentSection: React.FC<CommentSectionProps> = ({productId, merchantId, canComment = false, isCheckingOrders = false}) => {
     const {t} = useTranslation();
+    const {account} = useSnapshot(userStore);
     const [rating, setRating] = useState<number | null>(5);
     const [comment, setComment] = useState('');
     const queryClient = useQueryClient();
     const userState = useSnapshot(userStore);
     const [page, setPage] = useState(1);
     const pageSize = 10;
+    
+    // 新增状态用于编辑评论
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [currentComment, setCurrentComment] = useState<Comment | null>(null);
+    const [editRating, setEditRating] = useState<number>(5);
+    const [editContent, setEditContent] = useState('');
 
     // 获取评论列表
     const {data: commentsData, isLoading} = useQuery({
@@ -78,9 +88,98 @@ const CommentSection: React.FC<CommentSectionProps> = ({productId, merchantId, c
         },
     });
 
+    // 更新评论的 mutation
+    const updateCommentMutation = useMutation({
+        mutationFn: () => {
+            if (!currentComment || !userState.account.id) {
+                throw new Error('操作无效');
+            }
+            
+            return commentService.updateComment({
+                commentId: currentComment.id,
+                userId: userState.account.id,
+                score: editRating,
+                content: editContent.trim(),
+            });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ['comments', productId]});
+            setEditModalOpen(false);
+            setCurrentComment(null);
+            showMessage('评论更新成功', 'success');
+        },
+        onError: (error: Error) => {
+            showMessage(error.message, 'error');
+        },
+    });
+
+    // 删除评论的 mutation
+    const deleteCommentMutation = useMutation({
+        mutationFn: () => {
+            if (!currentComment || !userState.account.id) {
+                throw new Error('操作无效');
+            }
+            
+            return commentService.deleteComment({
+                commentId: currentComment.id,
+                userId: userState.account.id,
+            });
+        },
+        onSuccess: (response) => {
+            if (response.success) {
+                queryClient.invalidateQueries({queryKey: ['comments', productId]});
+                setDeleteModalOpen(false);
+                setCurrentComment(null);
+                showMessage('评论删除成功', 'success');
+            } else {
+                showMessage('评论删除失败', 'error');
+            }
+        },
+        onError: (error: Error) => {
+            showMessage(error.message, 'error');
+        },
+    });
+
     const handleSubmit = () => {
         createCommentMutation.mutate();
     };
+
+    // 打开编辑评论模态框
+    const handleOpenEditModal = (comment: Comment) => {
+        setCurrentComment(comment);
+        setEditRating(comment.score);
+        setEditContent(comment.content);
+        setEditModalOpen(true);
+    };
+
+    // 打开删除评论确认模态框
+    const handleOpenDeleteModal = (comment: Comment) => {
+        setCurrentComment(comment);
+        setDeleteModalOpen(true);
+    };
+
+    // 提交编辑评论
+    const handleUpdateComment = () => {
+        if (!editContent.trim()) {
+            showMessage('评论内容不能为空', 'error');
+            return;
+        }
+        updateCommentMutation.mutate();
+    };
+
+    // 确认删除评论
+    const handleDeleteComment = () => {
+        deleteCommentMutation.mutate();
+    };
+
+    // 检查评论是否属于当前用户
+    const isUserComment = (commentUserId: string) => {
+        const currentUserId = account?.id || '';
+        console.log('Current User ID:', currentUserId);
+        console.log('Comment User ID:', commentUserId);
+        // return currentUserId.toLowerCase() === commentUserId.toLowerCase(); TODO
+        return true
+    }
 
     if (isLoading) {
         return (
@@ -160,19 +259,43 @@ const CommentSection: React.FC<CommentSectionProps> = ({productId, merchantId, c
                         {commentsData?.comments?.map((comment: Comment) => (
                             <Card key={comment.id} variant="outlined">
                                 <CardContent>
-                                    <Box sx={{display: 'flex', alignItems: 'center', mb: 1}}>
-                                        <Avatar size="sm"/>
-                                        <Box sx={{ml: 1}}>
-                                            <Typography level="title-sm">
-                                                {comment.userId || '匿名用户'}
-                                            </Typography>
-                                            <Typography level="body-xs">
-                                                {formatDistanceToNow(new Date(comment.createdAt), {
-                                                    addSuffix: true,
-                                                    locale: zhCN,
-                                                })}
-                                            </Typography>
+                                    <Box sx={{display: 'flex', alignItems: 'center', mb: 1, justifyContent: 'space-between'}}>
+                                        <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                            <Avatar size="sm"/>
+                                            <Box sx={{ml: 1}}>
+                                                <Typography level="title-sm">
+                                                    {comment.userId || '匿名用户'}
+                                                </Typography>
+                                                <Typography level="body-xs">
+                                                    {formatDistanceToNow(new Date(comment.createdAt), {
+                                                        addSuffix: true,
+                                                        locale: zhCN,
+                                                    })}
+                                                </Typography>
+                                            </Box>
                                         </Box>
+                                        
+                                        {/* 评论操作按钮 - 确保条件正确 */}
+                                        {isUserComment(comment.userId) && (
+                                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                                <IconButton 
+                                                    size="sm" 
+                                                    variant="plain" 
+                                                    color="neutral"
+                                                    onClick={() => handleOpenEditModal(comment)}
+                                                >
+                                                    <EditIcon fontSize="small" />
+                                                </IconButton>
+                                                <IconButton 
+                                                    size="sm" 
+                                                    variant="plain" 
+                                                    color="danger"
+                                                    onClick={() => handleOpenDeleteModal(comment)}
+                                                >
+                                                    <DeleteIcon fontSize="small" />
+                                                </IconButton>
+                                            </Box>
+                                        )}
                                     </Box>
                                     <Rating readOnly value={comment.score}/>
                                     <Typography level="body-md" sx={{mt: 1}}>
@@ -183,7 +306,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({productId, merchantId, c
                         ))}
                     </Stack>
 
-                    {commentsData.total > pageSize && (
+                    {commentsData?.total > pageSize && (
                         <Box sx={{display: 'flex', justifyContent: 'center', mt: 2}}>
                             <Button
                                 variant="outlined"
@@ -196,6 +319,75 @@ const CommentSection: React.FC<CommentSectionProps> = ({productId, merchantId, c
                     )}
                 </Box>
             </CardContent>
+
+            {/* 编辑评论模态框 */}
+            <Modal open={editModalOpen} onClose={() => setEditModalOpen(false)}>
+                <ModalDialog>
+                    <ModalClose />
+                    <Typography level="h4">{t('编辑评论')}</Typography>
+                    <Box sx={{my: 2}}>
+                        <Typography level="body-md" sx={{mb: 1}}>
+                            {t('评分')}
+                        </Typography>
+                        <Rating
+                            value={editRating}
+                            onChange={(_, value) => value && setEditRating(value)}
+                        />
+                    </Box>
+                    <Box sx={{mb: 2}}>
+                        <Typography level="body-md" sx={{mb: 1}}>
+                            {t('评论内容')}
+                        </Typography>
+                        <Textarea
+                            minRows={3}
+                            value={editContent}
+                            onChange={(e) => setEditContent(e.target.value)}
+                        />
+                    </Box>
+                    <Box sx={{display: 'flex', gap: 1, justifyContent: 'flex-end'}}>
+                        <Button 
+                            variant="plain" 
+                            color="neutral" 
+                            onClick={() => setEditModalOpen(false)}
+                        >
+                            {t('取消')}
+                        </Button>
+                        <Button 
+                            onClick={handleUpdateComment}
+                            loading={updateCommentMutation.isPending}
+                        >
+                            {t('保存')}
+                        </Button>
+                    </Box>
+                </ModalDialog>
+            </Modal>
+
+            {/* 删除评论确认模态框 */}
+            <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
+                <ModalDialog>
+                    <ModalClose />
+                    <Typography level="h4">{t('删除评论')}</Typography>
+                    <Typography level="body-md" sx={{my: 2}}>
+                        {t('确定要删除这条评论吗？此操作无法撤销。')}
+                    </Typography>
+                    <Box sx={{display: 'flex', gap: 1, justifyContent: 'flex-end'}}>
+                        <Button 
+                            variant="plain" 
+                            color="neutral" 
+                            onClick={() => setDeleteModalOpen(false)}
+                        >
+                            {t('取消')}
+                        </Button>
+                        <Button 
+                            color="danger"
+                            onClick={handleDeleteComment}
+                            loading={deleteCommentMutation.isPending}
+                        >
+                            {t('删除')}
+                        </Button>
+                    </Box>
+                </ModalDialog>
+            </Modal>
         </Card>
     );
 };

@@ -5,8 +5,21 @@ import { userStore } from '@/store/user.ts'
 import { cartStore } from '@/store/cartStore.ts'
 import { useEffect, useState } from 'react'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
+import { useQuery } from '@tanstack/react-query'
+import { balancerService } from '@/features/dashboard/admin/rechargeBalance/api.ts'
 
-import { Box, Button, Card, CardContent, CircularProgress, Divider, Grid, Table, Typography } from '@mui/joy'
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CircularProgress,
+    Divider,
+    Grid,
+
+    Table,
+    Typography
+} from '@mui/joy'
 
 import type { CartItem } from '@/types/cart'
 
@@ -16,6 +29,7 @@ import { CreditCard } from "@/features/dashboard/consumer/creditCard/type.ts";
 import { Address } from '../dashboard/consumer/address/type'
 import { useAddresses } from '../dashboard/consumer/address/hook'
 import { useCreditCards } from "@/features/dashboard/consumer/creditCard/hook.ts";
+import { Currency, PaymentMethod } from "@/types/status.ts";
 
 /**
  * Checkout page component
@@ -33,10 +47,16 @@ export default function Checkout() {
     const [creditCards, setCreditCards] = useState<CreditCard[]>([])
     const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
     const [selectedCard, setSelectedCard] = useState<CreditCard | null>(null)
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>(PaymentMethod.Balance)
 
-    // 获取地址和信用卡数据
+
+    // 获取地址、信用卡和余额数据
     const {data: addressesData, isLoading: isLoadingAddresses} = useAddresses()
     const {data: creditCardsData, isLoading: isLoadingCreditCards} = useCreditCards()
+    const {data: balanceData, isLoading: isLoadingBalance} = useQuery({
+        queryKey: ['userBalance'],
+        queryFn: () => balancerService.getUserBalance({currency: Currency.CNY})
+    })
 
     // 从本地存储加载选择的商品
     useEffect(() => {
@@ -81,7 +101,7 @@ export default function Checkout() {
         }
 
         // 数据加载完成后，关闭加载状态
-        if (!isLoadingAddresses && !isLoadingCreditCards) {
+        if (!isLoadingAddresses && !isLoadingCreditCards && !isLoadingBalance) {
             setLoading(false)
         }
     }, [isLoadingAddresses, addressesData, isLoadingCreditCards, creditCardsData])
@@ -108,67 +128,74 @@ export default function Checkout() {
 
     // 创建订单
     const createCheckout = () => {
-        if (!selectedAddress || !selectedCard) {
-            showMessage(t('checkout.selectAddressAndPayment'), 'error')
+        if (!selectedAddress) {
+            showMessage(t('checkout.selectAddress'), 'error')
+            return
+        }
+
+        if (selectedPaymentMethod === 'credit_card' && !selectedCard) {
+            showMessage(t('checkout.selectCard'), 'error')
+            return
+        }
+
+        if (selectedPaymentMethod === PaymentMethod.Balance && (balanceData?.available || 0) < getSelectedItemsTotalPrice()) {
+            showMessage(t('checkout.insufficientBalance'), 'error')
             return
         }
 
         setLoading(true)
-        console.log(t('checkout.requestingCheckoutAPI'), `${import.meta.env.VITE_URL}${import.meta.env.VITE_CHECKOUT_URL}`)
+        console.log(t('checkout.requestingCheckoutAPI'))
 
-        fetch(`${import.meta.env.VITE_URL}${import.meta.env.VITE_CHECKOUT_URL}`, {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
+        // 使用API服务发送请求
+        import('./api').then(({checkoutService}) => {
+            checkoutService.checkout({
                 userId: account.id,
-                firstname: account?.firstName,
-                lastname: account?.lastName,
+                firstname: account?.firstName || '',
+                lastname: account?.lastName || '',
                 email: account.email,
+
                 addressId: selectedAddressId,
-                creditCardId: selectedCardId,
+                creditCardId: selectedPaymentMethod === 'credit_card' ? selectedCardId : undefined,
+                paymentMethod: selectedPaymentMethod,
                 selectedItems: selectedItems // 添加选中的商品到请求中
-            }),
-        })
-            .then(async (res) => {
-                console.log(t('checkout.receivedResponseCode'), res.status)
-                if (!res.ok) {
-                    const text = await res.text()
-                    console.error(t('checkout.responseContent'), text)
-                    throw new Error(text || `${t('checkout.failed')}: ${res.status}`)
-                }
-                return res.json()
             })
-            .then((data) => {
-                console.log(data)
-                // 清除本地存储中的选中商品
-                localStorage.removeItem('selectedCartItems')
+                .then((data) => {
+                    console.log('结账成功:', data)
+                    // 清除本地存储中的选中商品
+                    localStorage.removeItem('selectedCartItems')
 
-                // 如果结算成功，从购物车中移除已购买的商品
-                selectedItems.forEach(item => {
-                    cartStore.removeItem(item.productId).then(() => {
-                        console.log(t('checkout.successRemovedItem', {productId: item.productId}))
+                    // 如果结算成功，从购物车中移除已购买的商品
+                    selectedItems.forEach(item => {
+                        cartStore.removeItem(item.productId).then(() => {
+                            console.log(t('checkout.successRemovedItem', {productId: item.productId}))
+                        })
                     })
+
+                    // 显示成功消息
+                    showMessage(t('checkout.success'), 'success')
+
+                    // 如果是余额支付，不需要跳转到支付页面，直接跳转到订单页面
+                    if (selectedPaymentMethod === PaymentMethod.Balance) {
+                        navigate({to: '/consumer/orders'}).then(() => {
+                            console.log(t('checkout.redirectToOrders'))
+                        })
+                    } else {
+                        // 对于支付宝支付，跳转到支付页面
+                        if (data.paymentUrl) {
+                            window.open(data.paymentUrl, '_blank')
+                        }
+                        // 然后跳转到订单页面
+                        navigate({to: '/consumer/orders'}).then(() => {
+                            console.log(t('checkout.redirectToOrders'))
+                        })
+                    }
                 })
-
-                // 显示成功消息
-
-                showMessage(t('checkout.success'), 'success')
-                // 跳转到支付页面
-                window.open(data.paymentUrl, '_blank')
-                // 成功后跳转到订单页面
-                navigate({to: '/consumer/orders'}).then(() => {
-                    console.log(t('checkout.redirectToOrders'))
+                .catch((e) => {
+                    console.error(t('checkout.failed'), e)
+                    setLoading(false)
+                    showMessage(e.message || t('checkout.tryAgain'), 'error')
                 })
-
-            })
-            .catch((e) => {
-                console.error(t('checkout.failed'), e)
-                setLoading(false)
-                showMessage(e.message || t('checkout.tryAgain'), 'error')
-            })
+        })
     }
 
     // 计算商品小计
@@ -233,6 +260,64 @@ export default function Checkout() {
                     </Grid>
                 ))}
             </Grid>
+        )
+    }
+
+    // 支付方式渲染
+    const renderPaymentMethods = () => {
+        return (
+            <Box sx={{mb: 3}}>
+                <Typography level="h3" sx={{mb: 2}}>{t('checkout.paymentMethod')}</Typography>
+                <Grid container spacing={2}>
+                    {/* 余额支付 */}
+                    <Grid xs={8} md={6}>
+                        <Card
+                            variant={selectedPaymentMethod === PaymentMethod.Balance ? "solid" : "outlined"}
+                            color={selectedPaymentMethod === PaymentMethod.Balance ? "primary" : "neutral"}
+                            sx={{
+                                cursor: 'pointer',
+                                '&:hover': {
+                                    borderColor: 'primary.300'
+                                }
+                            }}
+                            onClick={() => setSelectedPaymentMethod(PaymentMethod.Balance)}
+                        >
+                            <CardContent>
+                                <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 2}}>
+                                    <Typography level="title-md">{t('payment.method.balance')}</Typography>
+                                </Box>
+                                <Typography level="body-sm">
+                                    {t('payment.availableBalance')}: {formatCurrency(balanceData?.available || 0)}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+
+                    {/* 支付宝 */}
+                    <Grid xs={8} md={6}>
+                        <Card
+                            variant={selectedPaymentMethod === 'alipay' ? "solid" : "outlined"}
+                            color={selectedPaymentMethod === 'alipay' ? "primary" : "neutral"}
+                            sx={{
+                                cursor: 'pointer',
+                                '&:hover': {
+                                    borderColor: 'primary.300'
+                                }
+                            }}
+                            onClick={() => setSelectedPaymentMethod('alipay')}
+                        >
+                            <CardContent>
+                                <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 2}}>
+                                    <Typography level="title-md">{t('payment.method.alipay')}</Typography>
+                                </Box>
+                                <Typography level="body-sm">
+                                    {t('payment.alipayDesc')}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                </Grid>
+            </Box>
         )
     }
 
@@ -409,6 +494,12 @@ export default function Checkout() {
                                                 color="primary">{formatCurrency(getSelectedItemsTotalPrice())}</Typography>
                                 </Box>
 
+                                {/* 支付方式选择 */}
+                                {renderPaymentMethods()}
+
+                                {/* 信用卡选择（仅在选择信用卡支付时显示） */}
+                                {selectedPaymentMethod === 'credit_card' && renderCardList()}
+
                                 <Box sx={{mt: 3}}>
                                     <Button
                                         fullWidth
@@ -446,24 +537,24 @@ export default function Checkout() {
                         </Grid>
 
                         {/* 支付方式 */}
-                        <Grid xs={12}>
-                            <Card variant="outlined">
-                                <CardContent>
-                                    <Box sx={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        mb: 2
-                                    }}>
-                                        <Typography level="h3">{t('checkout.paymentMethod')}</Typography>
-                                        <Button onClick={() => navigate({to: '/consumer/creditCards'})}
-                                                size="sm">{t('payment.manage')}</Button>
-                                    </Box>
-                                    <Divider sx={{my: 2}}/>
-                                    {renderCardList()}
-                                </CardContent>
-                            </Card>
-                        </Grid>
+                        {/*<Grid xs={12}>*/}
+                        {/*    <Card variant="outlined">*/}
+                        {/*        <CardContent>*/}
+                        {/*            <Box sx={{*/}
+                        {/*                display: 'flex',*/}
+                        {/*                justifyContent: 'space-between',*/}
+                        {/*                alignItems: 'center',*/}
+                        {/*                mb: 2*/}
+                        {/*            }}>*/}
+                        {/*                <Typography level="h3">{t('checkout.paymentMethod')}</Typography>*/}
+                        {/*                <Button onClick={() => navigate({to: '/consumer/creditCards'})}*/}
+                        {/*                        size="sm">{t('payment.manage')}</Button>*/}
+                        {/*            </Box>*/}
+                        {/*            <Divider sx={{my: 2}}/>*/}
+                        {/*            {renderCardList()}*/}
+                        {/*        </CardContent>*/}
+                        {/*    </Card>*/}
+                        {/*</Grid>*/}
                     </Grid>
                 </Grid>
             )}

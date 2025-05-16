@@ -216,11 +216,11 @@ function FavoritesPage() {
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
                                 }}>
-                                    <Favorites />
+                                    <Favorites isFavorited={true}/>
                                     <Button sx={{
                                         borderRadius: '15px',
                                         backgroundColor: 'deeppink',
-                                    }}>Buy</Button>
+                                    }}>{t('consumer.favorites.viewProducts')}</Button>
                                 </Box>
                             </Card>
                         </Grid>

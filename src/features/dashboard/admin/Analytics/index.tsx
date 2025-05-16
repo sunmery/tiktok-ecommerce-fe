@@ -1,8 +1,8 @@
 import {useTranslation} from "react-i18next";
 import {useSnapshot} from "valtio/react";
 import {userStore} from "@/store/user.ts";
-import {useNavigate} from "@tanstack/react-router";
-import {SyntheticEvent, useEffect, useRef, useState} from "react";
+// import {useNavigate} from "@tanstack/react-router";
+import {SyntheticEvent, useEffect, useRef, useState, useCallback} from "react";
 import {getAllOrders} from "./api";
 import {GroupedSalesData, groupOrdersByDate} from "./helper";
 import * as echarts from "echarts";
@@ -22,10 +22,35 @@ import {
     Typography
 } from "@mui/joy";
 
+// 防抖函数
+function debounce(func: Function, wait: number) {
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+    return function(...args: any[]) {
+        const context = this;
+        if (timeout) clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            func.apply(context, args);
+        }, wait);
+    };
+}
+
+// 图表实例类型
+type ChartInstances = {
+    salesChart: echarts.ECharts | null;
+    ordersChart: echarts.ECharts | null;
+    pageViewsChart: echarts.ECharts | null;
+    conversionRateChart: echarts.ECharts | null;
+    userSourcesChart: echarts.ECharts | null;
+    deviceDistributionChart: echarts.ECharts | null;
+    responseTimeChart: echarts.ECharts | null;
+    errorRateChart: echarts.ECharts | null;
+    serverLoadChart: echarts.ECharts | null;
+};
+
 export default function Analytics() {
     const {t} = useTranslation()
     const {account} = useSnapshot(userStore)
-    const navigate = useNavigate()
+    // const navigate = useNavigate()
     const [activeTab, setActiveTab] = useState(0)
     const [timeRange, setTimeRange] = useState<TimeRange>('daily')
     const [loading, setLoading] = useState(false)
@@ -39,18 +64,8 @@ export default function Analytics() {
     const salesChartRef = useRef<HTMLDivElement>(null)
     const ordersChartRef = useRef<HTMLDivElement>(null)
 
-    // Chart instances
-    const [charts, setCharts] = useState<{
-        salesChart: echarts.ECharts | null,
-        ordersChart: echarts.ECharts | null,
-        pageViewsChart: echarts.ECharts | null,
-        conversionRateChart: echarts.ECharts | null,
-        userSourcesChart: echarts.ECharts | null,
-        deviceDistributionChart: echarts.ECharts | null,
-        responseTimeChart: echarts.ECharts | null,
-        errorRateChart: echarts.ECharts | null,
-        serverLoadChart: echarts.ECharts | null
-    }>({
+    // 使用 useRef 存储图表实例，避免状态更新导致的重新渲染
+    const chartsRef = useRef<ChartInstances>({
         salesChart: null,
         ordersChart: null,
         pageViewsChart: null,
@@ -60,10 +75,34 @@ export default function Analytics() {
         responseTimeChart: null,
         errorRateChart: null,
         serverLoadChart: null
-    })
+    });
+
+    // 安全地销毁图表实例
+    const disposeChart = useCallback((chartName: keyof ChartInstances) => {
+        try {
+            if (chartsRef.current[chartName]) {
+                chartsRef.current[chartName]?.dispose();
+                chartsRef.current[chartName] = null;
+            }
+        } catch (e) {
+            console.warn(`销毁${chartName}图表实例失败:`, e);
+        }
+    }, []);
+
+    // 安全地调整图表大小
+    const resizeChart = useCallback((chartName: keyof ChartInstances) => {
+        try {
+            const chart = chartsRef.current[chartName];
+            if (chart && !(chart as any).isDisposed?.()) {
+                chart.resize();
+            }
+        } catch (e) {
+            console.warn(`调整${chartName}图表大小失败:`, e);
+        }
+    }, []);
 
     // 初始化销售数据图表
-    const initSalesCharts = () => {
+    const initSalesCharts = useCallback(() => {
         if (activeTab === 0 && salesChartRef.current && ordersChartRef.current) {
             console.log('初始化销售图表，使用数据时间范围:', timeRange);
 
@@ -77,101 +116,90 @@ export default function Analytics() {
             console.log('图表数据:', chartData);
 
             // 销毁之前的图表实例
-            if (charts.salesChart) {
-                charts.salesChart.dispose();
+            disposeChart('salesChart');
+            disposeChart('ordersChart');
+
+            // 确保DOM元素存在
+            if (!salesChartRef.current || !ordersChartRef.current) {
+                console.warn('图表DOM元素不存在，跳过初始化');
+                return;
             }
 
-            // Sales chart
-            const salesChart = echarts.init(salesChartRef.current);
-            salesChart.setOption({
-                title: {
-                    text: t('admin.analytics.salesTrend'),
-                    left: 'center'
-                },
-                tooltip: {
-                    trigger: 'axis',
-                    formatter: '{b}<br />{a}: ¥{c}'
-                },
-                xAxis: {
-                    type: 'category',
-                    data: chartData.map((item: { date: string }) => item.date)
-                },
-                yAxis: {
-                    type: 'value',
-                    axisLabel: {
-                        formatter: '¥{value}'
-                    }
-                },
-                series: [{
-                    name: t('admin.analytics.sales'),
-                    data: chartData.map((item: { sales: number }) => item.sales),
-                    type: 'line',
-                    smooth: true,
-                    areaStyle: {
-                        opacity: 0.3
+            try {
+                // Sales chart
+                const salesChart = echarts.init(salesChartRef.current);
+                salesChart.setOption({
+                    title: {
+                        text: t('admin.analytics.salesTrend'),
+                        left: 'center'
                     },
-                    itemStyle: {
-                        color: '#1976d2'
-                    }
-                }]
-            });
+                    tooltip: {
+                        trigger: 'axis',
+                        formatter: '{b}<br />{a}: ¥{c}'
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: chartData.map((item: { date: string }) => item.date)
+                    },
+                    yAxis: {
+                        type: 'value',
+                        axisLabel: {
+                            formatter: '¥{value}'
+                        }
+                    },
+                    series: [{
+                        name: t('admin.analytics.sales'),
+                        data: chartData.map((item: { sales: number }) => item.sales),
+                        type: 'line',
+                        smooth: true,
+                        areaStyle: {
+                            opacity: 0.3
+                        },
+                        itemStyle: {
+                            color: '#1976d2'
+                        }
+                    }]
+                });
+                chartsRef.current.salesChart = salesChart;
 
-            // 销毁之前的图表实例
-            if (charts.ordersChart) {
-                charts.ordersChart.dispose();
+                // Orders chart
+                const ordersChart = echarts.init(ordersChartRef.current);
+                ordersChart.setOption({
+                    title: {
+                        text: t('admin.analytics.ordersTrend'),
+                        left: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: chartData.map((item: { date: string }) => item.date)
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [{
+                        name: t('admin.analytics.orders'),
+                        data: chartData.map((item: { orders: number }) => item.orders),
+                        type: 'bar',
+                        itemStyle: {
+                            color: '#4caf50'
+                        }
+                    }]
+                });
+                chartsRef.current.ordersChart = ordersChart;
+
+                // 延迟调整图表大小，确保渲染完成
+                setTimeout(() => {
+                    resizeChart('salesChart');
+                    resizeChart('ordersChart');
+                }, 200);
+            } catch (e) {
+                console.error('初始化图表失败:', e);
             }
-
-            // Orders chart
-            const ordersChart = echarts.init(ordersChartRef.current);
-            ordersChart.setOption({
-                title: {
-                    text: t('admin.analytics.ordersTrend'),
-                    left: 'center'
-                },
-                tooltip: {
-                    trigger: 'axis'
-                },
-                xAxis: {
-                    type: 'category',
-                    data: chartData.map((item: { date: string }) => item.date)
-                },
-                yAxis: {
-                    type: 'value'
-                },
-                series: [{
-                    name: t('admin.analytics.orders'),
-                    data: chartData.map((item: { orders: number }) => item.orders),
-                    type: 'bar',
-                    itemStyle: {
-                        color: '#4caf50'
-                    }
-                }]
-            });
-
-            // 保存图表实例
-            setCharts(prev => ({
-                ...prev,
-                salesChart,
-                ordersChart
-            }));
-
-            // 触发一次resize以确保图表正确显示
-            setTimeout(() => {
-                salesChart.resize();
-                ordersChart.resize();
-            }, 200);
         }
-    };
-
-    // Check if user is admin, redirect to home page if not
-    useEffect(() => {
-        if (account.role !== 'admin') {
-            showMessage(t('admin.analytics.permissionError'), 'error')
-            navigate({to: '/'}).then(() => {
-                console.log(t('admin.analytics.redirected'))
-            })
-        }
-    }, [account.role, navigate, t])
+    }, [activeTab, timeRange, salesData, t, disposeChart, resizeChart]);
 
     // 在组件内添加获取订单数据的方法
     useEffect(() => {
@@ -218,7 +246,7 @@ export default function Analytics() {
             initSalesCharts();
             setChartsInitialized(true);
         }
-    }, [loading, salesData, activeTab, chartsInitialized, timeRange]);
+    }, [loading, salesData, activeTab, chartsInitialized, timeRange, initSalesCharts]);
 
     // 当tab改变时，如果需要则初始化对应tab的图表
     useEffect(() => {
@@ -226,49 +254,46 @@ export default function Analytics() {
         setChartsInitialized(false);
     }, [activeTab]);
 
+    // 使用防抖函数处理窗口大小变化
+    const debouncedResize = useCallback(
+        debounce(() => {
+            const chartNames: (keyof ChartInstances)[] = [
+                'salesChart', 'ordersChart', 'pageViewsChart', 
+                'conversionRateChart', 'userSourcesChart', 'deviceDistributionChart',
+                'responseTimeChart', 'errorRateChart', 'serverLoadChart'
+            ];
+            
+            chartNames.forEach(name => resizeChart(name));
+        }, 300),
+        [resizeChart]
+    );
+
     // 处理窗口大小变化
     useEffect(() => {
-        const handleResize = () => {
-            if (charts.salesChart) charts.salesChart.resize();
-            if (charts.ordersChart) charts.ordersChart.resize();
-            if (charts.pageViewsChart) charts.pageViewsChart.resize();
-            if (charts.conversionRateChart) charts.conversionRateChart.resize();
-            if (charts.userSourcesChart) charts.userSourcesChart.resize();
-            if (charts.deviceDistributionChart) charts.deviceDistributionChart.resize();
-            if (charts.responseTimeChart) charts.responseTimeChart.resize();
-            if (charts.errorRateChart) charts.errorRateChart.resize();
-            if (charts.serverLoadChart) charts.serverLoadChart.resize();
-        };
-
-        window.addEventListener('resize', handleResize);
+        window.addEventListener('resize', debouncedResize);
 
         return () => {
-            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('resize', debouncedResize);
 
-            // 销毁图表实例以防内存泄漏
-            Object.values(charts).forEach(chart => {
-                if (chart) chart.dispose();
-            });
+            // 销毁所有图表实例以防内存泄漏
+            const chartNames: (keyof ChartInstances)[] = [
+                'salesChart', 'ordersChart', 'pageViewsChart', 
+                'conversionRateChart', 'userSourcesChart', 'deviceDistributionChart',
+                'responseTimeChart', 'errorRateChart', 'serverLoadChart'
+            ];
+            
+            chartNames.forEach(name => disposeChart(name));
         };
-    }, [charts]);
+    }, [debouncedResize, disposeChart]);
 
     // 当时间范围改变时重新渲染图表
     useEffect(() => {
-        if (activeTab === 0 && !loading && chartsInitialized) {
+        if (activeTab === 0 && !loading) {
             console.log('时间范围改变，重新渲染图表:', timeRange);
-            initSalesCharts();
+            // 重置初始化状态，以便重新初始化图表
+            setChartsInitialized(false);
         }
-    }, [timeRange, activeTab, loading, chartsInitialized]);
-
-    // // 用户行为分析图表初始化
-    // const initUserBehaviorCharts = () => {
-    //     // ... 用户行为图表初始化代码保持不变 ...
-    // };
-    //
-    // // 性能报告图表初始化
-    // const initPerformanceCharts = () => {
-    //     // ... 性能报告图表初始化代码保持不变 ...
-    // };
+    }, [timeRange, activeTab, loading]);
 
     // Tab变更处理
     const handleTabChange = (_: SyntheticEvent | null, newValue: number | string | null) => {

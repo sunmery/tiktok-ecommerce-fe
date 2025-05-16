@@ -9,6 +9,7 @@ import DashboardCard from "@/components/DashboardCard";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import Skeleton from "@/shared/components/Skeleton";
 
 export default function AdminDashboard() {
     const { t } = useTranslation()
@@ -50,6 +51,7 @@ export default function AdminDashboard() {
     return (
         <Box sx={{ p: 2 }}>
             <Typography level="h2" sx={{ mb: 3 }}>{t('admin.dashboard.title')}</Typography>
+            <Typography level="h4" sx={{ mb: 3 }}>尊敬的管理员 {account.id}, 您好！您可以通过侧栏或者下方按钮操作</Typography>
 
             {loading ? (
                 <Grid container spacing={4}>
@@ -96,7 +98,7 @@ export default function AdminDashboard() {
                             onClick={() => navigate({to: '/admin/rechargeBalance'}).then(() => {
                                 console.log(t('admin.log.enteredRechargeBalance'))
                             })}
-                            cardSx={{mt: 3}}
+                            cardSx={{mt: 0}}
                         />
                     </Grid>
 
